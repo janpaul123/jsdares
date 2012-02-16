@@ -1,0 +1,4 @@
+http://tomcopeland.blogs.com/EcmaScript.html
+http://www.opensource.apple.com/source/JavaScriptCore/JavaScriptCore-96/kjs/grammar.y
+http://javascript.comsci.us/index.html
+http://code.google.com/p/canviz/

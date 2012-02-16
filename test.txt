@@ -1,0 +1,54 @@
+/* this is a test program */
+/* first lets test // some comments
+ * and see how they /* are handled
+ * also one with a "string" that
+ * has some "weird stuff /* inside
+ */
+// single line comment...
+// weird comment */
+// ---------------------------------
+
+// assignments and arithmetic
+var a;
+var b, c=10;
+a = (8*2) >= 10;
+b = !a;
+c = -2;
+c = ((8+2)*10)%13/12+(-2);
+c /= 8;
+
+var str = "test string";
+str += " more string";
+str = 8 + "%";
+str += " (" + (8/100) + ")";
+
+var test = (str == str) && (a == !b) || c+3 >= (8+8)*2;
+
+var x=0, y=x+1;
+
+// conditionals
+if ((test && b) || true) {
+	x = a || b;
+} else if (str + "hi" == "bla") {
+	x = 2;
+} else {
+	x = false;
+}
+
+while (c > 0) {
+	c--;
+}
+
+function cube(n) {
+	return n*n*n;
+}
+
+//throw(something);
+
+for (var i=0; i<10; i++) {
+	var output = cube(i);
+	console.log(output);
+}
+
+// TODO: better block scope!
+// TODO: better linking of executable pieces with original ids

@@ -1,0 +1,114 @@
+body { 
+	background-color: #222;
+	margin: 0px;
+	padding: 0px;
+}
+
+#main {
+	padding: 0px;
+	background-color: #000;
+	width: 768px;
+	height: 1024px;
+	color: #eee;
+	font-family: Helvetica;
+	font-size: 16px;
+	position: relative;
+	line-height: 25px;
+	margin: 0px;
+}
+
+textarea, .textarea {
+	background-color: #333;
+	border: none;
+	font-family: "Courier", monospace;
+	color: #0d0;
+	margin: 0px;
+	padding: 10px;
+	font-size: 14px;
+	outline: none;
+	resize: none;
+	white-space: pre;
+	line-height: 16px;
+}
+
+#code {
+	position: absolute;
+	top: 50px;
+	left: 20px;
+	width: 650px;
+	height: 450px;
+	padding-left: 60px;
+}
+
+#mirror {
+	position: absolute;
+	top: 100030px;
+	left: 100600px;
+	padding-left: 60px;
+}
+
+#margin {
+	background-color: #333;
+	font-family: "Courier", monospace;
+	color: #ddd;
+	position: absolute;
+	top: 50px;
+	left: 20px;
+	width: 60px;
+	height: 470px;
+	overflow: hidden;
+	z-index: 5;
+}
+
+#error {
+	position: absolute;
+	top: 0px;
+	left: 38px;
+	margin-top: -5px;
+}
+
+#errorbox {
+	position: absolute;
+	margin-top: -9px;
+	margin-left: -26px;
+	display: block;
+	top: 110px;
+	left: 270px;
+	background-color: rgba(30, 30, 30, 0.8);
+	font-size: 14px;
+	z-index: 10;
+}
+
+#errorcol {
+	position: absolute;
+	left: 5px;
+	top: 5px;
+}
+
+#errormessage {
+	margin-left: 25px;
+	margin-top: 2px;
+	max-width: 250px;
+	padding-bottom: 3px;
+	color: #0E0;
+	padding-right: 10px;
+}
+
+.error-value {
+	font-weight: bold;
+	color: #ee0;
+}
+
+#run {
+	position: absolute;
+	top: 250px;
+	left: 600px;
+}
+
+#console {
+	position: absolute;
+	top: 550px;
+	left: 20px;
+	width: 700px;
+	height: 425px;
+}
