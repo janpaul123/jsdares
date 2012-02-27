@@ -1,15 +1,23 @@
 module.exports = function(jsmm) {
+	require('./jsmm.msg')(jsmm);
+	
 	jsmm.Browser = function() { return this.init.apply(this, arguments); };
 	
-	jsmm.Browser.prototype.init = function() {
-		this.code = '';
-		this.scope = {};
+	jsmm.Browser.prototype.init = function(code, scope) {
+		this.code = code || '';
+		this.scope = scope || {};
 		this.reset();
 	};
 	
 	jsmm.Browser.prototype.reset = function() {
-		this.root = null;
-		this.func = null;
+		this.context = null;
+		this.rawFunc = null;
+		this.safeFunc = null;
+		this.stack = null;
+		this.resetError();
+	};
+	
+	jsmm.Browser.prototype.resetError = function() {
 		this.error = null;
 	};
 	
@@ -24,27 +32,73 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.Browser.prototype.handleError = function(error) {
-		if (error.line === undefined) {
-			throw error;
-			this.error = {
-				type: 'unknown',
-				msg: 'An unknown error has occurred',
-				html: 'An unknown error has occurred',
-				orig: error,
-				line: 0,
-				column: 0
-			};
-		} else {
+		//console.log(error);
+		if (error instanceof jsmm.msg.Error) {
 			this.error = error;
+		} else {
+			throw error;
+			this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 		}
-		console.log(this.error);
+		//console.log(this.error);
 	};
 	
 	jsmm.Browser.prototype.parse = function() {
-		if (this.root !== null) return true;
+		this.resetError();
+		if (this.context !== null) return true;
 		
 		try {
-			this.root = jsmm.parse(this.code);
+			this.context = jsmm.parse(this.code);
+			return true;
+		} catch (error) {
+			this.handleError(error);
+			return false;
+		}
+	};
+	
+	jsmm.Browser.prototype.getDot = function() {
+		this.resetError();
+		if (!this.parse()) return undefined;
+		
+		try {
+			return this.context.program.getDot();
+		} catch (error) {
+			this.handleError(error);
+			return undefined;
+		}
+	};
+	
+	jsmm.Browser.prototype.getRawCode = function() {
+		this.resetError();
+		if (!this.parse()) return undefined;
+		
+		try {
+			return this.context.program.getCode();
+		} catch (error) {
+			this.handleError(error);
+			return undefined;
+		}
+	};
+	
+	jsmm.Browser.prototype.makeRawFunc = function() {
+		this.resetError();
+		if (this.rawFunc !== null) return true;
+		if (!this.parse()) return false;
+		
+		try {
+			this.rawFunc = this.context.program.getFunction(this.scope);
+			return true;
+		} catch (error) {
+			this.handleError(error);
+			return false;
+		}
+	}
+	
+	jsmm.Browser.prototype.runRaw = function() {
+		this.resetError();
+		if (!this.makeRawFunc()) return false;
+		
+		try {
+			this.rawFunc();
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -53,22 +107,24 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.Browser.prototype.getSafeCode = function() {
+		this.resetError();
 		if (!this.parse()) return undefined;
 		
 		try {
-			return this.root.getSafeCode();
+			return this.context.program.getSafeCode();
 		} catch (error) {
 			this.handleError(error);
 			return undefined;
 		}
 	};
 	
-	jsmm.Browser.prototype.makeFunc = function() {
-		if (this.func !== null) return true;
+	jsmm.Browser.prototype.makeSafeFunc = function() {
+		this.resetError();
+		if (this.safeFunc !== null) return true;
 		if (!this.parse()) return false;
 		
 		try {
-			this.func = this.root.getSafeFunction();
+			this.safeFunc = this.context.program.getSafeFunction(this.scope);
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -76,17 +132,63 @@ module.exports = function(jsmm) {
 		}
 	}
 	
-	jsmm.Browser.prototype.runAll = function() {
-		if (!this.makeFunc()) return false;
+	jsmm.Browser.prototype.runSafe = function() {
+		this.resetError();
+		if (!this.makeSafeFunc()) return false;
 		
 		try {
-			this.func(jsmm, this.scope);
+			this.safeFunc();
 			return true;
 		} catch (error) {
 			this.handleError(error);
 			return false;
 		}
 	};
+	
+	jsmm.Browser.prototype.stepInit = function() {
+		this.resetError();
+		if (!this.parse()) return false;
+		try {
+			this.stack = new jsmm.step.Stack(this.context, this.scope);
+			return true;
+		} catch (error) {
+			this.handleError(error);
+			return false;
+		}
+	};
+	
+	jsmm.Browser.prototype.stepNext = function() {
+		this.resetError();
+		if (this.stack === null || !this.stack.hasNext()) return undefined;
+		
+		try {
+			return this.stack.stepNext();
+		} catch (error) {
+			this.handleError(error);
+			return undefined;
+		}
+	};
+	
+	jsmm.Browser.prototype.isStepping = function() {
+		return (this.stack !== null && this.stack.hasNext());
+	};
+	
+	jsmm.Browser.prototype.runStep = function() {
+		this.resetError();
+		
+		if (this.stepInit()) {		
+			var step;
+			do {
+				step = this.stepNext();
+			} while(step !== undefined);
+		}
+		
+		return !this.hasError();
+	}
+	
+	jsmm.Browser.prototype.hasError = function() {
+		return this.error !== null;
+	}
 	
 	jsmm.Browser.prototype.getError = function() {
 		return this.error;
@@ -98,5 +200,14 @@ module.exports = function(jsmm) {
 		
 		// join lines back together
 		return Array(this.error.line).join('\n') + (lines[this.error.line-1] || '').substring(0, this.error.column+1);
+	};
+	
+	// TODO: clean up
+	jsmm.Browser.prototype.formatForPosition = function(line, column) {
+		// split into lines
+		var lines = this.code.split(/\r\n|\n|\r/);
+		
+		// join lines back together
+		return Array(line).join('\n') + (lines[line-1] || '').substring(0, column+1);
 	};
 };

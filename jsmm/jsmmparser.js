@@ -97,9 +97,9 @@ case 58: this.$ = new yy.WhileBlock(this._$, $$[$0-5], $$[$0-1]);
 break;
 case 59: this.$ = new yy.ForBlock(this._$, $$[$0-9], $$[$0-7], $$[$0-5], $$[$0-1]); 
 break;
-case 60: this.$ = new yy.FunctionDeclaration(this._$, $$[$0-6], [], $$[$0-1]); 
+case 60: this.$ = new yy.FunctionDeclaration(this._$, $$[$0-6], [], $$[$0-1], _$[$0-6], _$[$0-4]); 
 break;
-case 61: this.$ = new yy.FunctionDeclaration(this._$, $$[$0-7], $$[$0-5], $$[$0-1]); 
+case 61: this.$ = new yy.FunctionDeclaration(this._$, $$[$0-7], $$[$0-5], $$[$0-1], _$[$0-7], _$[$0-4]); 
 break;
 case 62: this.$ = [$$[$0]]; 
 break;
@@ -499,7 +499,7 @@ case 34:return "EOF";
 break;
 }
 };
-lexer.rules = [/^((?:[/][/].*[\n])|(?:[/][*]([^*]*[*][^/])*[^*]*[*][/]))((?:(?:[\n](?:[ \f\r\t\v\u00A0\u2028\u2029]+)?)+)?)/,/^(?:[ \f\r\t\v\u00A0\u2028\u2029]+)/,/^(\+\+|--)/,/^(\+=|-=|\*=|\/=|%=)/,/^(==|!=|>=|<=|>|<)/,/^&&/,/^\|\|/,/^=/,/^(\+|-)/,/^(\*|\/|%)/,/^;/,/^!/,/^\(/,/^\)/,/^\{/,/^\}/,/^\[/,/^\]/,/^\./,/^,/,/^((?:null|break|case|catch|default|finally|instanceof|new|continue|void|delete|this|do|in|switch|throw|try|typeof|with|abstract|boolean|byte|char|class|const|debugger|double|enum|export|extends|final|float|goto|implements|import|int|interface|long|native|package|private|protected|public|short|static|super|synchronized|throws|transient|volatile)|{reservedjsmm})/,/^true\b/,/^false\b/,/^if\b/,/^(?:(?:[\n](?:[ \f\r\t\v\u00A0\u2028\u2029]+)?)+)?else\b/,/^while\b/,/^for\b/,/^var\b/,/^function\b/,/^return\b/,/^[a-zA-Z_](?:[a-zA-Z_]|[0-9])*/,/^(?:(?:[\n](?:[ \f\r\t\v\u00A0\u2028\u2029]+)?)+)/,/^(?:(?:(?:[1-9][0-9]*)|0)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)/,/^(?:["]([^\"](?:[\\][\\])?(?:[\\]["])?)*["])/,/^$/];
+lexer.rules = [/^((?:[/][/].*[\n])|(?:[/][*]([^*]*[*][^/])*[^*]*[*][/]))((?:(?:[\n](?:[ \f\r\t\v\u00A0\u2028\u2029]+)?)+)?)/,/^(?:[ \f\r\t\v\u00A0\u2028\u2029]+)/,/^(\+\+|--)/,/^(\+=|-=|\*=|\/=|%=)/,/^(==|!=|>=|<=|>|<)/,/^&&/,/^\|\|/,/^=/,/^(\+|-)/,/^(\*|\/|%)/,/^;/,/^!/,/^\(/,/^\)/,/^\{/,/^\}/,/^\[/,/^\]/,/^\./,/^,/,/^((?:null|break|case|catch|default|finally|instanceof|new|continue|void|delete|this|do|in|switch|throw|try|typeof|with|abstract|boolean|byte|char|class|const|debugger|double|enum|export|extends|final|float|goto|implements|import|int|interface|long|native|package|private|protected|public|short|static|super|synchronized|throws|transient|volatile)|{reservedjsmm})[^0-9a-zA-Z_]/,/^true\b/,/^false\b/,/^if\b/,/^(?:(?:[\n](?:[ \f\r\t\v\u00A0\u2028\u2029]+)?)+)?else\b/,/^while\b/,/^for\b/,/^var\b/,/^function\b/,/^return\b/,/^[a-zA-Z_][0-9a-zA-Z_]*/,/^(?:(?:[\n](?:[ \f\r\t\v\u00A0\u2028\u2029]+)?)+)/,/^(?:(?:(?:[1-9][0-9]*)|0)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)/,/^(?:["][^\\"]*(?:[\\].[^\\"]*)*["])/,/^$/];
 lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34],"inclusive":true}};
 return lexer;})()
 parser.lexer = lexer;

@@ -29,9 +29,11 @@ jsmm.yy.ForBlock = function() { return this.build.apply(this, arguments); };
 jsmm.yy.FunctionDeclaration = function() { return this.build.apply(this, arguments); };
 
 jsmm.Context.prototype = {
-	init: function() {
+	init: function(code) {
 		this.genId = 0;
 		this.elements = {};
+		this.code = "" + code;
+		this.program = null;
 	},
 	getNewId: function() {
 		return this.genId++;
@@ -45,11 +47,11 @@ jsmm.addCommonElementMethods = function(element) {
 		this.context.elements[this.id] = this;
 		this.startPos = {line: _$.first_line, column: _$.first_column};
 		this.endPos = {line: _$.last_line, column: _$.last_column};
-		this.yytext = jsmm.parser.lexer.yytext;
+		this.text = jsmm.parser.lexer.yytext;
 		this.init.apply(this, [].slice.call(arguments, 1));
 	};
 	return element;
-}
+};
 
 jsmm.yy.Program.prototype = jsmm.addCommonElementMethods({
 	init: function(statementList) {
@@ -57,6 +59,19 @@ jsmm.yy.Program.prototype = jsmm.addCommonElementMethods({
 	},
 	getCode: function() {
 		return this.statementList.getCode();
+	},
+	getFunction: function(scope) {
+		var args = [jsmm];
+		var output = 'new function() {';
+		output += 'return function(jsmm'
+		for (var name in scope) {
+			output += ', ' + name;
+			args.push(scope[name]);
+		}
+		output += ') { return function() { \n';
+		output += this.statementList.getCode() + 'return; }; }; }';
+		//console.log(output);
+		return eval(output).apply(null, args);
 	}
 });
 
@@ -253,7 +268,7 @@ jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods({
 		var output = this.identifier.getCode() + "(";
 		if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getCode();
 		for (var i=1; i<this.expressionArgs.length; i++) {
-			output += ", " + this.expressionArgs[1].getCode();
+			output += ", " + this.expressionArgs[i].getCode();
 		}
 		return output + ")";
 	}
@@ -317,10 +332,12 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods({
 });
 
 jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods({
-	init: function(name, nameArgs, statementList ) {
+	init: function(name, nameArgs, statementList, startPos, endPos) {
 		this.name = name;
 		this.nameArgs = nameArgs;
 		this.statementList = statementList;
+		this.startPos = {line: startPos.first_line, column: startPos.first_column};
+		this.endPos = {line: endPos.last_line, column: endPos.last_column};
 	},
 	getArgList: function() {
 		var output = "(";
@@ -342,7 +359,15 @@ jsmm.yy.parseError = function(errStr, hash) {
 	hash = hash || {};
 	var token = hash.token || '';
 	var expected = hash.expected || [];
-	var pos = {line: jsmm.parser.lexer.yylloc.first_line, column: jsmm.parser.lexer.yylloc.first_column};
+	var pos = {
+		startPos: {
+			line: jsmm.parser.lexer.yylloc.first_line,
+			column: jsmm.parser.lexer.yylloc.first_column
+		}
+	};
+	
+	// if there are no newlines, give a range instead of a single position
+	if (hash.text.match(/\n/) === null) pos.column2 = pos.column + hash.text.length;
 	
 	// entries are in the form "'FOR'", remove the extra quotes
 	token = token.replace(/[']/g, "");
@@ -350,24 +375,24 @@ jsmm.yy.parseError = function(errStr, hash) {
 		expected[i] = expected[i].replace(/[']/g, "");
 	}
 	
-	console.log(hash.text);
+	//console.log(hash.text);
 	var suggestionError = function(suggestion) {
-		jsmm.throwError(pos, function(f) {
+		throw new jsmm.msg.Error(pos, function(f) {
 			var near = '';
 			if (hash.text.replace(/\s*/, '').length > 0) {
 				near = ' near ' + f(hash.text);
 			}
 			return 'Invalid syntax encountered' + near + ', perhaps there is a ' + f(suggestion) + ' missing';
-		}, 'parser', errStr);
+		}, errStr);
 	};
 	
 	if (token === "RESERVED") {
 		// special case: passing on the information that the word is reserved
-		jsmm.throwError(pos, function(f) { return 'Unfortunately ' + f(hash.text) + ' is a reserved word, which means you cannot use it as a variable name'; }, 'parser', errStr);
+		throw new jsmm.msg.Error(pos, function(f) { return 'Unfortunately ' + f(hash.text) + ' is a reserved word, which means you cannot use it as a variable name'; }, errStr);
 	} else if (hash.token === null) {
 		// lexer error
 		pos = {line: hash.line+1, column: 0};
-		jsmm.throwError(pos, 'Invalid syntax encountered', 'lexer', errStr);
+		throw new jsmm.msg.Error(pos, 'Invalid syntax encountered', errStr);
 	} else if (expected.length == 1) {
 		// if only one thing can be expected, pass it on
 		suggestionError(expected[0]);
@@ -381,28 +406,14 @@ jsmm.yy.parseError = function(errStr, hash) {
 		// ) expected before { or ; is usually forgotten
 		suggestionError(')');
 	} else {
-		jsmm.throwError(pos, function(f) { return 'Invalid syntax encountered near ' + f(hash.text); }, 'parser', errStr);
+		throw new jsmm.msg.Error(pos, function(f) { return 'Invalid syntax encountered near ' + f(hash.text); }, errStr);
 	}
 };
 
-jsmm.throwError = function(pos, msg, type, orig) {
-	var message = (typeof msg === 'function') ? msg : function(f) { return msg; };
-	throw {
-		type: type || 'runtime',
-		message: message(function f(val) { return val; }),
-		html: message(function f(val) { 
-			// we assume that val is already JSON stringified
-			return '<span class="error-value">' + val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</span>';
-		}),
-		orig: orig || null,
-		line: pos.line,
-		column: pos.column
-	};
-};
-
 jsmm.parse = function(input) {
-	jsmm.yy.context = new jsmm.Context();
-	return jsmm.parser.parse(input + "\n");
+	jsmm.yy.context = new jsmm.Context(input);
+	jsmm.yy.context.program = jsmm.parser.parse(input + "\n");
+	return jsmm.yy.context;
 };
 
 jsmm.parser = require('./jsmmparser').parser;
@@ -410,6 +421,8 @@ jsmm.parser.yy = jsmm.yy;
 
 require('./jsmm.dot')(jsmm);
 require('./jsmm.safe')(jsmm);
+require('./jsmm.step')(jsmm);
 require('./jsmm.browser')(jsmm);
+require('./jsmm.test')(jsmm);
 
 module.exports = jsmm;

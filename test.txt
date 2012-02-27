@@ -10,6 +10,11 @@
 
 // assignments and arithmetic
 var a;
+var b=5, c=3*3+5;
+var c;
+a = 0;
+a += "hoi";
+
 var b, c=10;
 a = (8*2) >= 10;
 b = !a;
@@ -50,5 +55,4 @@ for (var i=0; i<10; i++) {
 	console.log(output);
 }
 
-// TODO: better block scope!
 // TODO: better linking of executable pieces with original ids

@@ -7,7 +7,6 @@ $(function() {
 	var myConsole = {
 		log: function(text) {
 			$('#console').val($('#console').val() + text + '\n');
-			//console.log(text);
 		},
 		clear: function() {
 			$('#console').val('');
@@ -16,65 +15,115 @@ $(function() {
 	
 	var browser = new jsmm.Browser();
 	
-	var drawError = function() {
-		if (browser.getError()) {
-			$('#error').css('top', $('#mirror').height() - $('#code').scrollTop());
-			
-			$('#errorbox').css('top', $('#code').position().top + $('#mirror').outerHeight() - $('#code').scrollTop());
-			$('#errorbox').css('left', $('#code').position().left + $('#mirror').outerWidth() - $('#code').scrollLeft());
-			$('#errormessage').html(browser.getError().html);
+	var getPosition = function(text) {
+		var textareaWidth = $('#code').outerWidth();
+		$('#mirror').text(text);
+		return {x: $('#mirror').outerWidth(), y: $('#mirror').outerHeight()};
+	};
+	
+	var drawMessage = function(msg) {
+		var startPos = getPosition(browser.formatForPosition(msg.line, msg.column));
+		var endPos = null;
+		if (msg.column2 > msg.column) endPos = getPosition(browser.formatForPosition(msg.line, msg.column2));
+		
+		// the offset is weird since .position().top changes when scrolling
+		offset = {
+			x: ($('#code').position().left + $('#editor').scrollLeft()),
+			y: ($('#code').position().top + $('#editor').scrollTop())
+		};
+		
+		$('#messagebox').css('left', startPos.x + offset.x);
+		$('#messagebox').css('top', startPos.y + offset.y);
+		$('#message').html(msg.html);
+		
+		if (endPos !== null) {
+			$('#marking').css('left', startPos.x + offset.x);
+			$('#marking').css('top', startPos.y + offset.y);
+			$('#marking').width(endPos.x - startPos.x);
+			// height is constant, set in css
+			$('#marking').fadeIn(100);
+		} else {
+			$('#marking').fadeOut(100);
+		}
+		
+		if (msg instanceof jsmm.msg.Error){
+			$('#error').css('top', startPos.y);
+			$('#error').fadeIn(100);
+			$('#arrow').fadeOut(100);
+		} else {
+			$('#arrow').css('top', startPos.y);
+			$('#arrow').fadeIn(100);
+			$('#error').fadeOut(100);
+			$('#messagebox').fadeIn(100);
 		}
 	};
 	
-	var run = function(e) {
+	var hideMessage = function() {
+		$('#messagebox').fadeOut(100);
+		$('#error').fadeOut(100);
+		$('#arrow').fadeOut(100);
+		$('#marking').fadeOut(100);
+	};
+	
+	var updateSize = function() {
+		// NOTE: getPosition is not necessarily suitable for this
+		$('#code').height(getPosition($('#code').val()).y + 100);
+		$('#code').width(getPosition($('#code').val()).x + 100);
+	};
+	
+	var run = function() {
 		myConsole.clear();
 		browser.setCode($('#code').val());
 		browser.setScope({console: myConsole});
-		if (!browser.runAll()) {
-			$('#mirror').text(browser.formatErrorForPosition());
-			
-			
-			myConsole.log(JSON.stringify(browser.getError()));
-			//console.log(browser.getError());
-			if (false) {
-				console.log(browser.getSafeCode());
-				jsmm.verbose = true;
-				browser.reset();
-				browser.runAll();
-				console.log(browser.getError());
-			}
-			
-			drawError();
-			$('#error').fadeIn(100);
+		browser.runSafe();
+		
+		if (browser.hasError()) {
+			drawMessage(browser.getError());
 		} else {
-			$('#error').fadeOut(100);
-			$('#errorbox').fadeOut(100);
+			hideMessage();
 		}
 	};
 	
-	$('#run').click(run);
+	var step = function() {
+		if (browser.hasError()) return;
+		
+		if (!browser.isStepping()) {
+			myConsole.clear();
+			hideMessage();
+			browser.stepInit();
+		} else {						
+			var result = browser.stepNext();
+			if (browser.hasError()) {
+				drawMessage(browser.getError());
+			} else if (result === undefined) {
+				hideMessage();
+			} else {
+				drawMessage(result);
+			}
+		}
+	};
 	
-	$('#code').scroll(drawError);
-	$('#code').bind('keydown', function(e) {
-		//$('#error').fadeOut(100);
-		//$('#errorbox').fadeOut(100);
-	});
+	$('#step').click(step);
+	$('#code').bind('keydown', updateSize);
 	$('#code').bind('keyup paste', function(e) {
 		window.localStorage.removeItem('1');
 		window.localStorage.setItem('1', $('#code').val());
-		//browser.reset();
-		//drawError();
+		updateSize();
 		run();
 	});
 	
 	$('#error').click(function(e) {
-		$('#errorbox').fadeToggle(100);
+		$('#messagebox').fadeToggle(100);
 	});
 	
-	$('#errorbox').click(function(e) {
-		$('#errorbox').fadeOut(100);
+	$('#arrow').click(function(e) {
+		$('#messagebox').fadeToggle(100);
 	});
 	
+	$('#messagebox').click(function(e) {
+		$('#messagebox').fadeOut(100);
+	});
+	
+	updateSize();
 	run();
-	//drawError();
 });

@@ -7,7 +7,7 @@ module.exports = function(jsmm) {
 		label = label.replace(/\"/g, '&quot;');
 		label = label.replace(/\\/g, '\\\\');
 		shape = shape || "";
-		return id + '[label="' + label + '"shape="' + shape + '"];';
+		return id + '[label="' + label + ' (' + jsmm.yy.context.elements[id].text + ')"shape="' + shape + '"];';
 	};
 	
 	/* statementList */

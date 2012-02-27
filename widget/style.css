@@ -29,74 +29,102 @@ textarea, .textarea {
 	resize: none;
 	white-space: pre;
 	line-height: 16px;
+	word-wrap: none;
+}
+
+#editor {
+	position: absolute;
+	top: 50px;
+	left: 20px;
+	width: 700px;
+	height: 450px;
+	background-color: #335;
+	overflow: scroll;
 }
 
 #code {
 	position: absolute;
-	top: 50px;
-	left: 20px;
-	width: 650px;
-	height: 450px;
-	padding-left: 60px;
+	top: 0px;
+	left: 60px;
+	min-width: 620px;
+	min-height: 430px;
 }
 
 #mirror {
 	position: absolute;
-	top: 100030px;
-	left: 100600px;
-	padding-left: 60px;
+	top: 000030px;
+	left: 000600px;
 }
 
 #margin {
-	background-color: #333;
 	font-family: "Courier", monospace;
 	color: #ddd;
 	position: absolute;
-	top: 50px;
-	left: 20px;
+	top: 0px;
+	left: 0px;
 	width: 60px;
-	height: 470px;
-	overflow: hidden;
+	height: 10px;
+	overflow: visible;
 	z-index: 5;
 }
 
-#error {
+#error, #arrow {
 	position: absolute;
 	top: 0px;
 	left: 38px;
-	margin-top: -5px;
+	cursor: pointer;
+	cursor: hand;
 }
 
-#errorbox {
+#error {
+	margin-top: -31px;
+}
+
+#arrow {
+	margin-top: -31px;
+}
+
+#messagebox {
 	position: absolute;
 	margin-top: -9px;
 	margin-left: -26px;
 	display: block;
 	top: 110px;
 	left: 270px;
-	background-color: rgba(30, 30, 30, 0.8);
+	background-color: rgba(30, 30, 30, 0.95);
 	font-size: 14px;
 	z-index: 10;
 }
 
-#errorcol {
+#messagecol {
 	position: absolute;
 	left: 5px;
 	top: 5px;
 }
 
-#errormessage {
+#message {
 	margin-left: 25px;
 	margin-top: 2px;
 	max-width: 250px;
 	padding-bottom: 3px;
 	color: #0E0;
 	padding-right: 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-.error-value {
+.msg-value {
 	font-weight: bold;
 	color: #ee0;
+}
+
+#marking {
+	position: absolute;
+	background-color: rgba(50, 250, 50, 0.4);
+	margin-top: -28px;
+	margin-left: -20px;
+	height: 16px;
+	padding: 2px;
 }
 
 #run {

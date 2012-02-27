@@ -7,23 +7,28 @@
 </head>
 <body>
 	<div id="main">
-		<div id="margin">
-			<img id="error" src="exclamation.png"/>
+		<div id="editor">
+			<div id="margin">
+				<div id="error"><img src="exclamation.png"/></div>
+				<div id="arrow"><img src="arrow_right.png"/></div>
+			</div>
+			<textarea id="code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>
+			<div id="messagebox">
+				<img id="messagecol" src="arrow_up.png"/>
+				<div id="message"></div>
+			</div>
+			<div id="marking"></div>
 		</div>
-		<textarea id="code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>
-		<div id="errorbox">
-			<img id="errorcol" src="arrow_up.png"/>
-			<div id="errormessage"></div>
-		</div>
-		<div id="tooltip"></div>
 		
-		<div class="textarea" id="mirror"></div>
+		<div class="visuallyhidden">
+			<div class="textarea" id="mirror"></div>
+		</div>
 		
 		<textarea id="console" readonly="readonly"></textarea>
 		
-		<!--
-		<button id="run">Run!</button>
 		
+		<button id="step">Step</button>
+		<!--
 		<div>
 			<button id="p1">Load sample 1</button>
 			<button id="p2">Load sample 2</button>
