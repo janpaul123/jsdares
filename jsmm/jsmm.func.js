@@ -21,7 +21,13 @@ module.exports = function(jsmm) {
 	jsmm.func.Scope = function(vars, parent) {
 		this.vars = {};
 		for(var name in vars) {
-			this.vars[name] = {name: name, str: JSON.stringify(vars[name]), value: vars[name]};
+			var str = JSON.stringify(vars[name]);
+			
+			if (typeof vars[name] === 'function') str = 'function';
+			else if (Object.prototype.toString.call(vars[name]) === '[object Array]') str = 'array';
+			else if (typeof vars[name] === 'object') str = 'object';
+			
+			this.vars[name] = {name: name, str: str, value: vars[name]};
 		}
 		this.parent = parent || null;
 	};

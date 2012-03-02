@@ -24,11 +24,10 @@ $(function() {
 	};
 	
 	var drawMessage = function(msg) {
-		
+		var startPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column));
 		var endPos = null;
 		if (msg.column2 > msg.column) endPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column2));
-		var startPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column));
-		console.log(JSON.stringify(browser.getCode().lineColumnToPositionText(msg.line, msg.column)));
+		
 		// the offset is weird since .position().top changes when scrolling
 		offset = {
 			x: ($('#code').position().left + $('#editor').scrollLeft()),
@@ -70,6 +69,7 @@ $(function() {
 				$('#error').fadeIn(100);
 				$('#arrow').fadeOut(100);
 				$('#code').addClass('error');
+				console.log(msg);
 			} else {
 				$('#arrow').css('top', startPos.y + offset.y);
 				$('#arrow').fadeIn(100);
@@ -140,7 +140,6 @@ $(function() {
 	
 	// TODO: use http://archive.plugins.jquery.com/project/fieldselection
 	var autoindent = function(e) {
-		console.log(e);
 		// 13 = enter, 221 = ] or }
 		if (e.keyCode === 13 || e.keyCode === 221) {
 			var code = browser.getCode();

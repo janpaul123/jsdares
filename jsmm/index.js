@@ -367,7 +367,9 @@ jsmm.yy.parseError = function(errStr, hash) {
 	};
 	
 	// if there are no newlines, give a range instead of a single position
-	if (hash.text.match(/\n/) === null) pos.column2 = pos.column + hash.text.length;
+	if (hash.text.match(/\n/) === null) {
+		pos.endPos = {line: pos.startPos.line, column: pos.startPos.column + hash.text.length};
+	}
 	
 	// entries are in the form "'FOR'", remove the extra quotes
 	token = token.replace(/[']/g, "");
@@ -395,7 +397,7 @@ jsmm.yy.parseError = function(errStr, hash) {
 		throw new jsmm.msg.Error(pos, function(f) { return 'Unfortunately ' + f(hash.text) + ' is a reserved word, which means you cannot use it as a variable name'; }, errStr);
 	} else if (hash.token === null) {
 		// lexer error
-		pos = {line: hash.line+1, column: 0};
+		pos = {startPos: {line: hash.line+1, column: 0}};
 		throw new jsmm.msg.Error(pos, 'Invalid syntax encountered', errStr);
 	} else if (expected.length === 1 && expected[0] === 'NEWLINE') {
 		throw new jsmm.msg.Error(pos, function(f) {

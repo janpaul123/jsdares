@@ -258,14 +258,30 @@ module.exports = function(jsmm) {
 	
 	/* identifier, expressionArgs */
 	jsmm.yy.FunctionCall.prototype.stepNext = function(stack, se) {
+		// calculate function name once all the arguments are known
+		if (se.args.length > this.expressionArgs.length) {
+			var name = se.args[0].name + '(';
+			if (this.expressionArgs.length > 0) name += se.args[1].str;
+			for (var i=1; i<this.expressionArgs.length; i++) {
+				name += ', ' + se.args[i+1].str;
+			}
+			name += ')';
+		}
+		
 		var result;
 		if (se.args.length == 0) {
 			return stack.pushElementNext(this.identifier, se.scope);
 		} else if (se.args.length < this.expressionArgs.length+1) {
 			return stack.pushElementNext(this.expressionArgs[se.args.length-1], se.scope);
 		} else if (se.args.length == this.expressionArgs.length+1) {
+			se.args.push(null);
+			
+			return [new jsmm.msg.Inline(this, function(f) {
+				return 'calling ' + f(name);
+			})];
+		} else if (se.args.length == this.expressionArgs.length+2) {
 			// first actual function call (all arguments are evaluated)
-			result = jsmm.func.funcCall(this, se.args[0], se.args.slice(1)); // TODO: fix
+			result = jsmm.func.funcCall(this, se.args[0], se.args.slice(1, se.args.length-1));
 			
 			if (result.value !== undefined && result.value[0] !== undefined && result.value[0] instanceof jsmm.msg.Inline) {
 				// in this case the local function has been placed on the stack, so no moving up
@@ -282,13 +298,6 @@ module.exports = function(jsmm) {
 			stack.up(result);
 			// fall through
 		}
-		
-		var name = se.args[0].name + '(';
-		if (this.expressionArgs.length > 0) name += se.args[1].str;
-		for (var i=1; i<this.expressionArgs.length; i++) {
-			name += ', ' + se.args[i+1].str;
-		}
-		name += ')';
 		
 		return [new jsmm.msg.Inline(this, function(f) {
 			return f(name) + (result.value !== undefined ? ' = ' + f(result.str) : ' called');
@@ -385,7 +394,10 @@ module.exports = function(jsmm) {
 			jsmm.func.funcEnter(that, scope);
 			stack.pushStackElement(new jsmm.step.StackElement(stack, that.statementList, scope));
 			
-			var args = [].slice.call(arguments, 0);
+			var args = [];
+			for(var name in scope.vars) {
+				args.push(scope.vars[name].str);
+			}
 			var message = that.name + '(' + args.join(', ') + ')';
 			return [new jsmm.msg.Inline(that, function(f) { return f(message); }),
 				new jsmm.msg.Line(that, message)];
