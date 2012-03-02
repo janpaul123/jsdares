@@ -34,12 +34,12 @@ module.exports = function(jsmm) {
 		},
 		offsetToPos: function(offset) {
 			// TODO: implement binary search
-			for (var i=1; i<this.lines.length; i++) {
-				if (this.offsets[i] > offset) {
-					return {line: i, column: offset-this.offsets[i-1]};
+			for (var i=0; i<this.lines.length; i++) {
+				if (offset < this.offsets[i]) {
+					return {line: i, column: offset-(this.offsets[i-1] || 0)};
 				}
 			}
-			return {line: 1, column: offset};
+			return {line: this.lines.length, column: offset-this.offsets[this.lines.length-1]};
 		},
 		insertAtOffset: function(offset, text) {
 			return this.text.substring(0, offset) + text + this.text.substring(offset);
