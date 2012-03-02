@@ -299,7 +299,6 @@ module.exports = function(jsmm) {
 			// fall through
 		}
 		
-		console.log(up);
 		if (up.element instanceof jsmm.yy.CallStatement) {
 			return [
 				new jsmm.msg.Line(this, function(f) { return f(name); }),
