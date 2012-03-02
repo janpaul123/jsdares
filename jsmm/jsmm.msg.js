@@ -1,7 +1,8 @@
 module.exports = function(jsmm) {
 	jsmm.msg = {};
-	jsmm.msg.Line = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Inline = function() { return this.init.apply(this, arguments); };
+	jsmm.msg.Line = function() { return this.init.apply(this, arguments); };
+	jsmm.msg.Continue = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Error = function() { return this.init.apply(this, arguments); };
 	
 	jsmm.msg.addCommonMessageMethods = function(element) {
@@ -11,10 +12,7 @@ module.exports = function(jsmm) {
 			this.html = message(function f(val) { 
 				// we assume that val is already JSON stringified
 				return '<span class="msg-value">' + val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</span>';
-			}),
-			this.line = 0;
-			this.column = 0;
-			this.column2 = 0;
+			});
 		};
 		element.loadPos = function(pos) {
 			var startPos = pos.startPos || {};
@@ -30,25 +28,31 @@ module.exports = function(jsmm) {
 		return element;
 	};
 	
-	jsmm.msg.Line.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(pos, msg, lineMsg) {
-			this.initMsg(msg);
+	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
+		init: function(pos, msg) {
 			this.loadPos(pos);
-			this.lineMsg = lineMsg;
+			this.initMsg(msg);
 		}
 	});
 	
-	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(pos, msg) {
+	jsmm.msg.Line.prototype = jsmm.msg.addCommonMessageMethods({
+		init: function(pos, msg, append) {
+			this.loadPos(pos);
 			this.initMsg(msg);
+			this.append = append || false;
+		}
+	});
+	
+	jsmm.msg.Continue.prototype = jsmm.msg.addCommonMessageMethods({
+		init: function(pos) {
 			this.loadPos(pos);
 		}
 	});
 	
 	jsmm.msg.Error.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(pos, msg, more, orig) {
-			this.initMsg(msg);
 			this.loadPos(pos);
+			this.initMsg(msg);
 			this.more = more || '';
 			this.orig = orig || null;
 		}

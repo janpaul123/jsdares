@@ -16,45 +16,68 @@ $(function() {
 	var browser = new jsmm.Browser();
 	
 	var getPosition = function(text) {
-		var textareaWidth = $('#code').outerWidth();
+		// add a space because of a bug when text contains only newlines
+		text += ' ';
+		$('#mirror').text(text);
 		$('#mirror').text(text);
 		return {x: $('#mirror').outerWidth(), y: $('#mirror').outerHeight()};
 	};
 	
 	var drawMessage = function(msg) {
-		var startPos = getPosition(browser.formatForPosition(msg.line, msg.column));
-		var endPos = null;
-		if (msg.column2 > msg.column) endPos = getPosition(browser.formatForPosition(msg.line, msg.column2));
 		
+		var endPos = null;
+		if (msg.column2 > msg.column) endPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column2));
+		var startPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column));
+		console.log(JSON.stringify(browser.getCode().lineColumnToPositionText(msg.line, msg.column)));
 		// the offset is weird since .position().top changes when scrolling
 		offset = {
 			x: ($('#code').position().left + $('#editor').scrollLeft()),
 			y: ($('#code').position().top + $('#editor').scrollTop())
 		};
 		
-		$('#messagebox').css('left', startPos.x + offset.x);
-		$('#messagebox').css('top', startPos.y + offset.y);
-		$('#message').html(msg.html);
-		
-		if (endPos !== null) {
+		if (msg instanceof jsmm.msg.Line) {
+			var message = msg.message;
+			
+			var lineMsg = $('#lineMsg-' + msg.line);
+			if (lineMsg.length <= 0) {
+				lineMsg = $('<div class="lineMsg"></div>');
+				lineMsg.attr('id', 'lineMsg-' + msg.line);
+				$('#margin').append(lineMsg);
+				lineMsg.fadeIn(100);
+				lineMsg.css('top', startPos.y + offset.y);
+			} else {
+				if (lineMsg.text().length > 0 && msg.append) {
+					message = lineMsg.text() + ', ' + msg.message;
+				}
+			}
+			lineMsg.text(message);
+		} else {
+			$('#messagebox').css('left', startPos.x + offset.x);
+			$('#messagebox').css('top', startPos.y + offset.y);
+			$('#message').html(msg.html);
+			
 			$('#marking').css('left', startPos.x + offset.x);
 			$('#marking').css('top', startPos.y + offset.y);
-			$('#marking').width(endPos.x - startPos.x);
-			// height is constant, set in css
-			$('#marking').fadeIn(100);
-		} else {
-			$('#marking').fadeOut(100);
-		}
-		
-		if (msg instanceof jsmm.msg.Error){
-			$('#error').css('top', startPos.y);
-			$('#error').fadeIn(100);
-			$('#arrow').fadeOut(100);
-		} else {
-			$('#arrow').css('top', startPos.y);
-			$('#arrow').fadeIn(100);
-			$('#error').fadeOut(100);
-			$('#messagebox').fadeIn(100);
+			if (endPos !== null) {
+				$('#marking').width(endPos.x - startPos.x);
+				// height is constant, set in css;
+			} else {
+				$('#marking').width(0);
+			}
+			
+			if (msg instanceof jsmm.msg.Error){
+				$('#error').css('top', startPos.y + offset.y);
+				$('#error').fadeIn(100);
+				$('#arrow').fadeOut(100);
+				$('#code').addClass('error');
+			} else {
+				$('#arrow').css('top', startPos.y + offset.y);
+				$('#arrow').fadeIn(100);
+				$('#error').fadeOut(100);
+				$('#marking').fadeIn(100);
+				$('#messagebox').fadeIn(100);
+				$('#code').removeClass('error');
+			}
 		}
 	};
 	
@@ -63,6 +86,8 @@ $(function() {
 		$('#error').fadeOut(100);
 		$('#arrow').fadeOut(100);
 		$('#marking').fadeOut(100);
+		$('#code').removeClass('error');
+		$('#code').removeClass('stepping');
 	};
 	
 	var updateSize = function() {
@@ -71,9 +96,16 @@ $(function() {
 		$('#code').width(getPosition($('#code').val()).x + 100);
 	};
 	
-	var run = function() {
+	var clear = function() {
 		myConsole.clear();
-		browser.setCode($('#code').val());
+		$('#margin .lineMsg').fadeOut(100, function() {
+			$(this).remove();
+		});
+	};
+	
+	var run = function() {
+		clear()
+		browser.setText($('#code').val());
 		browser.setScope({console: myConsole});
 		browser.runSafe();
 		
@@ -88,17 +120,52 @@ $(function() {
 		if (browser.hasError()) return;
 		
 		if (!browser.isStepping()) {
-			myConsole.clear();
+			clear();
 			hideMessage();
 			browser.stepInit();
+			$('#code').addClass('stepping');
 		} else {						
-			var result = browser.stepNext();
+			var msgs = browser.stepNext();
 			if (browser.hasError()) {
 				drawMessage(browser.getError());
-			} else if (result === undefined) {
+			} else if (msgs === undefined) {
 				hideMessage();
 			} else {
-				drawMessage(result);
+				for (var i=0; i<msgs.length; i++) {
+					drawMessage(msgs[i]);
+				}
+			}
+		}
+	};
+	
+	// TODO: use http://archive.plugins.jquery.com/project/fieldselection
+	var autoindent = function(e) {
+		console.log(e);
+		// 13 = enter, 221 = ] or }
+		if (e.keyCode === 13 || e.keyCode === 221) {
+			var code = browser.getCode();
+			var offset = $('#code')[0].selectionStart;
+			var pos = code.offsetToPos(offset);
+			if (pos.line > 1) {
+				var prevLine = code.getLine(pos.line-1);
+				var curLine = code.getLine(pos.line);
+				var spaces = prevLine.match(/^ */)[0].length;
+				var spacesAlready = curLine.match(/^ */)[0].length;
+				spaces += prevLine.match(/{ *$/) !== null ? 2 : 0;
+				spaces -= spacesAlready;
+				spaces -= curLine.match(/^ *}/) !== null ? 2 : 0;
+				if (spaces > 0) {
+					startOffset = code.lineColumnToOffset(pos.line, 0);
+					$('#code').val(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
+					$('#code')[0].selectionStart = offset + spaces;
+					$('#code')[0].selectionEnd = $('#code')[0].selectionStart;
+				} else if (spaces < 0 && spacesAlready >= -spaces) {
+					startOffset = code.lineColumnToOffset(pos.line, 0);
+					endOffset = startOffset-spaces;
+				    $('#code').val(code.removeAtOffsetRange(startOffset, endOffset));
+				    $('#code')[0].selectionStart = offset + spaces;
+					$('#code')[0].selectionEnd = $('#code')[0].selectionStart;
+				}
 			}
 		}
 	};
@@ -110,17 +177,16 @@ $(function() {
 		window.localStorage.setItem('1', $('#code').val());
 		updateSize();
 		run();
+		autoindent(e);
 	});
 	
-	$('#error').click(function(e) {
+	$('#error, #arrow').click(function(e) {
+		$('#marking').fadeToggle(100);
 		$('#messagebox').fadeToggle(100);
 	});
 	
-	$('#arrow').click(function(e) {
-		$('#messagebox').fadeToggle(100);
-	});
-	
-	$('#messagebox').click(function(e) {
+	$('#messagebox, #marking').click(function(e) {
+		$('#marking').fadeOut(100);
 		$('#messagebox').fadeOut(100);
 	});
 	

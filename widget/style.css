@@ -29,7 +29,6 @@ textarea, .textarea {
 	resize: none;
 	white-space: pre;
 	line-height: 16px;
-	word-wrap: none;
 }
 
 #editor {
@@ -38,16 +37,25 @@ textarea, .textarea {
 	left: 20px;
 	width: 700px;
 	height: 450px;
-	background-color: #335;
+	background-color: #333;
 	overflow: scroll;
 }
 
 #code {
 	position: absolute;
 	top: 0px;
-	left: 60px;
-	min-width: 620px;
+	left: 120px;
+	min-width: 560px;
 	min-height: 430px;
+	border-left: solid 1px #444;
+}
+
+/*#code*/.error {
+	border-left-color: #a54 !important;
+}
+
+/*#code*/.stepping {
+	border-left-color: #bbb !important;
 }
 
 #mirror {
@@ -62,7 +70,7 @@ textarea, .textarea {
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	width: 60px;
+	width: 120px;
 	height: 10px;
 	overflow: visible;
 	z-index: 5;
@@ -71,9 +79,10 @@ textarea, .textarea {
 #error, #arrow {
 	position: absolute;
 	top: 0px;
-	left: 38px;
+	right: 5px;
 	cursor: pointer;
 	cursor: hand;
+	z-index: 10;
 }
 
 #error {
@@ -87,13 +96,15 @@ textarea, .textarea {
 #messagebox {
 	position: absolute;
 	margin-top: -9px;
-	margin-left: -26px;
+	margin-left: -25px;
 	display: block;
 	top: 110px;
 	left: 270px;
 	background-color: rgba(30, 30, 30, 0.95);
 	font-size: 14px;
 	z-index: 10;
+	cursor: pointer;
+	cursor: hand;
 }
 
 #messagecol {
@@ -122,9 +133,24 @@ textarea, .textarea {
 	position: absolute;
 	background-color: rgba(50, 250, 50, 0.4);
 	margin-top: -28px;
-	margin-left: -20px;
+	margin-left: -19px;
 	height: 16px;
 	padding: 2px;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.lineMsg {
+	position: absolute;
+	font-size: 12px;
+	margin-top: -29px;
+	left: 4px;
+	right: 24px;
+	color: white;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: pre;
+	text-align: right;
 }
 
 #run {

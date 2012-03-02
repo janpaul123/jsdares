@@ -32,7 +32,7 @@ jsmm.Context.prototype = {
 	init: function(code) {
 		this.genId = 0;
 		this.elements = {};
-		this.code = "" + code;
+		this.code = code;
 		this.program = null;
 	},
 	getNewId: function() {
@@ -375,14 +375,18 @@ jsmm.yy.parseError = function(errStr, hash) {
 		expected[i] = expected[i].replace(/[']/g, "");
 	}
 	
+	var makeNear = function(text, f) {
+		if (text.replace(/\s*/, '').length > 0) {
+			return ' near ' + f(text);
+		} else {
+			return '';
+		}
+	};
+	
 	//console.log(hash.text);
 	var suggestionError = function(suggestion) {
 		throw new jsmm.msg.Error(pos, function(f) {
-			var near = '';
-			if (hash.text.replace(/\s*/, '').length > 0) {
-				near = ' near ' + f(hash.text);
-			}
-			return 'Invalid syntax encountered' + near + ', perhaps there is a ' + f(suggestion) + ' missing';
+			return 'Invalid syntax encountered' + makeNear(hash.text, f) + ', perhaps there is a ' + f(suggestion) + ' missing';
 		}, errStr);
 	};
 	
@@ -393,9 +397,16 @@ jsmm.yy.parseError = function(errStr, hash) {
 		// lexer error
 		pos = {line: hash.line+1, column: 0};
 		throw new jsmm.msg.Error(pos, 'Invalid syntax encountered', errStr);
+	} else if (expected.length === 1 && expected[0] === 'NEWLINE') {
+		throw new jsmm.msg.Error(pos, function(f) {
+			return 'Invalid syntax encountered, perhaps some code' + makeNear(hash.text, f) + ' should be put on a new line.';
+		}, errStr);
 	} else if (expected.length == 1) {
 		// if only one thing can be expected, pass it on
-		suggestionError(expected[0]);
+		if (expected[0] === 'NAME') {
+			expected[0] = 'variable name';
+		}
+		suggestionError(expected[0]);		
 	} else if (expected.indexOf(";") >= 0 && token === "NEWLINE") {
 		// ; expected before of newline is usually forgotten
 		suggestionError(';');
@@ -406,7 +417,7 @@ jsmm.yy.parseError = function(errStr, hash) {
 		// ) expected before { or ; is usually forgotten
 		suggestionError(')');
 	} else {
-		throw new jsmm.msg.Error(pos, function(f) { return 'Invalid syntax encountered near ' + f(hash.text); }, errStr);
+		throw new jsmm.msg.Error(pos, function(f) { return 'Invalid syntax encountered' + makeNear(hash.text, f); }, errStr);
 	}
 };
 

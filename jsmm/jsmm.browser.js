@@ -2,9 +2,55 @@ module.exports = function(jsmm) {
 	require('./jsmm.msg')(jsmm);
 	
 	jsmm.Browser = function() { return this.init.apply(this, arguments); };
+	jsmm.Code = function() { return this.init.apply(this, arguments); };
 	
-	jsmm.Browser.prototype.init = function(code, scope) {
-		this.code = code || '';
+	jsmm.Code.prototype = {
+		init: function(text) {
+			this.text = '' + text;
+			this.lines = text.split(/\n/);
+			this.offsets = [0];
+			for (var i=1; i<this.lines.length; i++) {
+				// add one for the actual newline character
+				this.offsets[i] = this.offsets[i-1] + this.lines[i-1].length + 1;
+			}
+		},
+		getLine: function(line) {
+			return this.lines[line-1];
+		},
+		lineColumnToOffset: function(line, column) {
+			return this.offsets[line-1] + column;
+		},
+		posToOffset: function(pos) {
+			return this.lineColumnToOffset(pos.line, pos.column);
+		},
+		rangeToText: function(startPos, endPos) {
+			return this.text.substring(this.posToOffset(startPos), this.posToOffset(endPos));
+		},
+		lineColumnToPositionText: function(line, column) {
+			return new Array(line).join('\n') + (this.lines[line-1] || '').substring(0, column);
+		},
+		elToText: function(el) {
+			return this.rangeToText(el.startPos, el.endPos);
+		},
+		offsetToPos: function(offset) {
+			// TODO: implement binary search
+			for (var i=1; i<this.lines.length; i++) {
+				if (this.offsets[i] > offset) {
+					return {line: i, column: offset-this.offsets[i-1]};
+				}
+			}
+			return {line: 1, column: offset};
+		},
+		insertAtOffset: function(offset, text) {
+			return this.text.substring(0, offset) + text + this.text.substring(offset);
+		},
+		removeAtOffsetRange: function(offset1, offset2) {
+			return this.text.substring(0, offset1) + this.text.substring(offset2);
+		}
+	};
+	
+	jsmm.Browser.prototype.init = function(text, scope) {
+		this.code = new jsmm.Code(text || '');
 		this.scope = scope || {};
 		this.reset();
 	};
@@ -21,14 +67,18 @@ module.exports = function(jsmm) {
 		this.error = null;
 	};
 	
-	jsmm.Browser.prototype.setCode = function(code) {
+	jsmm.Browser.prototype.setText = function(text) {
 		this.reset();
-		this.code = code;
+		this.code = new jsmm.Code(text);
 	};
 	
 	jsmm.Browser.prototype.setScope = function(scope) {
 		this.reset();
 		this.scope = scope;
+	};
+	
+	jsmm.Browser.prototype.getCode = function() {
+		return this.code;
 	};
 	
 	jsmm.Browser.prototype.handleError = function(error) {
@@ -47,7 +97,7 @@ module.exports = function(jsmm) {
 		if (this.context !== null) return true;
 		
 		try {
-			this.context = jsmm.parse(this.code);
+			this.context = jsmm.parse(this.code.text);
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -159,10 +209,29 @@ module.exports = function(jsmm) {
 	
 	jsmm.Browser.prototype.stepNext = function() {
 		this.resetError();
-		if (this.stack === null || !this.stack.hasNext()) return undefined;
 		
+		var ret = [];
 		try {
-			return this.stack.stepNext();
+			do {
+				if (this.stack === null || !this.stack.hasNext()) return undefined;
+				
+				var cont = false;
+				var msgs = this.stack.stepNext();
+				if (msgs.length <= 0) return undefined;
+				
+				for (var i=0; i<msgs.length; i++) {
+					if (msgs[i] instanceof jsmm.msg.Error) {
+						this.error = msgs[i];
+						return undefined;
+					} else if (msgs[i] instanceof jsmm.msg.Continue) {
+						cont = true;
+					} else {
+						// don't push jsmm.msg.Continue
+						ret.push(msgs[i]);
+					}
+				}
+			} while (cont === true);
+			return ret;
 		} catch (error) {
 			this.handleError(error);
 			return undefined;
@@ -192,22 +261,5 @@ module.exports = function(jsmm) {
 	
 	jsmm.Browser.prototype.getError = function() {
 		return this.error;
-	};
-	
-	jsmm.Browser.prototype.formatErrorForPosition = function() {
-		// split into lines
-		var lines = this.code.split(/\r\n|\n|\r/);
-		
-		// join lines back together
-		return Array(this.error.line).join('\n') + (lines[this.error.line-1] || '').substring(0, this.error.column+1);
-	};
-	
-	// TODO: clean up
-	jsmm.Browser.prototype.formatForPosition = function(line, column) {
-		// split into lines
-		var lines = this.code.split(/\r\n|\n|\r/);
-		
-		// join lines back together
-		return Array(line).join('\n') + (lines[line-1] || '').substring(0, column+1);
 	};
 };

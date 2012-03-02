@@ -67,7 +67,7 @@ module.exports = function(jsmm) {
 				return stack.pushElementNext(this.statementList, se.scope);
 			case 1:
 				stack.elements = [];
-				return undefined; // TODO: return something indicating the end of the program
+				return [];
 		}
 	};
 	
@@ -107,7 +107,8 @@ module.exports = function(jsmm) {
 			case 1:
 				var result = jsmm.func.postfix(this, se.args[0], this.symbol);
 				stack.up(null);
-				return new jsmm.msg.Line(this, function(f) { return f(se.args[0].name) + ' = ' + f(result.str); }, result.str);
+				message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); }
+				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message)];
 		}
 	};
 	
@@ -121,19 +122,20 @@ module.exports = function(jsmm) {
 			case 2:
 				var result = jsmm.func.assignment(this, se.args[0], this.symbol, se.args[1]);
 				var up = stack.up(result);
+				var append = (up instanceof jsmm.yy.VarItem);
 				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
-				if (up.element instanceof jsmm.yy.VarItem) {
-					return new jsmm.msg.Inline(this, message);
-				} else {
-					return new jsmm.msg.Line(this, message, result.str);
-				}
+				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message, append)];
 		}
 	};
 	
 	/* items */
 	jsmm.yy.VarStatement.prototype.stepNext = function(stack, se) {
-		if (se.args.length < this.items.length) {
-			return stack.pushElementNext(this.items[se.args.length], se.scope);
+		if (se.args.length === 0) {
+			se.args.push(null);
+			return [new jsmm.msg.Line(this, ''),
+				new jsmm.msg.Continue(this)];
+		} else if (se.args.length-1 < this.items.length) {
+			return stack.pushElementNext(this.items[se.args.length-1], se.scope);
 		} else {
 			return stack.upNext(null);
 		}
@@ -143,7 +145,9 @@ module.exports = function(jsmm) {
 	jsmm.yy.VarItem.prototype.stepNext = function(stack, se) {
 		if (this.assignment === null) {
 			jsmm.func.varItem(this, se.scope, this.name);
-			return stack.upNext(null);
+			var ret = stack.upNext(null);
+			ret.push(new jsmm.msg.Line(this, 'undefined', true));
+			return ret;
 		} else {
 			switch (se.args.length) {
 				case 0:
@@ -172,7 +176,8 @@ module.exports = function(jsmm) {
 						lastStackElement = stack.up(result);
 					}
 					// Postcondition: lastStackElement is a FunctionCall or a Program
-					return lastStackElement.element.stepNext(stack, lastStackElement);
+					return [new jsmm.msg.Line(this, 'return ' + se.args[0].str),
+						new jsmm.msg.Continue(this)];
 			}
 		}
 	};
@@ -188,9 +193,9 @@ module.exports = function(jsmm) {
 				var result = jsmm.func.binary(this, se.args[0], this.symbol, se.args[1]);
 				stack.up(result);
 				var that = this;
-				return new jsmm.msg.Inline(this, function(f) { 
+				return [new jsmm.msg.Inline(this, function(f) { 
 					return f(se.args[0].str) + ' ' + that.symbol + ' ' + f(se.args[1].str) + ' = ' + f(result.str);
-				});
+				})];
 		}
 	};
 	
@@ -203,9 +208,9 @@ module.exports = function(jsmm) {
 				var result = jsmm.func.unary(this, this.symbol, se.args[0]);
 				stack.up(result);
 				var that = this;
-				return new jsmm.msg.Inline(this, function(f) {
+				return [new jsmm.msg.Inline(this, function(f) {
 					return that.symbol + f(se.args[0].str) + ' = ' + f(result.str);
-				});
+				})];
 		}
 	};
 	
@@ -262,7 +267,7 @@ module.exports = function(jsmm) {
 			// first actual function call (all arguments are evaluated)
 			result = jsmm.func.funcCall(this, se.args[0], se.args.slice(1)); // TODO: fix
 			
-			if (result.value instanceof jsmm.msg.Inline) {
+			if (result.value !== undefined && result.value[0] !== undefined && result.value[0] instanceof jsmm.msg.Inline) {
 				// in this case the local function has been placed on the stack, so no moving up
 				return result.value;
 			} else {
@@ -285,9 +290,9 @@ module.exports = function(jsmm) {
 		}
 		name += ')';
 		
-		return new jsmm.msg.Inline(this, function(f) {
+		return [new jsmm.msg.Inline(this, function(f) {
 			return f(name) + (result.value !== undefined ? ' = ' + f(result.str) : ' called');
-		});
+		})];
 	};
 	
 	/* expression, statementList, elseBlock */
@@ -381,9 +386,9 @@ module.exports = function(jsmm) {
 			stack.pushStackElement(new jsmm.step.StackElement(stack, that.statementList, scope));
 			
 			var args = [].slice.call(arguments, 0);
-			return new jsmm.msg.Inline(that, function(f) {
-				return f(that.name + '(' + args.join(', ') + ')');
-			});
+			var message = that.name + '(' + args.join(', ') + ')';
+			return [new jsmm.msg.Inline(that, function(f) { return f(message); }),
+				new jsmm.msg.Line(that, message)];
 		});
 		
 		return stack.upNext(null);
