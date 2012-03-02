@@ -133,6 +133,11 @@ module.exports = function(jsmm) {
 		return output + '])';
 	};
 	
+	/* functionCall */
+	jsmm.yy.CallStatement.prototype.getSafeCode = function() {
+		return this.functionCall.getSafeCode();
+	};
+	
 	/* expression, statementList, elseBlock */
 	jsmm.yy.IfBlock.prototype.getSafeCode = function() {
 		var output = "if (jsmm.func.conditional(" + getEl(this) + ', "if", ' + this.expression.getSafeCode() + ")) {\n";

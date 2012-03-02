@@ -157,7 +157,7 @@ primaryExpression
 	| STRING									{ $$ = new yy.StringLiteral(@$, $1); }
 	| TRUE										{ $$ = new yy.BooleanLiteral(@$, true); }
 	| FALSE										{ $$ = new yy.BooleanLiteral(@$, false); }
-	| callStatement
+	| callExpression
 	| "(" expression ")"						{ $$ = $2; }
 ;
 
@@ -167,7 +167,7 @@ identExpression
 	| identExpression "[" expression "]"		{ $$ = new yy.ArrayIdentifier(@$, $1, $3); }
 ;
 
-callStatement
+callExpression
 	: identExpression "(" ")"					{ $$ = new yy.FunctionCall(@$, $1, []); }
 	| identExpression "(" callArguments ")"		{ $$ = new yy.FunctionCall(@$, $1, $3); }
 ;
@@ -175,6 +175,10 @@ callStatement
 callArguments
 	: expression								{ $$ = [$1]; }
 	| callArguments "," expression				{ $$ = $1; $$.push($3); }
+;
+
+callStatement
+	: callExpression							{ $$ = new yy.CallStatement(@$, $1); }
 ;
 
 blockStatement

@@ -18,16 +18,18 @@ module.exports = function(jsmm) {
 		return undefined;
 	};
 	
+	var stringify = function(value) {
+		if (typeof value === 'function') return 'function';
+		else if (Object.prototype.toString.call(value) === '[object Array]') return 'array';
+		else if (typeof value === 'object') return 'object';
+		else if (value === undefined) return 'undefined';
+		else return JSON.stringify(value);
+	};
+	
 	jsmm.func.Scope = function(vars, parent) {
 		this.vars = {};
 		for(var name in vars) {
-			var str = JSON.stringify(vars[name]);
-			
-			if (typeof vars[name] === 'function') str = 'function';
-			else if (Object.prototype.toString.call(vars[name]) === '[object Array]') str = 'array';
-			else if (typeof vars[name] === 'object') str = 'object';
-			
-			this.vars[name] = {name: name, str: str, value: vars[name]};
+			this.vars[name] = {name: name, str: stringify(vars[name]), value: vars[name]};
 		}
 		this.parent = parent || null;
 	};
@@ -42,7 +44,7 @@ module.exports = function(jsmm) {
 				variable.value--;
 			}
 		}
-		variable.str = JSON.stringify(variable.value);
+		variable.str = stringify(variable.value);
 		return variable;
 	};
 	
@@ -52,12 +54,12 @@ module.exports = function(jsmm) {
 		} else {
 			variable.value = jsmm.func.binary(el, variable, symbol, expression).value;
 		}
-		variable.str = JSON.stringify(variable.value);
+		variable.str = stringify(variable.value);
 		return variable;
 	};
 	
 	jsmm.func.varItem = function(el, scope, name) {
-		scope.vars[name] = {name: name, value: undefined, str: JSON.stringify(undefined)};
+		scope.vars[name] = {name: name, value: undefined, str: stringify(undefined)};
 		return scope.vars[name];
 	};
 	
@@ -109,7 +111,7 @@ module.exports = function(jsmm) {
 			case '!=': val = expression1.value != expression2.value; break;
 		}
 		
-		return {name: '(' + expression1.name + ' ' + symbol + ' ' + expression2.name + ')', str: JSON.stringify(val), value: val};
+		return {name: '(' + expression1.name + ' ' + symbol + ' ' + expression2.name + ')', str: stringify(val), value: val};
 	};
 	
 	jsmm.func.unary = function(el, symbol, expression) {
@@ -129,19 +131,19 @@ module.exports = function(jsmm) {
 				val = (symbol==='+' ? expression.value : -expression.value);
 			}
 		}
-		return {name: '(' + symbol + expression.name + ')', str: JSON.stringify(val), value: val};
+		return {name: '(' + symbol + expression.name + ')', str: stringify(val), value: val};
 	};
 	
 	jsmm.func.number = function(el, num) {
-		return {name: JSON.stringify(num), str: JSON.stringify(num), value: num};
+		return {name: stringify(num), str: stringify(num), value: num};
 	};
 	
 	jsmm.func.string = function(el, str) {
-		return {name: JSON.stringify(str), str: JSON.stringify(str), value: str};
+		return {name: stringify(str), str: stringify(str), value: str};
 	};
 	
 	jsmm.func.bool = function(el, bool) {
-		return {name: JSON.stringify(bool), str: JSON.stringify(bool), value: bool};
+		return {name: stringify(bool), str: stringify(bool), value: bool};
 	};
 	
 	jsmm.func.name = function(el, scope, name) {
@@ -157,7 +159,7 @@ module.exports = function(jsmm) {
 		if (object.value[property] === undefined) {
 			throw new jsmm.msg.Error(el, function(f){ return 'Variable ' + f(object.name) + ' does not have property ' + f(property); });
 		} else {
-			return {name: object.name + '.' + property, str: JSON.stringify(object.value[property]), value: object.value[property], parent: object.value};
+			return {name: object.name + '.' + property, str: stringify(object.value[property]), value: object.value[property], parent: object.value};
 		}
 	};
 	
@@ -169,7 +171,7 @@ module.exports = function(jsmm) {
 		} else if (array.value[index.value] === undefined) {
 			throw new jsmm.msg.Error(el, function(f){ return 'Array ' + f(array.name) + ' has no index ' + f(index.name); });
 		} else {
-			return {name: object.name + '[' + index.name + ']', str: JSON.stringify(array.value[index.value]), value: array.value[index.value]};
+			return {name: object.name + '[' + index.name + ']', str: stringify(array.value[index.value]), value: array.value[index.value]};
 		}
 	};
 	
@@ -206,7 +208,7 @@ module.exports = function(jsmm) {
 		if (typeof func.value !== 'function') {
 			throw new jsmm.msg.Error(el, function(f){ return 'Variable ' + f(func.name) + ' is not a function'; });
 		} else {
-			return {name: func.name, str: JSON.stringify(result), value: result};
+			return {name: func.name, str: stringify(result), value: result};
 		}
 	};
 	

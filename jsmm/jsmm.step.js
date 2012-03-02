@@ -122,7 +122,7 @@ module.exports = function(jsmm) {
 			case 2:
 				var result = jsmm.func.assignment(this, se.args[0], this.symbol, se.args[1]);
 				var up = stack.up(result);
-				var append = (up instanceof jsmm.yy.VarItem);
+				var append = (up.element instanceof jsmm.yy.VarItem);
 				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
 				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message, append)];
 		}
@@ -268,7 +268,7 @@ module.exports = function(jsmm) {
 			name += ')';
 		}
 		
-		var result;
+		var result, up;
 		if (se.args.length == 0) {
 			return stack.pushElementNext(this.identifier, se.scope);
 		} else if (se.args.length < this.expressionArgs.length+1) {
@@ -287,7 +287,7 @@ module.exports = function(jsmm) {
 				// in this case the local function has been placed on the stack, so no moving up
 				return result.value;
 			} else {
-				stack.up(result);
+				up = stack.up(result);
 				// fall through
 			}
 		} else {
@@ -295,13 +295,29 @@ module.exports = function(jsmm) {
 			// NOTE: this line is not used entirely correctly, as it is normally
 			// called in the context of a function declaration, not a call
 			result = jsmm.func.funcWrapResult(this, se.args[0], se.args.pop());
-			stack.up(result);
+			up = stack.up(result);
 			// fall through
 		}
 		
-		return [new jsmm.msg.Inline(this, function(f) {
-			return f(name) + (result.value !== undefined ? ' = ' + f(result.str) : ' called');
-		})];
+		console.log(up);
+		if (up.element instanceof jsmm.yy.CallStatement) {
+			return [
+				new jsmm.msg.Line(this, function(f) { return f(name); }),
+				new jsmm.msg.Continue(this)
+			];
+		} else {
+			return [new jsmm.msg.Inline(this, function(f) { return f(name) + ' = ' + f(result.str); })];
+		}		
+	};
+	
+	/* functionCall */
+	jsmm.yy.CallStatement.prototype.stepNext = function(stack, se) {
+		switch (se.args.length) {
+			case 0:
+				return stack.pushElementNext(this.functionCall, se.scope);
+			case 1:
+				return stack.upNext(null);
+		}
 	};
 	
 	/* expression, statementList, elseBlock */

@@ -21,6 +21,7 @@ jsmm.yy.NameIdentifier = function() { return this.build.apply(this, arguments); 
 jsmm.yy.ObjectIdentifier = function() { return this.build.apply(this, arguments); };
 jsmm.yy.ArrayIdentifier = function() { return this.build.apply(this, arguments); };
 jsmm.yy.FunctionCall = function() { return this.build.apply(this, arguments); };
+jsmm.yy.CallStatement = function() { return this.build.apply(this, arguments); };
 jsmm.yy.IfBlock = function() { return this.build.apply(this, arguments); };
 jsmm.yy.ElseIfBlock = function() { return this.build.apply(this, arguments); };
 jsmm.yy.ElseBlock = function() { return this.build.apply(this, arguments); };
@@ -271,6 +272,15 @@ jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods({
 			output += ", " + this.expressionArgs[i].getCode();
 		}
 		return output + ")";
+	}
+});
+
+jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods({
+	init: function(functionCall) {
+		this.functionCall = functionCall;
+	},
+	getCode: function() {
+		return this.functionCall.getCode();
 	}
 });
 
