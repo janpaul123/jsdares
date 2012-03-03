@@ -14,7 +14,7 @@ body {
 	font-size: 16px;
 	position: relative;
 	line-height: 25px;
-	margin: 0px;
+	margin: 0px auto;
 }
 
 textarea, .textarea {
@@ -35,7 +35,7 @@ textarea, .textarea {
 	position: absolute;
 	top: 50px;
 	left: 20px;
-	width: 700px;
+	width: 620px;
 	height: 450px;
 	background-color: #333;
 	overflow: scroll;
@@ -45,7 +45,7 @@ textarea, .textarea {
 	position: absolute;
 	top: 0px;
 	left: 120px;
-	min-width: 560px;
+	min-width: 475px;
 	min-height: 430px;
 	border-left: solid 1px #444;
 }
@@ -163,6 +163,56 @@ textarea, .textarea {
 	position: absolute;
 	top: 550px;
 	left: 20px;
-	width: 700px;
-	height: 425px;
+	right: 20px;
+	bottom: 20px;
+}
+
+#step {
+	position: absolute;
+	top: 50px;
+	left: 660px;
+	right: 20px;
+}
+
+#console-button {
+	position: absolute;
+	top: 524px;
+	left: 14px;
+}
+
+#console-button .btn-inverse {
+	background-color: #2a2a2a;
+}
+
+#console-button .dropdown-menu {
+	background-color: #2a2a2a;
+	border-color: rgba(0, 0, 0, 0.1);
+}
+
+#console-button .dropdown-menu a {
+	font-family: "Courier", monospace;
+	font-size: 12px;
+	color: #fff;
+}
+
+#extra-button {
+	position: absolute;
+	top: 100px;
+	left: 660px;
+	right: 20px;
+}
+
+#extra-button .btn {
+	width: 100%;
+}
+
+#extra-button .dropdown-menu a {
+	font-size: 12px;
+}
+
+#title {
+	position: absolute;
+	left: 20px;
+	top: 11px;
+	font-size: 58px;
 }

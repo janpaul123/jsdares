@@ -1,15 +1,32 @@
 var jsmm = require('./jsmm');
-var $ = require('br-jquery');
 
 $(function() {
+	if (window.localStorage.getItem('1') === null) {
+		window.localStorage.setItem('1', '// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
+	}
+	
 	$('#code').val(window.localStorage.getItem('1'));
 	
 	var myConsole = {
 		log: function(text) {
 			$('#console').val($('#console').val() + text + '\n');
 		},
+		lineLog: function(text) {
+			$('#console').val($('#console').val() + text);
+		},
 		clear: function() {
 			$('#console').val('');
+		}
+	};
+	
+	var realConsole = {
+		log: function(text) {
+			if (console && console.log) {
+				console.log(text);
+				return true;
+			} else {
+				return false;
+			}
 		}
 	};
 	
@@ -69,7 +86,7 @@ $(function() {
 				$('#error').fadeIn(100);
 				$('#arrow').fadeOut(100);
 				$('#code').addClass('error');
-				console.log(msg);
+				$('#code').removeClass('stepping');
 			} else {
 				$('#arrow').css('top', startPos.y + offset.y);
 				$('#arrow').fadeIn(100);
@@ -187,6 +204,119 @@ $(function() {
 	$('#messagebox, #marking').click(function(e) {
 		$('#marking').fadeOut(100);
 		$('#messagebox').fadeOut(100);
+	});
+	
+	$('#console-log').click(function(e) {
+		run();
+		var offset = $('#code')[0].selectionStart;
+		var code = browser.getCode();
+		$('#code').val(code.insertAtOffset(offset, 'console.log("Hi!");'));
+		$('#code')[0].selectionStart = offset + 12;
+		$('#code')[0].selectionEnd = $('#code')[0].selectionStart + 5;
+		run();
+	});
+	
+	$('#extra-compile').click(function(e) {
+		clear();
+		myConsole.log(browser.getRawCode());
+	});
+	
+	$('#extra-safe').click(function(e) {
+		clear();
+		myConsole.log(browser.getSafeCode());
+	});
+	
+	$('#extra-tree').click(function(e) {
+		clear();
+		window.open('https://chart.googleapis.com/chart?cht=gv&chl=' + encodeURIComponent(browser.getDot()));
+		myConsole.log('"dot" string (renderable with Graphviz):\n');
+		myConsole.log(browser.getDot());
+	});
+	
+	$('#extra-elements').click(function(e) {
+		clear();
+		
+		myConsole.log('There may be multiple instances of the same element due to parser behaviour.\n');
+		
+		for (var i=0; i<browser.context.elements.length; i++) {
+			var element = browser.context.elements[i];
+			myConsole.log(element.type + ' @ line ' + element.startPos.line);
+		}
+		
+		if (realConsole.log(browser.context)) {
+			myConsole.log('\nNote: full context has also been printed to browser console.');
+		}
+	});
+	
+	$('#extra-tests').click(function(e) {
+		clear();
+		myConsole.log(jsmm.test.runAll());
+	});
+	
+	var stressTime = function(n, f) {
+		var start = (new Date).getTime();
+		for (var i=0; i<n; i++) {
+			f();
+		}
+		return ((new Date).getTime() - start)/n;
+	};
+	
+	$('#extra-stress').click(function(e) {
+		var parseAvg = stressTime(200, function() { browser.reset(); browser.parse(); });
+		var parseGenAvg = stressTime(200, function() { browser.reset(); browser.makeSafeFunc(); });
+		var runAvg = stressTime(200, function() { browser.runSafe(); });
+		clear();
+		myConsole.log('Program average parse time: ' + parseAvg + 'ms (out of 200 trials)');
+		myConsole.log('Program average parse + code generation time: ' + parseGenAvg + 'ms (out of 200 trials)');
+		myConsole.log('Program average run time: ' + runAvg + 'ms (out of 200 trials)');
+		myConsole.log('');
+		myConsole.log('Note: the Javascript time function is not completely reliable...');
+	});
+	
+	$('#extra-scope').click(function(e) {
+		clear();
+		if (!browser.isStepping()) {
+			myConsole.log('Not stepping...');
+			return;
+		}
+		
+		myConsole.log(JSON.stringify(browser.stack.getLastStackElement().scope, function(key, value) {
+			if (typeof value === 'function') {
+				return '[Function]';
+			} else {
+				return value;
+			}
+		}, 2));
+		
+		if (realConsole.log(browser.stack.getLastStackElement().scope)) {
+			myConsole.log('\nNote: scope has also been printed to browser console.');
+		}
+	});
+	
+	$('#extra-stack').click(function(e) {
+		clear();
+		if (!browser.isStepping()) {
+			myConsole.log('Not stepping...');
+			return;
+		}
+		
+		for (var i=0; i<browser.stack.elements.length; i++) {
+			var element = browser.stack.elements[i].element;
+			myConsole.log(element.type + ' @ line ' + element.startPos.line);
+		}
+		
+		if (realConsole.log(browser.stack)) {
+			myConsole.log('\nNote: full stack has also been printed to browser console.');
+		}
+	});
+	
+	$('#extra-error').click(function(e) {
+		clear();
+		myConsole.log(JSON.stringify(browser.getError(), null, 2));
+		
+		if (realConsole.log(browser.getError())) {
+			myConsole.log('\nNote: error has also been printed to browser console.');
+		}
 	});
 	
 	updateSize();

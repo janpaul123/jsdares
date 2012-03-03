@@ -1,2 +1,2 @@
 var jsmm = require('./jsmm');
-jsmm.test.runAll();
+console.log(jsmm.test.runAll());

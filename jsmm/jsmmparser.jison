@@ -9,9 +9,10 @@ alphanum		[0-9a-zA-Z_]
 notalphanum     [^0-9a-zA-Z_]
 exponent		(?:[eE][+-]?{digit}+)
 whitespace		(?:[ \f\r\t\v\u00A0\u2028\u2029]+)
-linecomment		(?:[/][/].*[\n])
+linecomment		(?:[/][/][^\n]*)
 multicomment	(?:[/][*]([^*]*[*][^/])*[^*]*[*][/])
-newlines		(?:(?:[\n]{whitespace}?)+)
+skip			(?:{whitespace}|{linecomment}|{multicomment})
+newlines		(?:(?:[\n]{skip}?)+)
 fraction		(?:"."{digit}+)
 number			(?:(?:(?:[1-9]{digit}*)|"0"){fraction}?{exponent}?)
 string			(?:["][^\\"]*(?:[\\].[^\\"]*)*["])
@@ -20,8 +21,7 @@ reserved		(?:"jsmmscope"|"jsmmscopeInner"|"jsmmscopeOuter"|"jsmm"|"jsmmparser")
 
 %%
 
-({linecomment}|{multicomment})({newlines}?)	/* skip comment */
-{whitespace}								/* skip whitespace */
+{skip}										/* skip and comments */
 ("++"|"--")									return "++";
 ("+="|"-="|"*="|"/="|"%=")					return "+=";
 ("=="|"!="|">="|"<="|">"|"<")				return "==";

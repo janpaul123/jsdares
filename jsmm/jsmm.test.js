@@ -13,6 +13,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.test.runAll = function() {
+		jsmm.test.output = '';
 		failed = 0;
 		for (var name in jsmm.test.tests.succeed) {
 			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.succeed[name], true)) failed++;
@@ -21,24 +22,20 @@ module.exports = function(jsmm) {
 			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.fail[name], false)) failed++;
 		}
 		if (failed <= 0) {
-			console.log('All tests completed successfully!');
+			jsmm.test.output += 'All tests completed successfully!';
 		} else if (failed == 1) {
-			console.log('Unfortunately 1 test failed...');
+			jsmm.test.output += 'Unfortunately 1 test failed...';
 		} else {
-			console.log('Unfortunately ' + failed + ' tests failed...');
+			jsmm.test.output += 'Unfortunately ' + failed + ' tests failed...';
 		}
+		return jsmm.test.output;
 	};
 	
 	jsmm.test.printError = function(name, name1, name2, error1, error2, code) {
-		console.log('In test "' + name + '" ' + name1 + ' and ' + name2 + ' were incorrect.');
-		console.log(name1 + ':');
-		console.log(error1);
-		console.log(' ');
-		console.log(name2 + ':');
-		console.log(error2);
-		console.log(' ');
-		console.log('code:');
-		console.log(code);
+		jsmm.test.output += 'In test "' + name + '" ' + name1 + ' and ' + name2 + ' were incorrect.\n';
+		jsmm.test.output += name1 + ':\n' + error1 + '\n';
+		jsmm.test.output += name2 + ':\n' + error2 + '\n';
+		jsmm.test.output += 'code:\n' + code + '\n';
 	};
 	
 	jsmm.test.runTest = function(name, code, succeed) {
@@ -88,7 +85,7 @@ module.exports = function(jsmm) {
 			return false;
 		}
 		
-		console.log('Test "' + name + '" completed successfully!');
+		jsmm.test.output += 'Test "' + name + '" completed successfully!\n';
 		return true;
 	};
 	
