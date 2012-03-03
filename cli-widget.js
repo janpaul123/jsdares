@@ -216,6 +216,21 @@ $(function() {
 		run();
 	});
 	
+	$('#console-clear').click(function(e) {
+		run();
+		var offset = $('#code')[0].selectionStart;
+		var code = browser.getCode();
+		$('#code').val(code.insertAtOffset(offset, 'console.clear();'));
+		$('#code')[0].selectionStart = offset + 16;
+		$('#code')[0].selectionEnd = $('#code')[0].selectionStart;
+		run();
+	});
+	
+	$('#console-example').click(function(e) {
+		$('#code').val($('#code') + '\n// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
+		run();
+	});
+	
 	$('#extra-compile').click(function(e) {
 		clear();
 		myConsole.log(browser.getRawCode());
