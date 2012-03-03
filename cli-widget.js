@@ -227,7 +227,7 @@ $(function() {
 	});
 	
 	$('#console-example').click(function(e) {
-		$('#code').val($('#code') + '\n// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
+		$('#code').val($('#code').val() + '\n// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
 		run();
 	});
 	
