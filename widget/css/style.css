@@ -38,14 +38,14 @@ textarea, .textarea {
 	width: 620px;
 	height: 450px;
 	background-color: #333;
-	overflow: scroll;
+	overflow: auto;
 }
 
 #code {
 	position: absolute;
 	top: 0px;
-	left: 120px;
-	min-width: 475px;
+	left: 150px;
+	min-width: 430px;
 	min-height: 430px;
 	border-left: solid 1px #444;
 }
@@ -70,7 +70,7 @@ textarea, .textarea {
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	width: 120px;
+	width: 150px;
 	height: 10px;
 	overflow: visible;
 	z-index: 5;
@@ -165,6 +165,8 @@ textarea, .textarea {
 	left: 20px;
 	right: 20px;
 	bottom: 20px;
+	width: 708px; /* for non-webkit */
+	height: 434px; /* for non-webkit */
 }
 
 #step {
@@ -172,6 +174,7 @@ textarea, .textarea {
 	top: 50px;
 	left: 660px;
 	right: 20px;
+	width: 87px; /* for non-webkit */
 }
 
 #console-button {
@@ -218,6 +221,14 @@ textarea, .textarea {
 #title {
 	position: absolute;
 	left: 20px;
-	top: 11px;
+	top: 5px;
 	font-size: 58px;
+	line-height: 58px;
+}
+
+/* but in bootstrap, forgot btn-warning */
+.btn-warning .caret {
+  border-top-color: #ffffff;
+  opacity: 0.75;
+  filter: alpha(opacity=75);
 }
