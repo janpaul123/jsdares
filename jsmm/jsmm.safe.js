@@ -15,7 +15,7 @@ module.exports = function(jsmm) {
 		var output = 'new function() {';
 		output += 'return function(jsmm, jsmmcontext, jsmmscope) {';
 		output += 'return function() { var jsmmscopeInner, jsmmscopeOuter = new jsmm.func.Scope(jsmmscope);\n';
-		output += 'jsmm.func.resetExecutionCounter();\n';
+		output += 'var jsmmExecutionCounter = 0;\n';
 		output += this.statementList.getSafeCode() + 'return jsmmscopeOuter; }; }; }';
 		return output;
 	};
@@ -26,10 +26,10 @@ module.exports = function(jsmm) {
 	
 	/* statements */
 	jsmm.yy.StatementList.prototype.getSafeCode = function() {
-		var output = 'jsmm.func.increaseExecutionCounter(' + getEl(this) + ');\n';
+		var output = 'jsmmExecutionCounter += ' + (this.statements.length+1) + ';\n';
+		output += ' jsmm.func.checkExecutionCounter(' + getEl(this) + ', jsmmExecutionCounter);\n';
 		for (var i=0; i<this.statements.length; i++) {
-			output += this.statements[i].getSafeCode();
-			output += ' jsmm.func.increaseExecutionCounter(' + getEl(this.statements[i]) + ');\n';
+			output += this.statements[i].getSafeCode() + '\n';
 			if (jsmm.verbose) {
 				output += 'console.log("after line ' + this.statements[i].endPos.line + ':");\n';
 				output += 'console.log(' +  getScope() + ');\n';

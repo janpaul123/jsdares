@@ -6,7 +6,6 @@ module.exports = function(jsmm) {
 	jsmm.func.maxExecutionCounter = 1000;
 	
 	var callStackDepth = 0;
-	var executionCounter = 0;
 	
 	var findVar = function(scope, name) {
 		do {
@@ -249,18 +248,9 @@ module.exports = function(jsmm) {
 		return value;
 	};
 	
-	jsmm.func.increaseExecutionCounter = function(el) {
-		executionCounter++;
-		jsmm.func.checkExecutionCounter(el);
-	};
-	
-	jsmm.func.checkExecutionCounter = function(el) {
+	jsmm.func.checkExecutionCounter = function(el, executionCounter) {
 		if (executionCounter > jsmm.func.maxExecutionCounter) {
 			throw new jsmm.msg.Error(el, function(f){ return 'Program takes too long to run, perhaps there is an infinite loop somewhere'; });
 		}
-	};
-	
-	jsmm.func.resetExecutionCounter = function() {
-		executionCounter = 0;
 	};
 };

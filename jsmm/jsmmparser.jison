@@ -17,7 +17,7 @@ fraction		(?:"."{digit}+)
 number			(?:(?:(?:[1-9]{digit}*)|"0"){fraction}?{exponent}?)
 string			(?:["][^\\"]*(?:[\\].[^\\"]*)*["])
 reservedjs		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new"|"continue"|"void"|"delete"|"this"|"do"|"in"|"switch"|"throw"|"try"|"typeof"|"with"|"abstract"|"boolean"|"byte"|"char"|"class"|"const"|"debugger"|"double"|"enum"|"export"|"extends"|"final"|"float"|"goto"|"implements"|"import"|"int"|"interface"|"long"|"native"|"package"|"private"|"protected"|"public"|"short"|"static"|"super"|"synchronized"|"throws"|"transient"|"volatile")
-reserved		(?:"jsmmscope"|"jsmmscopeInner"|"jsmmscopeOuter"|"jsmm"|"jsmmparser")
+reserved		(?:"jsmmscope"|"jsmmscopeInner"|"jsmmscopeOuter"|"jsmm"|"jsmmparser"|"jsmmExecutionCounter")
 
 %%
 

@@ -9,10 +9,10 @@ $(function() {
 	
 	var myConsole = {
 		log: function(text) {
-			$('#console').val($('#console').val() + text + '\n');
+			$('#console').val($('#console').val() + (text || '') + '\n');
 		},
 		lineLog: function(text) {
-			$('#console').val($('#console').val() + text);
+			$('#console').val($('#console').val() + (text || ''));
 		},
 		clear: function() {
 			$('#console').val('');
@@ -284,7 +284,7 @@ $(function() {
 		myConsole.log('Program average parse time: ' + parseAvg + 'ms (out of 200 trials)');
 		myConsole.log('Program average parse + code generation time: ' + parseGenAvg + 'ms (out of 200 trials)');
 		myConsole.log('Program average run time: ' + runAvg + 'ms (out of 200 trials)');
-		myConsole.log('');
+		myConsole.log();
 		myConsole.log('Note: the Javascript time function is not completely reliable...');
 	});
 	
@@ -332,6 +332,26 @@ $(function() {
 		if (realConsole.log(browser.getError())) {
 			myConsole.log('\nNote: error has also been printed to browser console.');
 		}
+	});
+	
+	$('#about').click(function(e) {
+		clear();
+		myConsole.log('This is a tool to become a good programmer. The primary objective is to teach programming in an engaging way. It can also give current programmers insights in what it is they are doing.');
+		myConsole.log();
+		myConsole.log('The programming language you program in is js--, a subset of Javascript. A lot of things allowed in Javascript are not allowed here, yet it is still quite an expressive language. The intention is to stimulate learning by giving meaningful error messages and sensible operations.');
+		myConsole.log();
+		myConsole.log('Most of the interface ideas presented in this and feature prototypes are stolen from Bret Victor. I share his belief that direct interaction and abstraction are very powerful concepts, both in programming and other fields. We should program and teach programming this way.');
+		myConsole.log();
+		myConsole.log('This is a first step, mostly to test the compiler, and verify that something like this is possible in the browser. Next on the roadmap are:');
+		myConsole.log('* drawing on canvas');
+		myConsole.log('* autocompletion');
+		myConsole.log('* interactive programs (event handling, time-based)');
+		myConsole.log('* direct value manipulation');
+		myConsole.log('* up on the ladder of abstraction!');
+		myConsole.log();
+		myConsole.log('If you have any ideas, complaints, or suggestions about this prototype or its wider context, do not hesitate to mail me at me@janpaulposma.nl.');
+		
+		
 	});
 	
 	updateSize();

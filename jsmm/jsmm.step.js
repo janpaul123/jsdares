@@ -10,6 +10,7 @@ module.exports = function(jsmm) {
 		init: function(context, scope) {
 			this.context = context;
 			this.elements = [new jsmm.step.StackElement(this, context.program, new jsmm.func.Scope(scope))];
+			this.executionCounter = 0;
 		},
 		getLastStackElement: function() {
 			if (this.elements.length > 0) {
@@ -63,7 +64,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.Program.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				jsmm.func.resetExecutionCounter();
+				stack.executionCounter = 0;
 				return stack.pushElementNext(this.statementList, se.scope);
 			case 1:
 				stack.elements = [];
@@ -72,14 +73,16 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statements */
-	jsmm.yy.StatementList.prototype.stepNext = function(stack, se) {
-		// always increase execution counter, even for empty lists
-		jsmm.func.increaseExecutionCounter(this);
-		
+	jsmm.yy.StatementList.prototype.stepNext = function(stack, se) {		
 		if (jsmm.verbose && se.args.length > 0) {
 			console.log('after line ' + this.statements[se.args.length-1].endPos.line + ':');
 			console.log(se.scope);
 			console.log(' ');
+		}
+		
+		if (se.args.length === 0) {
+			stack.executionCounter += this.statements.length+1;
+			jsmm.func.checkExecutionCounter(this, stack.executionCounter);
 		}
 		
 		if (se.args.length < this.statements.length) {

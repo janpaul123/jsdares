@@ -167,20 +167,20 @@ textarea, .textarea {
 	bottom: 20px;
 	width: 708px; /* for non-webkit */
 	height: 434px; /* for non-webkit */
+	word-wrap: normal;
+	white-space: pre-wrap;
 }
 
 #step {
 	position: absolute;
 	top: 50px;
 	left: 660px;
-	right: 20px;
-	width: 87px; /* for non-webkit */
 }
 
 #console-button {
 	position: absolute;
 	top: 524px;
-	left: 14px;
+	left: 18px;
 }
 
 #console-button .btn-inverse {
@@ -207,20 +207,21 @@ textarea, .textarea {
 	position: absolute;
 	top: 100px;
 	left: 660px;
-	right: 20px;
-}
-
-#extra-button .btn {
-	width: 100%;
 }
 
 #extra-button .dropdown-menu a {
 	font-size: 12px;
 }
 
+#about {
+	position: absolute;
+	left: 660px;
+	top: 140px;
+}
+
 #title {
 	position: absolute;
-	left: 20px;
+	left: 22px;
 	top: 5px;
 	font-size: 58px;
 	line-height: 58px;
