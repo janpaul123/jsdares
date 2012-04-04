@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	var makeEdge = function(from, to) {
 		return from + "->" + to + ";";
@@ -57,14 +60,14 @@ module.exports = function(jsmm) {
 		return output;
 	};
 	
-	jsmm.yy.PostfixStatement.prototype.getDot = 
+	jsmm.yy.PostfixStatement.prototype.getDot =
 	jsmm.yy.AssignmentStatement.prototype.getDot =
 	jsmm.yy.ReturnStatement.prototype.getDot =
 	jsmm.yy.BinaryExpression.prototype.getDot =
 	jsmm.yy.UnaryExpression.prototype.getDot =
 	jsmm.yy.NumberLiteral.prototype.getDot =
-	jsmm.yy.StringLiteral.prototype.getDot = 
-	jsmm.yy.BooleanLiteral.prototype.getDot = 
+	jsmm.yy.StringLiteral.prototype.getDot =
+	jsmm.yy.BooleanLiteral.prototype.getDot =
 	jsmm.yy.NameIdentifier.prototype.getDot =
 	jsmm.yy.ObjectIdentifier.prototype.getDot =
 	jsmm.yy.ArrayIdentifier.prototype.getDot =

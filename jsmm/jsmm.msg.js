@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	jsmm.msg = {};
 	jsmm.msg.Inline = function() { return this.init.apply(this, arguments); };
@@ -9,7 +12,7 @@ module.exports = function(jsmm) {
 		element.initMsg = function(msg) {
 			var message = (typeof msg === 'function') ? msg : function(f) { return msg; };
 			this.message = message(function f(val) { return val; });
-			this.html = message(function f(val) { 
+			this.html = message(function f(val) {
 				// we assume that val is already JSON stringified
 				return '<span class="msg-value">' + val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</span>';
 			});

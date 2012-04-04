@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	require('./jsmm.msg')(jsmm);
 	
@@ -63,6 +66,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.func.binary = function(el, expression1, symbol, expression2) {
+		/*jshint eqeqeq:false*/
 		if (expression1.value === undefined) {
 			throw new jsmm.msg.Error(el, function(f){ return f(symbol) + ' not possible since ' + f(expression1.name) + ' is ' + f('undefined'); });
 		} else if (expression2.value === undefined) {
@@ -170,7 +174,7 @@ module.exports = function(jsmm) {
 		} else if (array.value[index.value] === undefined) {
 			throw new jsmm.msg.Error(el, function(f){ return 'Array ' + f(array.name) + ' has no index ' + f(index.name); });
 		} else {
-			return {name: object.name + '[' + index.name + ']', str: stringify(array.value[index.value]), value: array.value[index.value]};
+			return {name: array.name + '[' + index.name + ']', str: stringify(array.value[index.value]), value: array.value[index.value]};
 		}
 	};
 	
@@ -183,6 +187,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.func.funcCall = function(el, func, args) {
+		/*jshint loopfunc:true*/
 		if (typeof func.value !== 'function') {
 			throw new jsmm.msg.Error(el, function(f){ return 'Variable ' + f(func.name) + ' is not a function'; });
 		} else {
@@ -225,7 +230,9 @@ module.exports = function(jsmm) {
 		}
 	};
 	
+
 	jsmm.func.funcEnter = function(el, scope) {
+		/*jshint loopfunc:true*/
 		callStackDepth++;
 		if (callStackDepth > jsmm.func.maxCallStackDepth) {
 			throw new jsmm.msg.Error(el, function(f){ return 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere'; });
@@ -240,7 +247,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.func.funcReturn = function(el, expression) {
-		var value = undefined;
+		var value;
 		if (expression !== undefined) {
 			value = expression.value;
 		}

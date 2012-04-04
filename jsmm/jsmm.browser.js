@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	require('./jsmm.msg')(jsmm);
 	
@@ -86,7 +89,7 @@ module.exports = function(jsmm) {
 		if (error instanceof jsmm.msg.Error) {
 			this.error = error;
 		} else {
-			throw error;
+			//throw error;
 			this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 		}
 		//console.log(this.error);
@@ -141,7 +144,7 @@ module.exports = function(jsmm) {
 			this.handleError(error);
 			return false;
 		}
-	}
+	};
 	
 	jsmm.Browser.prototype.runRaw = function() {
 		this.resetError();
@@ -180,7 +183,7 @@ module.exports = function(jsmm) {
 			this.handleError(error);
 			return false;
 		}
-	}
+	};
 	
 	jsmm.Browser.prototype.runSafe = function() {
 		this.resetError();
@@ -212,10 +215,11 @@ module.exports = function(jsmm) {
 		
 		var ret = [];
 		try {
+			var cont;
 			do {
 				if (this.stack === null || !this.stack.hasNext()) return undefined;
 				
-				var cont = false;
+				cont = false;
 				var msgs = this.stack.stepNext();
 				if (msgs.length <= 0) return undefined;
 				
@@ -245,7 +249,7 @@ module.exports = function(jsmm) {
 	jsmm.Browser.prototype.runStep = function() {
 		this.resetError();
 		
-		if (this.stepInit()) {		
+		if (this.stepInit()) {
 			var step;
 			do {
 				step = this.stepNext();
@@ -253,11 +257,11 @@ module.exports = function(jsmm) {
 		}
 		
 		return !this.hasError();
-	}
+	};
 	
 	jsmm.Browser.prototype.hasError = function() {
 		return this.error !== null;
-	}
+	};
 	
 	jsmm.Browser.prototype.getError = function() {
 		return this.error;

@@ -1,14 +1,17 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	require('./jsmm.func')(jsmm);
 	
 	var getEl = function(obj) {
 		//return '{line: ' + obj.startPos.line + ', column: ' + obj.startPos.column + '}';
 		return 'jsmmcontext.elements[' + obj.id + ']';
-	}
+	};
 	
 	var getScope = function() {
 		return '(jsmmscopeInner||jsmmscopeOuter)';
-	}
+	};
 	
 	/* statementList */
 	jsmm.yy.Program.prototype.getSafeCode = function() {
@@ -21,6 +24,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.yy.Program.prototype.getSafeFunction = function(scope) {
+		/*jshint evil:true*/
 		return eval(this.getSafeCode())(jsmm, this.context, scope);
 	};
 	
@@ -125,7 +129,7 @@ module.exports = function(jsmm) {
 	
 	/* identifier, expressionArgs */
 	jsmm.yy.FunctionCall.prototype.getSafeCode = function() {
-		var output = 'jsmm.func.funcCall(' + getEl(this) + ', ' + this.identifier.getSafeCode() + ', ['
+		var output = 'jsmm.func.funcCall(' + getEl(this) + ', ' + this.identifier.getSafeCode() + ', [';
 		if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getSafeCode();
 		for (var i=1; i<this.expressionArgs.length; i++) {
 			output += ", " + this.expressionArgs[i].getSafeCode();
@@ -165,7 +169,7 @@ module.exports = function(jsmm) {
 	
 	/* statement1, expression, statement2, statementList */
 	jsmm.yy.ForBlock.prototype.getSafeCode = function() {
-		var output = "for (" + this.statement1.getSafeCode() + '; ' 
+		var output = "for (" + this.statement1.getSafeCode() + '; ';
 		output += 'jsmm.func.conditional(' + getEl(this) + ', "for", ' + this.expression.getSafeCode() + "); ";
 		output += this.statement2.getSafeCode() + ") {\n" + this.statementList.getSafeCode() + "}";
 		return output;

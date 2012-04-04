@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	require('./jsmm.browser')(jsmm);
 	require('./jsmm.msg')(jsmm);
@@ -14,21 +17,23 @@ module.exports = function(jsmm) {
 	
 	jsmm.test.runAll = function() {
 		jsmm.test.output = '';
-		failed = 0;
-		for (var name in jsmm.test.tests.succeed) {
+		var failed = 0;
+		var name;
+
+		for (name in jsmm.test.tests.succeed) {
 			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.succeed[name], true)) failed++;
 		}
-		for (var name in jsmm.test.tests.fail) {
+		for (name in jsmm.test.tests.fail) {
 			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.fail[name], false)) failed++;
 		}
 		if (failed <= 0) {
 			jsmm.test.output += 'All tests completed successfully!';
-		} else if (failed == 1) {
+		} else if (failed === 1) {
 			jsmm.test.output += 'Unfortunately 1 test failed...';
 		} else {
 			jsmm.test.output += 'Unfortunately ' + failed + ' tests failed...';
 		}
-		return jsmm.test.output;
+		return failed <= 0;
 	};
 	
 	jsmm.test.printError = function(name, name1, name2, error1, error2, code) {
@@ -171,6 +176,12 @@ module.exports = function(jsmm) {
 	'    if (false) {' + '\n' +
 	'      console.log(false);' + '\n' +
 	'    } else if (true) {' + '\n' +
+	'      if(true) {' + '\n' +
+	'        console.log("a");' + '\n' +
+	'      }' + '\n' +
+	'      if(false) {' + '\n' +
+	'        console.log("b");' + '\n' +
+	'      }' + '\n' +
 	'      console.log(true);' + '\n' +
 	'    }' + '\n' +
 	'  }' + '\n' +

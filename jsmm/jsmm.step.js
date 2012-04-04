@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 module.exports = function(jsmm) {
 	require('./jsmm.func')(jsmm);
 	require('./jsmm.msg')(jsmm);
@@ -73,7 +76,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statements */
-	jsmm.yy.StatementList.prototype.stepNext = function(stack, se) {		
+	jsmm.yy.StatementList.prototype.stepNext = function(stack, se) {
 		if (jsmm.verbose && se.args.length > 0) {
 			console.log('after line ' + this.statements[se.args.length-1].endPos.line + ':');
 			console.log(se.scope);
@@ -110,7 +113,7 @@ module.exports = function(jsmm) {
 			case 1:
 				var result = jsmm.func.postfix(this, se.args[0], this.symbol);
 				stack.up(null);
-				message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); }
+				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
 				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message)];
 		}
 	};
@@ -174,7 +177,7 @@ module.exports = function(jsmm) {
 				case 1:
 					var lastStackElement = stack.getLastStackElement();
 					var result = jsmm.func.funcReturn(this, se.args[0]);
-					while (!(lastStackElement.element instanceof jsmm.yy.FunctionCall || 
+					while (!(lastStackElement.element instanceof jsmm.yy.FunctionCall ||
 							lastStackElement.element instanceof jsmm.yy.Program)) {
 						lastStackElement = stack.up(result);
 					}
@@ -196,7 +199,7 @@ module.exports = function(jsmm) {
 				var result = jsmm.func.binary(this, se.args[0], this.symbol, se.args[1]);
 				stack.up(result);
 				var that = this;
-				return [new jsmm.msg.Inline(this, function(f) { 
+				return [new jsmm.msg.Inline(this, function(f) {
 					return f(se.args[0].str) + ' ' + that.symbol + ' ' + f(se.args[1].str) + ' = ' + f(result.str);
 				})];
 		}
@@ -272,17 +275,17 @@ module.exports = function(jsmm) {
 		}
 		
 		var result, up;
-		if (se.args.length == 0) {
+		if (se.args.length === 0) {
 			return stack.pushElementNext(this.identifier, se.scope);
 		} else if (se.args.length < this.expressionArgs.length+1) {
 			return stack.pushElementNext(this.expressionArgs[se.args.length-1], se.scope);
-		} else if (se.args.length == this.expressionArgs.length+1) {
+		} else if (se.args.length === this.expressionArgs.length+1) {
 			se.args.push(null);
 			
 			return [new jsmm.msg.Inline(this, function(f) {
 				return 'calling ' + f(name);
 			})];
-		} else if (se.args.length == this.expressionArgs.length+2) {
+		} else if (se.args.length === this.expressionArgs.length+2) {
 			// first actual function call (all arguments are evaluated)
 			result = jsmm.func.funcCall(this, se.args[0], se.args.slice(1, se.args.length-1));
 			
@@ -309,7 +312,7 @@ module.exports = function(jsmm) {
 			];
 		} else {
 			return [new jsmm.msg.Inline(this, function(f) { return f(name) + ' = ' + f(result.str); })];
-		}		
+		}
 	};
 	
 	/* functionCall */
@@ -330,9 +333,12 @@ module.exports = function(jsmm) {
 			case 1:
 				if (jsmm.func.conditional(this, 'if', se.args[0])) {
 					return stack.pushElementNext(this.statementList, se.scope);
-				} else {
+				} else if(this.elseBlock !== null) {
 					return stack.pushElementNext(this.elseBlock, se.scope);
+				} else {
+					return stack.upNext(null);
 				}
+				break;
 			case 2:
 				return stack.upNext(null);
 		}
@@ -369,6 +375,7 @@ module.exports = function(jsmm) {
 				} else {
 					return stack.upNext(null);
 				}
+				break;
 			case 2:
 				se.args.pop(); // pop statementList
 				se.args.pop(); // pop expression
@@ -389,6 +396,7 @@ module.exports = function(jsmm) {
 				} else {
 					return stack.upNext(null);
 				}
+				break;
 			case 3:
 				return stack.pushElementNext(this.statement2, se.scope);
 			case 4:

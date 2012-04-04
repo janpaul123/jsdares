@@ -1,0 +1,10 @@
+{
+  "name": "hello",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "*",
+    "br-jquery": "*",
+    "browserify": "*"
+  },
+  "private": true
+}

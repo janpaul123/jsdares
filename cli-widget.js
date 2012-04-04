@@ -1,3 +1,6 @@
+/*jshint node:true jquery:true*/
+"use strict";
+
 var jsmm = require('./jsmm');
 
 $(function() {
@@ -46,7 +49,7 @@ $(function() {
 		if (msg.column2 > msg.column) endPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column2));
 		
 		// the offset is weird since .position().top changes when scrolling
-		offset = {
+		var offset = {
 			x: ($('#code').position().left + $('#editor').scrollLeft()),
 			y: ($('#code').position().top + $('#editor').scrollTop())
 		};
@@ -121,7 +124,7 @@ $(function() {
 	};
 	
 	var run = function() {
-		clear()
+		clear();
 		browser.setText($('#code').val());
 		browser.setScope({console: myConsole});
 		browser.runSafe();
@@ -141,7 +144,7 @@ $(function() {
 			hideMessage();
 			browser.stepInit();
 			$('#code').addClass('stepping');
-		} else {						
+		} else {
 			var msgs = browser.stepNext();
 			if (browser.hasError()) {
 				drawMessage(browser.getError());
@@ -167,9 +170,11 @@ $(function() {
 				var curLine = code.getLine(pos.line);
 				var spaces = prevLine.match(/^ */)[0].length;
 				var spacesAlready = curLine.match(/^ */)[0].length;
-				spaces += prevLine.match(/{ *$/) !== null ? 2 : 0;
+				spaces += prevLine.match(/\{ *$/) !== null ? 2 : 0;
 				spaces -= spacesAlready;
-				spaces -= curLine.match(/^ *}/) !== null ? 2 : 0;
+				spaces -= curLine.match(/^ *\}/) !== null ? 2 : 0;
+
+				var startOffset, endOffset;
 				if (spaces > 0) {
 					startOffset = code.lineColumnToOffset(pos.line, 0);
 					$('#code').val(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
@@ -178,8 +183,8 @@ $(function() {
 				} else if (spaces < 0 && spacesAlready >= -spaces) {
 					startOffset = code.lineColumnToOffset(pos.line, 0);
 					endOffset = startOffset-spaces;
-				    $('#code').val(code.removeAtOffsetRange(startOffset, endOffset));
-				    $('#code')[0].selectionStart = offset + spaces;
+					$('#code').val(code.removeAtOffsetRange(startOffset, endOffset));
+					$('#code')[0].selectionStart = offset + spaces;
 					$('#code')[0].selectionEnd = $('#code')[0].selectionStart;
 				}
 			}
@@ -265,15 +270,16 @@ $(function() {
 	
 	$('#extra-tests').click(function(e) {
 		clear();
-		myConsole.log(jsmm.test.runAll());
+		jsmm.test.runAll();
+		myConsole.log(jsmm.test.output);
 	});
 	
 	var stressTime = function(n, f) {
-		var start = (new Date).getTime();
+		var start = (new Date()).getTime();
 		for (var i=0; i<n; i++) {
 			f();
 		}
-		return ((new Date).getTime() - start)/n;
+		return ((new Date()).getTime() - start)/n;
 	};
 	
 	$('#extra-stress').click(function(e) {

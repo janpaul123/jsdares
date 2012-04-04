@@ -1,0 +1,30 @@
+{
+  "name": "reflect",
+  "version": "0.0.1",
+  "author": "Zach Carter",
+  "email": "zach@carter.name",
+  "keywords": [
+    "parser",
+    "reflect",
+    "javascript"
+  ],
+  "githubName": "reflect.js",
+  "type": "zip",
+  "location": "http://github.com/zaach/reflect.js/zipball/master",
+  "main": "dist/reflect",
+  "engines": {
+    "node": ">=0.1.90"
+  },
+  "directories": {
+    "lib": "lib",
+    "bin": "./bin"
+  },
+  "modules": {
+    "reflect.js": "dist/reflect.js",
+    "parser.js": "dist/parser.js",
+    "nodes.js": "dist/nodes.js"
+  },
+  "files": [
+    ""
+  ]
+}

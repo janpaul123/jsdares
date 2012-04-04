@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 var jsmm = {};
 
 jsmm.verbose = false;
@@ -38,7 +41,7 @@ jsmm.Context.prototype = {
 	},
 	getNewId: function() {
 		return this.genId++;
-	},
+	}
 };
 
 jsmm.addCommonElementMethods = function(element) {
@@ -63,9 +66,10 @@ jsmm.yy.Program.prototype = jsmm.addCommonElementMethods({
 		return this.statementList.getCode();
 	},
 	getFunction: function(scope) {
+		/*jshint evil:true*/
 		var args = [jsmm];
 		var output = 'new function() {';
-		output += 'return function(jsmm'
+		output += 'return function(jsmm';
 		for (var name in scope) {
 			output += ', ' + name;
 			args.push(scope[name]);
@@ -437,12 +441,12 @@ jsmm.yy.parseError = function(errStr, hash) {
 		throw new jsmm.msg.Error(pos, function(f) {
 			return 'Invalid syntax encountered, perhaps some code' + makeNear(hash.text, f) + ' should be put on a new line.';
 		}, errStr);
-	} else if (expected.length == 1) {
+	} else if (expected.length === 1) {
 		// if only one thing can be expected, pass it on
 		if (expected[0] === 'NAME') {
 			expected[0] = 'variable name';
 		}
-		suggestionError(expected[0]);		
+		suggestionError(expected[0]);
 	} else if (expected.indexOf(";") >= 0 && token === "NEWLINE") {
 		// ; expected before of newline is usually forgotten
 		suggestionError(';');

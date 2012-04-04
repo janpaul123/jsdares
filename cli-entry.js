@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 var jsmm = require('./jsmm');
 var $ = require('br-jquery');
 
