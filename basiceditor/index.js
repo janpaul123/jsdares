@@ -98,7 +98,7 @@ based.Editor.prototype = {
 		this.$div.append(this.$margin);
 		
 		// setting up messages
-		this.$messagebox = $('<div class="based-messagebox"><img class="based-messagecol" src="img/arrow_up.png"/><div class="based-message"></div></div>');
+		this.$messagebox = $('<div class="based-messagebox"><div class="arrow"></div><div class="based-message"></div></div>');
 		this.$div.append(this.$messagebox);
 		this.$messageMarking = this.addMarking(0,0,0,0, 'based-message-marking');
 		this.$messageMarking.hide();
@@ -136,6 +136,7 @@ based.Editor.prototype = {
 	setCode: function(code) {
 		this.dynamicState.code = new based.Code(code);
 		this.$textarea.val(code);
+		this.updateSize();
 	},
 
 	setMessage: function(message) {

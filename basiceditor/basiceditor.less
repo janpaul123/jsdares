@@ -1,3 +1,5 @@
+@import "../bootstrap/less/mixins.less";
+
 .based-editor {
 	margin: 0;
 	padding: 0;
@@ -7,6 +9,12 @@
 }
 
 .based-code, .based-mirror {
+	&:focus {
+		outline:0px !important;
+    	.box-shadow(none);
+    	.transition(none);
+	}
+
 	background-color: #333;
 	border: none;
 	font-family: "Courier", monospace;
@@ -19,6 +27,11 @@
 	white-space: pre;
 	line-height: 16px;
 	position: absolute;
+
+	.box-shadow(none);
+	.border-radius(0);
+
+	
 }
 
 .based-code {
@@ -27,6 +40,10 @@
 	min-width: 430px;
 	min-height: 430px;
 	border-left: solid 1px #444;
+
+	&:focus {
+		border-left: solid 1px #444;
+	}
 }
 
 /*#code*/.based-error {
@@ -69,18 +86,28 @@
 	margin-top: -31px;
 }
 
+@message-arrow-size: 5px;
+
 .based-messagebox {
 	position: absolute;
-	margin-top: -9px;
-	margin-left: -25px;
+	margin-top: -9px + @message-arrow-size;
+	margin-left: -32px;
 	display: block;
-	top: 110px;
-	left: 270px;
 	background-color: rgba(30, 30, 30, 0.95);
 	font-size: 14px;
 	z-index: 10;
 	cursor: pointer;
 	cursor: hand;
+	.border-radius();
+
+	.arrow {
+		#popoverArrow > .bottom(@message-arrow-size, rgba(30, 30, 30, 0.95));
+		position: absolute;
+		width: 0;
+		height: 0;
+		margin-top: -@message-arrow-size;
+		left: 18px;
+	}
 }
 
 .based-messagecol {
@@ -90,12 +117,9 @@
 }
 
 .based-message {
-	margin-left: 25px;
-	margin-top: 2px;
+	padding: 5px 12px;
 	max-width: 250px;
-	padding-bottom: 3px;
 	color: #0E0;
-	padding-right: 10px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
