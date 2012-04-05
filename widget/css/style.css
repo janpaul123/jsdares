@@ -171,34 +171,46 @@ textarea, .textarea {
 	white-space: pre-wrap;
 }
 
+#canvas {
+	position: absolute;
+	top: 550px;
+	left: 20px;
+	right: 20px;
+	bottom: 20px;
+	width: 728px; /* for non-webkit */
+	height: 454px; /* for non-webkit */
+	background-color: #333;
+}
+
 #step {
 	position: absolute;
 	top: 50px;
 	left: 660px;
 }
 
-#console-button {
+#toolbar {
 	position: absolute;
-	top: 524px;
+	top: 523px;
 	left: 18px;
+	margin: 0px;
 }
 
-#console-button .btn-inverse {
+.toolbar-button .btn-inverse {
 	background-color: #2a2a2a;
 }
 
-#console-button .dropdown-menu {
+.toolbar-button .dropdown-menu {
 	background-color: #2a2a2a;
 	border-color: rgba(0, 0, 0, 0.1);
 }
 
-#console-button .dropdown-menu a {
+.toolbar-button .dropdown-menu a {
 	font-family: "Courier", monospace;
 	font-size: 12px;
 	color: #fff;
 }
 
-#console-button .dropdown-menu .divider {
+.toolbar-button .dropdown-menu .divider {
 	background-color: #bbb;
 	border-bottom-color: #2a2a2a;
 }

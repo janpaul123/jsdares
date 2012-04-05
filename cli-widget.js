@@ -9,6 +9,9 @@ $(function() {
 	}
 	
 	$('#code').val(window.localStorage.getItem('1'));
+
+	var canvas = document.getElementById('canvas');
+	var context = canvas.getContext('2d');
 	
 	var myConsole = {
 		log: function(text) {
@@ -19,6 +22,53 @@ $(function() {
 		},
 		clear: function() {
 			$('#console').val('');
+		}
+	};
+
+	var myCanvas = {
+		clear: function() {
+			//$('#canvas').width($('#canvas').width());
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context = canvas.getContext('2d');
+			context.beginPath();
+			context.strokeStyle = "#00dd00";
+			context.fillStyle = "rgba(50, 250, 50, 0.4)";
+		},
+		arc: function() {
+			context.arc.apply(context, arguments);
+		},
+		beginPath: function() {
+			context.beginPath.apply(context, arguments);
+		},
+		closePath: function() {
+			context.closePath.apply(context, arguments);
+		},
+		fill: function() {
+			context.fill.apply(context, arguments);
+		},
+		stroke: function() {
+			context.stroke.apply(context, arguments);
+		},
+		clip: function() {
+			context.clip.apply(context, arguments);
+		},
+		moveTo: function() {
+			context.moveTo.apply(context, arguments);
+		},
+		lineTo: function() {
+			context.lineTo.apply(context, arguments);
+		},
+		arcTo: function() {
+			context.arcTo.apply(context, arguments);
+		},
+		bezierCurveTo: function() {
+			context.bezierCurveTo.apply(context, arguments);
+		},
+		quadraticCurveTo: function() {
+			context.quadraticCurveTo.apply(context, arguments);
+		},
+		rect: function() {
+			context.rect.apply(context, arguments);
 		}
 	};
 	
@@ -118,6 +168,7 @@ $(function() {
 	
 	var clear = function() {
 		myConsole.clear();
+		myCanvas.clear();
 		$('#margin .lineMsg').fadeOut(100, function() {
 			$(this).remove();
 		});
@@ -126,7 +177,7 @@ $(function() {
 	var run = function() {
 		clear();
 		browser.setText($('#code').val());
-		browser.setScope({console: myConsole});
+		browser.setScope({console: myConsole, canvas: myCanvas});
 		browser.runSafe();
 		
 		if (browser.hasError()) {
@@ -209,6 +260,16 @@ $(function() {
 	$('#messagebox, #marking').click(function(e) {
 		$('#marking').fadeOut(100);
 		$('#messagebox').fadeOut(100);
+	});
+
+	$('#console-button').click(function(e) {
+		$('#canvas').hide();
+		$('#console').show();
+	});
+
+	$('#canvas-button').click(function(e) {
+		$('#canvas').show();
+		$('#console').hide();
 	});
 	
 	$('#console-log').click(function(e) {

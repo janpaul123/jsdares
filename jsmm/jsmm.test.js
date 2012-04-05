@@ -21,10 +21,13 @@ module.exports = function(jsmm) {
 		var name;
 
 		for (name in jsmm.test.tests.succeed) {
-			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.succeed[name], true)) failed++;
+			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.succeed[name], true, true)) failed++;
 		}
-		for (name in jsmm.test.tests.fail) {
-			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.fail[name], false)) failed++;
+		for (name in jsmm.test.tests.fail_threeway) {
+			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.fail_threeway[name], true, false)) failed++;
+		}
+		for (name in jsmm.test.tests.fail_twoway) {
+			if (!jsmm.test.runTest(name.replace(/_/g, ' '), jsmm.test.tests.fail_twoway[name], false, false)) failed++;
 		}
 		if (failed <= 0) {
 			jsmm.test.output += 'All tests completed successfully!';
@@ -35,15 +38,21 @@ module.exports = function(jsmm) {
 		}
 		return failed <= 0;
 	};
+
+	jsmm.test.printError1 = function(name, name1, error1, code) {
+		jsmm.test.output += 'In test "' + name + '" ' + name1 + ' was incorrect.\n';
+		jsmm.test.output += name1 + ':\n' + error1 + '\n';
+		jsmm.test.output += 'code:\n' + code + '\n';
+	};
 	
-	jsmm.test.printError = function(name, name1, name2, error1, error2, code) {
+	jsmm.test.printError2 = function(name, name1, name2, error1, error2, code) {
 		jsmm.test.output += 'In test "' + name + '" ' + name1 + ' and ' + name2 + ' were incorrect.\n';
 		jsmm.test.output += name1 + ':\n' + error1 + '\n';
 		jsmm.test.output += name2 + ':\n' + error2 + '\n';
 		jsmm.test.output += 'code:\n' + code + '\n';
 	};
 	
-	jsmm.test.runTest = function(name, code, succeed) {
+	jsmm.test.runTest = function(name, code, threeway, succeed) {
 		var consoleRaw = new jsmm.test.Console();
 		var consoleSafe = new jsmm.test.Console();
 		var consoleStep = new jsmm.test.Console();
@@ -52,7 +61,7 @@ module.exports = function(jsmm) {
 		var errorStep = null;
 		var browser = new jsmm.Browser(code);
 		
-		if (succeed) {
+		if (threeway) {
 			browser.setScope({console: consoleRaw});
 			if (!browser.runRaw()) {
 				errorRaw = browser.getError();
@@ -69,26 +78,38 @@ module.exports = function(jsmm) {
 			errorStep = browser.getError();
 		}
 		
-		// when it should succeed we can compare against the raw result
-		if (succeed && !jsmm.test.compareErrors(errorRaw, errorSafe)) {
-			jsmm.test.printError(name, 'errorRaw', 'errorSafe', errorRaw, errorSafe, code);
+		// when it should threeway we can compare against the raw result
+		if (threeway && !jsmm.test.compareErrors(errorRaw, errorSafe, succeed)) {
+			jsmm.test.printError2(name, 'errorRaw', 'errorSafe', errorRaw, errorSafe, code);
 			return false;
 		}
 		
-		if (!jsmm.test.compareErrors(errorSafe, errorStep)) {
-			jsmm.test.printError(name, 'errorSafe', 'errorStep', errorSafe, errorStep, code);
+		if (!jsmm.test.compareErrors(errorSafe, errorStep, succeed)) {
+			jsmm.test.printError2(name, 'errorSafe', 'errorStep', errorSafe, errorStep, code);
 			return false;
 		}
 		
-		if (succeed && consoleRaw.result !== consoleSafe.result) {
-			jsmm.test.printError(name, 'consoleRaw', 'consoleSafe', consoleRaw.result, consoleSafe.result, code);
+		if (threeway && consoleRaw.result !== consoleSafe.result) {
+			jsmm.test.printError2(name, 'consoleRaw', 'consoleSafe', consoleRaw.result, consoleSafe.result, code);
 			return false;
 		}
 		
 		if (consoleSafe.result !== consoleStep.result) {
-			jsmm.test.printError(name, 'consoleSafe', 'consoleStep', consoleSafe.result, consoleStep.result, code);
+			jsmm.test.printError2(name, 'consoleSafe', 'consoleStep', consoleSafe.result, consoleStep.result, code);
 			return false;
 		}
+
+		if (threeway && succeed !== (errorRaw === null)) {
+			jsmm.test.printError1(name, 'errorRaw', errorRaw, code);
+			return false;
+		}
+
+		if (succeed !== (errorSafe === null)) {
+			jsmm.test.printError1(name, 'errorSafe', errorSafe, code);
+			return false;
+		}
+
+		// no need to check errorStep for null, since otherwise it would have been caught when comparing errors
 		
 		jsmm.test.output += 'Test "' + name + '" completed successfully!\n';
 		return true;
@@ -106,13 +127,18 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.test.tests = { succeed: {}, fail: {}};
+	jsmm.test.tests = { succeed: {}, fail_threeway: {}, fail_twoway: {}};
 	
 	jsmm.test.tests.succeed.comments =
-	'  // one line comment' + '\n' +
-	'  /* multiline' + '\n' +
+	'// one line comment' + '\n' +
+	'var a;' + '\n' +
+	'/*start of line comment*/var a; // end of line comment... with some crazy stuff here *// ***//// / * */' + '\n' +
+	'/*start of line comment*/var a; /* end of line comment... with some crazy stuff here * // ***//// / *' + '\n' +
+	'/*start of line comment*/var a;/* multiline' + '\n' +
 	'comment with * and / and /* and /***...' + '\n' +
+	'var a;' + '\n' +
 	'and also // and ///*** and more! */' + '\n' +
+	'var a;' + '\n' +
 	'console.log("Hello world!");';
 	
 	jsmm.test.tests.succeed.assignments =
@@ -230,39 +256,48 @@ module.exports = function(jsmm) {
 	'  return a+b;' + '\n' +
 	'}' + '\n' +
 	'var x=5, y=10, z=15;' + '\n' +
-	'f1(x,y,z, 8, 9, 10, "test");';
+	'f1(x,y,z, 8, 9, 10, "test", "blah", "more blah");';
 	
-	jsmm.test.tests.succeed.missing_semicolon_1 = 'var a';
-	jsmm.test.tests.succeed.missing_semicolon_2 = 'var a=5*5';
-	jsmm.test.tests.succeed.missing_semicolon_3 = 'var a;\n a=5*5';
-	jsmm.test.tests.succeed.missing_semicolon_4 = 'var a;\n if (a) {\n a=5*5 \n}';
-	jsmm.test.tests.succeed.missing_semicolon_5 = 'console.log(5)';
-	jsmm.test.tests.succeed.missing_semicolon_6 = 'var a;\n a+=a';
-	jsmm.test.tests.succeed.missing_semicolon_7 = 'for(var a=0 a<5; a++) {\n }';
-	jsmm.test.tests.succeed.missing_bracket_1 = 'if (true) \n }';
-	jsmm.test.tests.succeed.missing_bracket_2 = 'if (true) {';
-	jsmm.test.tests.succeed.missing_bracket_3 = 'while (true) \n }';
-	jsmm.test.tests.succeed.missing_bracket_4 = 'while (true) {';
-	jsmm.test.tests.succeed.missing_bracket_5 = 'for (var i=0; i<10; i++) \n }';
-	jsmm.test.tests.succeed.missing_bracket_6 = 'for (var i=0; i<10; i++) {\n';
-	jsmm.test.tests.succeed.missing_bracket_7 = 'if (true) {\n } else \n }';
-	jsmm.test.tests.succeed.missing_bracket_8 = 'if (true) {\n } else { \n';
-	jsmm.test.tests.succeed.missing_bracket_9 = 'if (true) {\n  else { \n }';
-	jsmm.test.tests.succeed.missing_bracket_10 = 'if (true) \n } else { \n }';
-	jsmm.test.tests.succeed.missing_bracket_11 = 'if (5>(5+5) {\n }';
-	jsmm.test.tests.succeed.missing_bracket_12 = 'if 5>5) {\n }';
-	jsmm.test.tests.succeed.incorrect_string_1 = 'var str = "Hello World!;';
-	jsmm.test.tests.succeed.incorrect_string_2 = 'var str = "Hello World!';
-	jsmm.test.tests.succeed.incorrect_string_3 = 'var str = Hello World!";';
-	jsmm.test.tests.succeed.reserved_word_1 = 'var jsmm;';
-	jsmm.test.tests.succeed.reserved_word_2 = 'var vars;';
+	jsmm.test.tests.fail_threeway.missing_semicolon_1 = 'var a';
+	jsmm.test.tests.fail_threeway.missing_semicolon_2 = 'var a=5*5';
+	jsmm.test.tests.fail_threeway.missing_semicolon_3 = 'var a;\n a=5*5';
+	jsmm.test.tests.fail_threeway.missing_semicolon_4 = 'var a;\n if (a) {\n a=5*5 \n}';
+	jsmm.test.tests.fail_threeway.missing_semicolon_5 = 'console.log(5)';
+	jsmm.test.tests.fail_threeway.missing_semicolon_6 = 'var a;\n a+=a';
+	jsmm.test.tests.fail_threeway.missing_semicolon_7 = 'for(var a=0 a<5; a++) {\n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_1 = 'if (true) \n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_2 = 'if (true) {';
+	jsmm.test.tests.fail_threeway.missing_bracket_3 = 'while (true) \n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_4 = 'while (true) {';
+	jsmm.test.tests.fail_threeway.missing_bracket_5 = 'for (var i=0; i<10; i++) \n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_6 = 'for (var i=0; i<10; i++) {\n';
+	jsmm.test.tests.fail_threeway.missing_bracket_7 = 'if (true) {\n } else \n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_8 = 'if (true) {\n } else { \n';
+	jsmm.test.tests.fail_threeway.missing_bracket_9 = 'if (true) {\n  else { \n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_10 = 'if (true) \n } else { \n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_11 = 'if (5>(5+5) {\n }';
+	jsmm.test.tests.fail_threeway.missing_bracket_12 = 'if 5>5) {\n }';
+	jsmm.test.tests.fail_threeway.incorrect_string_1 = 'var str = "Hello World!;';
+	jsmm.test.tests.fail_threeway.incorrect_string_2 = 'var str = "Hello World!';
+	jsmm.test.tests.fail_threeway.incorrect_string_3 = 'var str = Hello World!";';
+	jsmm.test.tests.fail_threeway.reserved_word_1 = 'var jsmmscope;';
+	jsmm.test.tests.fail_threeway.reserved_word_2 = 'var jsmmscopeInner;';
+	jsmm.test.tests.fail_threeway.reserved_word_3 = 'var jsmmscopeOuter;';
+	jsmm.test.tests.fail_threeway.reserved_word_4 = 'var jsmm;';
+	jsmm.test.tests.fail_threeway.reserved_word_5 = 'var jsmmparser;';
+	jsmm.test.tests.fail_threeway.reserved_word_6 = 'var jsmmExecutionCounter;';
+	jsmm.test.tests.fail_threeway.reserved_word_7 = 'var NaN;';
+	jsmm.test.tests.fail_threeway.reserved_word_8 = 'var this;';
+	jsmm.test.tests.fail_threeway.reserved_word_9 = 'var arguments;';
 	
-	jsmm.test.tests.fail.unary_1 = 'console.log(+true);';
-	jsmm.test.tests.fail.unary_2 = 'console.log(-false);';
-	jsmm.test.tests.fail.unary_3 = 'console.log(+"string");';
-	jsmm.test.tests.fail.unary_4 = 'console.log(-"string");';
-	jsmm.test.tests.fail.unary_5 = 'console.log(!"string");';
-	jsmm.test.tests.fail.unary_6 = 'console.log(!5);';
-	jsmm.test.tests.fail.invalid_funcion_call_1 = 'function f(a, b) {\n return a;\n }\n f(1);';
-	jsmm.test.tests.fail.invalid_funcion_call_2 = 'function f(a, b) {\n return a+b;\n }\n f(1);';
+	jsmm.test.tests.fail_twoway.unary_1 = 'console.log(+true);';
+	jsmm.test.tests.fail_twoway.unary_2 = 'console.log(-false);';
+	jsmm.test.tests.fail_twoway.unary_3 = 'console.log(+"string");';
+	jsmm.test.tests.fail_twoway.unary_4 = 'console.log(-"string");';
+	jsmm.test.tests.fail_twoway.unary_5 = 'console.log(!"string");';
+	jsmm.test.tests.fail_twoway.unary_6 = 'console.log(!5);';
+	jsmm.test.tests.fail_twoway.invalid_funcion_call_1 = 'function f(a, b) {\n return a;\n }\n f(1);';
+	jsmm.test.tests.fail_twoway.invalid_funcion_call_2 = 'function f(a, b) {\n return a+b;\n }\n f(1);';
+	//jsmm.test.tests.fail_twoway.repeated_declaration_1 = 'var a;\n var a;';
+	//jsmm.test.tests.fail_twoway.repeated_declaration_2 = 'var a = 1;\n var a;';
 };

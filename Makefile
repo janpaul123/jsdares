@@ -1,7 +1,8 @@
 widget/js/browser.js: browser.js
 	cp browser.js widget/js/browser.js
 
-browser.js: test cli-widget.js jsmm/jsmmparser.js jsmm/*.js
+browser.js: cli-widget.js jsmm/jsmmparser.js jsmm/*.js
+	make test
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
 jsmm/jsmmparser.js: jsmm/jsmmparser.jison

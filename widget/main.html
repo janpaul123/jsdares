@@ -27,6 +27,7 @@
 		</div>
 		
 		<textarea id="console" readonly="readonly"></textarea>
+		<canvas id="canvas" width="728" height="454"></canvas>
 		
 		
 		<button id="step" class="btn btn-large btn-success"><i class="icon-share-alt icon-white"></i> Step</button>
@@ -52,18 +53,38 @@
 		
 		<button id="about" class="btn btn-info"><i class="icon-info-sign icon-white"></i> About</button>
 		
-		<div id="console-button" class="btn-group">
-			<button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">
-				<i class="icon-list-alt icon-white"></i>
-				console
-				<span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu">
-				<li><a href="#" id="console-log">console.log("Hi!");</a></li>
-				<li><a href="#" id="console-clear">console.clear();</a></li>
-				<li class="divider"></li>
-				<li><a href="#" id="console-example">Example</a></li>
-			</ul>
+		<div id="toolbar" class="btn-toolbar">
+			<div id="console-button" class="btn-group toolbar-button">
+				<button class="btn btn-inverse">
+					<i class="icon-list-alt icon-white"></i>
+					console
+				</button>
+				<button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="console-log">console.log("Hi!");</a></li>
+					<li><a href="#" id="console-clear">console.clear();</a></li>
+					<li class="divider"></li>
+					<li><a href="#" id="console-example">Example</a></li>
+				</ul>
+			</div>
+
+			<div id="canvas-button" class="btn-group toolbar-button">
+				<button class="btn btn-inverse">
+					<i class="icon-picture icon-white"></i>
+					canvas
+				</button>
+				<button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="canvas-log">canvas.log("Hi!");</a></li>
+					<li><a href="#" id="canvas-clear">canvas.clear();</a></li>
+					<li class="divider"></li>
+					<li><a href="#" id="canvas-example">Example</a></li>
+				</ul>
+			</div>
 		</div>
 		
 		<!--

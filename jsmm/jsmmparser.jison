@@ -6,7 +6,6 @@
 digit			[0-9]
 alpha			[a-zA-Z_]
 alphanum		[0-9a-zA-Z_]
-notalphanum     [^0-9a-zA-Z_]
 exponent		(?:[eE][+-]?{digit}+)
 whitespace		(?:[ \f\r\t\v\u00A0\u2028\u2029]+)
 linecomment		(?:[/][/][^\n]*)
@@ -16,8 +15,9 @@ newlines		(?:(?:[\n]{skip}?)+)
 fraction		(?:"."{digit}+)
 number			(?:(?:(?:[1-9]{digit}*)|"0"){fraction}?{exponent}?)
 string			(?:["][^\\"]*(?:[\\].[^\\"]*)*["])
-reservedjs		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new"|"continue"|"void"|"delete"|"this"|"do"|"in"|"switch"|"throw"|"try"|"typeof"|"with"|"abstract"|"boolean"|"byte"|"char"|"class"|"const"|"debugger"|"double"|"enum"|"export"|"extends"|"final"|"float"|"goto"|"implements"|"import"|"int"|"interface"|"long"|"native"|"package"|"private"|"protected"|"public"|"short"|"static"|"super"|"synchronized"|"throws"|"transient"|"volatile")
-reserved		(?:"jsmmscope"|"jsmmscopeInner"|"jsmmscopeOuter"|"jsmm"|"jsmmparser"|"jsmmExecutionCounter")
+reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new"|"continue"|"void"|"delete"|"this"|"do"|"in"|"switch"|"throw"|"try"|"typeof"|"with"|"abstract"|"boolean"|"byte"|"char"|"class"|"const"|"debugger"|"double"|"enum"|"export"|"extends"|"final"|"float"|"goto"|"implements"|"import"|"int"|"interface"|"long"|"native"|"package"|"private"|"protected"|"public"|"short"|"static"|"super"|"synchronized"|"throws"|"transient"|"volatile"
+|"arguments"|"NaN"|"Array"|"Object"|"RegExp"|"toString"
+|"jsmmscope"|"jsmmscopeInner"|"jsmmscopeOuter"|"jsmm"|"jsmmparser"|"jsmmExecutionCounter")
 
 %%
 
@@ -40,7 +40,7 @@ reserved		(?:"jsmmscope"|"jsmmscopeInner"|"jsmmscopeOuter"|"jsmm"|"jsmmparser"|"
 "]"											return "]";
 "."											return ".";
 ","											return ",";
-({reservedjs}|{reservedjsmm}){notalphanum}	return "RESERVED";
+{reserved}(?!{alphanum})					return "RESERVED";
 "true"										return "TRUE";
 "false"										return "FALSE";
 "if"										return "IF";
