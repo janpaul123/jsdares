@@ -38,17 +38,25 @@ jsmm.Context.prototype = {
 		this.elements = [];
 		this.code = code;
 		this.program = null;
+		this.elementsByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
+			AssignmentStatement: [], VarStatement: [], VarItem: [], ReturnStatement: [], BinaryExpression: [],
+			UnaryExpression: [], NumberLiteral: [], StringLiteral: [], BooleanLiteral: [], NameIdentifier: [],
+			ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], CallStatement: [], IfBlock: [], ElseIfBlock: [],
+			ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
+		};
 	},
 	getNewId: function() {
 		return this.genId++;
 	}
 };
 
-jsmm.addCommonElementMethods = function(element) {
+jsmm.addCommonElementMethods = function(type, element) {
 	element.build = function(_$) {
 		this.context = jsmm.yy.context;
 		this.id = this.context.getNewId();
 		this.context.elements[this.id] = this;
+		this.context.elementsByType[type].push(this);
+		this.type = type;
 		this.startPos = {line: _$.first_line, column: _$.first_column};
 		this.endPos = {line: _$.last_line, column: _$.last_column};
 		this.text = jsmm.parser.lexer.yytext;
@@ -57,9 +65,8 @@ jsmm.addCommonElementMethods = function(element) {
 	return element;
 };
 
-jsmm.yy.Program.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.Program.prototype = jsmm.addCommonElementMethods('Program', {
 	init: function(statementList) {
-		this.type = 'Program';
 		this.statementList = statementList;
 	},
 	getCode: function() {
@@ -81,9 +88,8 @@ jsmm.yy.Program.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods('StatementList', {
 	init: function() {
-		this.type = 'StatementList';
 		this.statements = [];
 	},
 	addStatement: function(statement) {
@@ -101,9 +107,8 @@ jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSimpleStatement', {
 	init: function(statement) {
-		this.type = 'CommonSimpleStatement';
 		this.statement = statement;
 	},
 	getCode: function() {
@@ -114,9 +119,8 @@ jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.PostfixStatement.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.PostfixStatement.prototype = jsmm.addCommonElementMethods('PostfixStatement', {
 	init: function(identifier, symbol) {
-		this.type = 'PostfixStatement';
 		this.identifier = identifier;
 		this.symbol = symbol;
 	},
@@ -128,9 +132,8 @@ jsmm.yy.PostfixStatement.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonElementMethods('AssignmentStatement', {
 	init: function(identifier, symbol, expression) {
-		this.type = 'AssignmentStatement';
 		this.identifier = identifier;
 		this.symbol = symbol;
 		this.expression = expression;
@@ -143,9 +146,8 @@ jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.VarStatement.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.VarStatement.prototype = jsmm.addCommonElementMethods('VarStatement', {
 	init: function() {
-		this.type = 'VarStatement';
 		this.items = [];
 	},
 	addVarItem: function(item) {
@@ -163,9 +165,8 @@ jsmm.yy.VarStatement.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods('VarItem', {
 	init: function(name, assignment) {
-		this.type = 'VarItem';
 		this.name = name;
 		this.assignment = assignment;
 	},
@@ -181,9 +182,8 @@ jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatement', {
 	init: function(expression) {
-		this.type = 'ReturnStatement';
 		this.expression = expression;
 	},
 	getCode: function() {
@@ -195,9 +195,8 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.BinaryExpression.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.BinaryExpression.prototype = jsmm.addCommonElementMethods('BinaryExpression', {
 	init: function(expression1, symbol, expression2) {
-		this.type = 'BinaryExpression';
 		this.expression1 = expression1;
 		this.symbol = symbol;
 		this.expression2 = expression2;
@@ -207,9 +206,8 @@ jsmm.yy.BinaryExpression.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.UnaryExpression.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.UnaryExpression.prototype = jsmm.addCommonElementMethods('UnaryExpression', {
 	init: function(symbol, expression) {
-		this.type = 'UnaryExpression';
 		this.symbol = symbol;
 		this.expression = expression;
 	},
@@ -218,9 +216,8 @@ jsmm.yy.UnaryExpression.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.NumberLiteral.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.NumberLiteral.prototype = jsmm.addCommonElementMethods('NumberLiteral', {
 	init: function(number) {
-		this.type = 'NumberLiteral';
 		this.number = parseFloat(number);
 	},
 	getCode: function() {
@@ -228,9 +225,8 @@ jsmm.yy.NumberLiteral.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.StringLiteral.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.StringLiteral.prototype = jsmm.addCommonElementMethods('StringLiteral', {
 	init: function(str) {
-		this.type = 'StringLiteral';
 		this.str = JSON.parse(str);
 	},
 	getCode: function() {
@@ -238,9 +234,8 @@ jsmm.yy.StringLiteral.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.BooleanLiteral.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.BooleanLiteral.prototype = jsmm.addCommonElementMethods('BooleanLiteral', {
 	init: function(bool) {
-		this.type = 'BooleanLiteral';
 		this.bool = bool;
 	},
 	getCode: function() {
@@ -248,9 +243,8 @@ jsmm.yy.BooleanLiteral.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.NameIdentifier.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.NameIdentifier.prototype = jsmm.addCommonElementMethods('NameIdentifier', {
 	init: function(name) {
-		this.type = 'NameIdentifier';
 		this.name = name;
 	},
 	getCode: function() {
@@ -258,9 +252,8 @@ jsmm.yy.NameIdentifier.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonElementMethods('ObjectIdentifier', {
 	init: function(identifier, prop) {
-		this.type = 'ObjectIdentifier';
 		this.identifier = identifier;
 		this.prop = prop;
 	},
@@ -269,9 +262,8 @@ jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonElementMethods('ArrayIdentifier', {
 	init: function(identifier, expression) {
-		this.type = 'ArrayIdentifier';
 		this.identifier = identifier;
 		this.expression = expression;
 	},
@@ -280,9 +272,8 @@ jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods('FunctionCall', {
 	init: function(identifier, expressionArgs) {
-		this.type = 'FunctionCall';
 		this.identifier = identifier;
 		this.expressionArgs = expressionArgs;
 	},
@@ -296,9 +287,8 @@ jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods('CallStatement', {
 	init: function(functionCall) {
-		this.type = 'CallStatement';
 		this.functionCall = functionCall;
 	},
 	getCode: function() {
@@ -306,9 +296,8 @@ jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 	init: function(expression, statementList, elseBlock) {
-		this.type = 'IfBlock';
 		this.expression = expression;
 		this.statementList = statementList;
 		this.elseBlock = elseBlock;
@@ -322,9 +311,8 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
 	init: function(ifBlock) {
-		this.type = 'ElseIfBlock';
 		this.ifBlock = ifBlock;
 	},
 	getCode: function() {
@@ -332,9 +320,8 @@ jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
 	init: function(statementList) {
-		this.type = 'ElseBlock';
 		this.statementList = statementList;
 	},
 	getCode: function() {
@@ -342,9 +329,8 @@ jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
 	init: function(expression, statementList) {
-		this.type = 'WhileBlock';
 		this.expression = expression;
 		this.statementList = statementList;
 	},
@@ -353,9 +339,8 @@ jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 	init: function(statement1, expression, statement2, statementList) {
-		this.type = 'ForBlock';
 		this.statement1 = statement1;
 		this.expression = expression;
 		this.statement2 = statement2;
@@ -368,9 +353,8 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods({
 	}
 });
 
-jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods({
+jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods('FunctionDeclaration', {
 	init: function(name, nameArgs, statementList, startPos, endPos) {
-		this.type = 'FunctionDeclaration';
 		this.name = name;
 		this.nameArgs = nameArgs;
 		this.statementList = statementList;
