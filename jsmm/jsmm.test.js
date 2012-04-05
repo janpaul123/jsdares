@@ -280,6 +280,8 @@ module.exports = function(jsmm) {
 	jsmm.test.tests.fail_threeway.incorrect_string_1 = 'var str = "Hello World!;';
 	jsmm.test.tests.fail_threeway.incorrect_string_2 = 'var str = "Hello World!';
 	jsmm.test.tests.fail_threeway.incorrect_string_3 = 'var str = Hello World!";';
+	jsmm.test.tests.fail_threeway.incorrect_string_4 = 'var str = "Hello World!\n";';
+	jsmm.test.tests.fail_threeway.incorrect_string_5 = 'var str = "Hello \\World!\n";';
 	jsmm.test.tests.fail_threeway.reserved_word_1 = 'var jsmmscope;';
 	jsmm.test.tests.fail_threeway.reserved_word_2 = 'var jsmmscopeInner;';
 	jsmm.test.tests.fail_threeway.reserved_word_3 = 'var jsmmscopeOuter;';
