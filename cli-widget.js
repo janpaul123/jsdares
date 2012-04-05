@@ -2,13 +2,12 @@
 "use strict";
 
 var jsmm = require('./jsmm');
+var based = require('./basiceditor');
 
 $(function() {
 	if (window.localStorage.getItem('1') === null) {
 		window.localStorage.setItem('1', '// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
 	}
-	
-	$('#code').val(window.localStorage.getItem('1'));
 
 	var canvas = document.getElementById('canvas');
 	var context = canvas.getContext('2d');
@@ -84,183 +83,58 @@ $(function() {
 	};
 	
 	var browser = new jsmm.Browser();
-	
-	var getPosition = function(text) {
-		// add a space because of a bug when text contains only newlines
-		text += ' ';
-		$('#mirror').text(text);
-		$('#mirror').text(text);
-		return {x: $('#mirror').outerWidth(), y: $('#mirror').outerHeight()};
-	};
-	
-	var drawMessage = function(msg) {
-		var startPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column));
-		var endPos = null;
-		if (msg.column2 > msg.column) endPos = getPosition(browser.getCode().lineColumnToPositionText(msg.line, msg.column2));
-		
-		// the offset is weird since .position().top changes when scrolling
-		var offset = {
-			x: ($('#code').position().left + $('#editor').scrollLeft()),
-			y: ($('#code').position().top + $('#editor').scrollTop())
-		};
-		
-		if (msg instanceof jsmm.msg.Line) {
-			var message = msg.message;
-			
-			var lineMsg = $('#lineMsg-' + msg.line);
-			if (lineMsg.length <= 0) {
-				lineMsg = $('<div class="lineMsg"></div>');
-				lineMsg.attr('id', 'lineMsg-' + msg.line);
-				$('#margin').append(lineMsg);
-				lineMsg.fadeIn(100);
-				lineMsg.css('top', startPos.y + offset.y);
-			} else {
-				if (lineMsg.text().length > 0 && msg.append) {
-					message = lineMsg.text() + ', ' + msg.message;
-				}
-			}
-			lineMsg.text(message);
-		} else {
-			$('#messagebox').css('left', startPos.x + offset.x);
-			$('#messagebox').css('top', startPos.y + offset.y);
-			$('#message').html(msg.html);
-			
-			$('#marking').css('left', startPos.x + offset.x);
-			$('#marking').css('top', startPos.y + offset.y);
-			if (endPos !== null) {
-				$('#marking').width(endPos.x - startPos.x);
-				// height is constant, set in css;
-			} else {
-				$('#marking').width(0);
-			}
-			
-			if (msg instanceof jsmm.msg.Error){
-				$('#error').css('top', startPos.y + offset.y);
-				$('#error').fadeIn(100);
-				$('#arrow').fadeOut(100);
-				$('#code').addClass('error');
-				$('#code').removeClass('stepping');
-			} else {
-				$('#arrow').css('top', startPos.y + offset.y);
-				$('#arrow').fadeIn(100);
-				$('#error').fadeOut(100);
-				$('#marking').fadeIn(100);
-				$('#messagebox').fadeIn(100);
-				$('#code').removeClass('error');
-			}
-		}
-	};
-	
-	var hideMessage = function() {
-		$('#messagebox').fadeOut(100);
-		$('#error').fadeOut(100);
-		$('#arrow').fadeOut(100);
-		$('#marking').fadeOut(100);
-		$('#code').removeClass('error');
-		$('#code').removeClass('stepping');
-	};
-	
-	var updateSize = function() {
-		// NOTE: getPosition is not necessarily suitable for this
-		$('#code').height(getPosition($('#code').val()).y + 100);
-		$('#code').width(getPosition($('#code').val()).x + 100);
-	};
-	
+	var editor = new based.Editor($('#editor'));
+
+	editor.setCode(window.localStorage.getItem('1'));
+
 	var clear = function() {
 		myConsole.clear();
 		myCanvas.clear();
-		$('#margin .lineMsg').fadeOut(100, function() {
-			$(this).remove();
-		});
 	};
 	
-	var run = function() {
-		clear();
-		browser.setText($('#code').val());
+	var run = function(text) {
+		var code = editor.getCode().getText();
+		window.localStorage.setItem('1', code);
+		browser.setText(code);
 		browser.setScope({console: myConsole, canvas: myCanvas});
+
+		clear();
 		browser.runSafe();
 		
 		if (browser.hasError()) {
-			drawMessage(browser.getError());
+			editor.setMessage(browser.getError());
 		} else {
-			hideMessage();
+			editor.clearMessage();
 		}
+		editor.render();
 	};
+
+	editor.setCallback('textChange', run);
 	
 	var step = function() {
 		if (browser.hasError()) return;
 		
 		if (!browser.isStepping()) {
 			clear();
-			hideMessage();
 			browser.stepInit();
-			$('#code').addClass('stepping');
+			editor.openMessage();
+		}
+		var msgs = browser.stepNext();
+		if (browser.hasError()) {
+			editor.setMessage(browser.getError());
+		} else if (msgs === undefined) {
+			editor.clearMessage();
 		} else {
-			var msgs = browser.stepNext();
-			if (browser.hasError()) {
-				drawMessage(browser.getError());
-			} else if (msgs === undefined) {
-				hideMessage();
-			} else {
-				for (var i=0; i<msgs.length; i++) {
-					drawMessage(msgs[i]);
+			for (var i=0; i<msgs.length; i++) {
+				if (msgs[i].type === 'Inline') {
+					editor.setMessage(msgs[i]);
 				}
 			}
 		}
+		editor.render();
 	};
-	
-	// TODO: use http://archive.plugins.jquery.com/project/fieldselection
-	var autoindent = function(e) {
-		// 13 = enter, 221 = ] or }
-		if (e.keyCode === 13 || e.keyCode === 221) {
-			var code = browser.getCode();
-			var offset = $('#code')[0].selectionStart;
-			var pos = code.offsetToPos(offset);
-			if (pos.line > 1) {
-				var prevLine = code.getLine(pos.line-1);
-				var curLine = code.getLine(pos.line);
-				var spaces = prevLine.match(/^ */)[0].length;
-				var spacesAlready = curLine.match(/^ */)[0].length;
-				spaces += prevLine.match(/\{ *$/) !== null ? 2 : 0;
-				spaces -= spacesAlready;
-				spaces -= curLine.match(/^ *\}/) !== null ? 2 : 0;
 
-				var startOffset, endOffset;
-				if (spaces > 0) {
-					startOffset = code.lineColumnToOffset(pos.line, 0);
-					$('#code').val(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
-					$('#code')[0].selectionStart = offset + spaces;
-					$('#code')[0].selectionEnd = $('#code')[0].selectionStart;
-				} else if (spaces < 0 && spacesAlready >= -spaces) {
-					startOffset = code.lineColumnToOffset(pos.line, 0);
-					endOffset = startOffset-spaces;
-					$('#code').val(code.removeAtOffsetRange(startOffset, endOffset));
-					$('#code')[0].selectionStart = offset + spaces;
-					$('#code')[0].selectionEnd = $('#code')[0].selectionStart;
-				}
-			}
-		}
-	};
-	
 	$('#step').click(step);
-	$('#code').bind('keydown', updateSize);
-	$('#code').bind('keyup paste', function(e) {
-		window.localStorage.removeItem('1');
-		window.localStorage.setItem('1', $('#code').val());
-		updateSize();
-		run();
-		autoindent(e);
-	});
-	
-	$('#error, #arrow').click(function(e) {
-		$('#marking').fadeToggle(100);
-		$('#messagebox').fadeToggle(100);
-	});
-	
-	$('#messagebox, #marking').click(function(e) {
-		$('#marking').fadeOut(100);
-		$('#messagebox').fadeOut(100);
-	});
 
 	$('#console-button').click(function(e) {
 		$('#canvas').hide();
@@ -417,10 +291,7 @@ $(function() {
 		myConsole.log('* up on the ladder of abstraction!');
 		myConsole.log();
 		myConsole.log('If you have any ideas, complaints, or suggestions about this prototype or its wider context, do not hesitate to mail me at me@janpaulposma.nl.');
-		
-		
 	});
-	
-	updateSize();
+
 	run();
 });

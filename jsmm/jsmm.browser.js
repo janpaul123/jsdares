@@ -5,55 +5,9 @@ module.exports = function(jsmm) {
 	require('./jsmm.msg')(jsmm);
 	
 	jsmm.Browser = function() { return this.init.apply(this, arguments); };
-	jsmm.Code = function() { return this.init.apply(this, arguments); };
-	
-	jsmm.Code.prototype = {
-		init: function(text) {
-			this.text = '' + text;
-			this.lines = text.split(/\n/);
-			this.offsets = [0];
-			for (var i=1; i<this.lines.length; i++) {
-				// add one for the actual newline character
-				this.offsets[i] = this.offsets[i-1] + this.lines[i-1].length + 1;
-			}
-		},
-		getLine: function(line) {
-			return this.lines[line-1];
-		},
-		lineColumnToOffset: function(line, column) {
-			return this.offsets[line-1] + column;
-		},
-		posToOffset: function(pos) {
-			return this.lineColumnToOffset(pos.line, pos.column);
-		},
-		rangeToText: function(startPos, endPos) {
-			return this.text.substring(this.posToOffset(startPos), this.posToOffset(endPos));
-		},
-		lineColumnToPositionText: function(line, column) {
-			return new Array(line).join('\n') + (this.lines[line-1] || '').substring(0, column);
-		},
-		elToText: function(el) {
-			return this.rangeToText(el.startPos, el.endPos);
-		},
-		offsetToPos: function(offset) {
-			// TODO: implement binary search
-			for (var i=0; i<this.lines.length; i++) {
-				if (offset < this.offsets[i]) {
-					return {line: i, column: offset-(this.offsets[i-1] || 0)};
-				}
-			}
-			return {line: this.lines.length, column: offset-this.offsets[this.lines.length-1]};
-		},
-		insertAtOffset: function(offset, text) {
-			return this.text.substring(0, offset) + text + this.text.substring(offset);
-		},
-		removeAtOffsetRange: function(offset1, offset2) {
-			return this.text.substring(0, offset1) + this.text.substring(offset2);
-		}
-	};
-	
+		
 	jsmm.Browser.prototype.init = function(text, scope) {
-		this.code = new jsmm.Code(text || '');
+		this.code = text || '';
 		this.scope = scope || {};
 		this.reset();
 	};
@@ -72,7 +26,7 @@ module.exports = function(jsmm) {
 	
 	jsmm.Browser.prototype.setText = function(text) {
 		this.reset();
-		this.code = new jsmm.Code(text);
+		this.code = text;
 	};
 	
 	jsmm.Browser.prototype.setScope = function(scope) {
@@ -100,7 +54,7 @@ module.exports = function(jsmm) {
 		if (this.context !== null) return true;
 		
 		try {
-			this.context = jsmm.parse(this.code.text);
+			this.context = jsmm.parse(this.code);
 			return true;
 		} catch (error) {
 			this.handleError(error);

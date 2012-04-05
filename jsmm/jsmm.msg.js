@@ -33,6 +33,7 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(pos, msg) {
+			this.type = 'Inline';
 			this.loadPos(pos);
 			this.initMsg(msg);
 		}
@@ -40,6 +41,7 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Line.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(pos, msg, append) {
+			this.type = 'Line';
 			this.loadPos(pos);
 			this.initMsg(msg);
 			this.append = append || false;
@@ -48,12 +50,14 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Continue.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(pos) {
+			this.type = 'Continue';
 			this.loadPos(pos);
 		}
 	});
 	
 	jsmm.msg.Error.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(pos, msg, more, orig) {
+			this.type = 'Error';
 			this.loadPos(pos);
 			this.initMsg(msg);
 			this.more = more || '';

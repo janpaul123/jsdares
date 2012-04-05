@@ -4,27 +4,14 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<link rel="stylesheet" href="css/boilerplate.css">
 	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/basiceditor.css">
 	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 	<div id="main">
 		<h1 id="title">js-- test interface 1</h1>
-		<div id="editor">
-			<div id="margin">
-				<div id="error"><img src="img/exclamation.png"/></div>
-				<div id="arrow"><img src="img/arrow_right.png"/></div>
-			</div>
-			<textarea id="code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>
-			<div id="messagebox">
-				<img id="messagecol" src="img/arrow_up.png"/>
-				<div id="message"></div>
-			</div>
-			<div id="marking"></div>
-		</div>
-		
-		<div class="visuallyhidden">
-			<div class="textarea" id="mirror"></div>
-		</div>
+
+		<div id="editor"></div>
 		
 		<textarea id="console" readonly="readonly"></textarea>
 		<canvas id="canvas" width="728" height="454"></canvas>
