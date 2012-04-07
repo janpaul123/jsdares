@@ -5884,7 +5884,7 @@ a.thumbnail:hover {
 .based-messagebox {
   position: absolute;
   margin-top: -4px;
-  margin-left: -32px;
+  margin-left: -18px;
   display: block;
   background-color: rgba(30, 30, 30, 0.95);
   font-size: 14px;
@@ -5915,7 +5915,6 @@ a.thumbnail:hover {
   width: 0;
   height: 0;
   margin-top: -5px;
-  left: 18px;
 }
 .based-messagecol {
   position: absolute;
@@ -5936,11 +5935,14 @@ a.thumbnail:hover {
 .based-marking {
   position: absolute;
   background-color: rgba(50, 250, 50, 0.4);
-  margin-top: -28px;
-  margin-left: -19px;
-  padding: 2px 2px 16px 2px;
+  margin-top: -26px;
+  margin-left: -18px;
+  padding: 2px 1px 14px 1px;
   cursor: pointer;
   cursor: hand;
+}
+.based-marking:hover {
+  background-color: rgba(50, 250, 50, 0.5);
 }
 .based-lineMsg {
   position: absolute;

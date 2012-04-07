@@ -274,6 +274,12 @@ $(function() {
 			myConsole.log('\nNote: error has also been printed to browser console.');
 		}
 	});
+
+	$('#extra-ladder').click(function(e) {
+		var els = browser.getElementsByType('NumberLiteral');
+		realConsole.log(els);
+		editor.makeEditable(els);
+	});
 	
 	$('#about').click(function(e) {
 		clear();

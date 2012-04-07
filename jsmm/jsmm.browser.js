@@ -61,6 +61,13 @@ module.exports = function(jsmm) {
 			return false;
 		}
 	};
+
+	jsmm.Browser.prototype.getElementsByType = function(type) {
+		this.resetError();
+		if (!this.parse()) return undefined;
+
+		return this.context.elementsByType[type];
+	};
 	
 	jsmm.Browser.prototype.getDot = function() {
 		this.resetError();

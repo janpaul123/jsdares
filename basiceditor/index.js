@@ -114,12 +114,16 @@ based.Editor.prototype = {
 	},
 
 	reset: function() {
-		this.dynamicState = {
-			code: new based.Code(this.$textarea.val()),
+		this.code = new based.Code('');
+		this.messageOpen = false;
+		this.renderedError = false;
+		this.editables = [];
+		this.clearDebugState();
+	},
+
+	clearDebugState: function() {
+		this.debugState = {
 			message: null
-		};
-		this.persistentState = {
-			messageOpen: false
 		};
 
 		/*
@@ -130,30 +134,30 @@ based.Editor.prototype = {
 	},
 
 	getCode: function() {
-		return this.dynamicState.code;
+		return this.code;
 	},
 
 	setCode: function(code) {
-		this.dynamicState.code = new based.Code(code);
 		this.$textarea.val(code);
+		this.updateCode();
 		this.updateSize();
+		this.clearDebugState();
 	},
 
 	setMessage: function(message) {
-		if (message.type === 'Error' &&
-				(this.dynamicState.message === null || this.dynamicState.message.type !== 'Error')) {
-			this.persistentState.messageOpen = false;
-		}
+		this.debugState.message = message;
 
-		this.dynamicState.message = message;
+		if (!this.renderedError && message.type === 'Error') {
+			this.messageOpen = false;
+		}
 	},
 
 	clearMessage: function() {
-		this.dynamicState.message = null;
+		this.debugState.message = null;
 	},
 
 	openMessage: function() {
-		this.persistentState.messageOpen = true;
+		this.messageOpen = true;
 	},
 
 	setCallback: function(name, func) {
@@ -164,6 +168,16 @@ based.Editor.prototype = {
 		this.renderMessage();
 	},
 
+	makeEditable: function(elements) {
+		for (var i=0; i<elements.length; i++) {
+			var el = elements[i];
+			var startPos = this.getPosition(this.code.lineColumnToPositionText(el.startPos.line, el.startPos.column));
+			var endPos = this.getPosition(this.code.lineColumnToPositionText(el.endPos.line, el.endPos.column));
+			var editable = this.addEditable(startPos.x, startPos.y, endPos.x-startPos.x, 0, 'blah');
+			this.editables.push(editable);
+		}
+	},
+
 	/// INTERNAL FUNCTIONS ///
 	runCallback: function(name) {
 		if (this.callbacks[name] !== undefined) {
@@ -171,15 +185,54 @@ based.Editor.prototype = {
 		}
 	},
 
-	addMarking: function(x, y, width, height, type) {
+	addMarking: function(x, y, width, height) {
 		var $marking = $('<div class="based-marking"></div>');
-		$marking.css('left', x);
-		$marking.css('top', y);
-		$marking.width(width);
-		$marking.height(height);
-		$marking.addClass(type);
+		this.updateMarking($marking, x, y, width, height);
 		this.$div.append($marking);
 		return $marking;
+	},
+
+	updateMarking: function($marking, x, y, width, height) {
+		var offset = this.getTextAreaOffset();
+		$marking.css('left', x + offset.x);
+		$marking.css('top', y + offset.y);
+		$marking.width(width);
+		$marking.height(height);
+	},
+
+	addBox: function(x, y, html, markingWidth) {
+		var $box = $('<div class="based-messagebox"><div class="arrow"></div><div class="based-message"></div></div>');
+		this.$div.append($box);
+		this.updateBox($box, x, y, html, markingWidth);
+		$box.hide();
+		return $box;
+	},
+
+	updateBox: function($box, x, y, html, markingWidth) {
+		markingWidth = markingWidth || 0;
+		var offset = this.getTextAreaOffset();
+		var $content = $box.children('.based-message');
+
+		$content.html(html);
+
+		var visible = $box.is(":visible");
+		$box.show();
+		$box.css('left', x + offset.x - $box.outerWidth()/2 + markingWidth/2);
+		$box.css('top', y + offset.y);
+		if (!visible) $box.hide();
+
+		return $box;
+	},
+
+	addEditable: function(x, y, width, height, content) {
+		var $marking = this.addMarking(x, y, width, height);
+		var $box = this.addBox(x, y, content, width);
+
+		$marking.click(function(e) {
+			$box.fadeToggle(100);
+		});
+
+		return {marking: $marking, box: $box};
 	},
 
 	getPosition: function(text) {
@@ -189,9 +242,19 @@ based.Editor.prototype = {
 		this.$mirror.text(text); // TODO: find out why this is here twice
 		return {x: this.$mirror.outerWidth(), y: this.$mirror.outerHeight()};
 	},
+
+	getTextAreaOffset: function() {
+		// the offset is weird since .position().top changes when scrolling
+		return {
+			x: (this.$textarea.position().left + this.$div.scrollLeft()),
+			y: (this.$textarea.position().top + this.$div.scrollTop())
+		};
+	},
 	
 	renderMessage: function() {
-		if (this.dynamicState.message === null) {
+		this.renderedError = false;
+
+		if (this.debugState.message === null) {
 			this.$messagebox.fadeOut(100);
 			this.$messageMarking.fadeOut(100);
 			this.$marginArrow.fadeOut(100);
@@ -199,32 +262,26 @@ based.Editor.prototype = {
 			this.$textarea.removeClass('based-stepping');
 			this.$textarea.removeClass('based-error');
 		} else {
-			var msg = this.dynamicState.message;
+			var msg = this.debugState.message;
 
-			var startPos = this.getPosition(this.dynamicState.code.lineColumnToPositionText(msg.line, msg.column));
-			var endPos = null;
-			if (msg.column2 > msg.column) endPos = this.getPosition(this.dynamicState.code.lineColumnToPositionText(msg.line, msg.column2));
-			
-			// the offset is weird since .position().top changes when scrolling
-			var offset = {
-				x: (this.$textarea.position().left + this.$div.scrollLeft()),
-				y: (this.$textarea.position().top + this.$div.scrollTop())
-			};
-			
-			if (endPos !== null && this.persistentState.messageOpen) {
-				this.$messageMarking.css('left', startPos.x + offset.x);
-				this.$messageMarking.css('top', startPos.y + offset.y);
-				this.$messageMarking.width(endPos.x - startPos.x);
-				// height is constant, set in css;
+			var startPos = this.getPosition(this.code.lineColumnToPositionText(msg.line, msg.column));
+			var width = 0;
+			if (msg.column2 > msg.column) {
+				var endPos = this.getPosition(this.code.lineColumnToPositionText(msg.line, msg.column2));
+				width = endPos.x - startPos.x;
+			}
+
+			var offset = this.getTextAreaOffset();
+
+			if (width > 0 && this.messageOpen) {
+				this.updateMarking(this.$messageMarking, startPos.x, startPos.y, width, 0);
 				this.$messageMarking.fadeIn(100);
 			} else {
 				this.$messageMarking.fadeOut(100);
 			}
 
-			if (this.persistentState.messageOpen) {
-				this.$messagebox.css('left', startPos.x + offset.x);
-				this.$messagebox.css('top', startPos.y + offset.y);
-				this.$messagebox.find('.based-message').html(msg.html);
+			if (this.messageOpen) {
+				this.updateBox(this.$messagebox, startPos.x, startPos.y, msg.html, width);
 				this.$messagebox.fadeIn(100);
 			} else {
 				this.$messagebox.fadeOut(100);
@@ -236,6 +293,7 @@ based.Editor.prototype = {
 				this.$marginArrow.fadeOut(100);
 				this.$textarea.addClass('based-error');
 				this.$textarea.removeClass('based-stepping');
+				this.renderedError = true;
 			} else {
 				this.$marginArrow.css('top', startPos.y + offset.y);
 				this.$marginArrow.fadeIn(100);
@@ -267,7 +325,7 @@ based.Editor.prototype = {
 	},
 
 	updateCode: function() {
-		this.dynamicState.code = new based.Code(this.$textarea.val());
+		this.code = new based.Code(this.$textarea.val());
 	},
 
 	updateSize: function() {
@@ -280,7 +338,7 @@ based.Editor.prototype = {
 	autoindent: function(e) {
 		// 13 = enter, 221 = ] or }
 		if (e.keyCode === 13 || e.keyCode === 221) {
-			var code = this.dynamicState.code;
+			var code = this.code;
 			var offset = this.$textarea[0].selectionStart;
 			var pos = code.offsetToPos(offset);
 			if (pos.line > 1) {
@@ -312,7 +370,7 @@ based.Editor.prototype = {
 	},
 
 	keydown: function(e) {
-		if (this.$textarea.val() !== this.dynamicState.code.getText()) {
+		if (this.$textarea.val() !== this.code.getText()) {
 			this.updateSize();
 
 			this.$marginArrow.hide();
@@ -324,7 +382,7 @@ based.Editor.prototype = {
 	},
 
 	keyup: function(e) {
-		if (this.$textarea.val() !== this.dynamicState.code.getText()) {
+		if (this.$textarea.val() !== this.code.getText()) {
 			this.updateSize(); // TODO: remove?
 			this.updateCode();
 			this.autoindent(e);
@@ -333,7 +391,7 @@ based.Editor.prototype = {
 	},
 
 	paste: function(e) {
-		if (this.$textarea.val() !== this.dynamicState.code.getText()) {
+		if (this.$textarea.val() !== this.code.getText()) {
 			this.updateSize();
 			this.updateCode();
 			this.autoindent(e);
@@ -342,7 +400,7 @@ based.Editor.prototype = {
 	},
 
 	toggleMesssage: function() {
-		this.persistentState.messageOpen = !this.persistentState.messageOpen;
+		this.messageOpen = !this.messageOpen;
 		this.renderMessage();
 	}
 	
