@@ -110,49 +110,52 @@ based.NumberEditable.prototype = {
 	/// INTERNAL FUNCTIONS ///
 
 	parseNumber: function() {
-		// example: this.text = "123.45e-3"
-
-		this.exponent = '';
-		if (this.text.indexOf('e') > 0) {
-			this.exponent = this.text.substring(this.text.indexOf('e'));
-		} else if (this.text.indexOf('E') > 0) {
-			this.exponent = this.text.substring(this.text.indexOf('E'));
-		}
-		// this.exponent = "e-3"
-		var withoutExponent = this.text.substring(0, this.text.length-this.exponent.length);
-		// withoutExponent = "123.45"
-
-		this.decimals = 0;
-		if (withoutExponent.indexOf('.') > 0) {
-			this.decimals = withoutExponent.length - (withoutExponent.indexOf('.')+1);
-		}
-		// this.decimals = 2
-
-		this.normalisedValue = parseInt(withoutExponent.replace('.', ''), 10);
-		// this.normalisedValue = 12345
+		var split = this.splitNumber(this.text);
+		this.normalisedValue = parseFloat((split.sign || '') + (split.integer || '0') + '.' + (split.decimals || '0'));
+		this.decimals = (split.decimals || '').length;
+		this.exponentLetter = split.exponentLetter || 'e';
+		this.exponent = parseInt(split.exponent || '0', 10);
+		this.needsReparse = false;
 	},
 
-	makeNumber: function(offset) {
-		// sigmoid between 0.2 and 1.0 for |offset| between 0 and ~80
-		var factor = 0.8/(1+Math.exp(-Math.abs(offset)/10+4))+0.2;
-		var newText = "" + Math.round(this.normalisedValue + factor*offset);
+	splitNumber: function(str) {
+		var match = /([+\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])([+\-]?[0-9]+))?/g.exec(str);
+		return {
+			sign: match[1],
+			integer: match[2],
+			decimals: match[3],
+			exponentLetter: match[4],
+			exponent: match[5]
+		};
+	},
 
-		var negative = false;
-		if (newText.charAt(0) === '-') {
-			negative = true;
-			newText = newText.substring(1);
+	makeNumber: function(deltaOffset, realOffset) {
+		// sigmoid between 0.2 and 1.0 for |realOffset| between 0 and ~80
+		var factor = 0.8/(1+Math.exp(-Math.abs(realOffset)/10+4))+0.2;
+		var newText = (this.normalisedValue + factor*deltaOffset*Math.pow(10, -this.decimals)).toPrecision(8);
+		var split = this.splitNumber(newText);
+
+		newText = (split.sign || '') + (split.integer || '0');
+
+		if (split.exponent !== undefined) {
+			split.decimals = split.decimals || '0';
+			newText += '.' + split.decimals;
+			this.needsReparse = true;
+		} else if (this.decimals > 0) {
+			split.decimals = (split.decimals || '0').substring(0, this.decimals);
+			newText += '.' + split.decimals;
 		}
 
-		if (this.decimals > 0) {
-			var decimalPosition = newText.length-this.decimals;
-			if (decimalPosition <= 0) {
-				newText = (new Array(-decimalPosition+2)).join('0') + newText;
-				decimalPosition = 1;
-			}
-			newText = newText.substring(0, decimalPosition) + '.' + newText.substring(decimalPosition);
+		if (split.decimals.length !== this.decimals) {
+			this.needsReparse = true;
 		}
 
-		return (negative ? '-' : '') + newText + this.exponent;
+		var exponent = this.exponent + parseInt(split.exponent || 0, 10);
+		if (exponent !== 0) {
+			newText += this.exponentLetter + exponent;
+		}
+
+		return newText;
 	},
 
 	updateMarking: function() {
@@ -162,10 +165,12 @@ based.NumberEditable.prototype = {
 
 	touchDown: function(touch) {
 		this.offset = this.editor.code.lineColumnToOffset(this.line, this.column);
+		this.parseNumber();
+		touch.resetDeltaTranslation();
 	},
 
 	touchMove: function(touch) {
-		var newText = this.makeNumber(touch.translation.x);
+		var newText = this.makeNumber(touch.deltaTranslation.x, touch.translation.x);
 		this.editor.setCode(this.editor.code.replaceOffsetRange(this.offset, this.offset+this.text.length, newText));
 
 		if (newText.length !== this.text.length) {
@@ -173,10 +178,14 @@ based.NumberEditable.prototype = {
 		}
 
 		this.text = newText;
+		if (this.needsReparse) {
+			this.parseNumber();
+			touch.resetDeltaTranslation();
+		}
 	},
 
 	touchUp: function(touch) {
-		this.parseNumber();
+		
 	}
 };
 
