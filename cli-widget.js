@@ -112,6 +112,23 @@ $(function() {
 	};
 
 	editor.setCallback('textChange', run);
+
+	var generateEditables = function() {
+		var els = browser.getElementsByType('NumberLiteral');
+		if (els !== undefined) {
+			for (var i=0; i<els.length; i++) {
+				var el = els[i];
+				if (el.parent === null) realConsole.log(el);
+				if (el.parent.type === 'UnaryExpression') {
+					el = el.parent;
+				}
+				editor.addNumberEditable(el);
+			}
+			realConsole.log(els);
+		}
+	};
+
+	editor.setCallback('generateEditables', generateEditables);
 	
 	var step = function() {
 		if (browser.hasError()) return;
@@ -278,16 +295,7 @@ $(function() {
 	});
 
 	$('#extra-ladder').click(function(e) {
-		var els = browser.getElementsByType('NumberLiteral');
-		for (var i=0; i<els.length; i++) {
-			var el = els[i];
-			if (el.parent === null) realConsole.log(el);
-			if (el.parent.type === 'UnaryExpression') {
-				el = el.parent;
-			}
-			editor.addNumberEditable(el);
-		}
-		realConsole.log(els);
+		editor.enableEditables();
 	});
 	
 	$('#about').click(function(e) {

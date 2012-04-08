@@ -80,18 +80,79 @@ based.NumberEditable.prototype = {
 		this.column = node.startPos.column;
 		this.column2 = node.endPos.column;
 		this.text = this.editor.code.rangeToText(node.startPos, node.endPos);
-		this.originalValue = parseInt(this.text, 10);
-
 		this.startPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column));
+		this.parseNumber();
 
 		this.$marking = editor.addMarking(0,0,0,0);
 		//this.$box = editor.addBox(startPos.x, startPos.y, content, width);
-
 		this.touchable = new clayer.Touchable(this.$marking, this);
-
-		this.editing = false;
-
 		this.updateMarking();
+	},
+
+	remove: function() {
+		this.touchable.setTouchable(false);
+		delete this.touchable;
+		this.$marking.remove();
+		delete this.$marking;
+	},
+
+	offsetColumn: function(column, amount) {
+		if (this.column2 > column) {
+			this.column2 += amount;
+			if (this.column > column) {
+				this.column += amount;
+				this.startPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column));
+			}
+			this.updateMarking();
+		}
+	},
+
+	/// INTERNAL FUNCTIONS ///
+
+	parseNumber: function() {
+		// example: this.text = "123.45e-3"
+
+		this.exponent = '';
+		if (this.text.indexOf('e') > 0) {
+			this.exponent = this.text.substring(this.text.indexOf('e'));
+		} else if (this.text.indexOf('E') > 0) {
+			this.exponent = this.text.substring(this.text.indexOf('E'));
+		}
+		// this.exponent = "e-3"
+		var withoutExponent = this.text.substring(0, this.text.length-this.exponent.length);
+		// withoutExponent = "123.45"
+
+		this.decimals = 0;
+		if (withoutExponent.indexOf('.') > 0) {
+			this.decimals = withoutExponent.length - (withoutExponent.indexOf('.')+1);
+		}
+		// this.decimals = 2
+
+		this.normalisedValue = parseInt(withoutExponent.replace('.', ''), 10);
+		// this.normalisedValue = 12345
+	},
+
+	makeNumber: function(offset) {
+		// sigmoid between 0.2 and 1.0 for |offset| between 0 and ~80
+		var factor = 0.8/(1+Math.exp(-Math.abs(offset)/10+4))+0.2;
+		var newText = "" + Math.round(this.normalisedValue + factor*offset);
+
+		var negative = false;
+		if (newText.charAt(0) === '-') {
+			negative = true;
+			newText = newText.substring(1);
+		}
+
+		if (this.decimals > 0) {
+			var decimalPosition = newText.length-this.decimals;
+			if (decimalPosition <= 0) {
+				newText = (new Array(-decimalPosition+2)).join('0') + newText;
+				decimalPosition = 1;
+			}
+			newText = newText.substring(0, decimalPosition) + '.' + newText.substring(decimalPosition);
+		}
+
+		return (negative ? '-' : '') + newText + this.exponent;
 	},
 
 	updateMarking: function() {
@@ -104,18 +165,18 @@ based.NumberEditable.prototype = {
 	},
 
 	touchMove: function(touch) {
-		//console.log(touch);
-		var factor = 0.8/(1+Math.exp(-Math.abs(touch.translation.x)/10+4))+0.2;
-		var newText = "" + Math.round(this.originalValue + factor*touch.translation.x);
+		var newText = this.makeNumber(touch.translation.x);
 		this.editor.setCode(this.editor.code.replaceOffsetRange(this.offset, this.offset+this.text.length, newText));
+
+		if (newText.length !== this.text.length) {
+			this.editor.offsetEditables(this.line, this.column, newText.length - this.text.length);
+		}
+
 		this.text = newText;
-		this.column2 = this.column + newText.length;
-		this.updateMarking();
-		//console.log(newVal);
 	},
 
 	touchUp: function(touch) {
-		this.originalValue = parseInt(this.text, 10);
+		this.parseNumber();
 	}
 };
 
@@ -170,7 +231,11 @@ based.Editor.prototype = {
 		this.code = new based.Code('');
 		this.messageOpen = false;
 		this.renderedError = false;
+
 		this.editables = [];
+		this.editablesByLine = {};
+		this.editablesEnabled = false;
+
 		this.clearDebugState();
 	},
 
@@ -222,14 +287,58 @@ based.Editor.prototype = {
 		this.renderMessage();
 	},
 
-	addNumberEditable: function(node, type) {
-		this.editables.push(new based.NumberEditable(node, this));
+	enableEditables: function() {
+		this.editablesEnabled = true;
+		this.refreshEditables();
+	},
+
+	disableEditables: function() {
+		this.removeEditables();
+		this.editablesEnabled = false;
+	},
+
+	addNumberEditable: function(node) {
+		this.addEditable(new based.NumberEditable(node, this));
 	},
 
 	/// INTERNAL FUNCTIONS ///
 	runCallback: function(name) {
 		if (this.callbacks[name] !== undefined) {
 			this.callbacks[name].apply(this, [].slice.call(arguments, 1));
+		}
+	},
+
+	addEditable: function(editable) {
+		if (this.editablesByLine[editable.line] === undefined) {
+			this.editablesByLine[editable.line] = [];
+		}
+		this.editables.push(editable);
+		this.editablesByLine[editable.line].push(editable);
+	},
+
+
+	removeEditables: function() {
+		if (this.editablesEnabled) {
+			for (var i=0; i<this.editables.length; i++) {
+				this.editables[i].remove();
+			}
+			this.editables = [];
+			this.editablesByLine = {};
+		}
+	},
+
+	refreshEditables: function() {
+		if (this.editablesEnabled) {
+			this.removeEditables();
+			this.runCallback('generateEditables');
+		}
+	},
+
+	offsetEditables: function(line, column, amount) {
+		if (this.editablesByLine[line] !== undefined) {
+			for (var i=0; i<this.editablesByLine[line].length; i++) {
+				this.editablesByLine[line][i].offsetColumn(column, amount);
+			}
 		}
 	},
 
@@ -414,6 +523,7 @@ based.Editor.prototype = {
 			this.$marginError.hide();
 			this.$messagebox.hide();
 			this.$messageMarking.hide();
+			this.removeEditables();
 		}
 		// TODO: include offset vars and update UI elements
 	},
@@ -424,6 +534,7 @@ based.Editor.prototype = {
 			this.updateCode();
 			this.autoindent(e);
 			this.runCallback('textChange');
+			this.refreshEditables();
 		}
 	},
 
@@ -433,6 +544,7 @@ based.Editor.prototype = {
 			this.updateCode();
 			this.autoindent(e);
 			this.runCallback('textChange');
+			this.refreshEditables();
 		}
 	},
 
