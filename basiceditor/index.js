@@ -130,12 +130,13 @@ based.NumberEditable.prototype = {
 	},
 
 	makeNumber: function(deltaOffset, realOffset) {
-		// sigmoid between 0.2 and 1.0 for |realOffset| between 0 and ~80
-		var factor = 0.8/(1+Math.exp(-Math.abs(realOffset)/10+4))+0.2;
+		// sigmoid between 0.4 and 1.0 for |realOffset| between ~0 and ~80
+		var factor = 0.6/(1+Math.exp(2-Math.abs(realOffset)/15))+0.4;
+		console.log(realOffset, deltaOffset);
 		var newText = (this.normalisedValue + factor*deltaOffset*Math.pow(10, -this.decimals)).toPrecision(8);
 		var split = this.splitNumber(newText);
 
-		newText = (split.sign || '') + (split.integer || '0');
+		newText = split.integer || '0';
 
 		if (split.exponent !== undefined) {
 			split.decimals = split.decimals || '0';
@@ -144,6 +145,8 @@ based.NumberEditable.prototype = {
 		} else if (this.decimals > 0) {
 			split.decimals = (split.decimals || '0').substring(0, this.decimals);
 			newText += '.' + split.decimals;
+		} else {
+			split.decimals = '';
 		}
 
 		if (split.decimals.length !== this.decimals) {
@@ -153,6 +156,10 @@ based.NumberEditable.prototype = {
 		var exponent = this.exponent + parseInt(split.exponent || 0, 10);
 		if (exponent !== 0) {
 			newText += this.exponentLetter + exponent;
+		}
+
+		if (parseFloat(newText) !== 0) {
+			newText = (split.sign || '') + newText;
 		}
 
 		return newText;
@@ -166,7 +173,6 @@ based.NumberEditable.prototype = {
 	touchDown: function(touch) {
 		this.offset = this.editor.code.lineColumnToOffset(this.line, this.column);
 		this.parseNumber();
-		touch.resetDeltaTranslation();
 	},
 
 	touchMove: function(touch) {
@@ -179,6 +185,7 @@ based.NumberEditable.prototype = {
 
 		this.text = newText;
 		if (this.needsReparse) {
+			console.log('reparse!');
 			this.parseNumber();
 			touch.resetDeltaTranslation();
 		}
