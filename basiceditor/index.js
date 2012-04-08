@@ -528,6 +528,11 @@ based.Editor.prototype = {
 		if (this.$textarea.val() !== this.code.getText()) {
 			this.updateSize();
 
+			// necessary to update the code object, otherwise the
+			// comparison at keyup() may fail when pressing space-backspace
+			// simultaneously
+			this.updateCode();
+
 			this.$marginArrow.hide();
 			this.$marginError.hide();
 			this.$messagebox.hide();
