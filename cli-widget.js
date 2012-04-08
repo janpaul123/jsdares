@@ -14,10 +14,12 @@ $(function() {
 	
 	var myConsole = {
 		log: function(text) {
-			$('#console').val($('#console').val() + (text || '') + '\n');
+			if (text === undefined) text = '';
+			$('#console').val($('#console').val() + text + '\n');
 		},
 		lineLog: function(text) {
-			$('#console').val($('#console').val() + (text || ''));
+			if (text === undefined) text = '';
+			$('#console').val($('#console').val() + text);
 		},
 		clear: function() {
 			$('#console').val('');
@@ -191,11 +193,11 @@ $(function() {
 	$('#extra-elements').click(function(e) {
 		clear();
 		
-		myConsole.log('There may be multiple instances of the same element due to parser behaviour.\n');
+		//myConsole.log('There may be multiple instances of the same element due to parser behaviour. (??)\n');
 		
 		for (var i=0; i<browser.context.elements.length; i++) {
 			var element = browser.context.elements[i];
-			myConsole.log(element.type + ' @ line ' + element.startPos.line);
+			myConsole.log(element.type + ' @ line ' + element.startPos.line + ', column ' + element.startPos.column);
 		}
 		
 		if (realConsole.log(browser.context)) {
@@ -277,8 +279,15 @@ $(function() {
 
 	$('#extra-ladder').click(function(e) {
 		var els = browser.getElementsByType('NumberLiteral');
+		for (var i=0; i<els.length; i++) {
+			var el = els[i];
+			if (el.parent === null) realConsole.log(el);
+			if (el.parent.type === 'UnaryExpression') {
+				el = el.parent;
+			}
+			editor.addNumberEditable(el);
+		}
 		realConsole.log(els);
-		editor.makeEditable(els);
 	});
 	
 	$('#about').click(function(e) {

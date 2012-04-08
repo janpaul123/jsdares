@@ -1,11 +1,14 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var clayer = require('../clayer');
+
 var based = {};
 
-based.Editor = function() { return this.init.apply(this, arguments); };
 based.Code = function() { return this.init.apply(this, arguments); };
-	
+based.NumberEditable = function() { return this.init.apply(this, arguments); };
+based.Editor = function() { return this.init.apply(this, arguments); };
+
 based.Code.prototype = {
 	init: function(text) {
 		this.text = '' + text;
@@ -47,8 +50,11 @@ based.Code.prototype = {
 	insertAtOffset: function(offset, text) {
 		return this.text.substring(0, offset) + text + this.text.substring(offset);
 	},
-	removeAtOffsetRange: function(offset1, offset2) {
+	removeOffsetRange: function(offset1, offset2) {
 		return this.text.substring(0, offset1) + this.text.substring(offset2);
+	},
+	replaceOffsetRange: function(offset1, offset2, text) {
+		return this.text.substring(0, offset1) + text + this.text.substring(offset2);
 	},
 	/// INTERNAL FUNCTIONS ///
 	makeLines: function() {
@@ -63,6 +69,53 @@ based.Code.prototype = {
 			// add one for the actual newline character
 			this.offsets[i] = this.offsets[i-1] + this.lines[i-1].length + 1;
 		}
+	}
+};
+
+based.NumberEditable.prototype = {
+	init: function(node, editor) {
+		this.editor = editor;
+
+		this.line = node.startPos.line;
+		this.column = node.startPos.column;
+		this.column2 = node.endPos.column;
+		this.text = this.editor.code.rangeToText(node.startPos, node.endPos);
+		this.originalValue = parseInt(this.text, 10);
+
+		this.startPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column));
+
+		this.$marking = editor.addMarking(0,0,0,0);
+		//this.$box = editor.addBox(startPos.x, startPos.y, content, width);
+
+		this.touchable = new clayer.Touchable(this.$marking, this);
+
+		this.editing = false;
+
+		this.updateMarking();
+	},
+
+	updateMarking: function() {
+		var endPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column2));
+		this.editor.updateMarking(this.$marking, this.startPos.x, this.startPos.y, endPos.x - this.startPos.x, 0);
+	},
+
+	touchDown: function(touch) {
+		this.offset = this.editor.code.lineColumnToOffset(this.line, this.column);
+	},
+
+	touchMove: function(touch) {
+		//console.log(touch);
+		var factor = 0.8/(1+Math.exp(-Math.abs(touch.translation.x)/10+4))+0.2;
+		var newText = "" + Math.round(this.originalValue + factor*touch.translation.x);
+		this.editor.setCode(this.editor.code.replaceOffsetRange(this.offset, this.offset+this.text.length, newText));
+		this.text = newText;
+		this.column2 = this.column + newText.length;
+		this.updateMarking();
+		//console.log(newVal);
+	},
+
+	touchUp: function(touch) {
+		this.originalValue = parseInt(this.text, 10);
 	}
 };
 
@@ -142,6 +195,7 @@ based.Editor.prototype = {
 		this.updateCode();
 		this.updateSize();
 		this.clearDebugState();
+		this.runCallback('textChange');
 	},
 
 	setMessage: function(message) {
@@ -168,14 +222,8 @@ based.Editor.prototype = {
 		this.renderMessage();
 	},
 
-	makeEditable: function(elements) {
-		for (var i=0; i<elements.length; i++) {
-			var el = elements[i];
-			var startPos = this.getPosition(this.code.lineColumnToPositionText(el.startPos.line, el.startPos.column));
-			var endPos = this.getPosition(this.code.lineColumnToPositionText(el.endPos.line, el.endPos.column));
-			var editable = this.addEditable(startPos.x, startPos.y, endPos.x-startPos.x, 0, 'blah');
-			this.editables.push(editable);
-		}
+	addNumberEditable: function(node, type) {
+		this.editables.push(new based.NumberEditable(node, this));
 	},
 
 	/// INTERNAL FUNCTIONS ///
@@ -222,17 +270,6 @@ based.Editor.prototype = {
 		if (!visible) $box.hide();
 
 		return $box;
-	},
-
-	addEditable: function(x, y, width, height, content) {
-		var $marking = this.addMarking(x, y, width, height);
-		var $box = this.addBox(x, y, content, width);
-
-		$marking.click(function(e) {
-			$box.fadeToggle(100);
-		});
-
-		return {marking: $marking, box: $box};
 	},
 
 	getPosition: function(text) {
@@ -360,7 +397,7 @@ based.Editor.prototype = {
 				} else if (spaces < 0 && spacesAlready >= -spaces) {
 					startOffset = code.lineColumnToOffset(pos.line, 0);
 					endOffset = startOffset-spaces;
-					this.$textarea.val(code.removeAtOffsetRange(startOffset, endOffset));
+					this.$textarea.val(code.removeOffsetRange(startOffset, endOffset));
 					this.$textarea[0].selectionStart = offset + spaces;
 					this.$textarea[0].selectionEnd = this.$textarea[0].selectionStart;
 					this.updateCode();

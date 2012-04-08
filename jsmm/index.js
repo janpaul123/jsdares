@@ -59,7 +59,7 @@ jsmm.addCommonElementMethods = function(type, element) {
 		this.type = type;
 		this.startPos = {line: _$.first_line, column: _$.first_column};
 		this.endPos = {line: _$.last_line, column: _$.last_column};
-		this.text = jsmm.parser.lexer.yytext;
+		this.parent = null;
 		this.init.apply(this, [].slice.call(arguments, 1));
 	};
 	return element;
@@ -68,6 +68,7 @@ jsmm.addCommonElementMethods = function(type, element) {
 jsmm.yy.Program.prototype = jsmm.addCommonElementMethods('Program', {
 	init: function(statementList) {
 		this.statementList = statementList;
+		statementList.parent = this;
 	},
 	getCode: function() {
 		return this.statementList.getCode();
@@ -94,6 +95,7 @@ jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods('StatementList', 
 	},
 	addStatement: function(statement) {
 		this.statements.push(statement);
+		statement.parent = this;
 	},
 	getCode: function() {
 		var output = "";
@@ -110,6 +112,7 @@ jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods('StatementList', 
 jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSimpleStatement', {
 	init: function(statement) {
 		this.statement = statement;
+		statement.parent = this;
 	},
 	getCode: function() {
 		return this.statement.getCode() + ";";
@@ -123,6 +126,8 @@ jsmm.yy.PostfixStatement.prototype = jsmm.addCommonElementMethods('PostfixStatem
 	init: function(identifier, symbol) {
 		this.identifier = identifier;
 		this.symbol = symbol;
+		identifier.parent = this;
+		symbol.parent = this;
 	},
 	getCode: function() {
 		return this.identifier.getCode() + this.symbol;
@@ -137,6 +142,8 @@ jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonElementMethods('Assignment
 		this.identifier = identifier;
 		this.symbol = symbol;
 		this.expression = expression;
+		identifier.parent = this;
+		expression.parent = this;
 	},
 	getCode: function() {
 		return this.identifier.getCode() + " " + this.symbol + " " + this.expression.getCode();
@@ -152,6 +159,7 @@ jsmm.yy.VarStatement.prototype = jsmm.addCommonElementMethods('VarStatement', {
 	},
 	addVarItem: function(item) {
 		this.items.push(item);
+		item.parent = this;
 	},
 	getCode: function() {
 		var output = "var " + this.items[0].getCode();
@@ -169,6 +177,7 @@ jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods('VarItem', {
 	init: function(name, assignment) {
 		this.name = name;
 		this.assignment = assignment;
+		if (assignment !== null) assignment.parent = this;
 	},
 	getCode: function() {
 		if (this.assignment === null) {
@@ -185,6 +194,7 @@ jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods('VarItem', {
 jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatement', {
 	init: function(expression) {
 		this.expression = expression;
+		expression.parent = this;
 	},
 	getCode: function() {
 		if (this.expression === null) {
@@ -200,6 +210,8 @@ jsmm.yy.BinaryExpression.prototype = jsmm.addCommonElementMethods('BinaryExpress
 		this.expression1 = expression1;
 		this.symbol = symbol;
 		this.expression2 = expression2;
+		expression1.parent = this;
+		expression2.parent = this;
 	},
 	getCode: function() {
 		return "(" + this.expression1.getCode() + this.symbol + this.expression2.getCode() + ")";
@@ -210,6 +222,7 @@ jsmm.yy.UnaryExpression.prototype = jsmm.addCommonElementMethods('UnaryExpressio
 	init: function(symbol, expression) {
 		this.symbol = symbol;
 		this.expression = expression;
+		expression.parent = this;
 	},
 	getCode: function() {
 		return "(" + this.symbol + this.expression.getCode() + ")";
@@ -256,6 +269,7 @@ jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonElementMethods('ObjectIdentif
 	init: function(identifier, prop) {
 		this.identifier = identifier;
 		this.prop = prop;
+		identifier.parent = this;
 	},
 	getCode: function() {
 		return this.identifier.getCode() + "." + this.prop;
@@ -266,6 +280,8 @@ jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonElementMethods('ArrayIdentifie
 	init: function(identifier, expression) {
 		this.identifier = identifier;
 		this.expression = expression;
+		identifier.parent = this;
+		expression.parent = this;
 	},
 	getCode: function() {
 		return this.identifier.getCode() + "[" + this.expression.getCode() + "]";
@@ -276,6 +292,10 @@ jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods('FunctionCall', {
 	init: function(identifier, expressionArgs) {
 		this.identifier = identifier;
 		this.expressionArgs = expressionArgs;
+		identifier.parent = this;
+		for (var i=0; i<this.expressionArgs.length; i++) {
+			expressionArgs[i].parent = this;
+		}
 	},
 	getCode: function() {
 		var output = this.identifier.getCode() + "(";
@@ -290,6 +310,7 @@ jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods('FunctionCall', {
 jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods('CallStatement', {
 	init: function(functionCall) {
 		this.functionCall = functionCall;
+		functionCall.parent = this;
 	},
 	getCode: function() {
 		return this.functionCall.getCode();
@@ -301,6 +322,9 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 		this.expression = expression;
 		this.statementList = statementList;
 		this.elseBlock = elseBlock;
+		expression.parent = this;
+		statementList.parent = this;
+		if (elseBlock !== null) elseBlock.parent = this;
 	},
 	getCode: function() {
 		var output = "if (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -314,6 +338,7 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
 	init: function(ifBlock) {
 		this.ifBlock = ifBlock;
+		ifBlock.parent = this;
 	},
 	getCode: function() {
 		return " else " + this.ifBlock.getCode();
@@ -323,6 +348,7 @@ jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
 jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
 	init: function(statementList) {
 		this.statementList = statementList;
+		statementList.parent = this;
 	},
 	getCode: function() {
 		return " else {\n" + this.statementList.getCode() + "}";
@@ -333,6 +359,8 @@ jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
 	init: function(expression, statementList) {
 		this.expression = expression;
 		this.statementList = statementList;
+		expression.parent = this;
+		statementList.parent = this;
 	},
 	getCode: function() {
 		return "while (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -345,6 +373,10 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 		this.expression = expression;
 		this.statement2 = statement2;
 		this.statementList = statementList;
+		statement1.parent = this;
+		expression.parent = this;
+		statement2.parent = this;
+		statementList.parent = this;
 	},
 	getCode: function() {
 		var output = "for (" + this.statement1.getCode() + ";" + this.expression.getCode() + ";";
@@ -358,6 +390,7 @@ jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods('FunctionDe
 		this.name = name;
 		this.nameArgs = nameArgs;
 		this.statementList = statementList;
+		statementList.parent = this;
 		this.startPos = {line: startPos.first_line, column: startPos.first_column};
 		this.endPos = {line: endPos.last_line, column: endPos.last_column};
 	},

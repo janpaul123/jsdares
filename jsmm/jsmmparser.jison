@@ -22,7 +22,6 @@ reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new
 %%
 
 {skip}										/* skip and comments */
-("++"|"--")									return "++";
 ("+="|"-="|"*="|"/="|"%=")					return "+=";
 ("=="|"!="|">="|"<="|">"|"<")				return "==";
 "&&"										return "&&";
@@ -90,7 +89,7 @@ simpleStatement
 	: assignmentStatement
 	| varStatement
 	| callStatement
-	| identExpression "++"						{ $$ = new yy.PostfixStatement(@$, $1, $2); }
+	| identExpression "+" "+"					{ $$ = new yy.PostfixStatement(@$, $1, $2+$2); }
 ;
 
 assignmentStatement
