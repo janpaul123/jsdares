@@ -84,7 +84,9 @@ based.NumberEditable.prototype = {
 		this.parseNumber();
 
 		this.$marking = editor.addMarking(0,0,0,0);
-		//this.$box = editor.addBox(startPos.x, startPos.y, content, width);
+		this.$arrowLeft = null;
+		this.$arrowRight = null;
+		this.$box = null;
 		this.touchable = new clayer.Touchable(this.$marking, this);
 		this.updateMarking();
 	},
@@ -92,6 +94,9 @@ based.NumberEditable.prototype = {
 	remove: function() {
 		this.touchable.setTouchable(false);
 		this.$marking.remove();
+		if (this.$box !== null) {
+			this.$box.remove();
+		}
 	},
 
 	offsetColumn: function(column, amount) {
@@ -105,44 +110,81 @@ based.NumberEditable.prototype = {
 		}
 	},
 
+	isValid: function() {
+		return this.valid;
+	},
+
 	/// INTERNAL FUNCTIONS ///
+
+	updateMarking: function() {
+		var endPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column2));
+		var width = endPos.x - this.startPos.x;
+		this.editor.updateMarking(this.$marking, this.startPos.x, this.startPos.y, width, 0);
+		if (this.$box !== null) {
+			this.editor.updateBox(this.$box, this.startPos.x, this.startPos.y, null, width);
+		}
+	},
+
+	showBox: function() {
+		if (this.$box === null) {
+			this.$box = this.editor.addBox(0, 0, '&larr; drag &rarr;');
+			this.updateMarking();
+		}
+		this.$box.fadeIn(100);
+	},
+
+	hideBox: function() {
+		if (this.$box !== null) {
+			this.$box.fadeOut(100);
+		}
+	},
 
 	parseNumber: function() {
 		this.value = parseFloat(this.text);
 		var split = this.splitNumber(this.text);
 
-		// if an exponent is defined, use the capitalisation already used in the value
-		this.exponentLetter = split.exponentLetter || 'e';
-
-		// calculate the delta for each offset pixel based on the number of decimals in the original number (and of course exponent)
-		// the delta is inverted as this seems to reduce the number of rounding errors (e.g. 0.57 !== 57*0.01, but 0.57 === 57/100)
-		this.invDelta = Math.pow(10, -(parseInt(split.exponent || '0', 10) - (split.decimals || '').length));
-
-		// determine the number of significant digits by trimming leading zeros
-		var significant = (split.integer + (split.decimals || '')).replace(/^0*/, '').length;
-		if (significant > 8) significant = 8;
-		else if (significant < 1) significant = 1;
-
-		if (significant > 0) {
-			// the final number of decimals has to be based on the .toPrecision value with the calculated number of significant digits,
-			// as this will be used when generating the number, and this function may alter the format of the number (e.g. different
-			// number of digits and exponent, etc.)
-			this.decimals = (this.splitNumber(this.value.toPrecision(significant)).decimals || '').length;
+		if (split === null || !isFinite(this.value)) {
+			this.valid = false;
 		} else {
-			// if there are no significant numbers, the value is 0, so simply look at the number of decimals
-			this.decimals = (split.decimals || '').length;
+			this.valid = true;
+
+			// if an exponent is defined, use the capitalisation already used in the value
+			this.exponentLetter = split.exponentLetter || 'e';
+
+			// calculate the delta for each offset pixel based on the number of decimals in the original number (and of course exponent)
+			// the delta is inverted as this seems to reduce the number of rounding errors (e.g. 0.57 !== 57*0.01, but 0.57 === 57/100)
+			this.invDelta = Math.pow(10, -(parseInt(split.exponent || '0', 10) - (split.decimals || '').length));
+
+			// determine the number of significant digits by trimming leading zeros
+			var significant = (split.integer + (split.decimals || '')).replace(/^0*/, '').length;
+			if (significant > 8) significant = 8;
+			else if (significant < 1) significant = 1;
+
+			if (significant > 0) {
+				// the final number of decimals has to be based on the .toPrecision value with the calculated number of significant digits,
+				// as this will be used when generating the number, and this function may alter the format of the number (e.g. different
+				// number of digits and exponent, etc.)
+				this.decimals = (this.splitNumber(this.value.toPrecision(significant)).decimals || '').length;
+			} else {
+				// if there are no significant numbers, the value is 0, so simply look at the number of decimals
+				this.decimals = (split.decimals || '').length;
+			}
 		}
 	},
 
 	splitNumber: function(str) {
-		var match = /[+]?([\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?/g.exec(str);
-		return {
-			sign: match[1], // either "-" or undefined ("+" is dropped)
-			integer: match[2], // integer part, cannot be undefined (if the number is valid)
-			decimals: match[3], // decimal part without ".", or undefined
-			exponentLetter: match[4], // either "e", "E", or undefined
-			exponent: match[5] // the exponent part without the letter, but with an optional "-" (again not "+"), or undefined
-		};
+		var match = /^[+]?([\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?/g.exec(str);
+		if (match === null) {
+			return null;
+		} else {
+			return {
+				sign: match[1], // either "-" or undefined ("+" is dropped)
+				integer: match[2], // integer part, cannot be undefined (if the number is valid)
+				decimals: match[3], // decimal part without ".", or undefined
+				exponentLetter: match[4], // either "e", "E", or undefined
+				exponent: match[5] // the exponent part without the letter, but with an optional "-" (again not "+"), or undefined
+			};
+		}
 	},
 
 	makeNumber: function(offset) {
@@ -172,14 +214,9 @@ based.NumberEditable.prototype = {
 		return newText;
 	},
 
-	updateMarking: function() {
-		var endPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column2));
-		this.editor.updateMarking(this.$marking, this.startPos.x, this.startPos.y, endPos.x - this.startPos.x, 0);
-	},
-
 	touchDown: function(touch) {
 		this.offset = this.editor.code.lineColumnToOffset(this.line, this.column);
-		this.parseNumber();
+		this.hideBox();
 	},
 
 	touchMove: function(touch) {
@@ -194,7 +231,10 @@ based.NumberEditable.prototype = {
 	},
 
 	touchUp: function(touch) {
-		
+		this.parseNumber();
+		if (touch.wasTap) {
+			this.showBox();
+		}
 	}
 };
 
@@ -316,7 +356,14 @@ based.Editor.prototype = {
 	},
 
 	addNumberEditable: function(node) {
-		this.addEditable(new based.NumberEditable(node, this));
+		var editable = new based.NumberEditable(node, this);
+		if (editable.isValid()) {
+			this.addEditable(editable);
+			return true;
+		} else {
+			editable.remove();
+			return false;
+		}
 	},
 
 	/// INTERNAL FUNCTIONS ///
@@ -386,9 +433,11 @@ based.Editor.prototype = {
 	updateBox: function($box, x, y, html, markingWidth) {
 		markingWidth = markingWidth || 0;
 		var offset = this.getTextAreaOffset();
-		var $content = $box.children('.based-message');
 
-		$content.html(html);
+		if (html !== undefined && html !== null) {
+			var $content = $box.children('.based-message');
+			$content.html(html);
+		}
 
 		var visible = $box.is(":visible");
 		$box.show();

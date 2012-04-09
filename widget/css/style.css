@@ -5944,6 +5944,13 @@ a.thumbnail:hover {
 .based-marking:hover {
   background-color: rgba(50, 250, 50, 0.5);
 }
+.based-arrow-left {
+  position: absolute;
+  margin-top: -26px;
+  margin-left: -18px;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #0E0;
+}
 .based-lineMsg {
   position: absolute;
   font-size: 12px;
