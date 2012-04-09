@@ -91,9 +91,7 @@ based.NumberEditable.prototype = {
 
 	remove: function() {
 		this.touchable.setTouchable(false);
-		delete this.touchable;
 		this.$marking.remove();
-		delete this.$marking;
 	},
 
 	offsetColumn: function(column, amount) {
@@ -110,93 +108,66 @@ based.NumberEditable.prototype = {
 	/// INTERNAL FUNCTIONS ///
 
 	parseNumber: function() {
-		var split = this.splitNumber(this.text);
-		this.exponentLetter = split.exponentLetter || 'e';
-		/*
-		this.normalisedValue = parseFloat((split.sign || '') + (split.integer || '0') + '.' + (split.decimals || '0'));
-		this.decimals = (split.decimals || '').length;
-		this.exponent = parseInt(split.exponent || '0', 10);
-		this.needsReparse = false;
-		*/
-
-		this.significant = ((split.integer || '') + (split.decimals || '')).replace(/^0*/, '').length;
-		if (this.significant > 8) this.significant = 8;
-		else if (this.significant < 1) this.significant = 1;
 		this.value = parseFloat(this.text);
+		var split = this.splitNumber(this.text);
+
+		// if an exponent is defined, use the capitalisation already used in the value
+		this.exponentLetter = split.exponentLetter || 'e';
+
+		// calculate the delta for each offset pixel based on the number of decimals in the original number (and of course exponent)
+		// the delta is inverted as this seems to reduce the number of rounding errors (e.g. 0.57 !== 57*0.01, but 0.57 === 57/100)
 		this.invDelta = Math.pow(10, -(parseInt(split.exponent || '0', 10) - (split.decimals || '').length));
 
-		if (this.value === 0) {
-			this.decimals = (split.decimals || '').length;
-		} else {
-			this.decimals = (this.splitNumber(this.value.toPrecision(this.significant)).decimals || '').length;
-		}
+		// determine the number of significant digits by trimming leading zeros
+		var significant = (split.integer + (split.decimals || '')).replace(/^0*/, '').length;
+		if (significant > 8) significant = 8;
+		else if (significant < 1) significant = 1;
 
-		console.log(this.significant, 'significant');
+		if (significant > 0) {
+			// the final number of decimals has to be based on the .toPrecision value with the calculated number of significant digits,
+			// as this will be used when generating the number, and this function may alter the format of the number (e.g. different
+			// number of digits and exponent, etc.)
+			this.decimals = (this.splitNumber(this.value.toPrecision(significant)).decimals || '').length;
+		} else {
+			// if there are no significant numbers, the value is 0, so simply look at the number of decimals
+			this.decimals = (split.decimals || '').length;
+		}
 	},
 
 	splitNumber: function(str) {
-		var match = /([+\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?/g.exec(str);
+		var match = /[+]?([\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?/g.exec(str);
 		return {
-			sign: match[1],
-			integer: match[2],
-			decimals: match[3],
-			exponentLetter: match[4],
-			exponent: match[5]
+			sign: match[1], // either "-" or undefined ("+" is dropped)
+			integer: match[2], // integer part, cannot be undefined (if the number is valid)
+			decimals: match[3], // decimal part without ".", or undefined
+			exponentLetter: match[4], // either "e", "E", or undefined
+			exponent: match[5] // the exponent part without the letter, but with an optional "-" (again not "+"), or undefined
 		};
 	},
 
-	makeNumber: function(deltaOffset, realOffset) {
-		var split = this.splitNumber((this.value + realOffset/this.invDelta).toPrecision(8));
+	makeNumber: function(offset) {
+		// calculate new number with 8 significant digits and split it
+		var split = this.splitNumber((this.value + offset/this.invDelta).toPrecision(8));
 
-		var newText = split.integer || '0';
+		// start off with the integer part
+		var newText = split.integer;
+
+		// if we want any decimals, take all the decimals we get with 8 significant digits, and cap this off by the required amount
 		if (this.decimals > 0) {
 			newText += '.' + (split.decimals || '0').substring(0, this.decimals);
 		}
+
+		// add the exponent using the user-defined letter, if necessary
 		if (split.exponent !== undefined) {
 			newText += this.exponentLetter + split.exponent;
 		}
 
+		// finally add the negative sign if required, and if the rest of the number we have so far does not evaluate to zero
 		if (split.sign === '-' && parseFloat(newText) !== 0) {
 			newText = '-' + newText;
 		}
 
 		return newText;
-
-		// sigmoid between 0.4 and 1.0 for |realOffset| between ~0 and ~80
-		/*
-		var factor = 0.6/(1+Math.exp(2-Math.abs(realOffset)/15))+0.4;
-		console.log(realOffset, deltaOffset);
-		var newText = (this.normalisedValue + factor*deltaOffset*Math.pow(10, -this.decimals)).toPrecision(8);
-		var split = this.splitNumber(newText);
-
-		newText = split.integer || '0';
-
-		if (split.exponent !== undefined) {
-			split.decimals = split.decimals || '0';
-			newText += '.' + split.decimals;
-			this.needsReparse = true;
-		} else if (this.decimals > 0) {
-			split.decimals = (split.decimals || '0').substring(0, this.decimals);
-			newText += '.' + split.decimals;
-		} else {
-			split.decimals = '';
-		}
-
-		if (split.decimals.length !== this.decimals) {
-			this.needsReparse = true;
-		}
-
-		var exponent = this.exponent + parseInt(split.exponent || 0, 10);
-		if (exponent !== 0) {
-			newText += this.exponentLetter + exponent;
-		}
-
-		if (parseFloat(newText) !== 0) {
-			newText = (split.sign || '') + newText;
-		}
-
-		return newText;
-		*/
 	},
 
 	updateMarking: function() {
@@ -210,7 +181,7 @@ based.NumberEditable.prototype = {
 	},
 
 	touchMove: function(touch) {
-		var newText = this.makeNumber(touch.deltaTranslation.x, touch.translation.x);
+		var newText = this.makeNumber(touch.translation.x);
 		this.editor.setCode(this.editor.code.replaceOffsetRange(this.offset, this.offset+this.text.length, newText));
 
 		if (newText.length !== this.text.length) {
@@ -218,11 +189,6 @@ based.NumberEditable.prototype = {
 		}
 
 		this.text = newText;
-		if (this.needsReparse) {
-			console.log('reparse!');
-			this.parseNumber();
-			touch.resetDeltaTranslation();
-		}
 	},
 
 	touchUp: function(touch) {
