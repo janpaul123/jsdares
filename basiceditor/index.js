@@ -111,15 +111,31 @@ based.NumberEditable.prototype = {
 
 	parseNumber: function() {
 		var split = this.splitNumber(this.text);
+		this.exponentLetter = split.exponentLetter || 'e';
+		/*
 		this.normalisedValue = parseFloat((split.sign || '') + (split.integer || '0') + '.' + (split.decimals || '0'));
 		this.decimals = (split.decimals || '').length;
-		this.exponentLetter = split.exponentLetter || 'e';
 		this.exponent = parseInt(split.exponent || '0', 10);
 		this.needsReparse = false;
+		*/
+
+		this.significant = ((split.integer || '') + (split.decimals || '')).replace(/^0*/, '').length;
+		if (this.significant > 8) this.significant = 8;
+		else if (this.significant < 1) this.significant = 1;
+		this.value = parseFloat(this.text);
+		this.invDelta = Math.pow(10, -(parseInt(split.exponent || '0', 10) - (split.decimals || '').length));
+
+		if (this.value === 0) {
+			this.decimals = (split.decimals || '').length;
+		} else {
+			this.decimals = (this.splitNumber(this.value.toPrecision(this.significant)).decimals || '').length;
+		}
+
+		console.log(this.significant, 'significant');
 	},
 
 	splitNumber: function(str) {
-		var match = /([+\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])([+\-]?[0-9]+))?/g.exec(str);
+		var match = /([+\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?/g.exec(str);
 		return {
 			sign: match[1],
 			integer: match[2],
@@ -130,7 +146,24 @@ based.NumberEditable.prototype = {
 	},
 
 	makeNumber: function(deltaOffset, realOffset) {
+		var split = this.splitNumber((this.value + realOffset/this.invDelta).toPrecision(8));
+
+		var newText = split.integer || '0';
+		if (this.decimals > 0) {
+			newText += '.' + (split.decimals || '0').substring(0, this.decimals);
+		}
+		if (split.exponent !== undefined) {
+			newText += this.exponentLetter + split.exponent;
+		}
+
+		if (split.sign === '-' && parseFloat(newText) !== 0) {
+			newText = '-' + newText;
+		}
+
+		return newText;
+
 		// sigmoid between 0.4 and 1.0 for |realOffset| between ~0 and ~80
+		/*
 		var factor = 0.6/(1+Math.exp(2-Math.abs(realOffset)/15))+0.4;
 		console.log(realOffset, deltaOffset);
 		var newText = (this.normalisedValue + factor*deltaOffset*Math.pow(10, -this.decimals)).toPrecision(8);
@@ -163,6 +196,7 @@ based.NumberEditable.prototype = {
 		}
 
 		return newText;
+		*/
 	},
 
 	updateMarking: function() {
