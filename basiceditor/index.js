@@ -147,7 +147,9 @@ based.NumberEditable.prototype = {
 
 	makeNumber: function(offset) {
 		// calculate new number with 8 significant digits and split it
-		var split = this.splitNumber((this.value + offset/this.invDelta).toPrecision(8));
+		// for calculating the new number the function x^3/(x^2+200), which provides nice snapping to the original number and
+		// lower sensitiveness near the original number
+		var split = this.splitNumber((this.value + (offset*offset*offset)/((offset*offset+200)*this.invDelta)).toPrecision(8));
 
 		// start off with the integer part
 		var newText = split.integer;
