@@ -3,28 +3,18 @@
 
 var jsmm = require('./jsmm');
 var based = require('./basiceditor');
+var cs = require('./console');
 
 $(function() {
 	if (window.localStorage.getItem('1') === null) {
 		window.localStorage.setItem('1', '// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
 	}
 
+	var myConsole = new cs.Console($('#console'));
+
+	/*
 	var canvas = document.getElementById('canvas');
 	var context = canvas.getContext('2d');
-	
-	var myConsole = {
-		log: function(text) {
-			if (text === undefined) text = '';
-			$('#console').val($('#console').val() + text + '\n');
-		},
-		lineLog: function(text) {
-			if (text === undefined) text = '';
-			$('#console').val($('#console').val() + text);
-		},
-		clear: function() {
-			$('#console').val('');
-		}
-	};
 
 	var myCanvas = {
 		clear: function() {
@@ -72,6 +62,7 @@ $(function() {
 			context.rect.apply(context, arguments);
 		}
 	};
+	*/
 	
 	var realConsole = {
 		log: function(text) {
@@ -91,14 +82,14 @@ $(function() {
 
 	var clear = function() {
 		myConsole.clear();
-		myCanvas.clear();
+		//myCanvas.clear();
 	};
 	
 	var run = function(text) {
 		var code = editor.getCode().getText();
 		window.localStorage.setItem('1', code);
 		browser.setText(code);
-		browser.setScope({console: myConsole, canvas: myCanvas});
+		browser.setScope({console: myConsole/*, canvas: myCanvas*/});
 
 		clear();
 		browser.runSafe();
@@ -183,10 +174,12 @@ $(function() {
 		$('#console').show();
 	});
 
+	/*
 	$('#canvas-button').click(function(e) {
 		$('#canvas').show();
 		$('#console').hide();
 	});
+*/
 	
 	$('#console-log').click(function(e) {
 		run();
