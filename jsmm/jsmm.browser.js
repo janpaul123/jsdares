@@ -17,6 +17,7 @@ module.exports = function(jsmm) {
 		this.rawFunc = null;
 		this.safeFunc = null;
 		this.stack = null;
+		this.stepPos = null;
 		this.resetError();
 	};
 	
@@ -164,6 +165,7 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return false;
 		try {
 			this.stack = new jsmm.step.Stack(this.context, this.scope);
+			this.stepPos = 0;
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -196,11 +198,27 @@ module.exports = function(jsmm) {
 					}
 				}
 			} while (cont === true);
+			this.stepPos++;
 			return ret;
 		} catch (error) {
 			this.handleError(error);
 			return undefined;
 		}
+	};
+
+	jsmm.Browser.prototype.stepBack = function() {
+		this.resetError();
+		var stepPos = this.stepPos-1;
+
+		var result;
+		if (stepPos >= 0) {
+			this.stepInit();
+			while (this.stepPos < stepPos) {
+				result = this.stepNext();
+				if (result === undefined) return undefined;
+			}
+		}
+		return result;
 	};
 	
 	jsmm.Browser.prototype.isStepping = function() {

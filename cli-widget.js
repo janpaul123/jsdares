@@ -153,7 +153,30 @@ $(function() {
 		editor.render();
 	};
 
+	var stepBack = function() {
+		if (browser.hasError()) return;
+		
+		if (browser.isStepping()) {
+			clear();
+			editor.openMessage();
+			var msgs = browser.stepBack();
+			if (browser.hasError()) {
+				editor.setMessage(browser.getError());
+			} else if (msgs === undefined) {
+				editor.clearMessage();
+			} else {
+				for (var i=0; i<msgs.length; i++) {
+					if (msgs[i].type === 'Inline') {
+						editor.setMessage(msgs[i]);
+					}
+				}
+			}
+			editor.render();
+		}
+	};
+
 	$('#step').click(step);
+	$('#step-back').click(stepBack);
 
 	$('#console-button').click(function(e) {
 		$('#canvas').hide();
