@@ -115,6 +115,8 @@ jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSi
 		this.statement = statement;
 		statement.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getCode: function() {
 		return this.statement.getCode() + ";";
@@ -198,6 +200,8 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatemen
 		this.expression = expression;
 		expression.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getCode: function() {
 		if (this.expression === null) {
@@ -205,6 +209,14 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatemen
 		} else {
 			return "return " + this.expression.getCode() + ";";
 		}
+	},
+	doHookAfter: function(scope) {
+		var node = this;
+		while (node instanceof jsmm.yy.Program && node instanceof jsmm.yy.FunctionDeclaration) {
+			node = node.parent;
+			if (node.hookAfter !== null) node.hookAfter(node, scope);
+		}
+		if (node.hookAfter !== null) node.hookAfter(node, scope);
 	}
 });
 
@@ -329,6 +341,8 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 		statementList.parent = this;
 		if (elseBlock !== null) elseBlock.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getCode: function() {
 		var output = "if (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -343,7 +357,6 @@ jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
 	init: function(ifBlock) {
 		this.ifBlock = ifBlock;
 		ifBlock.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		return " else " + this.ifBlock.getCode();
@@ -355,6 +368,8 @@ jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
 		this.statementList = statementList;
 		statementList.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getCode: function() {
 		return " else {\n" + this.statementList.getCode() + "}";
@@ -368,6 +383,8 @@ jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
 		expression.parent = this;
 		statementList.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getCode: function() {
 		return "while (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -385,6 +402,8 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 		statement2.parent = this;
 		statementList.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getCode: function() {
 		var output = "for (" + this.statement1.getCode() + ";" + this.expression.getCode() + ";";
@@ -402,6 +421,8 @@ jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods('FunctionDe
 		this.startPos = {line: startPos.first_line, column: startPos.first_column};
 		this.endPos = {line: endPos.last_line, column: endPos.last_column};
 		this.context.elementsByLine[this.startPos.line] = this;
+		this.hookBefore = null;
+		this.hookAfter = null;
 	},
 	getArgList: function() {
 		var output = "(";

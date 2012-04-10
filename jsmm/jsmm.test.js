@@ -41,14 +41,14 @@ module.exports = function(jsmm) {
 
 	jsmm.test.printError1 = function(name, name1, error1, code) {
 		jsmm.test.output += 'In test "' + name + '" ' + name1 + ' was incorrect.\n';
-		jsmm.test.output += name1 + ':\n' + error1 + '\n';
+		jsmm.test.output += name1 + ':\n' + JSON.stringify(error1) + '\n';
 		jsmm.test.output += 'code:\n' + code + '\n';
 	};
 	
 	jsmm.test.printError2 = function(name, name1, name2, error1, error2, code) {
 		jsmm.test.output += 'In test "' + name + '" ' + name1 + ' and ' + name2 + ' were incorrect.\n';
-		jsmm.test.output += name1 + ':\n' + error1 + '\n';
-		jsmm.test.output += name2 + ':\n' + error2 + '\n';
+		jsmm.test.output += name1 + ':\n' + JSON.stringify(error1) + '\n';
+		jsmm.test.output += name2 + ':\n' + JSON.stringify(error2) + '\n';
 		jsmm.test.output += 'code:\n' + code + '\n';
 	};
 	
@@ -288,6 +288,7 @@ module.exports = function(jsmm) {
 	jsmm.test.tests.fail_threeway.reserved_word_4 = 'var jsmm;';
 	jsmm.test.tests.fail_threeway.reserved_word_5 = 'var jsmmparser;';
 	jsmm.test.tests.fail_threeway.reserved_word_6 = 'var jsmmExecutionCounter;';
+	jsmm.test.tests.fail_threeway.reserved_word_6 = 'var jsmmtemp;';
 	jsmm.test.tests.fail_threeway.reserved_word_7 = 'var NaN;';
 	jsmm.test.tests.fail_threeway.reserved_word_8 = 'var this;';
 	jsmm.test.tests.fail_threeway.reserved_word_9 = 'var arguments;';

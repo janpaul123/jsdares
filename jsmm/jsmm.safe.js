@@ -12,6 +12,22 @@ module.exports = function(jsmm) {
 	var getScope = function() {
 		return '(jsmmscopeInner||jsmmscopeOuter)';
 	};
+
+	var hookBefore = function(node) {
+		if (node.hookBefore === null) {
+			return '';
+		} else {
+			return getEl(node) + '.hookBefore(' + getEl(node) + ',' + getScope() + ');';
+		}
+	};
+
+	var hookAfter = function(node) {
+		if (node.hookAfter === null) {
+			return '';
+		} else {
+			return getEl(node) + '.hookAfter(' + getEl(node) + ',' + getScope() + ');';
+		}
+	};
 	
 	/* statementList */
 	jsmm.yy.Program.prototype.getSafeCode = function() {
@@ -45,7 +61,7 @@ module.exports = function(jsmm) {
 	
 	/* statement */
 	jsmm.yy.CommonSimpleStatement.prototype.getSafeCode = function() {
-		return this.statement.getSafeCode() + ";";
+		return hookBefore(this) + this.statement.getSafeCode() + ";" + hookAfter(this);
 	};
 	
 	/* identifier, symbol */
@@ -80,11 +96,15 @@ module.exports = function(jsmm) {
 	
 	/* expression */
 	jsmm.yy.ReturnStatement.prototype.getSafeCode = function() {
+		var output = hookBefore(this);
 		if (this.expression === null) {
-			return 'return jsmm.func.funcReturn(' + getEl(this) + ');';
+			output += 'var jsmmtemp = undefined';
 		} else {
-			return 'return jsmm.func.funcReturn(' + getEl(this) + ', ' + this.expression.getSafeCode() + ");";
+			output += 'var jsmmtemp = ' + this.expression.getSafeCode() + ';';
 		}
+		output += getEl(this) + '.doHookAfter(' + getScope() + ');';
+		output += 'return jsmm.func.funcReturn(' + getEl(this) + ', jsmmtemp);';
+		return output;
 	};
 	
 	/* expression1, symbol, expression2 */
@@ -144,34 +164,42 @@ module.exports = function(jsmm) {
 	
 	/* expression, statementList, elseBlock */
 	jsmm.yy.IfBlock.prototype.getSafeCode = function() {
-		var output = "if (jsmm.func.conditional(" + getEl(this) + ', "if", ' + this.expression.getSafeCode() + ")) {\n";
-		output += this.statementList.getSafeCode() + "}";
+		var output = hookBefore(this);
+		output += "if (jsmm.func.conditional(" + getEl(this) + ', "if", ' + this.expression.getSafeCode() + ")) {\n";
+		output += this.statementList.getSafeCode() + hookAfter(this) + '}';
+		output += ' else {\n'  + hookAfter(this) + '\n';
 		if (this.elseBlock !== null) {
-			output += this.elseBlock.getSafeCode();
+			output += this.elseBlock.getSafeCode() + '\n';
 		}
+		output += '}';
 		return output;
 	};
 	
 	/* ifBlock */
 	jsmm.yy.ElseIfBlock.prototype.getSafeCode = function() {
-		return " else " + this.ifBlock.getSafeCode();
+		return this.ifBlock.getSafeCode();
 	};
 	
 	/* statementList */
 	jsmm.yy.ElseBlock.prototype.getSafeCode = function() {
-		return " else {\n" + this.statementList.getSafeCode() + "}";
+		return hookBefore(this) + '\n' + this.statementList.getSafeCode() + hookAfter(this);
 	};
 	
 	/* expression, statementList */
 	jsmm.yy.WhileBlock.prototype.getSafeCode = function() {
-		return "while (jsmm.func.conditional(" + getEl(this) + ', "while", ' + this.expression.getSafeCode() + ")) {\n" + this.statementList.getSafeCode() + "}";
+		var output = hookBefore(this) + '\n';
+		output += 'while (jsmm.func.conditional(' + getEl(this) + ', "while", ' + this.expression.getSafeCode() + '))';
+		output += '{\n' + this.statementList.getSafeCode() + "}\n" + hookAfter(this);
+		return output;
 	};
 	
 	/* statement1, expression, statement2, statementList */
 	jsmm.yy.ForBlock.prototype.getSafeCode = function() {
-		var output = "for (" + this.statement1.getSafeCode() + '; ';
+		var output = hookBefore(this) + '\n';
+		output += "for (" + this.statement1.getSafeCode() + '; ';
 		output += 'jsmm.func.conditional(' + getEl(this) + ', "for", ' + this.expression.getSafeCode() + "); ";
-		output += this.statement2.getSafeCode() + ") {\n" + this.statementList.getSafeCode() + "}";
+		output += this.statement2.getSafeCode() + ") {\n" + this.statementList.getSafeCode() + "}\n";
+		output += hookAfter(this);
 		return output;
 	};
 	
@@ -186,12 +214,14 @@ module.exports = function(jsmm) {
 		}
 		output += '}, jsmmscopeOuter);\n';
 		output += 'jsmm.func.funcEnter(' + getEl(this) + ', ' + getScope() + ');\n';
+		output += hookBefore(this) + '\n';
 		if (jsmm.verbose) {
 			output += 'console.log("after entering ' + this.name + ':");\n';
 			output += 'console.log(jsmmscopeInner);\n';
 			output += 'console.log(" ");\n';
 		}
 		output += this.statementList.getSafeCode();
+		output += hookAfter(this) + '\n';
 		output += 'return jsmm.func.funcReturn(' + getEl(this) + ');\n';
 		output += '});';
 		return output;

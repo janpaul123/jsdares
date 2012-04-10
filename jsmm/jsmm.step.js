@@ -99,8 +99,10 @@ module.exports = function(jsmm) {
 	jsmm.yy.CommonSimpleStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
+				if (this.hookBefore !== null) this.hookBefore(this, se.scope);
 				return stack.pushElementNext(this.statement, se.scope);
 			case 1:
+				if (this.hookAfter !== null) this.hookAfter(this, se.scope);
 				return stack.upNext(null);
 		}
 	};
@@ -175,6 +177,7 @@ module.exports = function(jsmm) {
 				case 0:
 					return stack.pushElementNext(this.expression, se.scope);
 				case 1:
+					this.doHookAfter(se.scope);
 					var lastStackElement = stack.getLastStackElement();
 					var result = jsmm.func.funcReturn(this, se.args[0]);
 					while (!(lastStackElement.element instanceof jsmm.yy.FunctionCall ||
@@ -329,17 +332,22 @@ module.exports = function(jsmm) {
 	jsmm.yy.IfBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
+				if (this.hookBefore !== null) this.hookBefore(this, se.scope);
 				return stack.pushElementNext(this.expression, se.scope);
 			case 1:
 				if (jsmm.func.conditional(this, 'if', se.args[0])) {
 					return stack.pushElementNext(this.statementList, se.scope);
-				} else if(this.elseBlock !== null) {
-					return stack.pushElementNext(this.elseBlock, se.scope);
 				} else {
-					return stack.upNext(null);
+					if (this.hookAfter !== null) this.hookAfter(this, se.scope);
+					if(this.elseBlock !== null) {
+						return stack.pushElementNext(this.elseBlock, se.scope);
+					} else {
+						return stack.upNext(null);
+					}
 				}
 				break;
 			case 2:
+				if (se.args[1] !== 'else' && this.hookAfter !== null) this.hookAfter(this, se.scope);
 				return stack.upNext(null);
 		}
 	};
@@ -350,7 +358,7 @@ module.exports = function(jsmm) {
 			case 0:
 				return stack.pushElementNext(this.ifBlock, se.scope);
 			case 1:
-				return stack.upNext(null);
+				return stack.upNext('else');
 		}
 	};
 	
@@ -358,9 +366,11 @@ module.exports = function(jsmm) {
 	jsmm.yy.ElseBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
+				if (this.hookBefore !== null) this.hookBefore(this, se.scope);
 				return stack.pushElementNext(this.statementList, se.scope);
 			case 1:
-				return stack.upNext(null);
+				if (this.hookAfter !== null) this.hookAfter(this, se.scope);
+				return stack.upNext('else');
 		}
 	};
 	
@@ -368,15 +378,21 @@ module.exports = function(jsmm) {
 	jsmm.yy.WhileBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.expression, se.scope);
+				// dummy value for hookBefore
+				if (this.hookBefore !== null) this.hookBefore(this, se.scope);
+				se.args.push(null);
+				/* falls through */
 			case 1:
-				if (jsmm.func.conditional(this, 'while', se.args[0])) {
+				return stack.pushElementNext(this.expression, se.scope);
+			case 2:
+				if (jsmm.func.conditional(this, 'while', se.args[1])) {
 					return stack.pushElementNext(this.statementList, se.scope);
 				} else {
+					if (this.hookAfter !== null) this.hookBefore(this, se.scope);
 					return stack.upNext(null);
 				}
 				break;
-			case 2:
+			case 3:
 				se.args.pop(); // pop statementList
 				se.args.pop(); // pop expression
 				return this.stepNext(stack, se);
@@ -387,6 +403,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.ForBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
+				if (this.hookBefore !== null) this.hookBefore(this, se.scope);
 				return stack.pushElementNext(this.statement1, se.scope);
 			case 1:
 				return stack.pushElementNext(this.expression, se.scope);
@@ -394,6 +411,7 @@ module.exports = function(jsmm) {
 				if (jsmm.func.conditional(this, 'for', se.args[1])) {
 					return stack.pushElementNext(this.statementList, se.scope);
 				} else {
+					if (this.hookAfter !== null) this.hookBefore(this, se.scope);
 					return stack.upNext(null);
 				}
 				break;
@@ -410,26 +428,37 @@ module.exports = function(jsmm) {
 	/* name, nameArgs, statementList */
 	jsmm.yy.FunctionDeclaration.prototype.stepNext = function(stack, se) {
 		var that = this;
-		
-		jsmm.func.funcDecl(this, se.scope, this.name, function() {
-			var vars = {};
-			for (var i=0; i<that.nameArgs.length; i++) {
-				vars[that.nameArgs[i]] = arguments[i];
-			}
-			var scope = new jsmm.func.Scope(vars, se.scope);
-			jsmm.func.funcEnter(that, scope);
-			stack.pushStackElement(new jsmm.step.StackElement(stack, that.statementList, scope));
-			
-			var args = [];
-			for(var name in scope.vars) {
-				args.push(scope.vars[name].str);
-			}
-			var message = that.name + '(' + args.join(', ') + ')';
-			return [new jsmm.msg.Inline(that, function(f) { return f(message); }),
-				new jsmm.msg.Line(that, message)];
-		});
-		
-		return stack.upNext(null);
+		switch (se.args.length) {
+			case 0:
+				// actual function declaration
+				jsmm.func.funcDecl(this, se.scope, this.name, function() {
+					var vars = {};
+					for (var i=0; i<that.nameArgs.length; i++) {
+						vars[that.nameArgs[i]] = arguments[i];
+					}
+					var scope = new jsmm.func.Scope(vars, se.scope);
+					jsmm.func.funcEnter(that, scope);
+					if (that.hookBefore !== null) that.hookBefore(that, se.scope);
+
+					// get back to the original function declaration for hookAfter
+					stack.pushElement(that, scope);
+					stack.pushElement(that.statementList, scope);
+					
+					var args = [];
+					for(var name in scope.vars) {
+						args.push(scope.vars[name].str);
+					}
+					var message = that.name + '(' + args.join(', ') + ')';
+					return [new jsmm.msg.Inline(that, function(f) { return f(message); }),
+						new jsmm.msg.Line(that, message)];
+				});
+				return stack.upNext(null);
+			case 1:
+				// when reached the end of the function (i.e. there was no return statement)
+				if (this.hookAfter !== null) this.hookAfter(this, se.scope);
+				return stack.upNext(null);
+		}
+
 		/*
 		output += 'function' + this.getArgList() + "{\n";
 		output += 'var jsmmscopeInner = new jsmm.func.Scope({';
