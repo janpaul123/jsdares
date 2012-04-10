@@ -8615,6 +8615,9 @@ a.thumbnail:hover {
 .based-code:focus {
   border-left: solid 1px #444;
 }
+.based-highlight .based-code {
+  cursor: crosshair;
+}
 /*#code*/.based-error {
   border-left-color: #a54 !important;
 }
@@ -8795,8 +8798,9 @@ a.thumbnail:hover {
   font-size: 14px;
   outline: none;
   resize: none;
-  white-space: pre;
+  white-space: pre-wrap;
   line-height: 16px;
+  word-wrap: break-word;
 }
 textarea[readonly] {
   cursor: text;
@@ -8862,6 +8866,11 @@ body {
 #step-group {
   position: relative;
   top: 50px;
+  left: 660px;
+}
+#edit-highlight-group {
+  position: relative;
+  top: 160px;
   left: 660px;
 }
 #toolbar {

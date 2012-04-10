@@ -294,6 +294,8 @@ based.Editor.prototype = {
 		this.editablesByLine = {};
 		this.editablesEnabled = false;
 
+		this.highlightEnabled = false;
+
 		this.clearDebugState();
 	},
 
@@ -364,6 +366,16 @@ based.Editor.prototype = {
 			editable.remove();
 			return false;
 		}
+	},
+
+	enableHighlight: function() {
+		this.highlightEnabled = true;
+		this.$div.addClass('based-highlight');
+	},
+
+	disableHighlight: function() {
+		this.highlightEnabled = false;
+		this.$div.removeClass('based-highlight');
 	},
 
 	/// INTERNAL FUNCTIONS ///

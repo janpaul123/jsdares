@@ -44,6 +44,7 @@ jsmm.Context.prototype = {
 			ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], CallStatement: [], IfBlock: [], ElseIfBlock: [],
 			ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 		};
+		this.elementsbyLine = [];
 	},
 	getNewId: function() {
 		return this.genId++;
@@ -113,6 +114,7 @@ jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSi
 	init: function(statement) {
 		this.statement = statement;
 		statement.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		return this.statement.getCode() + ";";
@@ -195,6 +197,7 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatemen
 	init: function(expression) {
 		this.expression = expression;
 		expression.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		if (this.expression === null) {
@@ -325,6 +328,7 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 		expression.parent = this;
 		statementList.parent = this;
 		if (elseBlock !== null) elseBlock.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		var output = "if (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -339,6 +343,7 @@ jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
 	init: function(ifBlock) {
 		this.ifBlock = ifBlock;
 		ifBlock.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		return " else " + this.ifBlock.getCode();
@@ -349,6 +354,7 @@ jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
 	init: function(statementList) {
 		this.statementList = statementList;
 		statementList.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		return " else {\n" + this.statementList.getCode() + "}";
@@ -361,6 +367,7 @@ jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
 		this.statementList = statementList;
 		expression.parent = this;
 		statementList.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		return "while (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -377,6 +384,7 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 		expression.parent = this;
 		statement2.parent = this;
 		statementList.parent = this;
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getCode: function() {
 		var output = "for (" + this.statement1.getCode() + ";" + this.expression.getCode() + ";";
@@ -393,6 +401,7 @@ jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods('FunctionDe
 		statementList.parent = this;
 		this.startPos = {line: startPos.first_line, column: startPos.first_column};
 		this.endPos = {line: endPos.last_line, column: endPos.last_column};
+		this.context.elementsbyLine[this.startPos.line] = this;
 	},
 	getArgList: function() {
 		var output = "(";

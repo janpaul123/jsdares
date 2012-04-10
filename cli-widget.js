@@ -310,8 +310,12 @@ $(function() {
 		}
 	});
 
-	$('#extra-ladder').click(function(e) {
+	$('#edit').click(function(e) {
 		editor.enableEditables();
+	});
+
+	$('#highlight').click(function(e) {
+		editor.enableHighlight();
 	});
 	
 	$('#about').click(function(e) {

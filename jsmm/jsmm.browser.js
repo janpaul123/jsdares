@@ -44,7 +44,7 @@ module.exports = function(jsmm) {
 		if (error instanceof jsmm.msg.Error) {
 			this.error = error;
 		} else {
-			throw error;
+			//throw error;
 			this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 		}
 		//console.log(this.error);
@@ -68,6 +68,13 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return undefined;
 
 		return this.context.elementsByType[type];
+	};
+
+	jsmm.Browser.prototype.getElementByLine = function(line) {
+		this.resetError();
+		if (!this.parse()) return undefined;
+
+		return this.context.elementsByLine[line];
 	};
 	
 	jsmm.Browser.prototype.getDot = function() {
