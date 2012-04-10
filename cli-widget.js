@@ -315,6 +315,7 @@ $(function() {
 	});
 
 	$('#highlight').click(function(e) {
+		editor.browser = browser;
 		editor.enableHighlight();
 	});
 	

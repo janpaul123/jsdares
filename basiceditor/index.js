@@ -248,9 +248,10 @@ based.Editor.prototype = {
 		// setting up textarea
 		this.$textarea = $('<textarea class="based-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
 		this.$div.append(this.$textarea);
-		this.$textarea.bind('keydown', function(e) { that.keydown(e); });
-		this.$textarea.bind('keyup', function(e) { that.keyup(e); });
-		this.$textarea.bind('paste', function(e) { that.paste(e); });
+		this.$textarea.bind('keydown', $.proxy(this.keyDown, this));
+		this.$textarea.bind('keyup', $.proxy(this.keyUp, this));
+		this.$textarea.bind('paste', $.proxy(this.paste, this));
+		this.$textarea.bind('mousemove', $.proxy(this.mouseMove, this));
 
 		// setting up mirror
 		this.$mirror = $('<div class="based-mirror"></div>');
@@ -278,9 +279,15 @@ based.Editor.prototype = {
 		this.$messagebox.click(function(e) { that.toggleMesssage(); });
 		this.$messageMarking.click(function(e) { that.toggleMesssage(); });
 
+		// highlights
+		this.$highlightMarking = this.addMarking(0,0,0,0, 'based-highlight-marking');
+		this.$highlightMarking.hide();
+
 		this.callbacks = {
 			textChange: function() {}
 		};
+
+		this.initPositions();
 
 		this.reset();
 	},
@@ -419,8 +426,9 @@ based.Editor.prototype = {
 		}
 	},
 
-	addMarking: function(x, y, width, height) {
+	addMarking: function(x, y, width, height, type) {
 		var $marking = $('<div class="based-marking"></div>');
+		if (type !== undefined) $marking.addClass(type);
 		this.updateMarking($marking, x, y, width, height);
 		this.$div.append($marking);
 		return $marking;
@@ -460,6 +468,40 @@ based.Editor.prototype = {
 		return $box;
 	},
 
+	initPositions: function() {
+		var $mirror = this.$mirror;
+		var getPosition = function(text) {
+			// add a space because of a bug when text contains only newlines
+			text += ' ';
+			$mirror.text(text);
+			$mirror.text(text); // TODO: find out why this is here twice
+			return {x: $mirror.outerWidth(), y: $mirror.outerHeight()};
+		};
+
+		var singlePos = getPosition('a');
+		this.lineHeight = getPosition('a\na').y - singlePos.y;
+		this.charWidth = getPosition('aa').x - singlePos.x;
+		this.textOffset = singlePos;
+		this.textOffset.x -= this.charWidth;
+		this.textOffset.y -= this.lineHeight;
+		console.log(this);
+	},
+
+	locToPosition: function(line, column) {
+		return {
+			x: this.textOffset.x + column*this.charWidth,
+			y: this.textOffset.y + line*this.lineHeight
+		};
+	},
+
+	positionToLoc: function(pos) {
+		console.log(pos.y-this.textOffset.y);
+		return {
+			column: Math.ceil((pos.x - this.textOffset.x)/this.charWidth),
+			line: Math.ceil((pos.y - this.textOffset.y)/this.lineHeight)
+		};
+	},
+
 	getPosition: function(text) {
 		// add a space because of a bug when text contains only newlines
 		text += ' ';
@@ -489,10 +531,13 @@ based.Editor.prototype = {
 		} else {
 			var msg = this.debugState.message;
 
-			var startPos = this.getPosition(this.code.lineColumnToPositionText(msg.line, msg.column));
+			//var startPos = this.getPosition(this.code.lineColumnToPositionText(msg.line, msg.column));
+			var startPos = this.locToPosition(msg.line, msg.column);
+
 			var width = 0;
 			if (msg.column2 > msg.column) {
-				var endPos = this.getPosition(this.code.lineColumnToPositionText(msg.line, msg.column2));
+				//var endPos = this.getPosition(this.code.lineColumnToPositionText(msg.line, msg.column2));
+				var endPos = this.locToPosition(msg.line, msg.column2);
 				width = endPos.x - startPos.x;
 			}
 
@@ -594,7 +639,7 @@ based.Editor.prototype = {
 		}
 	},
 
-	keydown: function(e) {
+	keyDown: function(e) {
 		if (this.$textarea.val() !== this.code.getText()) {
 			this.updateSize();
 
@@ -612,7 +657,7 @@ based.Editor.prototype = {
 		// TODO: include offset vars and update UI elements
 	},
 
-	keyup: function(e) {
+	keyUp: function(e) {
 		if (this.$textarea.val() !== this.code.getText()) {
 			this.updateSize(); // TODO: remove?
 			this.updateCode();
@@ -629,6 +674,23 @@ based.Editor.prototype = {
 			this.autoindent(e);
 			this.runCallback('textChange');
 			this.refreshEditables();
+		}
+	},
+
+	mouseMove: function(e) {
+		if (this.highlightEnabled) {
+			var offset = this.$textarea.offset();
+			var pos = {x: e.pageX - offset.left, y: e.pageY - offset.top};
+			var loc = this.positionToLoc(pos);
+			var node = this.browser.getElementByLine(loc.line);
+			if (node !== undefined) {
+				console.log(node);
+				var startPos = this.locToPosition(node.startPos.line, node.startPos.column);
+				var endPos = this.locToPosition(node.endPos.line, node.endPos.column);
+				this.updateMarking(this.$highlightMarking, startPos.x, startPos.y, Math.max(30,endPos.x-startPos.x), Math.max(0,endPos.y-startPos.y));
+				this.$highlightMarking.fadeIn(100);
+			}
+
 		}
 	},
 
