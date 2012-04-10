@@ -89,7 +89,7 @@ $(function() {
 		var code = editor.getCode().getText();
 		window.localStorage.setItem('1', code);
 		browser.setText(code);
-		browser.setScope({console: myConsole/*, canvas: myCanvas*/});
+		browser.setScope({console: myConsole.getAugmentedObject()/*, canvas: myCanvas*/});
 
 		clear();
 		browser.runSafe();

@@ -248,10 +248,10 @@ based.Editor.prototype = {
 		// setting up textarea
 		this.$textarea = $('<textarea class="based-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
 		this.$div.append(this.$textarea);
-		this.$textarea.bind('keydown', $.proxy(this.keyDown, this));
-		this.$textarea.bind('keyup', $.proxy(this.keyUp, this));
-		this.$textarea.bind('paste', $.proxy(this.paste, this));
-		this.$textarea.bind('mousemove', $.proxy(this.mouseMove, this));
+		this.$textarea.on('keydown', $.proxy(this.keyDown, this));
+		this.$textarea.on('keyup', $.proxy(this.keyUp, this));
+		this.$textarea.on('paste', $.proxy(this.paste, this));
+		this.$textarea.on('mousemove', $.proxy(this.mouseMove, this));
 
 		// setting up mirror
 		this.$mirror = $('<div class="based-mirror"></div>');
@@ -378,6 +378,11 @@ based.Editor.prototype = {
 	enableHighlight: function() {
 		this.highlightEnabled = true;
 		this.$div.addClass('based-highlight');
+		this.console.setCallback($.proxy(function(node) {
+			var startPos = this.locToPosition(node.startPos.line, node.startPos.column);
+			var endPos = this.locToPosition(node.endPos.line, node.endPos.column);
+			this.updateMarking(this.$highlightMarking, startPos.x, startPos.y, Math.max(30,endPos.x-startPos.x), Math.max(0,endPos.y-startPos.y));
+		}, this));
 	},
 
 	disableHighlight: function() {

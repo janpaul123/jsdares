@@ -10,57 +10,62 @@ cs.Console.prototype = {
 		this.$div = $div;
 		this.$div.addClass('cs-console');
 		this.debugToBrowser = true;
-		this.storeLines = false;
+		this.highlightNextLines = false;
+		this.callback = null;
 		this.clear();
 	},
 
 	getAugmentedObject: function() {
 		return {
-			isAugmentedObject: true,
-			log: $.proxy(this.log, this),
-			clear: $.proxy(this.log, this)
+			log: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
+			clear: {isAugmentedFunction: true, func: $.proxy(this.log, this)}
 		};
 	},
 
-	log: function(/*node,*/ value) {
+	log: function(node, value) {
 		var text = '' + value;
 		if (typeof value === 'object') text = '[object]';
 		else if (typeof value === 'function') text = '[function]';
 
 		var $element = $('<div class="cs-line"></div>');
-		if (this.highlighting) $element.addClass('cs-highlight');
+		if (this.highlightNextLines) $element.addClass('cs-highlight');
 		$element.text(text);
+		$element.data('node', node);
+		$element.on('mousemove', $.proxy(this.mouseMove, this));
 		this.$div.append($element);
-
-		/*
-		if (this.storeLines) {
-			$element.data('number', this.number);
-			var line = {$element: $element, number: this.number, id: node.id};
-			this.linesByNumber[this.number] = line;
-			if (this.linesById[node.id] === undefined) this.linesById[node.id] = [];
-			this.linesById[node.id].push(line);
-			this.number++;
-		}
-		*/
 
 		if (this.debugToBrowser && console && console.log) console.log(value);
 	},
 
 	startHighlighting: function() {
-		this.highlighting = true;
+		this.highlightNextLines = true;
 	},
 
 	stopHighlighting: function() {
+		this.highlightNextLines = false;
+	},
+
+	enableHighlighting: function() {
+		this.highlighting = true;
+	},
+
+	disableHighlighting: function() {
 		this.highlighting = false;
 	},
 
 	clear: function() {
 		this.$div.children('.cs-line').remove(); // like this to prevent $.data memory leaks
-		this.linesByNumber = [];
-		this.linesById = [];
-		this.number = 0;
-		this.highlighting = false;
 		if (this.debugToBrowser && console && console.clear) console.clear();
+	},
+
+	setCallback: function(callback) {
+		this.callback = callback;
+	},
+
+	mouseMove: function(event) {
+		if (this.callback !== null) {
+			this.callback($(event.target).data('node'));
+		}
 	}
 };
 
