@@ -44,7 +44,7 @@ module.exports = function(jsmm) {
 		if (error instanceof jsmm.msg.Error) {
 			this.error = error;
 		} else {
-			//throw error;
+			throw error;
 			this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 		}
 		//console.log(this.error);
@@ -75,6 +75,16 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return undefined;
 
 		return this.context.elementsByLine[line];
+	};
+
+	jsmm.Browser.prototype.addHookBeforeNode = function(node, func) {
+		this.safeFunc = null;
+		this.context.addHookBeforeNode(node, func);
+	};
+
+	jsmm.Browser.prototype.addHookAfterNode = function(node, func) {
+		this.safeFunc = null;
+		this.context.addHookAfterNode(node, func);
 	};
 	
 	jsmm.Browser.prototype.getDot = function() {

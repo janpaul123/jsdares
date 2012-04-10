@@ -28,9 +28,11 @@ cs.Console.prototype = {
 		else if (typeof value === 'function') text = '[function]';
 
 		var $element = $('<div class="cs-line"></div>');
+		if (this.highlighting) $element.addClass('cs-highlight');
 		$element.text(text);
 		this.$div.append($element);
 
+		/*
 		if (this.storeLines) {
 			$element.data('number', this.number);
 			var line = {$element: $element, number: this.number, id: node.id};
@@ -39,8 +41,17 @@ cs.Console.prototype = {
 			this.linesById[node.id].push(line);
 			this.number++;
 		}
+		*/
 
 		if (this.debugToBrowser && console && console.log) console.log(value);
+	},
+
+	startHighlighting: function() {
+		this.highlighting = true;
+	},
+
+	stopHighlighting: function() {
+		this.highlighting = false;
 	},
 
 	clear: function() {
@@ -48,6 +59,7 @@ cs.Console.prototype = {
 		this.linesByNumber = [];
 		this.linesById = [];
 		this.number = 0;
+		this.highlighting = false;
 		if (this.debugToBrowser && console && console.clear) console.clear();
 	}
 };

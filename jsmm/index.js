@@ -45,9 +45,35 @@ jsmm.Context.prototype = {
 			ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 		};
 		this.elementsByLine = [];
+		this.nodesWithHook = [];
 	},
 	getNewId: function() {
 		return this.genId++;
+	},
+	addHookBeforeNode: function(node, func) {
+		if (node.hooksBefore === undefined) {
+			throw new Error('Trying to add a hook to an unhookable node');
+		} else {
+			node.hooksBefore.push(func);
+			this.nodesWithHook.push(node);
+			return true;
+		}
+	},
+	addHookAfterNode: function(node, func) {
+		if (node.hooksAfter === undefined) {
+			throw new Error('Trying to add a hook to an unhookable node');
+		} else {
+			node.hooksAfter.push(func);
+			this.nodesWithHook.push(node);
+			return true;
+		}
+	},
+	clearHooks: function() {
+		for (var i=0; i<this.nodesWithHook.length; i++) {
+			this.nodesWithHook[i].hooksBefore = [];
+			this.nodesWithHook[i].hooksAfter = [];
+		}
+		this.nodesWithHook = [];
 	}
 };
 
@@ -62,6 +88,18 @@ jsmm.addCommonElementMethods = function(type, element) {
 		this.endPos = {line: _$.last_line, column: _$.last_column};
 		this.parent = null;
 		this.init.apply(this, [].slice.call(arguments, 1));
+	};
+	element.runHooksBefore = function(scope) {
+		if (this.hooksBefore === undefined) throw new Error('runHooksBefore on unhookable element');
+		for (var i=0; i<this.hooksBefore.length; i++) {
+			this.hooksBefore[i](this, scope);
+		}
+	};
+	element.runHooksAfter = function(scope) {
+		if (this.hooksAfter === undefined) throw new Error('runHooksAfter on unhookable element');
+		for (var i=0; i<this.hooksAfter.length; i++) {
+			this.hooksAfter[i](this, scope);
+		}
 	};
 	return element;
 };
@@ -115,8 +153,8 @@ jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSi
 		this.statement = statement;
 		statement.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getCode: function() {
 		return this.statement.getCode() + ";";
@@ -200,8 +238,8 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatemen
 		this.expression = expression;
 		expression.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getCode: function() {
 		if (this.expression === null) {
@@ -210,13 +248,13 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatemen
 			return "return " + this.expression.getCode() + ";";
 		}
 	},
-	doHookAfter: function(scope) {
+	iterateRunHooksAfter: function(scope) {
 		var node = this;
-		while (node instanceof jsmm.yy.Program && node instanceof jsmm.yy.FunctionDeclaration) {
+		while (!(node instanceof jsmm.yy.Program || node instanceof jsmm.yy.FunctionDeclaration)) {
+			if (node.hooksAfter !== undefined) node.runHooksAfter(scope);
 			node = node.parent;
-			if (node.hookAfter !== null) node.hookAfter(node, scope);
 		}
-		if (node.hookAfter !== null) node.hookAfter(node, scope);
+		if (node.hooksAfter !== undefined) node.runHooksAfter(scope);
 	}
 });
 
@@ -341,8 +379,8 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 		statementList.parent = this;
 		if (elseBlock !== null) elseBlock.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getCode: function() {
 		var output = "if (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -368,8 +406,8 @@ jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
 		this.statementList = statementList;
 		statementList.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getCode: function() {
 		return " else {\n" + this.statementList.getCode() + "}";
@@ -383,8 +421,8 @@ jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
 		expression.parent = this;
 		statementList.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getCode: function() {
 		return "while (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
@@ -402,8 +440,8 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 		statement2.parent = this;
 		statementList.parent = this;
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getCode: function() {
 		var output = "for (" + this.statement1.getCode() + ";" + this.expression.getCode() + ";";
@@ -421,8 +459,8 @@ jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods('FunctionDe
 		this.startPos = {line: startPos.first_line, column: startPos.first_column};
 		this.endPos = {line: endPos.last_line, column: endPos.last_column};
 		this.context.elementsByLine[this.startPos.line] = this;
-		this.hookBefore = null;
-		this.hookAfter = null;
+		this.hooksBefore = [];
+		this.hooksAfter = [];
 	},
 	getArgList: function() {
 		var output = "(";

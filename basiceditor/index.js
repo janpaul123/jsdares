@@ -484,7 +484,7 @@ based.Editor.prototype = {
 		this.textOffset = singlePos;
 		this.textOffset.x -= this.charWidth;
 		this.textOffset.y -= this.lineHeight;
-		console.log(this);
+		//console.log(this);
 	},
 
 	locToPosition: function(line, column) {
@@ -495,7 +495,7 @@ based.Editor.prototype = {
 	},
 
 	positionToLoc: function(pos) {
-		console.log(pos.y-this.textOffset.y);
+		//console.log(pos.y-this.textOffset.y);
 		return {
 			column: Math.ceil((pos.x - this.textOffset.x)/this.charWidth),
 			line: Math.ceil((pos.y - this.textOffset.y)/this.lineHeight)
@@ -684,11 +684,24 @@ based.Editor.prototype = {
 			var loc = this.positionToLoc(pos);
 			var node = this.browser.getElementByLine(loc.line);
 			if (node !== undefined) {
-				console.log(node);
+				//console.log(node);
 				var startPos = this.locToPosition(node.startPos.line, node.startPos.column);
 				var endPos = this.locToPosition(node.endPos.line, node.endPos.column);
 				this.updateMarking(this.$highlightMarking, startPos.x, startPos.y, Math.max(30,endPos.x-startPos.x), Math.max(0,endPos.y-startPos.y));
 				this.$highlightMarking.fadeIn(100);
+
+				this.browser.context.clearHooks();
+				var that = this;
+				this.browser.addHookBeforeNode(node, function(node){
+					console.log('a', node);
+					that.console.startHighlighting();
+				});
+				this.browser.addHookAfterNode(node, function(node){
+					console.log('b', node);
+					that.console.stopHighlighting();
+				});
+				this.console.clear();
+				this.browser.runSafe();
 			}
 
 		}

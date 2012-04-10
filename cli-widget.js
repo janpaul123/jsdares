@@ -316,6 +316,7 @@ $(function() {
 
 	$('#highlight').click(function(e) {
 		editor.browser = browser;
+		editor.console = myConsole;
 		editor.enableHighlight();
 	});
 	
