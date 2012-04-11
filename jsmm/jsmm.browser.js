@@ -67,14 +67,14 @@ module.exports = function(jsmm) {
 		this.resetError();
 		if (!this.parse()) return undefined;
 
-		return this.context.elementsByType[type];
+		return this.context.nodesByType[type];
 	};
 
 	jsmm.Browser.prototype.getElementByLine = function(line) {
 		this.resetError();
 		if (!this.parse()) return undefined;
 
-		return this.context.elementsByLine[line];
+		return this.context.nodesByLine[line];
 	};
 
 	jsmm.Browser.prototype.addHookBeforeNode = function(node, func) {
@@ -181,7 +181,7 @@ module.exports = function(jsmm) {
 		this.resetError();
 		if (!this.parse()) return false;
 		try {
-			this.stack = new jsmm.step.Stack(this.context, this.scope);
+			this.stack = new jsmm.step.Stack(this.context.program, this.scope);
 			this.stepPos = 0;
 			return true;
 		} catch (error) {

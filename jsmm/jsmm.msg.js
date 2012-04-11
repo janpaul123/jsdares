@@ -8,8 +8,8 @@ module.exports = function(jsmm) {
 	jsmm.msg.Continue = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Error = function() { return this.init.apply(this, arguments); };
 	
-	jsmm.msg.addCommonMessageMethods = function(element) {
-		element.initMsg = function(msg) {
+	jsmm.msg.addCommonMessageMethods = function(msg) {
+		msg.initMsg = function(msg) {
 			var message = (typeof msg === 'function') ? msg : function(f) { return msg; };
 			this.message = message(function f(val) { return val; });
 			this.html = message(function f(val) {
@@ -17,48 +17,47 @@ module.exports = function(jsmm) {
 				return '<span class="msg-value">' + val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</span>';
 			});
 		};
-		element.loadPos = function(pos) {
-			var startPos = pos.startPos || {};
-			var endPos = pos.endPos || {};
-			this.line = startPos.line || 0;
-			this.column = startPos.column || 0;
-			if ((endPos.line || 0) === this.line && (endPos.column || 0) >= this.column) {
-				this.column2 = endPos.column || 0;
+		msg.loadLineLoc = function(lineLoc) {
+			if (lineLoc.lineLoc !== undefined) lineLoc = lineLoc.lineLoc;
+			this.line = lineLoc.line || 0;
+			this.column = lineLoc.column || 0;
+			if (typeof lineLoc.column2 === 'number' && lineLoc.column2 > lineLoc.column) {
+				this.column2 = lineLoc.column2;
 			} else {
 				this.column2 = this.column;
 			}
 		};
-		return element;
+		return msg;
 	};
 	
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(pos, msg) {
+		init: function(loc, msg) {
 			this.type = 'Inline';
-			this.loadPos(pos);
+			this.loadLineLoc(loc);
 			this.initMsg(msg);
 		}
 	});
 	
 	jsmm.msg.Line.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(pos, msg, append) {
+		init: function(loc, msg, append) {
 			this.type = 'Line';
-			this.loadPos(pos);
+			this.loadLineLoc(loc);
 			this.initMsg(msg);
 			this.append = append || false;
 		}
 	});
 	
 	jsmm.msg.Continue.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(pos) {
+		init: function(loc) {
 			this.type = 'Continue';
-			this.loadPos(pos);
+			this.loadLineLoc(loc);
 		}
 	});
 	
 	jsmm.msg.Error.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(pos, msg, more, orig) {
+		init: function(loc, msg, more, orig) {
 			this.type = 'Error';
-			this.loadPos(pos);
+			this.loadLineLoc(loc);
 			this.initMsg(msg);
 			this.more = more || '';
 			this.orig = orig || null;

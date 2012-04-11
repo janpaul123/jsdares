@@ -5,7 +5,7 @@ var jsmm = {};
 
 jsmm.verbose = false;
 
-jsmm.Context = function() { return this.init.apply(this, arguments); };
+jsmm.Tree = function() { return this.init.apply(this, arguments); };
 jsmm.yy = {};
 jsmm.yy.Program = function() { return this.build.apply(this, arguments); };
 jsmm.yy.StatementList = function() { return this.build.apply(this, arguments); };
@@ -32,19 +32,19 @@ jsmm.yy.WhileBlock = function() { return this.build.apply(this, arguments); };
 jsmm.yy.ForBlock = function() { return this.build.apply(this, arguments); };
 jsmm.yy.FunctionDeclaration = function() { return this.build.apply(this, arguments); };
 
-jsmm.Context.prototype = {
+jsmm.Tree.prototype = {
 	init: function(code) {
 		this.genId = 0;
-		this.elements = [];
+		this.nodes = [];
 		this.code = code;
 		this.program = null;
-		this.elementsByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
+		this.nodesByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
 			AssignmentStatement: [], VarStatement: [], VarItem: [], ReturnStatement: [], BinaryExpression: [],
 			UnaryExpression: [], NumberLiteral: [], StringLiteral: [], BooleanLiteral: [], NameIdentifier: [],
 			ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], CallStatement: [], IfBlock: [], ElseIfBlock: [],
 			ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 		};
-		this.elementsByLine = [];
+		this.nodesByLine = [];
 		this.nodesWithHook = [];
 	},
 	getNewId: function() {
@@ -77,34 +77,35 @@ jsmm.Context.prototype = {
 	}
 };
 
-jsmm.addCommonElementMethods = function(type, element) {
-	element.build = function(_$) {
-		this.context = jsmm.yy.context;
-		this.id = this.context.getNewId();
-		this.context.elements[this.id] = this;
-		this.context.elementsByType[type].push(this);
+jsmm.addCommonNodeMethods = function(type, node) {
+	node.build = function(_$, column2) {
+		this.tree = jsmm.yy.tree;
+		this.id = this.tree.getNewId();
+		this.tree.nodes[this.id] = this;
+		this.tree.nodesByType[type].push(this);
 		this.type = type;
-		this.startPos = {line: _$.first_line, column: _$.first_column};
-		this.endPos = {line: _$.last_line, column: _$.last_column};
+		this.lineLoc = {line: _$.first_line, column: _$.first_column, column2 : (column2 || _$.last_column)};
+		this.blockLoc = {line: _$.first_line, line2: _$.last_line};
+		this.textLoc = {line: _$.first_line, column: _$.first_column, line2: _$.last_line, column2: _$.last_column};
 		this.parent = null;
-		this.init.apply(this, [].slice.call(arguments, 1));
+		this.init.apply(this, [].slice.call(arguments, 2));
 	};
-	element.runHooksBefore = function(scope) {
-		if (this.hooksBefore === undefined) throw new Error('runHooksBefore on unhookable element');
+	node.runHooksBefore = function(scope) {
+		if (this.hooksBefore === undefined) throw new Error('runHooksBefore on unhookable node');
 		for (var i=0; i<this.hooksBefore.length; i++) {
 			this.hooksBefore[i](this, scope);
 		}
 	};
-	element.runHooksAfter = function(scope) {
-		if (this.hooksAfter === undefined) throw new Error('runHooksAfter on unhookable element');
+	node.runHooksAfter = function(scope) {
+		if (this.hooksAfter === undefined) throw new Error('runHooksAfter on unhookable node');
 		for (var i=0; i<this.hooksAfter.length; i++) {
 			this.hooksAfter[i](this, scope);
 		}
 	};
-	return element;
+	return node;
 };
 
-jsmm.yy.Program.prototype = jsmm.addCommonElementMethods('Program', {
+jsmm.yy.Program.prototype = jsmm.addCommonNodeMethods('Program', {
 	init: function(statementList) {
 		this.statementList = statementList;
 		statementList.parent = this;
@@ -128,7 +129,7 @@ jsmm.yy.Program.prototype = jsmm.addCommonElementMethods('Program', {
 	}
 });
 
-jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods('StatementList', {
+jsmm.yy.StatementList.prototype = jsmm.addCommonNodeMethods('StatementList', {
 	init: function() {
 		this.statements = [];
 	},
@@ -148,13 +149,14 @@ jsmm.yy.StatementList.prototype = jsmm.addCommonElementMethods('StatementList', 
 	}
 });
 
-jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSimpleStatement', {
+jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonNodeMethods('CommonSimpleStatement', {
 	init: function(statement) {
 		this.statement = statement;
 		statement.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
+		console.log(this);
 	},
 	getCode: function() {
 		return this.statement.getCode() + ";";
@@ -164,7 +166,7 @@ jsmm.yy.CommonSimpleStatement.prototype = jsmm.addCommonElementMethods('CommonSi
 	}
 });
 
-jsmm.yy.PostfixStatement.prototype = jsmm.addCommonElementMethods('PostfixStatement', {
+jsmm.yy.PostfixStatement.prototype = jsmm.addCommonNodeMethods('PostfixStatement', {
 	init: function(identifier, symbol) {
 		this.identifier = identifier;
 		this.symbol = symbol;
@@ -179,7 +181,7 @@ jsmm.yy.PostfixStatement.prototype = jsmm.addCommonElementMethods('PostfixStatem
 	}
 });
 
-jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonElementMethods('AssignmentStatement', {
+jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonNodeMethods('AssignmentStatement', {
 	init: function(identifier, symbol, expression) {
 		this.identifier = identifier;
 		this.symbol = symbol;
@@ -195,7 +197,7 @@ jsmm.yy.AssignmentStatement.prototype = jsmm.addCommonElementMethods('Assignment
 	}
 });
 
-jsmm.yy.VarStatement.prototype = jsmm.addCommonElementMethods('VarStatement', {
+jsmm.yy.VarStatement.prototype = jsmm.addCommonNodeMethods('VarStatement', {
 	init: function() {
 		this.items = [];
 	},
@@ -215,7 +217,7 @@ jsmm.yy.VarStatement.prototype = jsmm.addCommonElementMethods('VarStatement', {
 	}
 });
 
-jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods('VarItem', {
+jsmm.yy.VarItem.prototype = jsmm.addCommonNodeMethods('VarItem', {
 	init: function(name, assignment) {
 		this.name = name;
 		this.assignment = assignment;
@@ -233,11 +235,11 @@ jsmm.yy.VarItem.prototype = jsmm.addCommonElementMethods('VarItem', {
 	}
 });
 
-jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatement', {
+jsmm.yy.ReturnStatement.prototype = jsmm.addCommonNodeMethods('ReturnStatement', {
 	init: function(expression) {
 		this.expression = expression;
 		expression.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
 	},
@@ -258,7 +260,7 @@ jsmm.yy.ReturnStatement.prototype = jsmm.addCommonElementMethods('ReturnStatemen
 	}
 });
 
-jsmm.yy.BinaryExpression.prototype = jsmm.addCommonElementMethods('BinaryExpression', {
+jsmm.yy.BinaryExpression.prototype = jsmm.addCommonNodeMethods('BinaryExpression', {
 	init: function(expression1, symbol, expression2) {
 		this.expression1 = expression1;
 		this.symbol = symbol;
@@ -271,7 +273,7 @@ jsmm.yy.BinaryExpression.prototype = jsmm.addCommonElementMethods('BinaryExpress
 	}
 });
 
-jsmm.yy.UnaryExpression.prototype = jsmm.addCommonElementMethods('UnaryExpression', {
+jsmm.yy.UnaryExpression.prototype = jsmm.addCommonNodeMethods('UnaryExpression', {
 	init: function(symbol, expression) {
 		this.symbol = symbol;
 		this.expression = expression;
@@ -282,7 +284,7 @@ jsmm.yy.UnaryExpression.prototype = jsmm.addCommonElementMethods('UnaryExpressio
 	}
 });
 
-jsmm.yy.NumberLiteral.prototype = jsmm.addCommonElementMethods('NumberLiteral', {
+jsmm.yy.NumberLiteral.prototype = jsmm.addCommonNodeMethods('NumberLiteral', {
 	init: function(number) {
 		this.number = parseFloat(number);
 	},
@@ -291,7 +293,7 @@ jsmm.yy.NumberLiteral.prototype = jsmm.addCommonElementMethods('NumberLiteral', 
 	}
 });
 
-jsmm.yy.StringLiteral.prototype = jsmm.addCommonElementMethods('StringLiteral', {
+jsmm.yy.StringLiteral.prototype = jsmm.addCommonNodeMethods('StringLiteral', {
 	init: function(str) {
 		this.str = JSON.parse(str);
 	},
@@ -300,7 +302,7 @@ jsmm.yy.StringLiteral.prototype = jsmm.addCommonElementMethods('StringLiteral', 
 	}
 });
 
-jsmm.yy.BooleanLiteral.prototype = jsmm.addCommonElementMethods('BooleanLiteral', {
+jsmm.yy.BooleanLiteral.prototype = jsmm.addCommonNodeMethods('BooleanLiteral', {
 	init: function(bool) {
 		this.bool = bool;
 	},
@@ -309,7 +311,7 @@ jsmm.yy.BooleanLiteral.prototype = jsmm.addCommonElementMethods('BooleanLiteral'
 	}
 });
 
-jsmm.yy.NameIdentifier.prototype = jsmm.addCommonElementMethods('NameIdentifier', {
+jsmm.yy.NameIdentifier.prototype = jsmm.addCommonNodeMethods('NameIdentifier', {
 	init: function(name) {
 		this.name = name;
 	},
@@ -318,7 +320,7 @@ jsmm.yy.NameIdentifier.prototype = jsmm.addCommonElementMethods('NameIdentifier'
 	}
 });
 
-jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonElementMethods('ObjectIdentifier', {
+jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonNodeMethods('ObjectIdentifier', {
 	init: function(identifier, prop) {
 		this.identifier = identifier;
 		this.prop = prop;
@@ -329,7 +331,7 @@ jsmm.yy.ObjectIdentifier.prototype = jsmm.addCommonElementMethods('ObjectIdentif
 	}
 });
 
-jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonElementMethods('ArrayIdentifier', {
+jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonNodeMethods('ArrayIdentifier', {
 	init: function(identifier, expression) {
 		this.identifier = identifier;
 		this.expression = expression;
@@ -341,7 +343,7 @@ jsmm.yy.ArrayIdentifier.prototype = jsmm.addCommonElementMethods('ArrayIdentifie
 	}
 });
 
-jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods('FunctionCall', {
+jsmm.yy.FunctionCall.prototype = jsmm.addCommonNodeMethods('FunctionCall', {
 	init: function(identifier, expressionArgs) {
 		this.identifier = identifier;
 		this.expressionArgs = expressionArgs;
@@ -360,7 +362,7 @@ jsmm.yy.FunctionCall.prototype = jsmm.addCommonElementMethods('FunctionCall', {
 	}
 });
 
-jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods('CallStatement', {
+jsmm.yy.CallStatement.prototype = jsmm.addCommonNodeMethods('CallStatement', {
 	init: function(functionCall) {
 		this.functionCall = functionCall;
 		functionCall.parent = this;
@@ -370,7 +372,7 @@ jsmm.yy.CallStatement.prototype = jsmm.addCommonElementMethods('CallStatement', 
 	}
 });
 
-jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
+jsmm.yy.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {
 	init: function(expression, statementList, elseBlock) {
 		this.expression = expression;
 		this.statementList = statementList;
@@ -378,7 +380,7 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 		expression.parent = this;
 		statementList.parent = this;
 		if (elseBlock !== null) elseBlock.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
 	},
@@ -391,7 +393,7 @@ jsmm.yy.IfBlock.prototype = jsmm.addCommonElementMethods('IfBlock', {
 	}
 });
 
-jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
+jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonNodeMethods('ElseIfBlock', {
 	init: function(ifBlock) {
 		this.ifBlock = ifBlock;
 		ifBlock.parent = this;
@@ -401,11 +403,11 @@ jsmm.yy.ElseIfBlock.prototype = jsmm.addCommonElementMethods('ElseIfBlock', {
 	}
 });
 
-jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
+jsmm.yy.ElseBlock.prototype = jsmm.addCommonNodeMethods('ElseBlock', {
 	init: function(statementList) {
 		this.statementList = statementList;
 		statementList.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
 	},
@@ -414,13 +416,13 @@ jsmm.yy.ElseBlock.prototype = jsmm.addCommonElementMethods('ElseBlock', {
 	}
 });
 
-jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
+jsmm.yy.WhileBlock.prototype = jsmm.addCommonNodeMethods('WhileBlock', {
 	init: function(expression, statementList) {
 		this.expression = expression;
 		this.statementList = statementList;
 		expression.parent = this;
 		statementList.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
 	},
@@ -429,7 +431,7 @@ jsmm.yy.WhileBlock.prototype = jsmm.addCommonElementMethods('WhileBlock', {
 	}
 });
 
-jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
+jsmm.yy.ForBlock.prototype = jsmm.addCommonNodeMethods('ForBlock', {
 	init: function(statement1, expression, statement2, statementList) {
 		this.statement1 = statement1;
 		this.expression = expression;
@@ -439,7 +441,7 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 		expression.parent = this;
 		statement2.parent = this;
 		statementList.parent = this;
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
 	},
@@ -450,15 +452,13 @@ jsmm.yy.ForBlock.prototype = jsmm.addCommonElementMethods('ForBlock', {
 	}
 });
 
-jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonElementMethods('FunctionDeclaration', {
-	init: function(name, nameArgs, statementList, startPos, endPos) {
+jsmm.yy.FunctionDeclaration.prototype = jsmm.addCommonNodeMethods('FunctionDeclaration', {
+	init: function(name, nameArgs, statementList) {
 		this.name = name;
 		this.nameArgs = nameArgs;
 		this.statementList = statementList;
 		statementList.parent = this;
-		this.startPos = {line: startPos.first_line, column: startPos.first_column};
-		this.endPos = {line: endPos.last_line, column: endPos.last_column};
-		this.context.elementsByLine[this.startPos.line] = this;
+		this.tree.nodesByLine[this.lineLoc.line] = this;
 		this.hooksBefore = [];
 		this.hooksAfter = [];
 	},
@@ -482,16 +482,14 @@ jsmm.yy.parseError = function(errStr, hash) {
 	hash = hash || {};
 	var token = hash.token || '';
 	var expected = hash.expected || [];
-	var pos = {
-		startPos: {
-			line: jsmm.parser.lexer.yylloc.first_line,
-			column: jsmm.parser.lexer.yylloc.first_column
-		}
+	var loc = {
+		line: jsmm.parser.lexer.yylloc.first_line,
+		column: jsmm.parser.lexer.yylloc.first_column
 	};
 	
 	// if there are no newlines, give a range instead of a single position
 	if (hash.text.match(/\n/) === null) {
-		pos.endPos = {line: pos.startPos.line, column: pos.startPos.column + hash.text.length};
+		loc.column2 = loc.column + hash.text.length;
 	}
 	
 	// entries are in the form "'FOR'", remove the extra quotes
@@ -510,20 +508,20 @@ jsmm.yy.parseError = function(errStr, hash) {
 	
 	//console.log(hash.text);
 	var suggestionError = function(suggestion) {
-		throw new jsmm.msg.Error(pos, function(f) {
+		throw new jsmm.msg.Error(loc, function(f) {
 			return 'Invalid syntax encountered' + makeNear(hash.text, f) + ', perhaps there is a ' + f(suggestion) + ' missing';
 		}, errStr);
 	};
 	
 	if (token === "RESERVED") {
 		// special case: passing on the information that the word is reserved
-		throw new jsmm.msg.Error(pos, function(f) { return 'Unfortunately ' + f(hash.text) + ' is a reserved word, which means you cannot use it as a variable name'; }, errStr);
+		throw new jsmm.msg.Error(loc, function(f) { return 'Unfortunately ' + f(hash.text) + ' is a reserved word, which means you cannot use it as a variable name'; }, errStr);
 	} else if (hash.token === null) {
 		// lexer error
-		pos = {startPos: {line: hash.line+1, column: 0}};
-		throw new jsmm.msg.Error(pos, 'Invalid syntax encountered', errStr);
+		loc = {line: hash.line+1, column: 0};
+		throw new jsmm.msg.Error(loc, 'Invalid syntax encountered', errStr);
 	} else if (expected.length === 1 && expected[0] === 'NEWLINE') {
-		throw new jsmm.msg.Error(pos, function(f) {
+		throw new jsmm.msg.Error(loc, function(f) {
 			return 'Invalid syntax encountered, perhaps some code' + makeNear(hash.text, f) + ' should be put on a new line.';
 		}, errStr);
 	} else if (expected.length === 1) {
@@ -542,14 +540,14 @@ jsmm.yy.parseError = function(errStr, hash) {
 		// ) expected before { or ; is usually forgotten
 		suggestionError(')');
 	} else {
-		throw new jsmm.msg.Error(pos, function(f) { return 'Invalid syntax encountered' + makeNear(hash.text, f); }, errStr);
+		throw new jsmm.msg.Error(loc, function(f) { return 'Invalid syntax encountered' + makeNear(hash.text, f); }, errStr);
 	}
 };
 
 jsmm.parse = function(input) {
-	jsmm.yy.context = new jsmm.Context(input);
-	jsmm.yy.context.program = jsmm.parser.parse(input + "\n");
-	return jsmm.yy.context;
+	jsmm.yy.tree = new jsmm.Tree(input);
+	jsmm.yy.tree.program = jsmm.parser.parse(input + "\n");
+	return jsmm.yy.tree;
 };
 
 jsmm.parser = require('./jsmmparser').parser;

@@ -24,20 +24,17 @@ based.Code.prototype = {
 		this.makeOffsets();
 		return this.offsets[line-1] + column;
 	},
-	posToOffset: function(pos) {
-		return this.lineColumnToOffset(pos.line, pos.column);
+	posToOffset: function(loc) {
+		return this.lineColumnToOffset(loc.line, loc.column);
 	},
-	rangeToText: function(startPos, endPos) {
-		return this.text.substring(this.posToOffset(startPos), this.posToOffset(endPos));
+	rangeToText: function(textLoc) {
+		return this.text.substring(this.lineColumnToOffset(textLoc.line, textLoc.column), this.lineColumnToOffset(textLoc.line2, textLoc.column2));
 	},
 	lineColumnToPositionText: function(line, column) {
 		this.makeLines();
 		return new Array(line).join('\n') + (this.lines[line-1] || '').substring(0, column);
 	},
-	elToText: function(el) {
-		return this.rangeToText(el.startPos, el.endPos);
-	},
-	offsetToPos: function(offset) {
+	offsetToLoc: function(offset) {
 		this.makeOffsets();
 		// TODO: implement binary search
 		for (var i=0; i<this.lines.length; i++) {
@@ -76,10 +73,10 @@ based.NumberEditable.prototype = {
 	init: function(node, editor) {
 		this.editor = editor;
 
-		this.line = node.startPos.line;
-		this.column = node.startPos.column;
-		this.column2 = node.endPos.column;
-		this.text = this.editor.code.rangeToText(node.startPos, node.endPos);
+		this.line = node.lineLoc.line;
+		this.column = node.lineLoc.column;
+		this.column2 = node.lineLoc.column2;
+		this.text = this.editor.code.rangeToText(node.textLoc);
 		this.startPos = this.editor.getPosition(this.editor.code.lineColumnToPositionText(this.line, this.column));
 		this.parseNumber();
 
@@ -379,8 +376,8 @@ based.Editor.prototype = {
 		this.highlightEnabled = true;
 		this.$div.addClass('based-highlight');
 		this.console.setCallback($.proxy(function(node) {
-			var startPos = this.locToPosition(node.startPos.line, node.startPos.column);
-			var endPos = this.locToPosition(node.endPos.line, node.endPos.column);
+			var startPos = this.locToPosition(node.lineLoc.line, node.lineLoc.column);
+			var endPos = this.locToPosition(node.lineLoc.line2, node.lineLoc.column2);
 			this.updateMarking(this.$highlightMarking, startPos.x, startPos.y, Math.max(30,endPos.x-startPos.x), Math.max(0,endPos.y-startPos.y));
 		}, this));
 	},
@@ -615,7 +612,7 @@ based.Editor.prototype = {
 		if (e.keyCode === 13 || e.keyCode === 221) {
 			var code = this.code;
 			var offset = this.$textarea[0].selectionStart;
-			var pos = code.offsetToPos(offset);
+			var pos = code.offsetToLoc(offset);
 			if (pos.line > 1) {
 				var prevLine = code.getLine(pos.line-1);
 				var curLine = code.getLine(pos.line);
@@ -690,8 +687,8 @@ based.Editor.prototype = {
 			var node = this.browser.getElementByLine(loc.line);
 			if (node !== undefined) {
 				//console.log(node);
-				var startPos = this.locToPosition(node.startPos.line, node.startPos.column);
-				var endPos = this.locToPosition(node.endPos.line, node.endPos.column);
+				var startPos = this.locToPosition(node.lineLoc.line, node.lineLoc.column);
+				var endPos = this.locToPosition(node.lineLoc.line, node.lineLoc.column2);
 				this.updateMarking(this.$highlightMarking, startPos.x, startPos.y, Math.max(30,endPos.x-startPos.x), Math.max(0,endPos.y-startPos.y));
 				this.$highlightMarking.fadeIn(100);
 

@@ -289,6 +289,7 @@ module.exports = function(jsmm) {
 	jsmm.test.tests.fail_threeway.reserved_word_5 = 'var jsmmparser;';
 	jsmm.test.tests.fail_threeway.reserved_word_6 = 'var jsmmExecutionCounter;';
 	jsmm.test.tests.fail_threeway.reserved_word_6 = 'var jsmmtemp;';
+	jsmm.test.tests.fail_threeway.reserved_word_6 = 'var jsmmtree;';
 	jsmm.test.tests.fail_threeway.reserved_word_7 = 'var NaN;';
 	jsmm.test.tests.fail_threeway.reserved_word_8 = 'var this;';
 	jsmm.test.tests.fail_threeway.reserved_word_9 = 'var arguments;';

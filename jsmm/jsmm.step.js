@@ -10,23 +10,23 @@ module.exports = function(jsmm) {
 	jsmm.step.StackElement = function() { return this.init.apply(this, arguments); };
 	
 	jsmm.step.Stack.prototype = {
-		init: function(context, scope) {
-			this.context = context;
-			this.elements = [new jsmm.step.StackElement(this, context.program, new jsmm.func.Scope(scope))];
+		init: function(programNode, scope) {
+			this.elements = [new jsmm.step.StackElement(this, programNode, new jsmm.func.Scope(scope))];
 			this.executionCounter = 0;
 		},
+		hasNext: function() {
+			return this.getLastStackElement() !== undefined;
+		},
+		stepNext: function(stack, se) {
+			return this.getLastStackElement().node.stepNext(this, this.getLastStackElement());
+		},
+		/// INTERNAL FUNCTIONS ///
 		getLastStackElement: function() {
 			if (this.elements.length > 0) {
 				return this.elements[this.elements.length-1];
 			} else {
 				return undefined;
 			}
-		},
-		hasNext: function() {
-			return this.getLastStackElement() !== undefined;
-		},
-		stepNext: function(stack, se) {
-			return this.getLastStackElement().element.stepNext(this, this.getLastStackElement());
 		},
 		// not strictly a pop since it returns the last element instead of the popped element
 		up: function(arg) {
@@ -36,28 +36,23 @@ module.exports = function(jsmm) {
 		},
 		upNext: function(arg) {
 			var se = this.up(arg);
-			return se.element.stepNext(this, se);
+			return se.node.stepNext(this, se);
 		},
-		pushStackElement: function(se) {
+		pushNode: function(node, scope) {
+			this.elements.push(new jsmm.step.StackElement(this, node, scope));
+			return node;
+		},
+		pushNodeNext: function(node, scope) {
+			var se = new jsmm.step.StackElement(this, node, scope);
 			this.elements.push(se);
-			return se;
-		},
-		pushElement: function(el, scope) {
-			return this.pushStackElement(new jsmm.step.StackElement(this, el, scope)).element;
-		},
-		pushStackElementNext: function(se) {
-			this.elements.push(se);
-			return se.element.stepNext(this, se);
-		},
-		pushElementNext: function(el, scope) {
-			return this.pushStackElementNext(new jsmm.step.StackElement(this, el, scope));
+			return node.stepNext(this, se);
 		}
 	};
 	
 	jsmm.step.StackElement.prototype = {
-		init: function(stack, element, scope) {
+		init: function(stack, node, scope) {
 			this.stack = stack;
-			this.element = element;
+			this.node = node;
 			this.scope = scope;
 			this.args = [];
 		}
@@ -68,7 +63,7 @@ module.exports = function(jsmm) {
 		switch (se.args.length) {
 			case 0:
 				stack.executionCounter = 0;
-				return stack.pushElementNext(this.statementList, se.scope);
+				return stack.pushNodeNext(this.statementList, se.scope);
 			case 1:
 				stack.elements = [];
 				return [];
@@ -89,7 +84,7 @@ module.exports = function(jsmm) {
 		}
 		
 		if (se.args.length < this.statements.length) {
-			return stack.pushElementNext(this.statements[se.args.length], se.scope);
+			return stack.pushNodeNext(this.statements[se.args.length], se.scope);
 		} else {
 			return stack.upNext(null);
 		}
@@ -100,7 +95,7 @@ module.exports = function(jsmm) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
-				return stack.pushElementNext(this.statement, se.scope);
+				return stack.pushNodeNext(this.statement, se.scope);
 			case 1:
 				this.runHooksAfter(se.scope);
 				return stack.upNext(null);
@@ -111,7 +106,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.PostfixStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.identifier, se.scope);
+				return stack.pushNodeNext(this.identifier, se.scope);
 			case 1:
 				var result = jsmm.func.postfix(this, se.args[0], this.symbol);
 				stack.up(null);
@@ -124,13 +119,13 @@ module.exports = function(jsmm) {
 	jsmm.yy.AssignmentStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.identifier, se.scope);
+				return stack.pushNodeNext(this.identifier, se.scope);
 			case 1:
-				return stack.pushElementNext(this.expression, se.scope);
+				return stack.pushNodeNext(this.expression, se.scope);
 			case 2:
 				var result = jsmm.func.assignment(this, se.args[0], this.symbol, se.args[1]);
 				var up = stack.up(result);
-				var append = (up.element instanceof jsmm.yy.VarItem);
+				var append = (up.node instanceof jsmm.yy.VarItem);
 				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
 				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message, append)];
 		}
@@ -143,7 +138,7 @@ module.exports = function(jsmm) {
 			return [new jsmm.msg.Line(this, ''),
 				new jsmm.msg.Continue(this)];
 		} else if (se.args.length-1 < this.items.length) {
-			return stack.pushElementNext(this.items[se.args.length-1], se.scope);
+			return stack.pushNodeNext(this.items[se.args.length-1], se.scope);
 		} else {
 			return stack.upNext(null);
 		}
@@ -160,7 +155,7 @@ module.exports = function(jsmm) {
 			switch (se.args.length) {
 				case 0:
 					jsmm.func.varItem(this, se.scope, this.name);
-					return stack.pushElementNext(this.assignment, se.scope);
+					return stack.pushNodeNext(this.assignment, se.scope);
 				case 1:
 					return stack.upNext(null);
 			}
@@ -175,13 +170,13 @@ module.exports = function(jsmm) {
 		} else {
 			switch (se.args.length) {
 				case 0:
-					return stack.pushElementNext(this.expression, se.scope);
+					return stack.pushNodeNext(this.expression, se.scope);
 				case 1:
 					this.iterateRunHooksAfter(se.scope);
 					var lastStackElement = stack.getLastStackElement();
 					var result = jsmm.func.funcReturn(this, se.args[0]);
-					while (!(lastStackElement.element instanceof jsmm.yy.FunctionCall ||
-							lastStackElement.element instanceof jsmm.yy.Program)) {
+					while (!(lastStackElement.node instanceof jsmm.yy.FunctionCall ||
+							lastStackElement.node instanceof jsmm.yy.Program)) {
 						lastStackElement = stack.up(result);
 					}
 					// Postcondition: lastStackElement is a FunctionCall or a Program
@@ -195,9 +190,9 @@ module.exports = function(jsmm) {
 	jsmm.yy.BinaryExpression.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.expression1, se.scope);
+				return stack.pushNodeNext(this.expression1, se.scope);
 			case 1:
-				return stack.pushElementNext(this.expression2, se.scope);
+				return stack.pushNodeNext(this.expression2, se.scope);
 			case 2:
 				var result = jsmm.func.binary(this, se.args[0], this.symbol, se.args[1]);
 				stack.up(result);
@@ -212,7 +207,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.UnaryExpression.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.expression, se.scope);
+				return stack.pushNodeNext(this.expression, se.scope);
 			case 1:
 				var result = jsmm.func.unary(this, this.symbol, se.args[0]);
 				stack.up(result);
@@ -247,7 +242,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.ObjectIdentifier.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.identifier, se.scope);
+				return stack.pushNodeNext(this.identifier, se.scope);
 			case 1:
 				return stack.upNext(jsmm.func.object(this, se.args[0], this.prop));
 		}
@@ -257,9 +252,9 @@ module.exports = function(jsmm) {
 	jsmm.yy.ArrayIdentifier.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.identifier, se.scope);
+				return stack.pushNodeNext(this.identifier, se.scope);
 			case 1:
-				return stack.pushElementNext(this.expression, se.scope);
+				return stack.pushNodeNext(this.expression, se.scope);
 			case 2:
 				return stack.upNext(jsmm.func.array(this, se.args[0], se.args[1]));
 		}
@@ -279,9 +274,9 @@ module.exports = function(jsmm) {
 		
 		var result, up;
 		if (se.args.length === 0) {
-			return stack.pushElementNext(this.identifier, se.scope);
+			return stack.pushNodeNext(this.identifier, se.scope);
 		} else if (se.args.length < this.expressionArgs.length+1) {
-			return stack.pushElementNext(this.expressionArgs[se.args.length-1], se.scope);
+			return stack.pushNodeNext(this.expressionArgs[se.args.length-1], se.scope);
 		} else if (se.args.length === this.expressionArgs.length+1) {
 			se.args.push(null);
 			
@@ -308,7 +303,7 @@ module.exports = function(jsmm) {
 			// fall through
 		}
 		
-		if (up.element instanceof jsmm.yy.CallStatement) {
+		if (up.node instanceof jsmm.yy.CallStatement) {
 			return [
 				new jsmm.msg.Line(this, function(f) { return f(name); }),
 				new jsmm.msg.Continue(this)
@@ -322,7 +317,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.CallStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.functionCall, se.scope);
+				return stack.pushNodeNext(this.functionCall, se.scope);
 			case 1:
 				return stack.upNext(null);
 		}
@@ -333,14 +328,14 @@ module.exports = function(jsmm) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
-				return stack.pushElementNext(this.expression, se.scope);
+				return stack.pushNodeNext(this.expression, se.scope);
 			case 1:
 				if (jsmm.func.conditional(this, 'if', se.args[0])) {
-					return stack.pushElementNext(this.statementList, se.scope);
+					return stack.pushNodeNext(this.statementList, se.scope);
 				} else {
 					this.runHooksAfter(se.scope);
 					if(this.elseBlock !== null) {
-						return stack.pushElementNext(this.elseBlock, se.scope);
+						return stack.pushNodeNext(this.elseBlock, se.scope);
 					} else {
 						return stack.upNext(null);
 					}
@@ -356,7 +351,7 @@ module.exports = function(jsmm) {
 	jsmm.yy.ElseIfBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
-				return stack.pushElementNext(this.ifBlock, se.scope);
+				return stack.pushNodeNext(this.ifBlock, se.scope);
 			case 1:
 				return stack.upNext('else');
 		}
@@ -367,7 +362,7 @@ module.exports = function(jsmm) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
-				return stack.pushElementNext(this.statementList, se.scope);
+				return stack.pushNodeNext(this.statementList, se.scope);
 			case 1:
 				this.runHooksAfter(se.scope);
 				return stack.upNext('else');
@@ -383,10 +378,10 @@ module.exports = function(jsmm) {
 				se.args.push(null);
 				/* falls through */
 			case 1:
-				return stack.pushElementNext(this.expression, se.scope);
+				return stack.pushNodeNext(this.expression, se.scope);
 			case 2:
 				if (jsmm.func.conditional(this, 'while', se.args[1])) {
-					return stack.pushElementNext(this.statementList, se.scope);
+					return stack.pushNodeNext(this.statementList, se.scope);
 				} else {
 					this.runHooksAfter(se.scope);
 					return stack.upNext(null);
@@ -404,19 +399,19 @@ module.exports = function(jsmm) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
-				return stack.pushElementNext(this.statement1, se.scope);
+				return stack.pushNodeNext(this.statement1, se.scope);
 			case 1:
-				return stack.pushElementNext(this.expression, se.scope);
+				return stack.pushNodeNext(this.expression, se.scope);
 			case 2:
 				if (jsmm.func.conditional(this, 'for', se.args[1])) {
-					return stack.pushElementNext(this.statementList, se.scope);
+					return stack.pushNodeNext(this.statementList, se.scope);
 				} else {
 					this.runHooksAfter(se.scope);
 					return stack.upNext(null);
 				}
 				break;
 			case 3:
-				return stack.pushElementNext(this.statement2, se.scope);
+				return stack.pushNodeNext(this.statement2, se.scope);
 			case 4:
 				se.args.pop(); // pop statement2
 				se.args.pop(); // pop statementList
@@ -441,8 +436,8 @@ module.exports = function(jsmm) {
 					that.runHooksBefore(that, se.scope);
 
 					// get back to the original function declaration for runHooksAfter
-					stack.pushElement(that, scope);
-					stack.pushElement(that.statementList, scope);
+					stack.pushNode(that, scope);
+					stack.pushNode(that.statementList, scope);
 					
 					var args = [];
 					for(var name in scope.vars) {
