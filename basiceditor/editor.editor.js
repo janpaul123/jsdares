@@ -144,8 +144,42 @@ module.exports = function(editor) {
 
 		},
 
+		// TODO: use http://archive.plugins.jquery.com/project/fieldselection
+		autoIndent: function(event, offset) { // callback
+			if ([13, 221].indexOf(event.keyCode) >= 0) {
+				var code = new editor.Code(this.surface.getText());
+
+				var pos = code.offsetToLoc(offset);
+				if (pos.line > 1) {
+					var prevLine = code.getLine(pos.line-1);
+					var curLine = code.getLine(pos.line);
+
+					// how many spaces are there on the previous line (reference), and this line
+					var spaces = prevLine.match(/^ */)[0].length;
+					var spacesAlready = curLine.match(/^ */)[0].length;
+
+					// "{" on previous line means extra spaces, "}" on this one means less
+					spaces += prevLine.match(/\{ *$/) !== null ? 2 : 0;
+					spaces -= curLine.match(/^ *\}/) !== null ? 2 : 0;
+
+					// also, since we are returning an offset, remove the number of spaces we have already
+					spaces -= spacesAlready;
+
+					var startOffset = code.lineColumnToOffset(pos.line, 0);
+					if (spaces < 0) {
+						// don't delete more spaces that there are on this line
+						spaces = Math.max(spaces, -spacesAlready);
+						this.surface.setText(code.removeOffsetRange(startOffset, startOffset-spaces));
+					} else {
+						this.surface.setText(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
+					}
+					this.surface.offsetCursor(spaces);
+				}
+			}
+		},
+
 		enableEditables: function() {
-			if (!this.tree.hasError() && this.language.editables !== undefined) {
+			if (!this.tree.hasError()) {
 				this.editablesEnabled = true;
 				this.delegate.editablesEnabled();
 				this.refreshEditables();
@@ -161,7 +195,7 @@ module.exports = function(editor) {
 		refreshEditables: function() {
 			if (this.editablesEnabled) {
 				this.removeEditables();
-				this.editables = this.language.editables.generate(this.tree, editor.editables, this.surface, this);
+				this.editables = this.language.editor.editables.generate(this.tree, editor.editables, this.surface, this);
 				for (var i=0; i<this.editables.length; i++) {
 					var line = this.editables[i].line;
 					if (this.editablesByLine[line] === undefined) {

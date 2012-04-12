@@ -129,10 +129,13 @@ module.exports = function(editor) {
 		},
 
 		setText: function(newText) {
+			var selectionStart = this.$textarea[0].selectionStart;
 			this.$textarea.val(newText);
 			this.text = newText;
 			this.userChangedText = false;
 			this.updateSize();
+			this.$textarea[0].selectionStart = selectionStart;
+			this.$textarea[0].selectionEnd = selectionStart;
 		},
 
 		columnToX: function(column) {
@@ -229,6 +232,13 @@ module.exports = function(editor) {
 			$element.css('top', this.lineToY(line));
 		},
 
+		offsetCursor: function(amount) {
+			var selectionStart = this.$textarea[0].selectionStart;
+			var selectionEnd = this.$textarea[0].selectionEnd;
+			this.$textarea[0].selectionStart = selectionStart + amount;
+			this.$textarea[0].selectionEnd = selectionEnd + amount;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		initOffsets: function($div) {
 			// setting up mirror
@@ -255,8 +265,6 @@ module.exports = function(editor) {
 				x: (this.$textarea.position().left + this.$div.scrollLeft()),
 				y: (this.$textarea.position().top + this.$div.scrollTop())
 			};
-
-			console.log(textAreaOffset.x, this.textOffset.x);
 
 			this.$surface.css('left', textAreaOffset.x + this.textOffset.x);
 			this.$surface.css('top', textAreaOffset.y + this.textOffset.y);
@@ -311,6 +319,7 @@ module.exports = function(editor) {
 		keyUp: function(event) {
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();
+				this.delegate.autoIndent(event, this.$textarea[0].selectionStart);
 				this.updateSize();
 				this.userChangedText = true;
 			}
@@ -326,7 +335,6 @@ module.exports = function(editor) {
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();
 				this.updateSize();
-				//this.autoindent(e);
 				this.userChangedText = false;
 				this.delegate.userChangedText();
 			}
@@ -343,39 +351,6 @@ module.exports = function(editor) {
 };
 
 
-	// TODO: use http://archive.plugins.jquery.com/project/fieldselection
-	// autoindent: function(e) {
-	// 	// 13 = enter, 221 = ] or }
-	// 	if (e.keyCode === 13 || e.keyCode === 221) {
-	// 		var code = this.code;
-	// 		var offset = this.$textarea[0].selectionStart;
-	// 		var pos = code.offsetToLoc(offset);
-	// 		if (pos.line > 1) {
-	// 			var prevLine = code.getLine(pos.line-1);
-	// 			var curLine = code.getLine(pos.line);
-	// 			var spaces = prevLine.match(/^ */)[0].length;
-	// 			var spacesAlready = curLine.match(/^ */)[0].length;
-	// 			spaces += prevLine.match(/\{ *$/) !== null ? 2 : 0;
-	// 			spaces -= spacesAlready;
-	// 			spaces -= curLine.match(/^ *\}/) !== null ? 2 : 0;
 
-	// 			var startOffset, endOffset;
-	// 			if (spaces > 0) {
-	// 				startOffset = code.lineColumnToOffset(pos.line, 0);
-	// 				this.$textarea.val(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
-	// 				this.$textarea[0].selectionStart = offset + spaces;
-	// 				this.$textarea[0].selectionEnd = this.$textarea[0].selectionStart;
-	// 				this.updateCode();
-	// 			} else if (spaces < 0 && spacesAlready >= -spaces) {
-	// 				startOffset = code.lineColumnToOffset(pos.line, 0);
-	// 				endOffset = startOffset-spaces;
-	// 				this.$textarea.val(code.removeOffsetRange(startOffset, endOffset));
-	// 				this.$textarea[0].selectionStart = offset + spaces;
-	// 				this.$textarea[0].selectionEnd = this.$textarea[0].selectionStart;
-	// 				this.updateCode();
-	// 			}
-	// 		}
-	// 	}
-	// },
 	
 
