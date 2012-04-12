@@ -57,6 +57,7 @@ module.exports = function(editor) {
 					this.disableHighlighting();
 				}
 				this.handleError(this.tree.getError());
+				this.delegate.criticalError();
 			} else {
 				this.run();
 			}
@@ -98,8 +99,18 @@ module.exports = function(editor) {
 		handleRunnerOutput: function() {
 			if (this.runner.hasError()) {
 				this.handleError(this.runner.getError());
+				if (this.runner.isStepping()) {
+					this.delegate.steppingWithError();
+				} else {
+					this.delegate.runningWithError();
+				}
 			} else {
 				this.handleMessages(this.runner.getMessages());
+				if (this.runner.isStepping()) {
+					this.delegate.steppingWithoutError();
+				} else {
+					this.delegate.runningWithoutError();
+				}
 			}
 		},
 
@@ -188,10 +199,12 @@ module.exports = function(editor) {
 		},
 
 		enableHighlighting: function() {
-			this.surface.enableMouseMove();
-			this.highlightingEnabled = true;
-			this.delegate.highlightingEnabled();
-			this.callOutputs('enableHighlighting');
+			if (!this.tree.hasError()) {
+				this.surface.enableMouseMove();
+				this.highlightingEnabled = true;
+				this.delegate.highlightingEnabled();
+				this.callOutputs('enableHighlighting');
+			}
 		},
 
 		disableHighlighting: function() {
@@ -199,7 +212,7 @@ module.exports = function(editor) {
 			this.surface.hideHighlight();
 			this.surface.disableMouseMove();
 			this.highlightingEnabled = false;
-			this.delegate.highLightDisabled();
+			this.delegate.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
 		},
 

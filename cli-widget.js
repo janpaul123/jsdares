@@ -12,22 +12,57 @@ $(function() {
 
 	var ui = {
 		editablesEnabled: function() {
-
+			$('#edit').addClass('active');
 		},
 		editablesDisabled: function() {
-
+			$('#edit').removeClass('active');
 		},
 		highlightingEnabled: function() {
-
+			$('#highlight').addClass('active');
 		},
-		highLightDisabled: function() {
-
+		highLightingDisabled: function() {
+			$('#highlight').removeClass('active');
+		},
+		criticalError: function() {
+			$('#step').addClass('disabled');
+			$('#step-back').addClass('disabled');
+			$('#refresh').addClass('disabled');
+			$('#edit').addClass('disabled');
+			$('#highlight').addClass('disabled');
+		},
+		runningWithoutError: function() {
+			$('#step').removeClass('disabled');
+			$('#step-back').addClass('disabled');
+			$('#refresh').addClass('disabled');
+			$('#edit').removeClass('disabled');
+			$('#highlight').removeClass('disabled');
+		},
+		runningWithError: function() {
+			$('#step').removeClass('disabled');
+			$('#step-back').addClass('disabled');
+			$('#refresh').addClass('disabled');
+			$('#edit').removeClass('disabled');
+			$('#highlight').removeClass('disabled');
+		},
+		steppingWithoutError: function() {
+			$('#step').removeClass('disabled');
+			$('#step-back').removeClass('disabled');
+			$('#refresh').removeClass('disabled');
+			$('#edit').removeClass('disabled');
+			$('#highlight').removeClass('disabled');
+		},
+		steppingWithError: function() {
+			$('#step').addClass('disabled');
+			$('#step-back').removeClass('disabled');
+			$('#refresh').removeClass('disabled');
+			$('#edit').removeClass('disabled');
+			$('#highlight').removeClass('disabled');
 		}
 	};
 
-	var editor = new editor.Editor(jsmm, $('#editor'), ui);
-	var myConsole = new cs.Console($('#console'), editor);
-	editor.setScope({console: myConsole.getAugmentedObject()});
+	var ed = new editor.Editor(jsmm, $('#editor'), ui);
+	var myConsole = new cs.Console($('#console'), ed);
+	ed.setScope({console: myConsole.getAugmentedObject()});
 	
 	var realConsole = {
 		log: function(text) {
@@ -40,26 +75,29 @@ $(function() {
 		}
 	};
 
-	//editor.setCode(window.localStorage.getItem('1'));
-
-
 	var clear = function() {
 		myConsole.clear();
 		//myCanvas.clear();
 	};
 
-	$('#step').click($.proxy(editor.stepForward, editor));
-	$('#step-back').click($.proxy(editor.stepBackward, editor));
-	$('#refresh').click($.proxy(editor.restart, editor));
-	$('#edit').click($.proxy(editor.enableEditables, editor));
-	$('#highlight').click($.proxy(editor.enableHighlighting, editor));
+	$('#step').click($.proxy(ed.stepForward, ed));
+	$('#step-back').click($.proxy(ed.stepBackward, ed));
+	$('#refresh').click($.proxy(ed.restart, ed));
+	$('#edit').click(function(event) {
+		if ($('#edit').hasClass('active')) ed.disableEditables();
+		else ed.enableEditables();
+	});
+	$('#highlight').click(function(event) {
+		if ($('#highlight').hasClass('active')) ed.disableHighlighting();
+		else ed.enableHighlighting();
+	});
 
 	$('#console-button').click(function(e) {
 		$('#canvas').hide();
 		$('#console').show();
 	});
 
-	editor.setText(window.localStorage.getItem('1'));
+	ed.setText(window.localStorage.getItem('1'));
 
 	/*
 	$('#canvas-button').click(function(e) {
