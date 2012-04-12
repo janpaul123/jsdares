@@ -48,6 +48,23 @@ module.exports = function(editor) {
 		replaceOffsetRange: function(offset1, offset2, text) {
 			return this.text.substring(0, offset1) + text + this.text.substring(offset2);
 		},
+		blockToLeftColumn: function(line1, line2) {
+			this.makeLines();
+			var result = Infinity;
+			for (var i=line1; i<=line2; i++) {
+				result = Math.min(result, this.lines[i-1].match(/^ */)[0].length);
+				if (result <= 0) return result;
+			}
+			return result;
+		},
+		blockToRightColumn: function(line1, line2) {
+			this.makeLines();
+			var result = 0;
+			for (var i=line1; i<=line2; i++) {
+				result = Math.max(result, this.lines[i-1].length);
+			}
+			return result;
+		},
 		/// INTERNAL FUNCTIONS ///
 		makeLines: function() {
 			if (this.lines !== undefined) return;

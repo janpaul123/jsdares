@@ -29,11 +29,21 @@ cs.Console.prototype = {
 		else if (typeof value === 'function') text = '[function]';
 
 		var $element = $('<div class="cs-line"></div>');
-		if (this.highlightNextLines) $element.addClass('cs-highlight');
+		if (this.highlightNextLines) {
+			$element.addClass('cs-highlight');
+		}
 		$element.text(text);
 		$element.data('node', node);
 		$element.on('mousemove', $.proxy(this.mouseMove, this));
 		this.$div.append($element);
+
+
+		// only scroll down if we are not highlighting, or otherwise if the
+		// last line was actually highlighted
+		if (!this.highlighting || this.highlightNextLines) {
+			// the offset is weird since .position().top changes when scrolling
+			this.scrollToY($element.position().top + this.$div.scrollTop());
+		}
 
 		if (this.debugToBrowser && console && console.log) console.log(value);
 	},
@@ -58,6 +68,12 @@ cs.Console.prototype = {
 	clear: function() {
 		this.$div.children('.cs-line').remove(); // like this to prevent $.data memory leaks
 		if (this.debugToBrowser && console && console.clear) console.clear();
+	},
+
+	/// INTERNAL FUNCTIONS ///
+	scrollToY: function(y) {
+		y = Math.max(0, y - this.$div.height()/2);
+		this.$div.stop(true).animate({scrollTop : y}, 150);
 	},
 
 	mouseMove: function(event) {

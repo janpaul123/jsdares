@@ -200,7 +200,7 @@ module.exports = function(editor) {
 
 		enableHighlighting: function() {
 			if (!this.tree.hasError()) {
-				this.surface.enableMouseMove();
+				this.surface.enableMouse();
 				this.highlightingEnabled = true;
 				this.delegate.highlightingEnabled();
 				this.callOutputs('enableHighlighting');
@@ -210,7 +210,7 @@ module.exports = function(editor) {
 		disableHighlighting: function() {
 			this.tree.clearHooks();
 			this.surface.hideHighlight();
-			this.surface.disableMouseMove();
+			this.surface.disableMouse();
 			this.highlightingEnabled = false;
 			this.delegate.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
@@ -218,20 +218,34 @@ module.exports = function(editor) {
 
 		highlightNode: function(node) { // callback
 			this.surface.showHighlight(node.lineLoc.line, node.lineLoc.column, node.lineLoc.line+1, node.lineLoc.column2);
+			this.surface.scrollToLine(node.lineLoc.line);
 		},
 
 		mouseMove: function(event, line, column) { // callback
-			var node = this.tree.getNodeByLine(line);
-			if (node !== this.currentHighlightNode) {
-				this.currentHighlightNode = node;
-				this.tree.clearHooks();
-				if (node !== null) {
-					this.tree.addHookBeforeNode(node, $.proxy(this.startHighlighting, this));
-					this.tree.addHookAfterNode(node, $.proxy(this.stopHighlighting, this));
-					this.surface.showHighlight(node.blockLoc.line, 0, node.blockLoc.line2+1, 30);
-				} else {
-					this.surface.hideHighlight();
+			if (this.highlightingEnabled) {
+				var node = this.tree.getNodeByLine(line);
+				if (node !== this.currentHighlightNode) {
+					this.currentHighlightNode = node;
+					this.tree.clearHooks();
+					if (node !== null) {
+						this.tree.addHookBeforeNode(node, $.proxy(this.startHighlighting, this));
+						this.tree.addHookAfterNode(node, $.proxy(this.stopHighlighting, this));
+						var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
+						console.log(this.code.blockToRightColumn(line1, line2));
+						this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
+					} else {
+						this.surface.hideHighlight();
+					}
+					this.run();
 				}
+			}
+		},
+
+		mouseLeave: function(event) { //callback
+			if (this.highlightingEnabled) {
+				this.currentHighlightNode = null;
+				this.tree.clearHooks();
+				this.surface.hideHighlight();
 				this.run();
 			}
 		},

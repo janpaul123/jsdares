@@ -89,12 +89,13 @@ module.exports = function(editor) {
 
 	editor.Surface.prototype = {
 		init: function($div, delegate) {
+			this.$div = $div;
+			this.$div.addClass('based-editor');
 			this.delegate = delegate;
-			$div.addClass('based-editor');
 
 			// setting up textarea
 			this.$textarea = $('<textarea class="based-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
-			$div.append(this.$textarea);
+			this.$div.append(this.$textarea);
 
 			this.$textarea.on('keydown', $.proxy(this.keyDown, this));
 			this.$textarea.on('keyup', $.proxy(this.keyUp, this));
@@ -102,11 +103,11 @@ module.exports = function(editor) {
 
 			// setting up surface
 			this.$surface = $('<div class="based-surface"></div>');
-			$div.append(this.$surface);
+			this.$div.append(this.$surface);
 
 			// setting up margin
 			this.$margin = $('<div class="based-margin"></div>');
-			$div.append(this.$margin);
+			this.$div.append(this.$margin);
 			
 			// setting up messages
 			this.errorMessage = new editor.Message('error', this);
@@ -117,7 +118,7 @@ module.exports = function(editor) {
 			this.addElement(this.$highlightMarking);
 			this.$highlightMarking.hide();
 
-			this.initOffsets($div);
+			this.initOffsets();
 
 			this.text = '';
 			this.userChangedText = false;
@@ -150,12 +151,13 @@ module.exports = function(editor) {
 			this.$margin.append($element);
 		},
 
-		enableMouseMove: function() {
-			this.$textarea.on('mousemove', $.proxy(this.mouseMove, this));
+		enableMouse: function() {
+			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
+			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
 		},
 
-		disableMouseMove: function() {
-			this.$textarea.off('mousemove');
+		disableMouse: function() {
+			this.$div.off('mousemove', 'mouseleave');
 		},
 
 		showErrorMessage: function(message) {
@@ -183,13 +185,25 @@ module.exports = function(editor) {
 			this.stepMessage.hide();
 		},
 
+		enableHighlighting: function() {
+			this.$textarea.addClass('based-highlighting');
+		},
+
+		disableHighlighting: function() {
+			this.$textarea.removeClass('based-highlighting');
+		},
+
 		showHighlight: function(line, column, line2, column2) {
-			this.$highlightMarking.fadeIn(150);
+			this.$highlightMarking.show();
 			this.setElementLocationRange(this.$highlightMarking, line, column, line2, column2);
 		},
 
 		hideHighlight: function() {
-			this.$highlightMarking.fadeOut(150);
+			this.$highlightMarking.hide();
+		},
+
+		scrollToLine: function(line) {
+			this.scrollToY(this.lineToY(line));
 		},
 
 		setElementLocation: function($element, line, column) {
@@ -221,7 +235,7 @@ module.exports = function(editor) {
 			this.$mirror = $('<div class="based-mirror"></div>');
 			var $mirrorContainer = $('<div class="based-mirror-container"></div>');
 			$mirrorContainer.append(this.$mirror);
-			$div.append($mirrorContainer);
+			this.$div.append($mirrorContainer);
 
 			this.$mirror.text('a');
 			this.textOffset = {x: this.$mirror.outerWidth(), y: this.$mirror.outerHeight()};
@@ -238,8 +252,8 @@ module.exports = function(editor) {
 
 			// the offset is weird since .position().top changes when scrolling
 			var textAreaOffset = {
-				x: (this.$textarea.position().left + $div.scrollLeft()),
-				y: (this.$textarea.position().top + $div.scrollTop())
+				x: (this.$textarea.position().left + this.$div.scrollLeft()),
+				y: (this.$textarea.position().top + this.$div.scrollTop())
 			};
 
 			console.log(textAreaOffset.x, this.textOffset.x);
@@ -272,6 +286,12 @@ module.exports = function(editor) {
 
 		pageYToLine: function(y) {
 			return 1+Math.floor((y-this.$textarea.offset().top-this.textOffset.y)/this.lineHeight);
+		},
+
+		scrollToY: function(y) {
+			y = Math.max(0, y - this.$div.height()/2);
+			this.$div.stop(true).animate({scrollTop : y}, 150);
+			//this.$div.scrollTop(y);
 		},
 
 		keyDown: function(event) {
@@ -314,6 +334,10 @@ module.exports = function(editor) {
 
 		mouseMove: function(event) {
 			this.delegate.mouseMove(event, this.pageYToLine(event.pageY), this.pageXToColumn(event.pageX));
+		},
+
+		mouseLeave: function(event) {
+			this.delegate.mouseLeave(event);
 		}
 	};
 };
