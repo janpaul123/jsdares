@@ -62,12 +62,12 @@ reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new
 %% /* language grammar */
 
 program
-	: programStatementList EOF					{ $$ = new yy.Program(@$, null, $1); return $$; }
-	| NEWLINE programStatementList EOF			{ $$ = new yy.Program(@$, null, $2); return $$; }
+	: programStatementList EOF					{ $$ = new yy.nodes.Program(@$, null, $1); return $$; }
+	| NEWLINE programStatementList EOF			{ $$ = new yy.nodes.Program(@$, null, $2); return $$; }
 ;
 
 programStatementList
-	: /* empty */								{ $$ = new yy.StatementList(@$, null); }
+	: /* empty */								{ $$ = new yy.nodes.StatementList(@$, null); }
 	| programStatementList commonStatement NEWLINE
 		{ $$ = $1; $$.addStatement($2); }
 	| programStatementList functionDeclaration NEWLINE
@@ -75,12 +75,12 @@ programStatementList
 ;
 
 statementList
-	: /* empty */								{ $$ = new yy.StatementList(@$, null); }
+	: /* empty */								{ $$ = new yy.nodes.StatementList(@$, null); }
 	| statementList commonStatement NEWLINE		{ $$ = $1; $$.addStatement($2); }
 ;
 
 commonStatement
-	: simpleStatement ";"						{ $$ = new yy.CommonSimpleStatement(@$, undefined, $1); }
+	: simpleStatement ";"						{ $$ = new yy.nodes.CommonSimpleStatement(@$, undefined, $1); }
 	| blockStatement
 	| returnStatement
 ;
@@ -89,12 +89,12 @@ simpleStatement
 	: assignmentStatement
 	| varStatement
 	| callStatement
-	| identExpression "+" "+"					{ $$ = new yy.PostfixStatement(@$, undefined, $1, $2+$2); }
+	| identExpression "+" "+"					{ $$ = new yy.nodes.PostfixStatement(@$, undefined, $1, $2+$2); }
 ;
 
 assignmentStatement
-	: identExpression "=" expression			{ $$ = new yy.AssignmentStatement(@$, undefined, $1, "=", $3); }
-	| identExpression "+=" expression			{ $$ = new yy.AssignmentStatement(@$, undefined, $1, $2, $3); }
+	: identExpression "=" expression			{ $$ = new yy.nodes.AssignmentStatement(@$, undefined, $1, "=", $3); }
+	| identExpression "+=" expression			{ $$ = new yy.nodes.AssignmentStatement(@$, undefined, $1, $2, $3); }
 ;
 
 varStatement
@@ -102,73 +102,73 @@ varStatement
 ;
 
 varList
-	: varListItem								{ $$ = new yy.VarStatement(@$, undefined); $$.addVarItem($1); }
+	: varListItem								{ $$ = new yy.nodes.VarStatement(@$, undefined); $$.addVarItem($1); }
 	| varList "," varListItem					{ $$ = $1; $$.addVarItem($3); }
 ;
 
 varListItem
-	: NAME										{ $$ = new yy.VarItem(@$, undefined, $1, null); }
+	: NAME										{ $$ = new yy.nodes.VarItem(@$, undefined, $1, null); }
 	| NAME "=" expression 
 		{
-			$$ = new yy.VarItem(@$, undefined, $1, new yy.AssignmentStatement(@$, undefined, new yy.NameIdentifier(@1, undefined, $1), "=", $3));
+			$$ = new yy.nodes.VarItem(@$, undefined, $1, new yy.nodes.AssignmentStatement(@$, undefined, new yy.nodes.NameIdentifier(@1, undefined, $1), "=", $3));
 		}
 ;
 
 returnStatement
-	: RETURN ";"								{ $$ = new yy.ReturnStatement(@$, undefined, null); }
-	| RETURN expression ";"						{ $$ = new yy.ReturnStatement(@$, undefined, $2); }
+	: RETURN ";"								{ $$ = new yy.nodes.ReturnStatement(@$, undefined, null); }
+	| RETURN expression ";"						{ $$ = new yy.nodes.ReturnStatement(@$, undefined, $2); }
 ;
 
 expression
 	: andExpression
-	| expression "||" andExpression				{ $$ = new yy.BinaryExpression(@$, undefined, $1, $2, $3); }
+	| expression "||" andExpression				{ $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
 ;
 
 andExpression
 	: relationalExpression
-	| andExpression "&&" relationalExpression	{ $$ = new yy.BinaryExpression(@$, undefined, $1, $2, $3); }
+	| andExpression "&&" relationalExpression	{ $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
 ;
 
 relationalExpression
 	: addExpression
-	| relationalExpression "==" addExpression	{ $$ = new yy.BinaryExpression(@$, undefined, $1, $2, $3); }
+	| relationalExpression "==" addExpression	{ $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
 ;
 
 addExpression
 	: multExpression
-	| addExpression "+" multExpression			{ $$ = new yy.BinaryExpression(@$, undefined, $1, $2, $3); }
+	| addExpression "+" multExpression			{ $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
 ;
 
 multExpression
 	: unaryExpression
-	| multExpression "*" unaryExpression		{ $$ = new yy.BinaryExpression(@$, undefined, $1, $2, $3); }
+	| multExpression "*" unaryExpression		{ $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
 ;
 
 unaryExpression
 	: primaryExpression
-	| "+" unaryExpression						{ $$ = new yy.UnaryExpression(@$, undefined, $1, $2); }
-	| "!" unaryExpression						{ $$ = new yy.UnaryExpression(@$, undefined, $1, $2); }
+	| "+" unaryExpression						{ $$ = new yy.nodes.UnaryExpression(@$, undefined, $1, $2); }
+	| "!" unaryExpression						{ $$ = new yy.nodes.UnaryExpression(@$, undefined, $1, $2); }
 ;
 
 primaryExpression
 	: identExpression
-	| NUMBER									{ $$ = new yy.NumberLiteral(@$, undefined, $1); }
-	| STRING									{ $$ = new yy.StringLiteral(@$, undefined, $1); }
-	| TRUE										{ $$ = new yy.BooleanLiteral(@$, undefined, true); }
-	| FALSE										{ $$ = new yy.BooleanLiteral(@$, undefined, false); }
+	| NUMBER									{ $$ = new yy.nodes.NumberLiteral(@$, undefined, $1); }
+	| STRING									{ $$ = new yy.nodes.StringLiteral(@$, undefined, $1); }
+	| TRUE										{ $$ = new yy.nodes.BooleanLiteral(@$, undefined, true); }
+	| FALSE										{ $$ = new yy.nodes.BooleanLiteral(@$, undefined, false); }
 	| callExpression
 	| "(" expression ")"						{ $$ = $2; }
 ;
 
 identExpression
-	: NAME										{ $$ = new yy.NameIdentifier(@$, undefined, $1); }
-	| identExpression "." NAME					{ $$ = new yy.ObjectIdentifier(@$, undefined, $1, $3); }
-	| identExpression "[" expression "]"		{ $$ = new yy.ArrayIdentifier(@$, undefined, $1, $3); }
+	: NAME										{ $$ = new yy.nodes.NameIdentifier(@$, undefined, $1); }
+	| identExpression "." NAME					{ $$ = new yy.nodes.ObjectIdentifier(@$, undefined, $1, $3); }
+	| identExpression "[" expression "]"		{ $$ = new yy.nodes.ArrayIdentifier(@$, undefined, $1, $3); }
 ;
 
 callExpression
-	: identExpression "(" ")"					{ $$ = new yy.FunctionCall(@$, undefined, $1, []); }
-	| identExpression "(" callArguments ")"		{ $$ = new yy.FunctionCall(@$, undefined, $1, $3); }
+	: identExpression "(" ")"					{ $$ = new yy.nodes.FunctionCall(@$, undefined, $1, []); }
+	| identExpression "(" callArguments ")"		{ $$ = new yy.nodes.FunctionCall(@$, undefined, $1, $3); }
 ;
 
 callArguments
@@ -177,7 +177,7 @@ callArguments
 ;
 
 callStatement
-	: callExpression							{ $$ = new yy.CallStatement(@$, undefined, $1); }
+	: callExpression							{ $$ = new yy.nodes.CallStatement(@$, undefined, $1); }
 ;
 
 blockStatement
@@ -188,30 +188,30 @@ blockStatement
 
 ifBlock
 	: IF "(" expression ")" "{" NEWLINE statementList "}" elseBlock
-		{ $$ = new yy.IfBlock(@$, @4.last_column, $expression, $statementList, $elseBlock); }
+		{ $$ = new yy.nodes.IfBlock(@$, @4.last_column, $expression, $statementList, $elseBlock); }
 ;
 
 elseBlock
 	: /* empty */								{ $$ = null; }
-	| ELSE ifBlock								{ $$ = new yy.ElseIfBlock(@$, @1.last_column, $2); }
-	| ELSE "{" NEWLINE statementList "}"		{ $$ = new yy.ElseBlock(@$, @1.last_column, $statementList); }
+	| ELSE ifBlock								{ $$ = new yy.nodes.ElseIfBlock(@$, @1.last_column, $2); }
+	| ELSE "{" NEWLINE statementList "}"		{ $$ = new yy.nodes.ElseBlock(@$, @1.last_column, $statementList); }
 ;
 
 whileBlock
 	: WHILE "(" expression ")" "{" NEWLINE statementList "}"
-		{ $$ = new yy.WhileBlock(@$, @4.last_column, $expression, $statementList); }
+		{ $$ = new yy.nodes.WhileBlock(@$, @4.last_column, $expression, $statementList); }
 ;
 
 forBlock
 	: FOR "(" simpleStatement ";" expression ";" simpleStatement ")" "{" NEWLINE statementList "}"
-		{ $$ = new yy.ForBlock(@$, @8.last_column, $simpleStatement1, $expression, $simpleStatement2, $statementList); }
+		{ $$ = new yy.nodes.ForBlock(@$, @8.last_column, $simpleStatement1, $expression, $simpleStatement2, $statementList); }
 ;
 
 functionDeclaration
 	: FUNCTION NAME "(" ")" "{" NEWLINE statementList "}"
-		{ $$ = new yy.FunctionDeclaration(@$, @4.last_column, $2, [], $statementList); }
+		{ $$ = new yy.nodes.FunctionDeclaration(@$, @4.last_column, $2, [], $statementList); }
 	| FUNCTION NAME "(" functionArguments ")" "{" NEWLINE statementList "}"
-		{ $$ = new yy.FunctionDeclaration(@$, @5.last_column, $2, $functionArguments, $statementList); }
+		{ $$ = new yy.nodes.FunctionDeclaration(@$, @5.last_column, $2, $functionArguments, $statementList); }
 ;
 
 functionArguments

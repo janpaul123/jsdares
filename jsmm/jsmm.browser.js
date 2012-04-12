@@ -44,7 +44,7 @@ module.exports = function(jsmm) {
 		if (error instanceof jsmm.msg.Error) {
 			this.error = error;
 		} else {
-			throw error;
+			//throw error;
 			this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 		}
 		//console.log(this.error);
@@ -55,7 +55,11 @@ module.exports = function(jsmm) {
 		if (this.context !== null) return true;
 		
 		try {
-			this.context = jsmm.parse(this.code);
+			this.context = new jsmm.Tree(this.code);
+			if (this.context.hasError()) {
+				this.handleError(this.context.getError());
+				return false;
+			}
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -92,7 +96,7 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return undefined;
 		
 		try {
-			return this.context.program.getDot();
+			return this.context.programNode.getDot();
 		} catch (error) {
 			this.handleError(error);
 			return undefined;
@@ -104,7 +108,7 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return undefined;
 		
 		try {
-			return this.context.program.getCode();
+			return this.context.programNode.getCode();
 		} catch (error) {
 			this.handleError(error);
 			return undefined;
@@ -117,7 +121,7 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return false;
 		
 		try {
-			this.rawFunc = this.context.program.getFunction(this.scope);
+			this.rawFunc = this.context.programNode.getFunction(this.scope);
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -143,7 +147,7 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return undefined;
 		
 		try {
-			return this.context.program.getSafeCode();
+			return this.context.programNode.getSafeCode();
 		} catch (error) {
 			this.handleError(error);
 			return undefined;
@@ -156,7 +160,7 @@ module.exports = function(jsmm) {
 		if (!this.parse()) return false;
 		
 		try {
-			this.safeFunc = this.context.program.getSafeFunction(this.scope);
+			this.safeFunc = this.context.programNode.getSafeFunction(this.scope);
 			return true;
 		} catch (error) {
 			this.handleError(error);
@@ -181,7 +185,7 @@ module.exports = function(jsmm) {
 		this.resetError();
 		if (!this.parse()) return false;
 		try {
-			this.stack = new jsmm.step.Stack(this.context.program, this.scope);
+			this.stack = new jsmm.step.Stack(this.context, this.scope);
 			this.stepPos = 0;
 			return true;
 		} catch (error) {

@@ -30,7 +30,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statementList */
-	jsmm.yy.Program.prototype.getSafeCode = function() {
+	jsmm.nodes.Program.prototype.getSafeCode = function() {
 		var output = 'new function() {';
 		output += 'return function(jsmm, jsmmtree, jsmmscope) {';
 		output += 'return function() { var jsmmscopeInner, jsmmscopeOuter = new jsmm.func.Scope(jsmmscope);\n';
@@ -39,13 +39,13 @@ module.exports = function(jsmm) {
 		return output;
 	};
 	
-	jsmm.yy.Program.prototype.getSafeFunction = function(scope) {
+	jsmm.nodes.Program.prototype.getSafeFunction = function(scope) {
 		/*jshint evil:true*/
 		return eval(this.getSafeCode())(jsmm, this.tree, scope);
 	};
 	
 	/* statements */
-	jsmm.yy.StatementList.prototype.getSafeCode = function() {
+	jsmm.nodes.StatementList.prototype.getSafeCode = function() {
 		var output = 'jsmmExecutionCounter += ' + (this.statements.length+1) + ';\n';
 		output += ' jsmm.func.checkExecutionCounter(' + getNode(this) + ', jsmmExecutionCounter);\n';
 		for (var i=0; i<this.statements.length; i++) {
@@ -60,22 +60,22 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statement */
-	jsmm.yy.CommonSimpleStatement.prototype.getSafeCode = function() {
+	jsmm.nodes.CommonSimpleStatement.prototype.getSafeCode = function() {
 		return hooksBefore(this) + this.statement.getSafeCode() + ";" + hooksAfter(this);
 	};
 	
 	/* identifier, symbol */
-	jsmm.yy.PostfixStatement.prototype.getSafeCode = function() {
+	jsmm.nodes.PostfixStatement.prototype.getSafeCode = function() {
 		return 'jsmm.func.postfix(' + getNode(this) + ', ' + this.identifier.getSafeCode() + ', "' + this.symbol + '")';
 	};
 	
 	/* identifier, symbol, expression */
-	jsmm.yy.AssignmentStatement.prototype.getSafeCode = function() {
+	jsmm.nodes.AssignmentStatement.prototype.getSafeCode = function() {
 		return 'jsmm.func.assignment(' + getNode(this) + ', ' + this.identifier.getSafeCode() + ', "' + this.symbol + '", ' + this.expression.getSafeCode() + ')';
 	};
 	
 	/* items */
-	jsmm.yy.VarStatement.prototype.getSafeCode = function() {
+	jsmm.nodes.VarStatement.prototype.getSafeCode = function() {
 		var output = this.items[0].getSafeCode();
 		for (var i=1; i<this.items.length; i++) {
 			output += ', ' + this.items[i].getSafeCode();
@@ -84,7 +84,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* name, assignment */
-	jsmm.yy.VarItem.prototype.getSafeCode = function() {
+	jsmm.nodes.VarItem.prototype.getSafeCode = function() {
 		var output = 'jsmm.func.varItem(' + getNode(this) + ', ' +  getScope() + ', "' + this.name + '")';
 		if (this.assignment !== null) {
 			// ; is invalid in for loops
@@ -95,7 +95,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* expression */
-	jsmm.yy.ReturnStatement.prototype.getSafeCode = function() {
+	jsmm.nodes.ReturnStatement.prototype.getSafeCode = function() {
 		var output = hooksBefore(this);
 		if (this.expression === null) {
 			output += 'var jsmmtemp = undefined';
@@ -108,47 +108,47 @@ module.exports = function(jsmm) {
 	};
 	
 	/* expression1, symbol, expression2 */
-	jsmm.yy.BinaryExpression.prototype.getSafeCode = function() {
+	jsmm.nodes.BinaryExpression.prototype.getSafeCode = function() {
 		return 'jsmm.func.binary(' + getNode(this) + ', ' + this.expression1.getSafeCode() + ', "' + this.symbol + '", ' + this.expression2.getSafeCode() + ')';
 	};
 	
 	/* symbol, expression */
-	jsmm.yy.UnaryExpression.prototype.getSafeCode = function() {
+	jsmm.nodes.UnaryExpression.prototype.getSafeCode = function() {
 		return 'jsmm.func.unary(' + getNode(this) + ', "' + this.symbol + '", ' + this.expression.getSafeCode() + ')';
 	};
 	
 	/* number */
-	jsmm.yy.NumberLiteral.prototype.getSafeCode = function() {
+	jsmm.nodes.NumberLiteral.prototype.getSafeCode = function() {
 		return 'jsmm.func.number(' + getNode(this) + ', ' + this.number + ')';
 	};
 	
 	/* str */
-	jsmm.yy.StringLiteral.prototype.getSafeCode = function() {
+	jsmm.nodes.StringLiteral.prototype.getSafeCode = function() {
 		return 'jsmm.func.string(' + getNode(this) + ', ' + JSON.stringify(this.str) + ')';
 	};
 	
 	/* bool */
-	jsmm.yy.BooleanLiteral.prototype.getSafeCode = function() {
+	jsmm.nodes.BooleanLiteral.prototype.getSafeCode = function() {
 		return 'jsmm.func.bool(' + getNode(this) + ', ' + (this.bool ? 'true' : 'false') + ')';
 	};
 	
 	/* name */
-	jsmm.yy.NameIdentifier.prototype.getSafeCode = function() {
+	jsmm.nodes.NameIdentifier.prototype.getSafeCode = function() {
 		return 'jsmm.func.name(' + getNode(this) + ', ' +  getScope() + ', "' + this.name + '")';
 	};
 	
 	/* identifier, prop */
-	jsmm.yy.ObjectIdentifier.prototype.getSafeCode = function() {
+	jsmm.nodes.ObjectIdentifier.prototype.getSafeCode = function() {
 		return 'jsmm.func.object(' + getNode(this) + ', ' + this.identifier.getSafeCode() + ', "' + this.prop + '")';
 	};
 	
 	/* identifier, expression */
-	jsmm.yy.ArrayIdentifier.prototype.getSafeCode = function() {
+	jsmm.nodes.ArrayIdentifier.prototype.getSafeCode = function() {
 		return 'jsmm.func.array(' + getNode(this) + ', ' + this.identifier.getSafeCode() + ', ' + this.expression.getSafeCode() + ')';
 	};
 	
 	/* identifier, expressionArgs */
-	jsmm.yy.FunctionCall.prototype.getSafeCode = function() {
+	jsmm.nodes.FunctionCall.prototype.getSafeCode = function() {
 		var output = 'jsmm.func.funcCall(' + getNode(this) + ', ' + this.identifier.getSafeCode() + ', [';
 		if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getSafeCode();
 		for (var i=1; i<this.expressionArgs.length; i++) {
@@ -158,12 +158,12 @@ module.exports = function(jsmm) {
 	};
 	
 	/* functionCall */
-	jsmm.yy.CallStatement.prototype.getSafeCode = function() {
+	jsmm.nodes.CallStatement.prototype.getSafeCode = function() {
 		return this.functionCall.getSafeCode();
 	};
 	
 	/* expression, statementList, elseBlock */
-	jsmm.yy.IfBlock.prototype.getSafeCode = function() {
+	jsmm.nodes.IfBlock.prototype.getSafeCode = function() {
 		var output = hooksBefore(this);
 		output += "if (jsmm.func.conditional(" + getNode(this) + ', "if", ' + this.expression.getSafeCode() + ")) {\n";
 		output += this.statementList.getSafeCode() + hooksAfter(this) + '}';
@@ -176,17 +176,17 @@ module.exports = function(jsmm) {
 	};
 	
 	/* ifBlock */
-	jsmm.yy.ElseIfBlock.prototype.getSafeCode = function() {
+	jsmm.nodes.ElseIfBlock.prototype.getSafeCode = function() {
 		return this.ifBlock.getSafeCode();
 	};
 	
 	/* statementList */
-	jsmm.yy.ElseBlock.prototype.getSafeCode = function() {
+	jsmm.nodes.ElseBlock.prototype.getSafeCode = function() {
 		return hooksBefore(this) + '\n' + this.statementList.getSafeCode() + hooksAfter(this);
 	};
 	
 	/* expression, statementList */
-	jsmm.yy.WhileBlock.prototype.getSafeCode = function() {
+	jsmm.nodes.WhileBlock.prototype.getSafeCode = function() {
 		var output = hooksBefore(this) + '\n';
 		output += 'while (jsmm.func.conditional(' + getNode(this) + ', "while", ' + this.expression.getSafeCode() + '))';
 		output += '{\n' + this.statementList.getSafeCode() + "}\n" + hooksAfter(this);
@@ -194,7 +194,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statement1, expression, statement2, statementList */
-	jsmm.yy.ForBlock.prototype.getSafeCode = function() {
+	jsmm.nodes.ForBlock.prototype.getSafeCode = function() {
 		var output = hooksBefore(this) + '\n';
 		output += "for (" + this.statement1.getSafeCode() + '; ';
 		output += 'jsmm.func.conditional(' + getNode(this) + ', "for", ' + this.expression.getSafeCode() + "); ";
@@ -204,7 +204,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* name, nameArgs, statementList */
-	jsmm.yy.FunctionDeclaration.prototype.getSafeCode = function() {
+	jsmm.nodes.FunctionDeclaration.prototype.getSafeCode = function() {
 		var output = 'jsmm.func.funcDecl(' + getNode(this) + ', jsmmscopeOuter, "' + this.name + '", ';
 		output += 'function' + this.getArgList() + "{\n";
 		output += 'var jsmmscopeInner = new jsmm.func.Scope({';

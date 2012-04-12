@@ -8605,6 +8605,10 @@ a.thumbnail:hover {
   -o-transition: none;
   transition: none;
 }
+.based-mirror {
+  padding-right: 0px;
+  padding-bottom: 0px;
+}
 .based-code {
   top: 0px;
   left: 150px;
@@ -8621,7 +8625,7 @@ a.thumbnail:hover {
 /*#code*/.based-error {
   border-left-color: #a54 !important;
 }
-/*#code*/.based-stepping {
+/*#code*/.based-step {
   border-left-color: #bbb !important;
 }
 .based-mirror-container {
@@ -8644,20 +8648,23 @@ a.thumbnail:hover {
   overflow: visible;
   z-index: 5;
 }
-.based-margin-error,
-.based-margin-arrow {
+.based-surface {
+  position: absolute;
+}
+.based-margin-message-icon-error,
+.based-margin-message-icon-step {
   position: absolute;
   top: 0px;
   right: 5px;
   cursor: pointer;
   cursor: hand;
   z-index: 10;
-  margin-top: -31px;
+  margin-top: -5px;
 }
 .based-messagebox {
   position: absolute;
-  margin-top: -4px;
-  margin-left: -18px;
+  margin-top: 5px;
+  margin-left: 0;
   display: block;
   background-color: rgba(30, 30, 30, 0.95);
   font-size: 14px;
@@ -8717,9 +8724,9 @@ a.thumbnail:hover {
 .based-marking {
   position: absolute;
   background-color: rgba(50, 250, 50, 0.4);
-  margin-top: -26px;
-  margin-left: -18px;
-  padding: 2px 1px 14px 1px;
+  margin-top: 0px;
+  margin-left: 0px;
+  padding: 2px 1px 1px 1px;
   cursor: pointer;
   cursor: hand;
 }
@@ -8803,7 +8810,8 @@ a.thumbnail:hover {
   word-wrap: break-word;
 }
 .cs-highlight {
-  background-color: #f00;
+  background-color: rgba(50, 250, 50, 0.4);
+  cursor: crosshair;
 }
 textarea[readonly] {
   cursor: text;

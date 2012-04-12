@@ -6,12 +6,13 @@ var cs = {};
 cs.Console = function() { return this.init.apply(this, arguments); };
 
 cs.Console.prototype = {
-	init: function($div) {
+	init: function($div, editor) {
 		this.$div = $div;
 		this.$div.addClass('cs-console');
-		this.debugToBrowser = true;
+		//this.debugToBrowser = true;
 		this.highlightNextLines = false;
-		this.callback = null;
+		this.editor = editor;
+		this.editor.addOutput(this);
 		this.clear();
 	},
 
@@ -51,6 +52,7 @@ cs.Console.prototype = {
 
 	disableHighlighting: function() {
 		this.highlighting = false;
+		this.$div.children('.cs-highlight').removeClass('cs-highlight');
 	},
 
 	clear: function() {
@@ -58,13 +60,14 @@ cs.Console.prototype = {
 		if (this.debugToBrowser && console && console.clear) console.clear();
 	},
 
-	setCallback: function(callback) {
-		this.callback = callback;
-	},
-
 	mouseMove: function(event) {
-		if (this.callback !== null) {
-			this.callback($(event.target).data('node'));
+		if (this.highlighting) {
+			var $target = $(event.target);
+			if (!$target.hasClass('cs-highlight')) {
+				this.$div.children('.cs-highlight').removeClass('cs-highlight');
+				$target.addClass('cs-highlight');
+				this.editor.highlightNode($target.data('node'));
+			}
 		}
 	}
 };

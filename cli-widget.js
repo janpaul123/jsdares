@@ -1,68 +1,33 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var jsmm = require('./jsmm');
-var based = require('./basiceditor');
-var cs = require('./console');
-
 $(function() {
+	var jsmm = require('./jsmm');
+	var editor = require('./basiceditor');
+	var cs = require('./console');
+
 	if (window.localStorage.getItem('1') === null) {
 		window.localStorage.setItem('1', '// Some example code\nfunction cube(n) {\n  return n*n*n;\n}\n\nfor (var i=0; i<10; i++) {\n  var output = cube(i);\n  console.log(i + ": " + output);\n}\n');
 	}
 
-	var myConsole = new cs.Console($('#console'));
+	var ui = {
+		editablesEnabled: function() {
 
-	/*
-	var canvas = document.getElementById('canvas');
-	var context = canvas.getContext('2d');
+		},
+		editablesDisabled: function() {
 
-	var myCanvas = {
-		clear: function() {
-			//$('#canvas').width($('#canvas').width());
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			context = canvas.getContext('2d');
-			context.beginPath();
-			context.strokeStyle = "#00dd00";
-			context.fillStyle = "rgba(50, 250, 50, 0.4)";
 		},
-		arc: function() {
-			context.arc.apply(context, arguments);
+		highlightingEnabled: function() {
+
 		},
-		beginPath: function() {
-			context.beginPath.apply(context, arguments);
-		},
-		closePath: function() {
-			context.closePath.apply(context, arguments);
-		},
-		fill: function() {
-			context.fill.apply(context, arguments);
-		},
-		stroke: function() {
-			context.stroke.apply(context, arguments);
-		},
-		clip: function() {
-			context.clip.apply(context, arguments);
-		},
-		moveTo: function() {
-			context.moveTo.apply(context, arguments);
-		},
-		lineTo: function() {
-			context.lineTo.apply(context, arguments);
-		},
-		arcTo: function() {
-			context.arcTo.apply(context, arguments);
-		},
-		bezierCurveTo: function() {
-			context.bezierCurveTo.apply(context, arguments);
-		},
-		quadraticCurveTo: function() {
-			context.quadraticCurveTo.apply(context, arguments);
-		},
-		rect: function() {
-			context.rect.apply(context, arguments);
+		highLightDisabled: function() {
+
 		}
 	};
-	*/
+
+	var editor = new editor.Editor(jsmm, $('#editor'), ui);
+	var myConsole = new cs.Console($('#console'), editor);
+	editor.setScope({console: myConsole.getAugmentedObject()});
 	
 	var realConsole = {
 		log: function(text) {
@@ -74,105 +39,27 @@ $(function() {
 			}
 		}
 	};
-	
-	var browser = new jsmm.Browser();
-	var editor = new based.Editor($('#editor'));
 
-	editor.setCode(window.localStorage.getItem('1'));
+	//editor.setCode(window.localStorage.getItem('1'));
+
 
 	var clear = function() {
 		myConsole.clear();
 		//myCanvas.clear();
 	};
-	
-	var run = function(text) {
-		var code = editor.getCode().getText();
-		window.localStorage.setItem('1', code);
-		browser.setText(code);
-		browser.setScope({console: myConsole.getAugmentedObject()/*, canvas: myCanvas*/});
 
-		clear();
-		browser.runSafe();
-		
-		if (browser.hasError()) {
-			editor.setMessage(browser.getError());
-		} else {
-			editor.clearMessage();
-		}
-		editor.render();
-	};
-
-	editor.setCallback('textChange', run);
-
-	var generateEditables = function() {
-		var els = browser.getElementsByType('NumberLiteral');
-		if (els !== undefined) {
-			for (var i=0; i<els.length; i++) {
-				var el = els[i];
-				if (el.parent === null) realConsole.log(el);
-				if (el.parent.type === 'UnaryExpression') {
-					el = el.parent;
-				}
-				editor.addNumberEditable(el);
-			}
-			realConsole.log(els);
-		}
-	};
-
-	editor.setCallback('generateEditables', generateEditables);
-	
-	var step = function() {
-		if (browser.hasError()) return;
-		
-		if (!browser.isStepping()) {
-			clear();
-			browser.stepInit();
-			editor.openMessage();
-		}
-		var msgs = browser.stepNext();
-		if (browser.hasError()) {
-			editor.setMessage(browser.getError());
-		} else if (msgs === undefined) {
-			editor.clearMessage();
-		} else {
-			for (var i=0; i<msgs.length; i++) {
-				if (msgs[i].type === 'Inline') {
-					editor.setMessage(msgs[i]);
-				}
-			}
-		}
-		editor.render();
-	};
-
-	var stepBack = function() {
-		if (browser.hasError()) return;
-		
-		if (browser.isStepping()) {
-			clear();
-			editor.openMessage();
-			var msgs = browser.stepBack();
-			if (browser.hasError()) {
-				editor.setMessage(browser.getError());
-			} else if (msgs === undefined) {
-				editor.clearMessage();
-			} else {
-				for (var i=0; i<msgs.length; i++) {
-					if (msgs[i].type === 'Inline') {
-						editor.setMessage(msgs[i]);
-					}
-				}
-			}
-			editor.render();
-		}
-	};
-
-	$('#step').click(step);
-	$('#step-back').click(stepBack);
+	$('#step').click($.proxy(editor.stepForward, editor));
+	$('#step-back').click($.proxy(editor.stepBackward, editor));
+	$('#refresh').click($.proxy(editor.restart, editor));
+	$('#edit').click($.proxy(editor.enableEditables, editor));
+	$('#highlight').click($.proxy(editor.enableHighlighting, editor));
 
 	$('#console-button').click(function(e) {
 		$('#canvas').hide();
 		$('#console').show();
 	});
+
+	editor.setText(window.localStorage.getItem('1'));
 
 	/*
 	$('#canvas-button').click(function(e) {
@@ -181,6 +68,7 @@ $(function() {
 	});
 */
 	
+	/*
 	$('#console-log').click(function(e) {
 		run();
 		var offset = $('#code')[0].selectionStart;
@@ -337,6 +225,57 @@ $(function() {
 		myConsole.log();
 		myConsole.log('If you have any ideas, complaints, or suggestions about this prototype or its wider context, do not hesitate to mail me at me@janpaulposma.nl.');
 	});
+	*/
 
-	run();
+	/*
+	var canvas = document.getElementById('canvas');
+	var context = canvas.getContext('2d');
+
+	var myCanvas = {
+		clear: function() {
+			//$('#canvas').width($('#canvas').width());
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context = canvas.getContext('2d');
+			context.beginPath();
+			context.strokeStyle = "#00dd00";
+			context.fillStyle = "rgba(50, 250, 50, 0.4)";
+		},
+		arc: function() {
+			context.arc.apply(context, arguments);
+		},
+		beginPath: function() {
+			context.beginPath.apply(context, arguments);
+		},
+		closePath: function() {
+			context.closePath.apply(context, arguments);
+		},
+		fill: function() {
+			context.fill.apply(context, arguments);
+		},
+		stroke: function() {
+			context.stroke.apply(context, arguments);
+		},
+		clip: function() {
+			context.clip.apply(context, arguments);
+		},
+		moveTo: function() {
+			context.moveTo.apply(context, arguments);
+		},
+		lineTo: function() {
+			context.lineTo.apply(context, arguments);
+		},
+		arcTo: function() {
+			context.arcTo.apply(context, arguments);
+		},
+		bezierCurveTo: function() {
+			context.bezierCurveTo.apply(context, arguments);
+		},
+		quadraticCurveTo: function() {
+			context.quadraticCurveTo.apply(context, arguments);
+		},
+		rect: function() {
+			context.rect.apply(context, arguments);
+		}
+	};
+	*/
 });

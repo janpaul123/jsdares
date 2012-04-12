@@ -10,8 +10,8 @@ module.exports = function(jsmm) {
 	jsmm.step.StackElement = function() { return this.init.apply(this, arguments); };
 	
 	jsmm.step.Stack.prototype = {
-		init: function(programNode, scope) {
-			this.elements = [new jsmm.step.StackElement(this, programNode, new jsmm.func.Scope(scope))];
+		init: function(tree, scope) {
+			this.elements = [new jsmm.step.StackElement(this, tree.programNode, new jsmm.func.Scope(scope))];
 			this.executionCounter = 0;
 		},
 		hasNext: function() {
@@ -59,7 +59,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statementList */
-	jsmm.yy.Program.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.Program.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				stack.executionCounter = 0;
@@ -71,7 +71,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statements */
-	jsmm.yy.StatementList.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.StatementList.prototype.stepNext = function(stack, se) {
 		if (jsmm.verbose && se.args.length > 0) {
 			console.log('after line ' + this.statements[se.args.length-1].endPos.line + ':');
 			console.log(se.scope);
@@ -91,7 +91,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statement */
-	jsmm.yy.CommonSimpleStatement.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.CommonSimpleStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
@@ -103,7 +103,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* identifier, symbol */
-	jsmm.yy.PostfixStatement.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.PostfixStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.identifier, se.scope);
@@ -116,7 +116,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* identifier, symbol, expression */
-	jsmm.yy.AssignmentStatement.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.AssignmentStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.identifier, se.scope);
@@ -125,14 +125,14 @@ module.exports = function(jsmm) {
 			case 2:
 				var result = jsmm.func.assignment(this, se.args[0], this.symbol, se.args[1]);
 				var up = stack.up(result);
-				var append = (up.node instanceof jsmm.yy.VarItem);
+				var append = (up.node.type === 'VarItem');
 				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
 				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message, append)];
 		}
 	};
 	
 	/* items */
-	jsmm.yy.VarStatement.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.VarStatement.prototype.stepNext = function(stack, se) {
 		if (se.args.length === 0) {
 			se.args.push(null);
 			return [new jsmm.msg.Line(this, ''),
@@ -145,7 +145,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* name, assignment */
-	jsmm.yy.VarItem.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.VarItem.prototype.stepNext = function(stack, se) {
 		if (this.assignment === null) {
 			jsmm.func.varItem(this, se.scope, this.name);
 			var ret = stack.upNext(null);
@@ -163,7 +163,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* expression */
-	jsmm.yy.ReturnStatement.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.ReturnStatement.prototype.stepNext = function(stack, se) {
 		if (this.expression === null) {
 			jsmm.func.funcReturn(this);
 			return stack.upNext(null);
@@ -175,8 +175,8 @@ module.exports = function(jsmm) {
 					this.iterateRunHooksAfter(se.scope);
 					var lastStackElement = stack.getLastStackElement();
 					var result = jsmm.func.funcReturn(this, se.args[0]);
-					while (!(lastStackElement.node instanceof jsmm.yy.FunctionCall ||
-							lastStackElement.node instanceof jsmm.yy.Program)) {
+					while (!(lastStackElement.node.type === 'FunctionCall' ||
+							lastStackElement.node.type === 'Program')) {
 						lastStackElement = stack.up(result);
 					}
 					// Postcondition: lastStackElement is a FunctionCall or a Program
@@ -187,7 +187,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* expression1, symbol, expression2 */
-	jsmm.yy.BinaryExpression.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.BinaryExpression.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.expression1, se.scope);
@@ -204,7 +204,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* symbol, expression */
-	jsmm.yy.UnaryExpression.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.UnaryExpression.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.expression, se.scope);
@@ -219,27 +219,27 @@ module.exports = function(jsmm) {
 	};
 	
 	/* number */
-	jsmm.yy.NumberLiteral.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.NumberLiteral.prototype.stepNext = function(stack, se) {
 		return stack.upNext(jsmm.func.number(this, this.number));
 	};
 	
 	/* str */
-	jsmm.yy.StringLiteral.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.StringLiteral.prototype.stepNext = function(stack, se) {
 		return stack.upNext(jsmm.func.string(this, this.str));
 	};
 	
 	/* bool */
-	jsmm.yy.BooleanLiteral.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.BooleanLiteral.prototype.stepNext = function(stack, se) {
 		return stack.upNext(jsmm.func.bool(this, this.bool));
 	};
 	
 	/* name */
-	jsmm.yy.NameIdentifier.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.NameIdentifier.prototype.stepNext = function(stack, se) {
 		return stack.upNext(jsmm.func.name(this, se.scope, this.name));
 	};
 	
 	/* identifier, prop */
-	jsmm.yy.ObjectIdentifier.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.ObjectIdentifier.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.identifier, se.scope);
@@ -249,7 +249,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* identifier, expression */
-	jsmm.yy.ArrayIdentifier.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.ArrayIdentifier.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.identifier, se.scope);
@@ -261,7 +261,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* identifier, expressionArgs */
-	jsmm.yy.FunctionCall.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.FunctionCall.prototype.stepNext = function(stack, se) {
 		// calculate function name once all the arguments are known
 		if (se.args.length > this.expressionArgs.length) {
 			var name = se.args[0].name + '(';
@@ -303,7 +303,7 @@ module.exports = function(jsmm) {
 			// fall through
 		}
 		
-		if (up.node instanceof jsmm.yy.CallStatement) {
+		if (up.node.type === 'CallStatement') {
 			return [
 				new jsmm.msg.Line(this, function(f) { return f(name); }),
 				new jsmm.msg.Continue(this)
@@ -314,7 +314,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* functionCall */
-	jsmm.yy.CallStatement.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.CallStatement.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.functionCall, se.scope);
@@ -324,7 +324,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* expression, statementList, elseBlock */
-	jsmm.yy.IfBlock.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.IfBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
@@ -348,7 +348,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* ifBlock */
-	jsmm.yy.ElseIfBlock.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.ElseIfBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				return stack.pushNodeNext(this.ifBlock, se.scope);
@@ -358,7 +358,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statementList */
-	jsmm.yy.ElseBlock.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.ElseBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
@@ -370,7 +370,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* expression, statementList */
-	jsmm.yy.WhileBlock.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.WhileBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				// dummy value for runHooksBefore
@@ -395,7 +395,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* statement1, expression, statement2, statementList */
-	jsmm.yy.ForBlock.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.ForBlock.prototype.stepNext = function(stack, se) {
 		switch (se.args.length) {
 			case 0:
 				this.runHooksBefore(se.scope);
@@ -421,7 +421,7 @@ module.exports = function(jsmm) {
 	};
 	
 	/* name, nameArgs, statementList */
-	jsmm.yy.FunctionDeclaration.prototype.stepNext = function(stack, se) {
+	jsmm.nodes.FunctionDeclaration.prototype.stepNext = function(stack, se) {
 		var that = this;
 		switch (se.args.length) {
 			case 0:
