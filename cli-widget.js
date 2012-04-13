@@ -97,6 +97,24 @@ $(function() {
 		$('#console').show();
 	});
 
+	$(document).on('keydown', function(event) {
+		// 17 == CTRL, 18 == ALT
+		if (event.keyCode === 17) {
+			ed.enableHighlighting();
+		} else if (event.keyCode === 18) {
+			ed.enableEditables();
+		}
+	});
+
+	$(document).on('keyup', function(event) {
+		// 17 == CTRL, 18 == ALT
+		if (event.keyCode === 17) {
+			ed.disableHighlighting();
+		} else if (event.keyCode === 18) {
+			ed.disableEditables();
+		}
+	});
+
 	ed.setText(window.localStorage.getItem('1'));
 
 	/*

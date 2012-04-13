@@ -129,14 +129,14 @@ module.exports = function(editor) {
 		},
 
 		setText: function(newText) {
-			var selectionStart = this.$textarea[0].selectionStart;
-			var selectionEnd = this.$textarea[0].selectionEnd;
+			this.lastSelectionStart = this.$textarea[0].selectionStart;
+			this.lastSelectionEnd = this.$textarea[0].selectionEnd;
 			this.$textarea.val(newText);
 			this.text = newText;
 			this.userChangedText = false;
 			this.updateSize();
-			this.$textarea[0].selectionStart = selectionStart;
-			this.$textarea[0].selectionEnd = selectionEnd;
+			this.$textarea[0].selectionStart = this.lastSelectionStart;
+			this.$textarea[0].selectionEnd = this.lastSelectionStart;
 		},
 
 		columnToX: function(column) {
@@ -233,22 +233,16 @@ module.exports = function(editor) {
 			$element.css('top', this.lineToY(line));
 		},
 
-		offsetCursor: function(amount) {
-			var selectionStart = this.$textarea[0].selectionStart;
-			var selectionEnd = this.$textarea[0].selectionEnd;
-			this.$textarea[0].selectionStart = selectionStart + amount;
-			this.$textarea[0].selectionEnd = selectionEnd + amount;
+		restoreCursor: function(offset1, offset2) {
+			if (this.lastSelectionStart !== null && this.lastSelectionEnd !== null) {
+				this.$textarea[0].selectionStart = this.lastSelectionStart + offset1;
+				this.$textarea[0].selectionEnd = this.lastSelectionEnd + offset2;
+			}
 		},
 
-		offsetCursorRange: function(amount1, amount2) {
-			var selectionStart = this.$textarea[0].selectionStart;
-			var selectionEnd = this.$textarea[0].selectionEnd;
-			this.$textarea[0].selectionStart = selectionStart + amount1;
-			this.$textarea[0].selectionEnd = selectionEnd + amount2;
-		},
-
-		resetSelection: function() {
-			this.$textarea[0].selectionEnd = this.$textarea[0].selectionStart;
+		resetCursor: function() {
+			this.lastSelectionStart = null;
+			this.lastSelectionEnd = null;
 		},
 
 		/// INTERNAL FUNCTIONS ///

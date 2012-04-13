@@ -188,37 +188,44 @@ clayer.Touchable.prototype = {
 		}
 		else {
 			this.$element.off('mousedown touchstart');
+			this.$document.off('touchmove touchend touchcancel');
 		}
 	},
 
 	mouseDownHandler: function(event) {
-		this.$document.on({
-			mousemove: this.mouseMove,
-			mouseup: this.mouseUp
-		});
-		
-		this.touch = new clayer.Touch(this.$element, event);
-		this.delegate.touchDown(this.touch);
+		if (this.isTouchable) {
+			this.$document.on({
+				mousemove: this.mouseMove,
+				mouseup: this.mouseUp
+			});
+			
+			this.touch = new clayer.Touch(this.$element, event);
+			this.delegate.touchDown(this.touch);
+		}
 		return false;
 	},
 
 	mouseMoveHandler: function(event) {
-		this.touch.touchMove(event);
-		this.delegate.touchMove(this.touch);
+		if (this.isTouchable && this.touch) {
+			this.touch.touchMove(event);
+			this.delegate.touchMove(this.touch);
+		}
 		return false;
 	},
 
 	mouseUpHandler: function(event) {
-		this.touch.touchUp(event);
-		this.delegate.touchUp(this.touch);
-		
-		delete this.touch;
+		if (this.isTouchable && this.touch) {
+			this.touch.touchUp(event);
+			this.delegate.touchUp(this.touch);
+			
+			delete this.touch;
+		}
 		this.$document.off('mousemove mouseup');
 		return false;
 	},
 
 	touchStartHandler: function(event) {
-		if (this.touch || event.originalEvent.touches.length > 1) {
+		if (!this.isTouchable || this.touch || event.originalEvent.touches.length > 1) {
 			// only single touch for now
 			this.touchEnd(event);
 		} else {
@@ -235,7 +242,7 @@ clayer.Touchable.prototype = {
 	},
 
 	touchMoveHandler: function(event) {
-		if (this.touch) {
+		if (this.isTouchable && this.touch) {
 			this.touch.touchMove(event.originalEvent.touches[0]);
 			this.delegate.touchMove(this.touch);
 		}
@@ -243,13 +250,13 @@ clayer.Touchable.prototype = {
 	},
 
 	touchEndHandler: function(event) {
-		if (this.touch) {
+		if (this.isTouchable && this.touch) {
 			this.touch.touchUp(event.originalEvent.touches[0]);
 			this.delegate.touchUp(this.touch);
 			
 			delete this.touch;
-			this.$document.removeEvents('touchmove touchend touchcancel');
 		}
+		this.$document.off('touchmove touchend touchcancel');
 		return false;
 	}
 };

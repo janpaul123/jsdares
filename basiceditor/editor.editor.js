@@ -27,7 +27,7 @@ module.exports = function(editor) {
 
 		setText: function(text) {
 			this.surface.setText(text);
-			this.surface.resetSelection();
+			this.surface.resetCursor();
 			this.update();
 		},
 
@@ -65,9 +65,10 @@ module.exports = function(editor) {
 		},
 
 		run: function() {
-			this.callOutputs('clear');
+			this.callOutputs('startRun');
 			this.runner.newTree(this.tree);
 			this.runner.run();
+			this.callOutputs('endRun');
 			this.handleRunnerOutput();
 		},
 
@@ -141,96 +142,6 @@ module.exports = function(editor) {
 			//window.localStorage.setItem('1', this.code.text);
 		},
 
-		userStartedChangingText: function() { // callback
-
-		},
-
-		tabIndent: function(event, offset1, offset2) { // callback
-			// 9 == tab key
-			if (event.keyCode === 9) {
-				var code = new editor.Code(this.surface.getText());
-				var pos1 = code.offsetToLoc(offset1);
-				var pos2 = pos1;
-				if (offset2 !== offset1) {
-					pos2 = code.offsetToLoc(offset2);
-				}
-				
-				var newText = code.text.substring(0, code.lineColumnToOffset(pos1.line, 0));
-				var totalOffset1 = 0, totalOffset2 = 0;
-
-				for (var i=pos1.line; i<=pos2.line; i++) {
-					var startOffset = code.lineColumnToOffset(i, 0);
-					var line = code.getLine(i);
-					//console.log('line', line);
-					if (!event.shiftKey) {
-						// insert spaces
-						newText += '  ' + line + '\n';
-						if (i === pos1.line) totalOffset1 += 2;
-						totalOffset2 += 2;
-					} else {
-						// remove spaces
-						var spaces = Math.min(code.getLine(i).match(/^ */)[0].length, 2);
-						newText += line.substring(spaces) + '\n';
-						if (i === pos1.line) totalOffset1 -= spaces;
-						totalOffset2 -= spaces;
-					}
-				}
-				var finalOffset = code.lineColumnToOffset(pos2.line+1, 0);
-				if (finalOffset !== null) newText += code.text.substring(finalOffset);
-				console.log(finalOffset, totalOffset1, totalOffset2);
-
-				if (!event.shiftKey) {
-					// when adding, first set the new text
-					this.surface.setText(newText);
-					this.surface.offsetCursorRange(totalOffset1, totalOffset2);
-				} else {
-					// when deleting, first set the new cursor range
-					this.surface.offsetCursorRange(totalOffset1, totalOffset2);
-					this.surface.setText(newText);
-				}
-				
-				event.preventDefault();
-				return true;
-			} else {
-				return false;
-			}
-		},
-
-		// TODO: use http://archive.plugins.jquery.com/project/fieldselection
-		autoIndent: function(event, offset) { // callback
-			// 13 == enter, 221 = } or ]
-			if ([13, 221].indexOf(event.keyCode) >= 0) {
-				var code = new editor.Code(this.surface.getText());
-
-				var pos = code.offsetToLoc(offset);
-				if (pos.line > 1) {
-					var prevLine = code.getLine(pos.line-1);
-					var curLine = code.getLine(pos.line);
-
-					// how many spaces are there on the previous line (reference), and this line
-					var spaces = prevLine.match(/^ */)[0].length;
-					var spacesAlready = curLine.match(/^ */)[0].length;
-
-					// "{" on previous line means extra spaces, "}" on this one means less
-					spaces += prevLine.match(/\{ *$/) !== null ? 2 : 0;
-					spaces -= curLine.match(/^ *\}/) !== null ? 2 : 0;
-
-					// also, since we are returning an offset, remove the number of spaces we have already
-					spaces -= spacesAlready;
-
-					var startOffset = code.lineColumnToOffset(pos.line, 0);
-					if (spaces < 0) {
-						// don't delete more spaces that there are on this line
-						spaces = Math.max(spaces, -spacesAlready);
-						this.surface.setText(code.removeOffsetRange(startOffset, startOffset-spaces));
-					} else {
-						this.surface.setText(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
-					}
-					this.surface.offsetCursor(spaces);
-				}
-			}
-		},
-
 		enableEditables: function() {
 			if (!this.tree.hasError()) {
 				this.editablesEnabled = true;
@@ -274,17 +185,17 @@ module.exports = function(editor) {
 		},
 
 		editableReplaceCode: function(line, column, column2, newText) { // callback
+			if (this.editablesByLine[line] === undefined) return;
 			this.surface.setText(this.code.replaceOffsetRange(this.code.lineColumnToOffset(line, column), this.code.lineColumnToOffset(line, column2), newText));
 
 			var offset = newText.length - (column2-column);
-			if (offset !== 0 && this.editablesByLine[line] !== undefined) {
+			if (offset !== 0) {
 				for (var i=0; i<this.editablesByLine[line].length; i++) {
 					this.editablesByLine[line][i].offsetColumn(column, offset);
 				}
-				this.surface.offsetCursor(offset);
 			}
-
 			this.update();
+			this.surface.restoreCursor(offset, offset);
 		},
 
 		enableHighlighting: function() {
@@ -320,7 +231,6 @@ module.exports = function(editor) {
 						this.tree.addHookBeforeNode(node, $.proxy(this.startHighlighting, this));
 						this.tree.addHookAfterNode(node, $.proxy(this.stopHighlighting, this));
 						var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
-						console.log(this.code.blockToRightColumn(line1, line2));
 						this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
 					} else {
 						this.surface.hideHighlight();
@@ -345,6 +255,84 @@ module.exports = function(editor) {
 
 		stopHighlighting: function(node, scope) { // callback
 			this.callOutputs('stopHighlighting');
+		},
+
+		tabIndent: function(event, offset1, offset2) { // callback
+			// 9 == tab key
+			if (event.keyCode === 9) {
+				var code = new editor.Code(this.surface.getText());
+				var pos1 = code.offsetToLoc(offset1);
+				var pos2 = pos1;
+				if (offset2 !== offset1) {
+					pos2 = code.offsetToLoc(offset2);
+				}
+				
+				var newText = code.text.substring(0, code.lineColumnToOffset(pos1.line, 0));
+				var totalOffset1 = 0, totalOffset2 = 0;
+
+				for (var i=pos1.line; i<=pos2.line; i++) {
+					var startOffset = code.lineColumnToOffset(i, 0);
+					var line = code.getLine(i);
+					if (!event.shiftKey) {
+						// insert spaces
+						newText += '  ' + line + '\n';
+						if (i === pos1.line) totalOffset1 += 2;
+						totalOffset2 += 2;
+					} else {
+						// remove spaces
+						var spaces = Math.min(code.getLine(i).match(/^ */)[0].length, 2);
+						newText += line.substring(spaces) + '\n';
+						if (i === pos1.line) totalOffset1 -= spaces;
+						totalOffset2 -= spaces;
+					}
+				}
+				var finalOffset = code.lineColumnToOffset(pos2.line+1, 0);
+				if (finalOffset !== null) newText += code.text.substring(finalOffset);
+				console.log(finalOffset, totalOffset1, totalOffset2);
+
+				this.surface.setText(newText);
+				this.surface.restoreCursor(totalOffset1, totalOffset2);
+				
+				event.preventDefault();
+				return true;
+			} else {
+				return false;
+			}
+		},
+
+		// TODO: use http://archive.plugins.jquery.com/project/fieldselection
+		autoIndent: function(event, offset) { // callback
+			// 13 == enter, 221 = } or ]
+			if ([13, 221].indexOf(event.keyCode) >= 0) {
+				var code = new editor.Code(this.surface.getText());
+
+				var pos = code.offsetToLoc(offset);
+				if (pos.line > 1) {
+					var prevLine = code.getLine(pos.line-1);
+					var curLine = code.getLine(pos.line);
+
+					// how many spaces are there on the previous line (reference), and this line
+					var spaces = prevLine.match(/^ */)[0].length;
+					var spacesAlready = curLine.match(/^ */)[0].length;
+
+					// "{" on previous line means extra spaces, "}" on this one means less
+					spaces += prevLine.match(/\{ *$/) !== null ? 2 : 0;
+					spaces -= curLine.match(/^ *\}/) !== null ? 2 : 0;
+
+					// also, since we are returning an offset, remove the number of spaces we have already
+					spaces -= spacesAlready;
+
+					var startOffset = code.lineColumnToOffset(pos.line, 0);
+					if (spaces < 0) {
+						// don't delete more spaces that there are on this line
+						spaces = Math.max(spaces, -spacesAlready);
+						this.surface.setText(code.removeOffsetRange(startOffset, startOffset-spaces));
+					} else {
+						this.surface.setText(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
+					}
+					this.surface.restoreCursor(spaces, spaces);
+				}
+			}
 		}
 		
 	};

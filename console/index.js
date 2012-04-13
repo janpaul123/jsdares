@@ -37,14 +37,6 @@ cs.Console.prototype = {
 		$element.on('mousemove', $.proxy(this.mouseMove, this));
 		this.$div.append($element);
 
-
-		// only scroll down if we are not highlighting, or otherwise if the
-		// last line was actually highlighted
-		if (!this.highlighting || this.highlightNextLines) {
-			// the offset is weird since .position().top changes when scrolling
-			this.scrollToY($element.position().top + this.$div.scrollTop());
-		}
-
 		if (this.debugToBrowser && console && console.log) console.log(value);
 	},
 
@@ -63,6 +55,20 @@ cs.Console.prototype = {
 	disableHighlighting: function() {
 		this.highlighting = false;
 		this.$div.children('.cs-highlight').removeClass('cs-highlight');
+	},
+
+	startRun: function() {
+		this.clear();
+	},
+
+	endRun: function() {
+		if (this.highlighting) {
+			var $last = this.$div.children('.cs-highlight').last();
+			if ($last.length > 0) {
+				// the offset is weird since .position().top changes when scrolling
+				this.scrollToY($last.position().top + this.$div.scrollTop());
+			}
+		}
 	},
 
 	clear: function() {
