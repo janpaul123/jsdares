@@ -233,8 +233,9 @@ module.exports = function(editor) {
 		mouseMove: function(event, line, column) { // callback
 			if (this.highlightingEnabled) {
 				this.highlightLine = line;
-				this.refreshHighlights();
-				this.run();
+				if (this.refreshHighlights()) {
+					this.run();
+				}
 			}
 		},
 
@@ -252,6 +253,9 @@ module.exports = function(editor) {
 				} else {
 					this.surface.hideHighlight();
 				}
+				return true;
+			} else {
+				return false;
 			}
 		},
 
