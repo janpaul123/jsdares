@@ -1,37 +1,37 @@
-@import "../bootstrap/less/mixins.less";
+@import "../global.less";
 
 /// TEXTAREA ///
 .editor {
 	margin: 0;
 	padding: 0;
 	position: relative;
-	background-color: #333;
+	background-color: @code-background-color;
 	overflow: auto;
 }
 
 .editor-code, .editor-mirror {
+	color: @code-color;
+	font-size: @code-font-size;
+	line-height: @code-line-height;
+	font-family: @code-font-family;
+	background-color: @code-background-color;
 	position: absolute;
-	background-color: #333;
 	border: none;
-	font-family: "Courier", monospace;
-	color: #0d0;
 	margin: 0px;
 	padding: 10px;
-	font-size: 14px;
 	outline: none;
 	resize: none;
 	white-space: pre;
-	line-height: 16px;
 }
 
 .editor-code {
 	top: 0px;
-	left: 150px;
+	left: @editor-margin-size;
 	min-width: 430px;
 	min-height: 430px;
-	border-left: solid 1px #444;
+	border-left: solid 1px @editor-margin-border-color;
 	&:focus {
-		border-left: solid 1px #444;
+		border-left: solid 1px @editor-margin-border-color;
 		outline:0px !important;
     	.box-shadow(none);
 	}
@@ -43,11 +43,11 @@
 }
 
 .editor-error {
-	border-left-color: #a54 !important;
+	border-left-color: @editor-margin-border-color-error !important;
 }
 
 .editor-step {
-	border-left-color: #bbb !important;
+	border-left-color: @editor-margin-border-color-step !important;
 }
 
 /// MIRROR ///
@@ -68,12 +68,10 @@
 
 /// MARGIN ///
 .editor-margin {
-	font-family: "Courier", monospace;
-	color: #ddd;
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	width: 150px;
+	width: @editor-margin-size;
 	height: 10px;
 	overflow: visible;
 	z-index: 5;
@@ -89,6 +87,7 @@
 	margin-top: -5px;
 }
 
+/*
 .editor-lineMsg {
 	position: absolute;
 	font-size: 12px;
@@ -101,6 +100,7 @@
 	white-space: pre;
 	text-align: right;
 }
+*/
 
 /// SURFACE ///
 .editor-surface {
@@ -110,24 +110,24 @@
 /// MARKING ///
 .editor-marking {
 	position: absolute;
-	background-color: rgba(50, 250, 50, 0.4);
+	background-color: @editor-marking-color;
 	margin-top: 0px;
 	margin-left: 0px;
 	padding: 2px 1px 1px 1px;
 	cursor: pointer;
 	cursor: hand;
 
-	&:hover {
-		background-color: rgba(50, 250, 50, 0.5);
+	&:hover, &.active {
+		background-color: @editor-marking-color-active;
 	}
 }
 
 /// HIGHLIGHT ///
 .editor-highlight {
 	cursor: crosshair;
-	background-color: rgba(200, 255, 200, 0.4);
+	background-color: @highlight-color;
 	&:hover {
-		background-color: rgba(200, 255, 200, 0.4);
+		background-color: @highlight-color;
 	}
 }
 
@@ -137,7 +137,7 @@
 	position: absolute;
 	margin-top: @box-arrow-size;
 	display: block;
-	background-color: rgba(30, 30, 30, 0.95);
+	background-color: @editor-box-background-color;
 	font-size: 14px;
 	z-index: 10;
 	cursor: pointer;
@@ -145,7 +145,7 @@
 	.border-radius();
 
 	.editor-box-arrow {
-		#popoverArrow > .bottom(@box-arrow-size, rgba(30, 30, 30, 0.95));
+		#popoverArrow > .bottom(@box-arrow-size, @editor-box-background-color);
 		position: absolute;
 		width: 0;
 		height: 0;
@@ -154,14 +154,14 @@
 
 	.editor-box-message {
 		padding: 5px 12px;
-		max-width: 250px;
-		color: #0E0;
+		max-width: @editor-box-max-width;
+		color: @editor-box-color;
 		overflow: hidden;
 		text-overflow: ellipsis;
 
 		.msg-value {
 			font-weight: bold;
-			color: #ee0;
+			color: @editor-box-value-color;
 		}
 	}
 }

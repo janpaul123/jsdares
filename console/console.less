@@ -1,8 +1,8 @@
-@import "../bootstrap/less/mixins.less";
+@import "../global.less";
 
 .cs-console {
 	position: relative;
-	background-color: #333;
+	background-color: @code-background-color;
 	overflow: auto;
 }
 
@@ -19,19 +19,19 @@
 }
 
 .cs-line {
-	background-color: #333;
+	color: @code-color;
+	font-size: @code-font-size;
+	line-height: @code-line-height;
+	font-family: @code-font-family;
+	background-color: @code-background-color;
 	border: none;
-	font-family: "Courier", monospace;
-	color: #0d0;
 	margin: 0px;
-	font-size: 14px;
 	outline: none;
 	resize: none;
 	white-space: pre-wrap;
-	line-height: 16px;
 	word-wrap: break-word;
 }
 
 .cs-highlight-line {
-	background-color: rgba(50, 250, 50, 0.4);
+	background-color: @highlight-color;
 }

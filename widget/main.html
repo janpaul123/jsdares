@@ -6,44 +6,48 @@
 </head>
 <body>
 	<div id="main">
-		<h1 id="title">js-- test interface 1</h1>
+		<h1 id="title">js-- test interface 2</h1>
 
 		<div id="editor"></div>
 		
 		<div id="console" readonly="readonly"></div>
 		<!-- <canvas id="canvas" width="728" height="454"></canvas> -->
-		
-		<div id="step-group" class="btn-group">
-			<button id="step-back" class="btn btn-success"><i class="icon-arrow-left icon-white"></i></button>
-			<button id="step" class="btn btn-success"><i class="icon-arrow-right icon-white"></i> Step</button>
-			<button id="refresh" class="btn btn-success"><i class="icon-refresh icon-white"></i></button>
-		</div>
 
-		<div id="edit-highlight-group" class="btn-group">
-			<button id="highlight" class="btn btn-inverse"><i class="icon-screenshot icon-white"></i></button>
-			<button id="edit" class="btn btn-inverse"><i class="icon-edit icon-white"></i></button>
+		<div id="editor-bar" class="btn-toolbar">
+			<div id="step-group" class="btn-group">
+				<button id="step-back" class="btn btn-success"><i class="icon-arrow-left icon-white"></i></button>
+				<button id="step" class="btn btn-success"><i class="icon-arrow-right icon-white"></i> Step</button>
+				<button id="refresh" class="btn btn-success"><i class="icon-refresh icon-white"></i></button>
+			</div>
+
+			<div id="edit-highlight-group" class="btn-group">
+				<button id="highlight" class="btn btn-inverse"><i class="icon-screenshot icon-white"></i></button>
+				<button id="edit" class="btn btn-inverse"><i class="icon-edit icon-white"></i></button>
+			</div>
+			
+			<div id="extra-button" class="btn-group">
+				<button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" href="#">
+					<i class="icon-gift icon-white"></i>
+					Extras
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="extra-compile">Compile to JS</a></li>
+					<li><a href="#" id="extra-safe">Compile to "safe" JS</a></li>
+					<li><a href="#" id="extra-tree">View parse tree</a></li>
+					<li><a href="#" id="extra-elements">View element list</a></li>
+					<li><a href="#" id="extra-tests">Run unit tests</a></li>
+					<li><a href="#" id="extra-stress">Run stress test</a></li>
+					<li><a href="#" id="extra-scope">View step scope</a></li>
+					<li><a href="#" id="extra-stack">View step stack</a></li>
+					<li><a href="#" id="extra-error">View raw error</a></li>
+				</ul>
+			</div>
+			
+			<div class="btn-group">
+				<button id="about" class="btn btn-info"><i class="icon-info-sign icon-white"></i> About</button>
+			</div>
 		</div>
-		
-		<div id="extra-button" class="btn-group">
-			<button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" href="#">
-				<i class="icon-gift icon-white"></i>
-				Extras
-				<span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu">
-				<li><a href="#" id="extra-compile">Compile to JS</a></li>
-				<li><a href="#" id="extra-safe">Compile to "safe" JS</a></li>
-				<li><a href="#" id="extra-tree">View parse tree</a></li>
-				<li><a href="#" id="extra-elements">View element list</a></li>
-				<li><a href="#" id="extra-tests">Run unit tests</a></li>
-				<li><a href="#" id="extra-stress">Run stress test</a></li>
-				<li><a href="#" id="extra-scope">View step scope</a></li>
-				<li><a href="#" id="extra-stack">View step stack</a></li>
-				<li><a href="#" id="extra-error">View raw error</a></li>
-			</ul>
-		</div>
-		
-		<button id="about" class="btn btn-info"><i class="icon-info-sign icon-white"></i> About</button>
 		
 		<!-- <div id="toolbar" class="btn-toolbar">
 			<div id="console-button" class="btn-group toolbar-button">
@@ -93,6 +97,7 @@
 	
 	<script type="text/javascript" src="js/jquery-1.7.1.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/bootstrap-dropdown.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/bootstrap-tooltip.js" charset="utf-8"></script>
 	<script type="text/javascript" src="js/browser.js" charset="utf-8"></script>
 </body>
 </html>

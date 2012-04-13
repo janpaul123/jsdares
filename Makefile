@@ -10,7 +10,7 @@ browser.js: cli-widget.js jsmm/jsmmparser.js jsmm/*.js basiceditor/*.js clayer/*
 	$(MAKE) test
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
-style.css: cli-widget.less basiceditor/basiceditor.less console/console.less bootstrap/less/*.less
+style.css: cli-widget.less global.less basiceditor/basiceditor.less console/console.less bootstrap/less/*.less
 	node_modules/.bin/lessc cli-widget.less > style.css
 
 jsmm/jsmmparser.js: jsmm/jsmmparser.jison

@@ -6,79 +6,85 @@ textarea[readonly] {
   cursor: text;
 }
 
-body { 
+html, body {
 	background-color: #222;
 	margin: 0px;
 	padding: 0px;
+	height: 100%;
 }
 
 #main {
-	padding: 0px;
 	background-color: #000;
-	width: 768px;
-	height: 1024px;
+	max-width: 1200px;
+	min-width: 930px;
+	min-height: 400px;
+	max-height: 700px;
 	color: #333;
 	font-family: Helvetica;
 	font-size: 16px;
-	position: relative;
 	line-height: 25px;
+	position: relative;
+	padding: 0px;
 	margin: 0px auto;
+	height: 100%;
 }
 
 #editor {
 	position: absolute;
 	top: 50px;
-	left: 20px;
-	width: 620px;
-	height: 450px;
-}
-
-#run {
-	position: absolute;
-	top: 250px;
-	left: 600px;
+	left: 50%;
+	margin-left: 10px;
+	right: 17px;
+	bottom: 17px;
+	width: auto;
+	height: auto;
 }
 
 #console {
 	position: absolute;
-	top: 550px;
-	left: 20px;
-	right: 20px;
-	bottom: 20px;
-	width: 708px; /* for non-webkit */
-	height: 434px; /* for non-webkit */
-	word-wrap: normal;
-	white-space: pre-wrap;
-}
-
-#canvas {
-	position: absolute;
-	top: 550px;
-	left: 20px;
-	right: 20px;
-	bottom: 20px;
-	width: 728px; /* for non-webkit */
-	height: 454px; /* for non-webkit */
-	background-color: #333;
-}
-
-#step-group {
-	position: relative;
 	top: 50px;
-	left: 660px;
+	left: 17px;
+	right: 50%;
+	margin-right: 10px;
+	bottom: 17px;
+	width: auto;
+	height: auto;
 }
 
-#edit-highlight-group {
-	position: relative;
-	top: 160px;
-	left: 660px;	
+#editor-bar {
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	margin-left:10px;
 }
 
+#extra-button {
+	.dropdown-menu a {
+		font-size: 12px;
+	}
+}
+
+#title {
+	position: absolute;
+	left: 22px;
+	top: 5px;
+	font-size: 58px;
+	line-height: 58px;
+}
+
+/* put in bootstrap, forgot btn-warning */
+.btn-warning .caret {
+  border-top-color: #ffffff;
+  opacity: 0.75;
+  filter: alpha(opacity=75);
+}
+
+/*
 #toolbar {
 	position: absolute;
-	top: 523px;
-	left: 18px;
-	margin: 0px;
+	top: 12px;
+	left: 50%;
+	margin-left:200px;
 }
 
 .toolbar-button .btn-inverse {
@@ -100,34 +106,4 @@ body {
 	background-color: #bbb;
 	border-bottom-color: #2a2a2a;
 }
-
-#extra-button {
-	position: absolute;
-	top: 100px;
-	left: 660px;
-
-	.dropdown-menu a {
-		font-size: 12px;
-	}
-}
-
-#about {
-	position: absolute;
-	left: 660px;
-	top: 140px;
-}
-
-#title {
-	position: absolute;
-	left: 22px;
-	top: 5px;
-	font-size: 58px;
-	line-height: 58px;
-}
-
-/* but in bootstrap, forgot btn-warning */
-.btn-warning .caret {
-  border-top-color: #ffffff;
-  opacity: 0.75;
-  filter: alpha(opacity=75);
-}
+*/

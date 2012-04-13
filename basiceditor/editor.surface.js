@@ -15,13 +15,19 @@ module.exports = function(editor) {
 			this.$element = $('<div class="editor-box"></div>');
 			this.surface.addElement(this.$element);
 			this.$element.hide();
-			this.$element.append('<div class="editor-box-arrow"></div>');
+			this.$arrow = $('<div class="editor-box-arrow"></div>');
+			this.$element.append(this.$arrow);
 			this.$message = $('<div class="editor-box-message"></div>');
 			this.$element.append(this.$message);
 		},
 		updatePosition: function() {
 			//console.log(this.$marking.offset().left);
-			this.surface.setElementCenterPosition(this.$element, this.$marking.position().left+this.$marking.outerWidth()/2, this.$marking.position().top+this.$marking.outerHeight());
+			//this.surface.setElementCenterPosition(this.$element, this.$marking.position().left+this.$marking.outerWidth()/2, this.$marking.position().top+this.$marking.outerHeight());
+			var left = this.$marking.position().left+this.$marking.outerWidth()/2;
+			var newLeft = Math.max(-8, left-this.$element.outerWidth()/2);
+			this.$element.css('left', newLeft);
+			this.$arrow.css('left', left-newLeft);
+			this.$element.css('top', this.$marking.position().top+this.$marking.outerHeight());
 		},
 		html: function(html) {
 			this.$message.html(html);
@@ -288,7 +294,7 @@ module.exports = function(editor) {
 		updateSize: function() {
 			this.$mirror.text(this.text);
 			this.$textarea.width(this.$mirror.outerWidth() + 100);
-			this.$textarea.height(this.$mirror.outerHeight() + 100);
+			this.$textarea.height(Math.max(this.$mirror.outerHeight() + 100, this.$div.height()));
 			this.$surface.width(this.$mirror.outerWidth());
 		},
 
