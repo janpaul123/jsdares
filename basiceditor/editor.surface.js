@@ -318,14 +318,15 @@ module.exports = function(editor) {
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();
 				this.updateSize();
-
-				if (!this.userChangedText) {
-					this.delegate.userStartedChangingText();
-					this.userChangedText = true;
-					this.hideElements();
-				}
+				this.userChangedText = true;
 			} else {
-				this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd);
+				if (this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd)) {
+					this.userChangedText = true;
+				}
+			}
+
+			if (this.userChangedText) {
+				this.hideElements();
 			}
 			// TODO: include offset vars and update UI elements
 		},
@@ -339,6 +340,7 @@ module.exports = function(editor) {
 			}
 
 			if (this.userChangedText) {
+				console.log('yay');
 				this.userChangedText = false;
 				this.showElements();
 				this.delegate.userChangedText();

@@ -161,6 +161,7 @@ module.exports = function(editor) {
 				for (var i=pos1.line; i<=pos2.line; i++) {
 					var startOffset = code.lineColumnToOffset(i, 0);
 					var line = code.getLine(i);
+					//console.log('line', line);
 					if (!event.shiftKey) {
 						// insert spaces
 						newText += '  ' + line + '\n';
@@ -174,11 +175,24 @@ module.exports = function(editor) {
 						totalOffset2 -= spaces;
 					}
 				}
-				newText += code.text.substring(code.lineColumnToOffset(pos2.line+1, 0));
+				var finalOffset = code.lineColumnToOffset(pos2.line+1, 0);
+				if (finalOffset !== null) newText += code.text.substring(finalOffset);
+				console.log(finalOffset, totalOffset1, totalOffset2);
 
-				this.surface.setText(newText);
-				this.surface.offsetCursorRange(totalOffset1, totalOffset2);
+				if (!event.shiftKey) {
+					// when adding, first set the new text
+					this.surface.setText(newText);
+					this.surface.offsetCursorRange(totalOffset1, totalOffset2);
+				} else {
+					// when deleting, first set the new cursor range
+					this.surface.offsetCursorRange(totalOffset1, totalOffset2);
+					this.surface.setText(newText);
+				}
+				
 				event.preventDefault();
+				return true;
+			} else {
+				return false;
 			}
 		},
 

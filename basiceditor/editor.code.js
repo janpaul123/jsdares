@@ -13,11 +13,11 @@ module.exports = function(editor) {
 		},
 		getLine: function(line) {
 			this.makeLines();
-			return this.lines[line-1];
+			return (this.lines[line-1] === undefined ? null : this.lines[line-1]);
 		},
 		lineColumnToOffset: function(line, column) {
 			this.makeOffsets();
-			return this.offsets[line-1] + column;
+			return (this.offsets[line-1] === undefined ? null : this.offsets[line-1] + column);
 		},
 		posToOffset: function(loc) {
 			return this.lineColumnToOffset(loc.line, loc.column);
