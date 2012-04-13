@@ -293,9 +293,9 @@ module.exports = function(editor) {
 
 		updateSize: function() {
 			this.$mirror.text(this.text);
-			this.$textarea.width(this.$mirror.outerWidth() + 100);
+			this.$textarea.width(this.$mirror.outerWidth() + 130);
 			this.$textarea.height(Math.max(this.$mirror.outerHeight() + 100, this.$div.height()));
-			this.$surface.width(this.$mirror.outerWidth());
+			this.$surface.width(this.$mirror.outerWidth() + 130);
 		},
 
 		showElements: function() {
