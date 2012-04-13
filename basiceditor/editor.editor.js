@@ -27,6 +27,7 @@ module.exports = function(editor) {
 
 		setText: function(text) {
 			this.surface.setText(text);
+			this.surface.resetSelection();
 			this.update();
 		},
 
@@ -144,8 +145,46 @@ module.exports = function(editor) {
 
 		},
 
+		tabIndent: function(event, offset1, offset2) { // callback
+			// 9 == tab key
+			if (event.keyCode === 9) {
+				var code = new editor.Code(this.surface.getText());
+				var pos1 = code.offsetToLoc(offset1);
+				var pos2 = pos1;
+				if (offset2 !== offset1) {
+					pos2 = code.offsetToLoc(offset2);
+				}
+				
+				var newText = code.text.substring(0, code.lineColumnToOffset(pos1.line, 0));
+				var totalOffset1 = 0, totalOffset2 = 0;
+
+				for (var i=pos1.line; i<=pos2.line; i++) {
+					var startOffset = code.lineColumnToOffset(i, 0);
+					var line = code.getLine(i);
+					if (!event.shiftKey) {
+						// insert spaces
+						newText += '  ' + line + '\n';
+						if (i === pos1.line) totalOffset1 += 2;
+						totalOffset2 += 2;
+					} else {
+						// remove spaces
+						var spaces = Math.min(code.getLine(i).match(/^ */)[0].length, 2);
+						newText += line.substring(spaces) + '\n';
+						if (i === pos1.line) totalOffset1 -= spaces;
+						totalOffset2 -= spaces;
+					}
+				}
+				newText += code.text.substring(code.lineColumnToOffset(pos2.line+1, 0));
+
+				this.surface.setText(newText);
+				this.surface.offsetCursorRange(totalOffset1, totalOffset2);
+				event.preventDefault();
+			}
+		},
+
 		// TODO: use http://archive.plugins.jquery.com/project/fieldselection
 		autoIndent: function(event, offset) { // callback
+			// 13 == enter, 221 = } or ]
 			if ([13, 221].indexOf(event.keyCode) >= 0) {
 				var code = new editor.Code(this.surface.getText());
 
@@ -220,13 +259,15 @@ module.exports = function(editor) {
 			return this.code.rangeToText(node.textLoc);
 		},
 
-		editableReplaceCode: function(line, column, column2, newText, updateOffsets) { // callback
+		editableReplaceCode: function(line, column, column2, newText) { // callback
 			this.surface.setText(this.code.replaceOffsetRange(this.code.lineColumnToOffset(line, column), this.code.lineColumnToOffset(line, column2), newText));
 
-			if (updateOffsets && this.editablesByLine[line] !== undefined) {
+			var offset = newText.length - (column2-column);
+			if (offset !== 0 && this.editablesByLine[line] !== undefined) {
 				for (var i=0; i<this.editablesByLine[line].length; i++) {
-					this.editablesByLine[line][i].offsetColumn(column, newText.length-(column2-column));
+					this.editablesByLine[line][i].offsetColumn(column, offset);
 				}
+				this.surface.offsetCursor(offset);
 			}
 
 			this.update();

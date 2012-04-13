@@ -25,10 +25,6 @@ module.exports = function(editor) {
 		rangeToText: function(textLoc) {
 			return this.text.substring(this.lineColumnToOffset(textLoc.line, textLoc.column), this.lineColumnToOffset(textLoc.line2, textLoc.column2));
 		},
-		lineColumnToPositionText: function(line, column) {
-			this.makeLines();
-			return new Array(line).join('\n') + (this.lines[line-1] || '').substring(0, column);
-		},
 		offsetToLoc: function(offset) {
 			this.makeOffsets();
 			// TODO: implement binary search

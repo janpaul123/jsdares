@@ -130,12 +130,13 @@ module.exports = function(editor) {
 
 		setText: function(newText) {
 			var selectionStart = this.$textarea[0].selectionStart;
+			var selectionEnd = this.$textarea[0].selectionEnd;
 			this.$textarea.val(newText);
 			this.text = newText;
 			this.userChangedText = false;
 			this.updateSize();
 			this.$textarea[0].selectionStart = selectionStart;
-			this.$textarea[0].selectionEnd = selectionStart;
+			this.$textarea[0].selectionEnd = selectionEnd;
 		},
 
 		columnToX: function(column) {
@@ -239,6 +240,17 @@ module.exports = function(editor) {
 			this.$textarea[0].selectionEnd = selectionEnd + amount;
 		},
 
+		offsetCursorRange: function(amount1, amount2) {
+			var selectionStart = this.$textarea[0].selectionStart;
+			var selectionEnd = this.$textarea[0].selectionEnd;
+			this.$textarea[0].selectionStart = selectionStart + amount1;
+			this.$textarea[0].selectionEnd = selectionEnd + amount2;
+		},
+
+		resetSelection: function() {
+			this.$textarea[0].selectionEnd = this.$textarea[0].selectionStart;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		initOffsets: function($div) {
 			// setting up mirror
@@ -312,6 +324,8 @@ module.exports = function(editor) {
 					this.userChangedText = true;
 					this.hideElements();
 				}
+			} else {
+				this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd);
 			}
 			// TODO: include offset vars and update UI elements
 		},

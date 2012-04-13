@@ -80,7 +80,7 @@ module.exports = function(editor) {
 		touchMove: function(touch) {
 			var newText = this.makeNumber(touch.translation.x);
 			//this.editor.setCode(this.editor.code.replaceOffsetRange(this.offset, this.offset+this.text.length, newText));
-			this.delegate.editableReplaceCode(this.line, this.column, this.column2, newText, newText.length !== this.text.length);
+			this.delegate.editableReplaceCode(this.line, this.column, this.column2, newText);
 
 			if (newText.length !== this.text.length) {
 				//this.editor.offsetEditables(this.line, this.column, newText.length - this.text.length);
