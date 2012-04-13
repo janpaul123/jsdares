@@ -1,11 +1,21 @@
 @import "../bootstrap/less/mixins.less";
 
 .cs-console {
-	margin: 0;
-	padding: 10px;
 	position: relative;
 	background-color: #333;
 	overflow: auto;
+}
+
+.cs-highlighting {
+	cursor: crosshair;
+}
+
+.cs-autoscroll {
+	border-bottom: 1px solid #0d0;
+}
+
+.cs-content {
+	margin: 10px;
 }
 
 .cs-line {
@@ -22,7 +32,6 @@
 	word-wrap: break-word;
 }
 
-.cs-highlight {
+.cs-highlight-line {
 	background-color: rgba(50, 250, 50, 0.4);
-	cursor: crosshair;
 }

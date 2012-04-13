@@ -20,6 +20,7 @@ module.exports = function(editor) {
 			this.editablesEnabled = false;
 
 			this.highlightingEnabled = false;
+			this.highlightLine = 0;
 			this.currentHighlightNode = null;
 
 			this.setText('');
@@ -60,6 +61,9 @@ module.exports = function(editor) {
 				this.handleError(this.tree.getError());
 				this.delegate.criticalError();
 			} else {
+				if (this.highlightingEnabled) {
+					this.refreshHighlights();
+				}
 				this.run();
 			}
 		},
@@ -186,21 +190,24 @@ module.exports = function(editor) {
 
 		editableReplaceCode: function(line, column, column2, newText) { // callback
 			if (this.editablesByLine[line] === undefined) return;
-			this.surface.setText(this.code.replaceOffsetRange(this.code.lineColumnToOffset(line, column), this.code.lineColumnToOffset(line, column2), newText));
 
-			var offset = newText.length - (column2-column);
-			if (offset !== 0) {
+			var offset1 = this.code.lineColumnToOffset(line, column), offset2 = this.code.lineColumnToOffset(line, column2);
+			this.surface.setText(this.code.replaceOffsetRange(offset1, offset2, newText));
+
+			var changeOffset = newText.length - (column2-column);
+			if (changeOffset !== 0) {
 				for (var i=0; i<this.editablesByLine[line].length; i++) {
-					this.editablesByLine[line][i].offsetColumn(column, offset);
+					this.editablesByLine[line][i].offsetColumn(column, changeOffset);
 				}
 			}
 			this.update();
-			this.surface.restoreCursor(offset, offset);
+			this.surface.restoreCursor(offset2, changeOffset);
 		},
 
 		enableHighlighting: function() {
 			if (!this.tree.hasError()) {
 				this.surface.enableMouse();
+				this.surface.enableHighlighting();
 				this.highlightingEnabled = true;
 				this.delegate.highlightingEnabled();
 				this.callOutputs('enableHighlighting');
@@ -209,8 +216,10 @@ module.exports = function(editor) {
 
 		disableHighlighting: function() {
 			this.tree.clearHooks();
-			this.surface.hideHighlight();
+			this.highlightLine = 0;
+			this.currentHighlightNode = null;
 			this.surface.disableMouse();
+			this.surface.disableHighlighting();
 			this.highlightingEnabled = false;
 			this.delegate.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
@@ -223,19 +232,25 @@ module.exports = function(editor) {
 
 		mouseMove: function(event, line, column) { // callback
 			if (this.highlightingEnabled) {
-				var node = this.tree.getNodeByLine(line);
-				if (node !== this.currentHighlightNode) {
-					this.currentHighlightNode = node;
-					this.tree.clearHooks();
-					if (node !== null) {
-						this.tree.addHookBeforeNode(node, $.proxy(this.startHighlighting, this));
-						this.tree.addHookAfterNode(node, $.proxy(this.stopHighlighting, this));
-						var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
-						this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
-					} else {
-						this.surface.hideHighlight();
-					}
-					this.run();
+				this.highlightLine = line;
+				this.refreshHighlights();
+				this.run();
+			}
+		},
+
+		refreshHighlights: function() {
+			var node = this.tree.getNodeByLine(this.highlightLine);
+
+			if (node !== this.currentHighlightNode) {
+				this.currentHighlightNode = node;
+				this.tree.clearHooks();
+				if (node !== null) {
+					this.tree.addHookBeforeNode(node, $.proxy(this.startHighlighting, this));
+					this.tree.addHookAfterNode(node, $.proxy(this.stopHighlighting, this));
+					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
+					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
+				} else {
+					this.surface.hideHighlight();
 				}
 			}
 		},
@@ -288,10 +303,9 @@ module.exports = function(editor) {
 				}
 				var finalOffset = code.lineColumnToOffset(pos2.line+1, 0);
 				if (finalOffset !== null) newText += code.text.substring(finalOffset);
-				console.log(finalOffset, totalOffset1, totalOffset2);
 
 				this.surface.setText(newText);
-				this.surface.restoreCursor(totalOffset1, totalOffset2);
+				this.surface.restoreCursorRange(totalOffset1, totalOffset2);
 				
 				event.preventDefault();
 				return true;
@@ -330,7 +344,7 @@ module.exports = function(editor) {
 					} else {
 						this.surface.setText(code.insertAtOffset(startOffset, new Array(spaces+1).join(' ')));
 					}
-					this.surface.restoreCursor(spaces, spaces);
+					this.surface.restoreCursor(startOffset, spaces);
 				}
 			}
 		}

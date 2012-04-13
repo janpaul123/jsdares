@@ -12,11 +12,11 @@ module.exports = function(editor) {
 		init: function($marking, surface) {
 			this.$marking = $marking;
 			this.surface = surface;
-			this.$element = $('<div class="based-messagebox"></div>');
+			this.$element = $('<div class="editor-box"></div>');
 			this.surface.addElement(this.$element);
 			this.$element.hide();
-			this.$element.append('<div class="arrow"></div>');
-			this.$message = $('<div class="based-message"></div>');
+			this.$element.append('<div class="editor-box-arrow"></div>');
+			this.$message = $('<div class="editor-box-message"></div>');
 			this.$element.append(this.$message);
 		},
 		updatePosition: function() {
@@ -35,10 +35,10 @@ module.exports = function(editor) {
 	editor.Message.prototype = {
 		init: function(type, surface) {
 			this.surface = surface;
-			this.$marginIcon = $('<div class="based-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
+			this.$marginIcon = $('<div class="editor-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
 			this.$marginIcon.hide();
-			this.$marking = $('<div class="based-marking"></div>');
+			this.$marking = $('<div class="editor-marking"></div>');
 			this.surface.addElement(this.$marking);
 			this.$marking.hide();
 			this.box = new editor.Box(this.$marking, this.surface);
@@ -90,11 +90,11 @@ module.exports = function(editor) {
 	editor.Surface.prototype = {
 		init: function($div, delegate) {
 			this.$div = $div;
-			this.$div.addClass('based-editor');
+			this.$div.addClass('editor');
 			this.delegate = delegate;
 
 			// setting up textarea
-			this.$textarea = $('<textarea class="based-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
+			this.$textarea = $('<textarea class="editor-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
 			this.$div.append(this.$textarea);
 
 			this.$textarea.on('keydown', $.proxy(this.keyDown, this));
@@ -102,11 +102,11 @@ module.exports = function(editor) {
 			this.$textarea.on('paste', $.proxy(this.paste, this));
 
 			// setting up surface
-			this.$surface = $('<div class="based-surface"></div>');
+			this.$surface = $('<div class="editor-surface"></div>');
 			this.$div.append(this.$surface);
 
 			// setting up margin
-			this.$margin = $('<div class="based-margin"></div>');
+			this.$margin = $('<div class="editor-margin"></div>');
 			this.$div.append(this.$margin);
 			
 			// setting up messages
@@ -114,7 +114,7 @@ module.exports = function(editor) {
 			this.stepMessage = new editor.Message('step', this);
 
 			// highlights
-			this.$highlightMarking = $('<div class="based-marking based-highlight"></div>');
+			this.$highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
 			this.addElement(this.$highlightMarking);
 			this.$highlightMarking.hide();
 
@@ -166,11 +166,11 @@ module.exports = function(editor) {
 
 		showErrorMessage: function(message) {
 			this.errorMessage.showAtLocation(message);
-			this.$textarea.addClass('based-error');
+			this.$textarea.addClass('editor-error');
 		},
 
 		hideErrorMessage: function() {
-			this.$textarea.removeClass('based-error');
+			this.$textarea.removeClass('editor-error');
 			this.errorMessage.closeMessage();
 			this.errorMessage.hide();
 		},
@@ -180,21 +180,22 @@ module.exports = function(editor) {
 		},
 
 		showStepMessage: function(message) {
-			this.$textarea.addClass('based-step');
+			this.$textarea.addClass('editor-step');
 			this.stepMessage.showAtLocation(message);
 		},
 
 		hideStepMessage: function() {
-			this.$textarea.removeClass('based-step');
+			this.$textarea.removeClass('editor-step');
 			this.stepMessage.hide();
 		},
 
 		enableHighlighting: function() {
-			this.$textarea.addClass('based-highlighting');
+			this.$textarea.addClass('editor-highlighting');
 		},
 
 		disableHighlighting: function() {
-			this.$textarea.removeClass('based-highlighting');
+			this.$textarea.removeClass('editor-highlighting');
+			this.hideHighlight();
 		},
 
 		showHighlight: function(line, column, line2, column2) {
@@ -233,7 +234,14 @@ module.exports = function(editor) {
 			$element.css('top', this.lineToY(line));
 		},
 
-		restoreCursor: function(offset1, offset2) {
+		restoreCursor: function(from, offset) {
+			if (this.lastSelectionStart !== null && this.lastSelectionEnd !== null) {
+				if (this.lastSelectionStart >= from) this.$textarea[0].selectionStart = this.lastSelectionStart + offset;
+				if (this.lastSelectionEnd >= from) this.$textarea[0].selectionEnd = this.lastSelectionEnd + offset;
+			}
+		},
+
+		restoreCursorRange: function(offset1, offset2) {
 			if (this.lastSelectionStart !== null && this.lastSelectionEnd !== null) {
 				this.$textarea[0].selectionStart = this.lastSelectionStart + offset1;
 				this.$textarea[0].selectionEnd = this.lastSelectionEnd + offset2;
@@ -248,8 +256,8 @@ module.exports = function(editor) {
 		/// INTERNAL FUNCTIONS ///
 		initOffsets: function($div) {
 			// setting up mirror
-			this.$mirror = $('<div class="based-mirror"></div>');
-			var $mirrorContainer = $('<div class="based-mirror-container"></div>');
+			this.$mirror = $('<div class="editor-mirror"></div>');
+			var $mirrorContainer = $('<div class="editor-mirror-container"></div>');
 			$mirrorContainer.append(this.$mirror);
 			this.$div.append($mirrorContainer);
 
@@ -334,7 +342,6 @@ module.exports = function(editor) {
 			}
 
 			if (this.userChangedText) {
-				console.log('yay');
 				this.userChangedText = false;
 				this.showElements();
 				this.delegate.userChangedText();

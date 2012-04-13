@@ -21,7 +21,7 @@ module.exports = function(editor) {
 			this.text = delegate.getEditablesText(node);
 			this.valid = this.parseNumber(this.text);
 
-			this.$marking = $('<div class="based-marking based-editable based-number-editable"></div>');
+			this.$marking = $('<div class="editor-marking editor-editable editor-number-editable"></div>');
 			this.surface.addElement(this.$marking);
 			this.touchable = new clayer.Touchable(this.$marking, this);
 			this.box = null;

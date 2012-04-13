@@ -1,6 +1,7 @@
 @import "../bootstrap/less/mixins.less";
 
-.based-editor {
+/// TEXTAREA ///
+.editor {
 	margin: 0;
 	padding: 0;
 	position: relative;
@@ -8,13 +9,8 @@
 	overflow: auto;
 }
 
-.based-code, .based-mirror {
-	&:focus {
-		outline:0px !important;
-    	.box-shadow(none);
-    	.transition(none);
-	}
-
+.editor-code, .editor-mirror {
+	position: absolute;
 	background-color: #333;
 	border: none;
 	font-family: "Courier", monospace;
@@ -26,43 +22,41 @@
 	resize: none;
 	white-space: pre;
 	line-height: 16px;
-	position: absolute;
-
-	.box-shadow(none);
-	.border-radius(0);
 }
 
-.based-mirror {
-	padding-right: 0px;
-	padding-bottom: 0px;
-}
-
-
-.based-code {
+.editor-code {
 	top: 0px;
 	left: 150px;
 	min-width: 430px;
 	min-height: 430px;
 	border-left: solid 1px #444;
-
 	&:focus {
 		border-left: solid 1px #444;
+		outline:0px !important;
+    	.box-shadow(none);
 	}
+	.transition(border-left 0.2s ease-in-out);
 }
 
-.based-highlight .based-code {
+.editor-highlighting {
 	cursor: crosshair;
 }
 
-/*#code*/.based-error {
+.editor-error {
 	border-left-color: #a54 !important;
 }
 
-/*#code*/.based-step {
+.editor-step {
 	border-left-color: #bbb !important;
 }
 
-.based-mirror-container {
+/// MIRROR ///
+.editor-mirror {
+	padding-right: 0px;
+	padding-bottom: 0px;
+}
+
+.editor-mirror-container {
 	border: 0;
 	clip: rect(0 0 0 0);
 	height: 1px;
@@ -72,7 +66,8 @@
 	width: 1px;
 }
 
-.based-margin {
+/// MARGIN ///
+.editor-margin {
 	font-family: "Courier", monospace;
 	color: #ddd;
 	position: absolute;
@@ -84,11 +79,7 @@
 	z-index: 5;
 }
 
-.based-surface {
-	position: absolute;
-}
-
-.based-margin-message-icon-error, .based-margin-message-icon-step {
+.editor-margin-message-icon-error, .editor-margin-message-icon-step {
 	position: absolute;
 	top: 0px;
 	right: 5px;
@@ -98,49 +89,26 @@
 	margin-top: -5px;
 }
 
-@message-arrow-size: 5px;
-
-.based-messagebox {
+.editor-lineMsg {
 	position: absolute;
-	margin-top: @message-arrow-size;
-	margin-left: 0;
-	display: block;
-	background-color: rgba(30, 30, 30, 0.95);
-	font-size: 14px;
-	z-index: 10;
-	cursor: pointer;
-	cursor: hand;
-	.border-radius();
-
-	.arrow {
-		#popoverArrow > .bottom(@message-arrow-size, rgba(30, 30, 30, 0.95));
-		position: absolute;
-		width: 0;
-		height: 0;
-		margin-top: -@message-arrow-size;
-	}
-}
-
-.based-messagecol {
-	position: absolute;
-	left: 5px;
-	top: 5px;
-}
-
-.based-message {
-	padding: 5px 12px;
-	max-width: 250px;
-	color: #0E0;
+	font-size: 12px;
+	margin-top: -29px;
+	left: 4px;
+	right: 24px;
+	color: white;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: pre;
+	text-align: right;
 }
 
-.based-message .msg-value {
-	font-weight: bold;
-	color: #ee0;
+/// SURFACE ///
+.editor-surface {
+	position: absolute;
 }
 
-.based-marking {
+/// MARKING ///
+.editor-marking {
 	position: absolute;
 	background-color: rgba(50, 250, 50, 0.4);
 	margin-top: 0px;
@@ -154,23 +122,46 @@
 	}
 }
 
-.based-arrow-left {
-	position: absolute;
-	margin-top: -26px;
-	margin-left: -18px;
-	background-color: rgba(30, 30, 30, 0.95);
-	color: #0E0;
+/// HIGHLIGHT ///
+.editor-highlight {
+	cursor: crosshair;
+	background-color: rgba(200, 255, 200, 0.4);
+	&:hover {
+		background-color: rgba(200, 255, 200, 0.4);
+	}
 }
 
-.based-lineMsg {
+/// BOX ///
+@box-arrow-size: 5px;
+.editor-box {
 	position: absolute;
-	font-size: 12px;
-	margin-top: -29px;
-	left: 4px;
-	right: 24px;
-	color: white;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: pre;
-	text-align: right;
+	margin-top: @box-arrow-size;
+	display: block;
+	background-color: rgba(30, 30, 30, 0.95);
+	font-size: 14px;
+	z-index: 10;
+	cursor: pointer;
+	cursor: hand;
+	.border-radius();
+
+	.editor-box-arrow {
+		#popoverArrow > .bottom(@box-arrow-size, rgba(30, 30, 30, 0.95));
+		position: absolute;
+		width: 0;
+		height: 0;
+		margin-top: -@box-arrow-size;
+	}
+
+	.editor-box-message {
+		padding: 5px 12px;
+		max-width: 250px;
+		color: #0E0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+
+		.msg-value {
+			font-weight: bold;
+			color: #ee0;
+		}
+	}
 }

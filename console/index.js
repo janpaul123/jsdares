@@ -9,10 +9,18 @@ cs.Console.prototype = {
 	init: function($div, editor) {
 		this.$div = $div;
 		this.$div.addClass('cs-console');
+		this.$div.on('scroll', $.proxy(this.refreshAutoScroll, this));
+
+		this.$content = $('<div class="cs-content"></div>');
+		this.$div.append(this.$content);
+
 		//this.debugToBrowser = true;
 		this.highlightNextLines = false;
+		this.autoScroll = false;
 		this.editor = editor;
 		this.editor.addOutput(this);
+
+		this.refreshAutoScroll();
 		this.clear();
 	},
 
@@ -30,12 +38,12 @@ cs.Console.prototype = {
 
 		var $element = $('<div class="cs-line"></div>');
 		if (this.highlightNextLines) {
-			$element.addClass('cs-highlight');
+			$element.addClass('cs-highlight-line');
 		}
 		$element.text(text);
 		$element.data('node', node);
 		$element.on('mousemove', $.proxy(this.mouseMove, this));
-		this.$div.append($element);
+		this.$content.append($element);
 
 		if (this.debugToBrowser && console && console.log) console.log(value);
 	},
@@ -50,11 +58,16 @@ cs.Console.prototype = {
 
 	enableHighlighting: function() {
 		this.highlighting = true;
+		this.$div.addClass('cs-highlighting');
+		this.autoScroll = false;
+		this.$div.removeClass('cs-autoscroll');
 	},
 
 	disableHighlighting: function() {
 		this.highlighting = false;
-		this.$div.children('.cs-highlight').removeClass('cs-highlight');
+		this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
+		this.$div.removeClass('cs-highlighting');
+		this.refreshAutoScroll();
 	},
 
 	startRun: function() {
@@ -63,16 +76,19 @@ cs.Console.prototype = {
 
 	endRun: function() {
 		if (this.highlighting) {
-			var $last = this.$div.children('.cs-highlight').last();
+			var $last = this.$content.children('.cs-highlight-line').last();
 			if ($last.length > 0) {
 				// the offset is weird since .position().top changes when scrolling
+				console.log($last.position().top);
 				this.scrollToY($last.position().top + this.$div.scrollTop());
 			}
+		} else if (this.autoScroll) {
+			this.scrollToY(this.$content.height());
 		}
 	},
 
 	clear: function() {
-		this.$div.children('.cs-line').remove(); // like this to prevent $.data memory leaks
+		this.$content.children('.cs-line').remove(); // like this to prevent $.data memory leaks
 		if (this.debugToBrowser && console && console.clear) console.clear();
 	},
 
@@ -85,10 +101,22 @@ cs.Console.prototype = {
 	mouseMove: function(event) {
 		if (this.highlighting) {
 			var $target = $(event.target);
-			if (!$target.hasClass('cs-highlight')) {
-				this.$div.children('.cs-highlight').removeClass('cs-highlight');
-				$target.addClass('cs-highlight');
+			if (!$target.hasClass('cs-highlight-line')) {
+				this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
+				$target.addClass('cs-highlight-line');
 				this.editor.highlightNode($target.data('node'));
+			}
+		}
+	},
+
+	refreshAutoScroll: function() {
+		if (!this.highlighting) {
+			if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-2) {
+				this.$div.addClass('cs-autoscroll');
+				this.autoScroll = true;
+			} else {
+				this.$div.removeClass('cs-autoscroll');
+				this.autoScroll = false;
 			}
 		}
 	}

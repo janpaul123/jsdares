@@ -8537,15 +8537,16 @@ a.thumbnail:hover {
   -ms-box-sizing: border-box;
   box-sizing: border-box;
 }
-.based-editor {
+.editor {
   margin: 0;
   padding: 0;
   position: relative;
   background-color: #333;
   overflow: auto;
 }
-.based-code,
-.based-mirror {
+.editor-code,
+.editor-mirror {
+  position: absolute;
   background-color: #333;
   border: none;
   font-family: "Courier", monospace;
@@ -8557,28 +8558,31 @@ a.thumbnail:hover {
   resize: none;
   white-space: pre;
   line-height: 16px;
-  position: absolute;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
 }
-.based-code:focus,
-.based-mirror:focus {
+.editor-code {
+  top: 0px;
+  left: 150px;
+  min-width: 430px;
+  min-height: 430px;
+  border-left: solid 1px #444;
+  -webkit-transition: border-left 0.2s ease-in-out;
+  -moz-transition: border-left 0.2s ease-in-out;
+  -ms-transition: border-left 0.2s ease-in-out;
+  -o-transition: border-left 0.2s ease-in-out;
+  transition: border-left 0.2s ease-in-out;
+  -webkit-transition: border-left 0.2s ease-in-out;
+  -moz-transition: border-left 0.2s ease-in-out;
+  -ms-transition: border-left 0.2s ease-in-out;
+  -o-transition: border-left 0.2s ease-in-out;
+  transition: border-left 0.2s ease-in-out;
+  -webkit-transition: border-left 0.2s ease-in-out;
+  -moz-transition: border-left 0.2s ease-in-out;
+  -ms-transition: border-left 0.2s ease-in-out;
+  -o-transition: border-left 0.2s ease-in-out;
+  transition: border-left 0.2s ease-in-out;
+}
+.editor-code:focus {
+  border-left: solid 1px #444;
   outline: 0px !important;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
@@ -8589,46 +8593,21 @@ a.thumbnail:hover {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
-  -webkit-transition: none;
-  -moz-transition: none;
-  -ms-transition: none;
-  -o-transition: none;
-  transition: none;
-  -webkit-transition: none;
-  -moz-transition: none;
-  -ms-transition: none;
-  -o-transition: none;
-  transition: none;
-  -webkit-transition: none;
-  -moz-transition: none;
-  -ms-transition: none;
-  -o-transition: none;
-  transition: none;
 }
-.based-mirror {
+.editor-highlighting {
+  cursor: crosshair;
+}
+.editor-error {
+  border-left-color: #a54 !important;
+}
+.editor-step {
+  border-left-color: #bbb !important;
+}
+.editor-mirror {
   padding-right: 0px;
   padding-bottom: 0px;
 }
-.based-code {
-  top: 0px;
-  left: 150px;
-  min-width: 430px;
-  min-height: 430px;
-  border-left: solid 1px #444;
-}
-.based-code:focus {
-  border-left: solid 1px #444;
-}
-.based-highlight .based-code {
-  cursor: crosshair;
-}
-/*#code*/.based-error {
-  border-left-color: #a54 !important;
-}
-/*#code*/.based-step {
-  border-left-color: #bbb !important;
-}
-.based-mirror-container {
+.editor-mirror-container {
   border: 0;
   clip: rect(0 0 0 0);
   height: 1px;
@@ -8637,7 +8616,7 @@ a.thumbnail:hover {
   position: absolute;
   width: 1px;
 }
-.based-margin {
+.editor-margin {
   font-family: "Courier", monospace;
   color: #ddd;
   position: absolute;
@@ -8648,11 +8627,8 @@ a.thumbnail:hover {
   overflow: visible;
   z-index: 5;
 }
-.based-surface {
-  position: absolute;
-}
-.based-margin-message-icon-error,
-.based-margin-message-icon-step {
+.editor-margin-message-icon-error,
+.editor-margin-message-icon-step {
   position: absolute;
   top: 0px;
   right: 5px;
@@ -8661,10 +8637,43 @@ a.thumbnail:hover {
   z-index: 10;
   margin-top: -5px;
 }
-.based-messagebox {
+.editor-lineMsg {
+  position: absolute;
+  font-size: 12px;
+  margin-top: -29px;
+  left: 4px;
+  right: 24px;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
+  text-align: right;
+}
+.editor-surface {
+  position: absolute;
+}
+.editor-marking {
+  position: absolute;
+  background-color: rgba(50, 250, 50, 0.4);
+  margin-top: 0px;
+  margin-left: 0px;
+  padding: 2px 1px 1px 1px;
+  cursor: pointer;
+  cursor: hand;
+}
+.editor-marking:hover {
+  background-color: rgba(50, 250, 50, 0.5);
+}
+.editor-highlight {
+  cursor: crosshair;
+  background-color: rgba(200, 255, 200, 0.4);
+}
+.editor-highlight:hover {
+  background-color: rgba(200, 255, 200, 0.4);
+}
+.editor-box {
   position: absolute;
   margin-top: 5px;
-  margin-left: 0;
   display: block;
   background-color: rgba(30, 30, 30, 0.95);
   font-size: 14px;
@@ -8681,7 +8690,7 @@ a.thumbnail:hover {
   -moz-border-radius: 5px;
   border-radius: 5px;
 }
-.based-messagebox .arrow {
+.editor-box .editor-box-arrow {
   top: 0;
   left: 50%;
   margin-left: -5px;
@@ -8705,52 +8714,16 @@ a.thumbnail:hover {
   height: 0;
   margin-top: -5px;
 }
-.based-messagecol {
-  position: absolute;
-  left: 5px;
-  top: 5px;
-}
-.based-message {
+.editor-box .editor-box-message {
   padding: 5px 12px;
   max-width: 250px;
   color: #0E0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.based-message .msg-value {
+.editor-box .editor-box-message .msg-value {
   font-weight: bold;
   color: #ee0;
-}
-.based-marking {
-  position: absolute;
-  background-color: rgba(50, 250, 50, 0.4);
-  margin-top: 0px;
-  margin-left: 0px;
-  padding: 2px 1px 1px 1px;
-  cursor: pointer;
-  cursor: hand;
-}
-.based-marking:hover {
-  background-color: rgba(50, 250, 50, 0.5);
-}
-.based-arrow-left {
-  position: absolute;
-  margin-top: -26px;
-  margin-left: -18px;
-  background-color: rgba(30, 30, 30, 0.95);
-  color: #0E0;
-}
-.based-lineMsg {
-  position: absolute;
-  font-size: 12px;
-  margin-top: -29px;
-  left: 4px;
-  right: 24px;
-  color: white;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: pre;
-  text-align: right;
 }
 .clearfix {
   *zoom: 1;
@@ -8790,11 +8763,18 @@ a.thumbnail:hover {
   box-sizing: border-box;
 }
 .cs-console {
-  margin: 0;
-  padding: 10px;
   position: relative;
   background-color: #333;
   overflow: auto;
+}
+.cs-highlighting {
+  cursor: crosshair;
+}
+.cs-autoscroll {
+  border-bottom: 1px solid #0d0;
+}
+.cs-content {
+  margin: 10px;
 }
 .cs-line {
   background-color: #333;
@@ -8809,9 +8789,8 @@ a.thumbnail:hover {
   line-height: 16px;
   word-wrap: break-word;
 }
-.cs-highlight {
+.cs-highlight-line {
   background-color: rgba(50, 250, 50, 0.4);
-  cursor: crosshair;
 }
 textarea[readonly] {
   cursor: text;
