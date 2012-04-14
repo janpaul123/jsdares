@@ -2,9 +2,6 @@
 "use strict";
 
 module.exports = function(jsmm) {
-	require('./jsmm.browser')(jsmm);
-	require('./jsmm.msg')(jsmm);
-	
 	jsmm.test = {};
 	
 	jsmm.test.Console = function() {
@@ -59,23 +56,23 @@ module.exports = function(jsmm) {
 		var errorRaw = null;
 		var errorSafe = null;
 		var errorStep = null;
-		var browser = new jsmm.Browser(code);
+		var runner = new jsmm.SimpleRunner(code);
 		
 		if (threeway) {
-			browser.setScope({console: consoleRaw});
-			if (!browser.runRaw()) {
-				errorRaw = browser.getError();
+			runner.setScope({console: consoleRaw});
+			if (!runner.runRaw()) {
+				errorRaw = runner.getError();
 			}
 		}
 		
-		browser.setScope({console: consoleSafe});
-		if (!browser.runSafe()) {
-			errorSafe = browser.getError();
+		runner.setScope({console: consoleSafe});
+		if (!runner.runSafe()) {
+			errorSafe = runner.getError();
 		}
 		
-		browser.setScope({console: consoleStep});
-		if (!browser.runStep()) {
-			errorStep = browser.getError();
+		runner.setScope({console: consoleStep});
+		if (!runner.runStep()) {
+			errorStep = runner.getError();
 		}
 		
 		// when it should threeway we can compare against the raw result

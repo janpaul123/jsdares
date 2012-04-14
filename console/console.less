@@ -11,7 +11,7 @@
 }
 
 .cs-autoscroll {
-	border-bottom: 1px solid #0d0;
+	border-bottom: 1px solid @console-auto-scroll-border-color;
 }
 
 .cs-content {
@@ -24,6 +24,7 @@
 	line-height: @code-line-height;
 	font-family: @code-font-family;
 	background-color: @code-background-color;
+	min-height: @code-line-height;
 	border: none;
 	margin: 0px;
 	outline: none;

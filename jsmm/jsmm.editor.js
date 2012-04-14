@@ -45,7 +45,7 @@ module.exports = function(jsmm) {
 		},
 
 		splitNumber: function(text) {
-			var match = /^[+]?([\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?$/g.exec(text);
+			var match = /^[+]?([\-]?)[ ]*([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?$/g.exec(text);
 			if (match === null) {
 				return null;
 			} else {
@@ -61,7 +61,8 @@ module.exports = function(jsmm) {
 
 		parseNumber: function(text) {
 			this.numberData = {};
-			this.numberData.value = parseFloat(text);
+			// remove spaces since it is possible to have e.g. "-  5"
+			this.numberData.value = parseFloat(text.replace(/[ ]+/g, ''));
 			var split = jsmm.editor.editables.splitNumber(text);
 
 			if (split === null || !isFinite(this.numberData.value)) {

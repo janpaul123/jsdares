@@ -8,7 +8,7 @@ module.exports = function(editor) {
 	editor.Editor = function() { return this.init.apply(this, arguments); };
 
 	editor.Editor.prototype = {
-		init: function(language, $div, delegate) {
+		init: function(language, $div, delegate, text) {
 			this.language = language;
 			this.surface = new editor.Surface($div, this);
 			this.delegate = delegate;
@@ -23,7 +23,11 @@ module.exports = function(editor) {
 			this.highlightLine = 0;
 			this.currentHighlightNode = null;
 
-			this.setText('');
+			this.setText(text || '');
+		},
+
+		getText: function() {
+			return this.code.text;
 		},
 
 		setText: function(text) {
@@ -66,6 +70,7 @@ module.exports = function(editor) {
 				}
 				this.run();
 			}
+			this.delegate.textChanged(this.code);
 		},
 
 		run: function() {
@@ -262,9 +267,9 @@ module.exports = function(editor) {
 		mouseLeave: function(event) { //callback
 			if (this.highlightingEnabled) {
 				this.currentHighlightNode = null;
-				this.tree.clearHooks();
-				this.surface.hideHighlight();
-				this.run();
+				if (this.refreshHighlights()) {
+					this.run();
+				}
 			}
 		},
 

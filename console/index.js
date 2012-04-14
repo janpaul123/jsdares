@@ -27,7 +27,8 @@ cs.Console.prototype = {
 	getAugmentedObject: function() {
 		return {
 			log: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
-			clear: {isAugmentedFunction: true, func: $.proxy(this.log, this)}
+			clear: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
+			setColor: {isAugmentedFunction: true, func: $.proxy(this.setColor, this)}
 		};
 	},
 
@@ -45,7 +46,13 @@ cs.Console.prototype = {
 		$element.on('mousemove', $.proxy(this.mouseMove, this));
 		this.$content.append($element);
 
+		if (this.color !== '') $element.css('color', this.color);
+
 		if (this.debugToBrowser && console && console.log) console.log(value);
+	},
+
+	setColor: function(node, color) {
+		this.color = color;
 	},
 
 	startHighlighting: function() {
@@ -71,6 +78,7 @@ cs.Console.prototype = {
 	},
 
 	startRun: function() {
+		this.stopHighlighting();
 		this.clear();
 	},
 
@@ -79,7 +87,6 @@ cs.Console.prototype = {
 			var $last = this.$content.children('.cs-highlight-line').last();
 			if ($last.length > 0) {
 				// the offset is weird since .position().top changes when scrolling
-				console.log($last.position().top);
 				this.scrollToY($last.position().top + this.$div.scrollTop());
 			}
 		} else if (this.autoScroll) {
@@ -88,6 +95,7 @@ cs.Console.prototype = {
 	},
 
 	clear: function() {
+		this.color = '';
 		this.$content.children('.cs-line').remove(); // like this to prevent $.data memory leaks
 		if (this.debugToBrowser && console && console.clear) console.clear();
 	},
@@ -111,7 +119,7 @@ cs.Console.prototype = {
 
 	refreshAutoScroll: function() {
 		if (!this.highlighting) {
-			if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-2) {
+			if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-4) {
 				this.$div.addClass('cs-autoscroll');
 				this.autoScroll = true;
 			} else {

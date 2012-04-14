@@ -4223,7 +4223,7 @@ div.colorpicker div.circle.lightness {
   cursor: crosshair;
 }
 .cs-autoscroll {
-  border-bottom: 1px solid #0d0;
+  border-bottom: 1px solid #444444;
 }
 .cs-content {
   margin: 10px;
@@ -4234,6 +4234,7 @@ div.colorpicker div.circle.lightness {
   line-height: 16px;
   font-family: "Courier", monospace;
   background-color: #333333;
+  min-height: 16px;
   border: none;
   margin: 0px;
   outline: none;
