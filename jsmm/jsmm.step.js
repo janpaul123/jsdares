@@ -13,6 +13,7 @@ module.exports = function(jsmm) {
 		init: function(tree, scope) {
 			this.elements = [new jsmm.step.StackElement(this, tree.programNode, new jsmm.func.Scope(scope))];
 			this.executionCounter = 0;
+			this.callStackDepth = 0;
 		},
 		hasNext: function() {
 			return this.getLastStackElement() !== undefined;
@@ -63,6 +64,7 @@ module.exports = function(jsmm) {
 		switch (se.args.length) {
 			case 0:
 				stack.executionCounter = 0;
+				stack.callStackDepth = 0;
 				return stack.pushNodeNext(this.statementList, se.scope);
 			case 1:
 				stack.elements = [];
@@ -165,6 +167,7 @@ module.exports = function(jsmm) {
 	/* expression */
 	jsmm.nodes.ReturnStatement.prototype.stepNext = function(stack, se) {
 		if (this.expression === null) {
+			stack.callStackDepth--;
 			jsmm.func.funcReturn(this);
 			return stack.upNext(null);
 		} else {
@@ -174,6 +177,7 @@ module.exports = function(jsmm) {
 				case 1:
 					this.iterateRunHooksAfter(se.scope);
 					var lastStackElement = stack.getLastStackElement();
+					stack.callStackDepth--;
 					var result = jsmm.func.funcReturn(this, se.args[0]);
 					while (!(lastStackElement.node.type === 'FunctionCall' ||
 							lastStackElement.node.type === 'Program')) {
@@ -432,7 +436,8 @@ module.exports = function(jsmm) {
 						vars[that.nameArgs[i]] = arguments[i];
 					}
 					var scope = new jsmm.func.Scope(vars, se.scope);
-					jsmm.func.funcEnter(that, scope);
+					stack.callStackDepth++;
+					jsmm.func.funcEnter(that, scope, stack.callStackDepth);
 					that.runHooksBefore(that, se.scope);
 
 					// get back to the original function declaration for runHooksAfter

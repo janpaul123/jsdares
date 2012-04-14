@@ -35,6 +35,7 @@ module.exports = function(jsmm) {
 		output += 'return function(jsmm, jsmmtree, jsmmscope) {';
 		output += 'return function() { var jsmmscopeInner, jsmmscopeOuter = new jsmm.func.Scope(jsmmscope);\n';
 		output += 'var jsmmExecutionCounter = 0;\n';
+		output += 'var jsmmCallStackDepth = 0;\n';
 		output += this.statementList.getSafeCode() + 'return jsmmscopeOuter; }; }; }';
 		return output;
 	};
@@ -103,6 +104,7 @@ module.exports = function(jsmm) {
 			output += 'var jsmmtemp = ' + this.expression.getSafeCode() + ';';
 		}
 		output += getNode(this) + '.iterateRunHooksAfter(' + getScope() + ');';
+		output += 'jsmmCallStackDepth--;';
 		output += 'return jsmm.func.funcReturn(' + getNode(this) + ', jsmmtemp);';
 		return output;
 	};
@@ -213,7 +215,8 @@ module.exports = function(jsmm) {
 			output += ', "' + this.nameArgs[i] + '": ' + this.nameArgs[i];
 		}
 		output += '}, jsmmscopeOuter);\n';
-		output += 'jsmm.func.funcEnter(' + getNode(this) + ', ' + getScope() + ');\n';
+		output += 'jsmmCallStackDepth++;';
+		output += 'jsmm.func.funcEnter(' + getNode(this) + ', ' + getScope() + ', jsmmCallStackDepth);\n';
 		output += hooksBefore(this) + '\n';
 		if (jsmm.verbose) {
 			output += 'console.log("after entering ' + this.name + ':");\n';
@@ -222,6 +225,7 @@ module.exports = function(jsmm) {
 		}
 		output += this.statementList.getSafeCode();
 		output += hooksAfter(this) + '\n';
+		output += 'jsmmCallStackDepth--;';
 		output += 'return jsmm.func.funcReturn(' + getNode(this) + ');\n';
 		output += '});';
 		return output;

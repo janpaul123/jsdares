@@ -8,8 +8,6 @@ module.exports = function(jsmm) {
 	jsmm.func.maxCallStackDepth = 100;
 	jsmm.func.maxExecutionCounter = 1000;
 	
-	var callStackDepth = 0;
-	
 	var findVar = function(scope, name) {
 		do {
 			if (scope.vars[name] !== undefined) {
@@ -233,9 +231,8 @@ module.exports = function(jsmm) {
 	};
 	
 
-	jsmm.func.funcEnter = function(node, scope) {
+	jsmm.func.funcEnter = function(node, scope, callStackDepth) {
 		/*jshint loopfunc:true*/
-		callStackDepth++;
 		if (callStackDepth > jsmm.func.maxCallStackDepth) {
 			throw new jsmm.msg.Error(node, function(f){ return 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere'; });
 		}
@@ -248,12 +245,11 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.func.funcReturn = function(node, expression) {
+	jsmm.func.funcReturn = function(node, expression, callStackDepth) {
 		var value;
 		if (expression !== undefined) {
 			value = expression.value;
 		}
-		callStackDepth--;
 		return value;
 	};
 	
