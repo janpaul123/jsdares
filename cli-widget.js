@@ -80,19 +80,17 @@ $(function() {
 		//myCanvas.clear();
 	};
 
-	$('#highlight').tooltip({title: '<strong>ctrl</strong> / <strong>&#8984;</strong>', placement: 'bottom', trigger: 'manual'});
-	$('#edit').tooltip({title: '<strong>alt</strong> / <strong>&#8997;</strong>', placement: 'bottom', trigger: 'manual'});
+	$('#highlight').tooltip({title: '<strong>ctrl</strong> / <strong>&#8984;</strong>', placement: 'bottom'});
+	$('#edit').tooltip({title: '<strong>alt</strong> / <strong>&#8997;</strong>', placement: 'bottom'});
 
 	$('#step').click($.proxy(ed.stepForward, ed));
 	$('#step-back').click($.proxy(ed.stepBackward, ed));
 	$('#refresh').click($.proxy(ed.restart, ed));
 	$('#highlight').click(function(event) {
-		$('#highlight').tooltip('toggle');
 		if ($('#highlight').hasClass('active')) ed.disableHighlighting();
 		else ed.enableHighlighting();
 	});
 	$('#edit').click(function(event) {
-		$('#edit').tooltip('toggle');
 		if ($('#edit').hasClass('active')) ed.disableEditables();
 		else ed.enableEditables();
 	});
@@ -105,10 +103,8 @@ $(function() {
 	$(document).on('keydown', function(event) {
 		// 17 == CTRL, 18 == ALT, (17, 91, 224) == COMMAND
 		if ([17, 91, 224].indexOf(event.keyCode) >= 0) {
-			$('#highlight').tooltip('hide');
 			ed.enableHighlighting();
 		} else if (event.keyCode === 18) {
-			$('#edit').tooltip('hide');
 			ed.enableEditables();
 		}
 	});
@@ -116,10 +112,8 @@ $(function() {
 	$(document).on('keyup', function(event) {
 		// 17 == CTRL, 18 == ALT, (17, 91, 224) == COMMAND
 		if ([17, 91, 224].indexOf(event.keyCode) >= 0) {
-			$('#highlight').tooltip('hide');
 			ed.disableHighlighting();
 		} else if (event.keyCode === 18) {
-			$('#edit').tooltip('hide');
 			ed.disableEditables();
 		}
 	});

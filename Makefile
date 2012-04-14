@@ -1,4 +1,5 @@
-widget: widget/js/browser.js widget/css/style.css
+# widget
+widget: widget/js/browser.js widget/css/style.css widget/js/jquery.ui.colorPicker.js
 
 widget/js/browser.js: browser.js
 	cp browser.js widget/js/browser.js
@@ -10,16 +11,24 @@ browser.js: cli-widget.js jsmm/jsmmparser.js jsmm/*.js basiceditor/*.js clayer/*
 	$(MAKE) test
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
-style.css: cli-widget.less global.less basiceditor/basiceditor.less console/console.less bootstrap/less/*.less
+style.css: cli-widget.less global.less basiceditor/basiceditor.less console/console.less bootstrap/less/*.less colorpicker/jquery.ui.colorPicker.less
 	node_modules/.bin/lessc cli-widget.less > style.css
 
+# color picker
+colorpicker/jquery.ui.colorPicker.js: colorpicker/jquery.ui.colorPicker.coffee
+	node_modules/.bin/coffee -c colorpicker/jquery.ui.colorPicker.coffee
+
+widget/js/jquery.ui.colorPicker.js: colorpicker/jquery.ui.colorPicker.js
+	cp colorpicker/jquery.ui.colorPicker.js widget/js/jquery.ui.colorPicker.js
+
+# back end
 jsmm/jsmmparser.js: jsmm/jsmmparser.jison
 	cd jsmm; ../node_modules/.bin/jison jsmmparser.jison
 
-clean:
-	rm widget/js/browser.js browser.js jsmm/jsmmparser.js
-
 test: srv-test.js jsmm/jsmmparser.js jsmm/*.js
 	node srv-test.js
+
+clean:
+	rm widget/js/browser.js browser.js jsmm/jsmmparser.js
 
 .PHONY: clean test widget

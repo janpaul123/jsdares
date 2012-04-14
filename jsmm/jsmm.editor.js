@@ -27,17 +27,25 @@ module.exports = function(jsmm) {
 			if (stringNodes !== undefined) {
 				for (i=0; i<stringNodes.length; i++) {
 					var str = stringNodes[i].str;
-					if (node.parent.type === 'UnaryExpression') {
-						node = node.parent;
+					if (jsmm.editor.editables.splitColor('"' + str + '"') !== null) {
+						editables.push(new editorEditables.ColorEditable(stringNodes[i], surface, editor, this.parseColor, this.makeColor));
 					}
-					editables.push(new editorEditables.NumberEditable(node, surface, editor, this.parseNumber, this.makeNumber));
 				}
 			}
 			return editables;
 		},
 
-		splitNumber: function(str) {
-			var match = /^[+]?([\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?/g.exec(str);
+		parseBoolean: function(text) {
+			this.value = text === 'true';
+			return (text === 'true' || text === 'false');
+		},
+
+		makeBoolean: function() {
+			return this.value ? 'false' : 'true';
+		},
+
+		splitNumber: function(text) {
+			var match = /^[+]?([\-]?)([0-9]+)(?:[.]([0-9]+))?(?:([eE])[+]?([\-]?[0-9]+))?$/g.exec(text);
 			if (match === null) {
 				return null;
 			} else {
@@ -49,15 +57,6 @@ module.exports = function(jsmm) {
 					exponent: match[5] // the exponent part without the letter, but with an optional "-" (again not "+"), or undefined
 				};
 			}
-		},
-
-		parseBoolean: function(text) {
-			this.value = text === 'true';
-			return (text === 'true' || text === 'false');
-		},
-
-		makeBoolean: function() {
-			return this.value ? 'false' : 'true';
 		},
 
 		parseNumber: function(text) {
@@ -118,6 +117,76 @@ module.exports = function(jsmm) {
 			}
 
 			return newText;
+		},
+
+		splitColor: function(text) {
+			var match = /^["]([#][0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?)|(?:(rgb|rgba|hsl|hsla)[(][ ]*(\d+(?:[.]\d+)?)([%]?)[ ]*,[ ]*(\d+(?:[.]\d+)?)([%]?)[ ]*,[ ]*(\d+(?:[.]\d+)?)([%]?)[ ]*(?:,[ ]*(\d+(?:[.]\d+)?)[ ]*)?[)])["]$/g.exec(text);
+			if (match === null) {
+				return null;
+			} else {
+				return {
+					hex: match[1], // either "#xxx" or "#xxxxxx"
+					format: match[2], // either "rgb", "rgba", "hsl", "hsla", or undefined
+					part1: match[3], // number
+					percent1: match[4], // either "" or "%"
+					part2: match[5], // number
+					percent2: match[6], // either "" or "%"
+					part3: match[7], // number
+					percent3: match[8], // either "" or "%"
+					alpha: match[9] // alpha part or undefined
+				};
+			}
+		},
+
+		parseColor: function(text) {
+			this.colorData = {};
+			var split = jsmm.editor.editables.splitColor(text);
+			if (split === null) {
+				return false;
+			} else {
+				if (split.hex !== undefined) {
+					this.colorData.value = split.hex;
+					this.colorData.format = 'hex';
+					return true;
+				} else {
+					var a;
+					if (split.format === 'rgb' || split.format === 'rgba') {
+						var r = parseFloat(split.part1);
+						var g = parseFloat(split.part2);
+						var b = parseFloat(split.part3);
+						a = parseFloat(split.alpha || '1');
+						if (split.percent1 === '%') {
+							r = r*255/100;
+						}
+						if (split.percent2 === '%') {
+							g = g*255/100;
+						}
+						if (split.percent3 === '%') {
+							b = b*255/100;
+						}
+						if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255 || a < 0 || a > 1) return false;
+						this.colorData.value = 'rgba(' + r.toFixed(0) + ', ' + g.toFixed(0) + ', ' + b.toFixed(0) + ', ' + a.toFixed(2) + ')';
+						this.colorData.format = 'rgba';
+						return true;
+					} else if (split.format === 'hsl' || split.format === 'hsla') {
+						var h = parseInt(split.part1, 10);
+						var s = parseInt(split.part2, 10);
+						var l = parseInt(split.part3, 10);
+						a = parseFloat(split.alpha || '1');
+						if (h < 0 || h > 360 || split.percent1 === '%' || s < 0 || s > 100 || split.percent2 !== '%' ||
+							l < 0 || l > 100 || split.percent3 !== '%' || a < 0 || a > 1) return false;
+						this.colorData.value = 'hsla(' + h.toFixed(0) + ', ' + s.toFixed(2) + '%, ' + l.toFixed(2) + '%, ' + a.toFixed(2) + ')';
+						this.colorData.format = 'hsla';
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+		},
+
+		makeColor: function(color) {
+			return '"' + color + '"';
 		}
 	};
 };
