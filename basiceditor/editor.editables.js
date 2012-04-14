@@ -6,37 +6,30 @@ var clayer = require('../clayer');
 module.exports = function(editor) {
 	editor.editables = {};
 
-	editor.editables.NumberEditable = function() { return this.init.apply(this, arguments); };
+	editor.editables.NumberEditable = function() { return this.build.apply(this, arguments); };
 
-	editor.editables.NumberEditable.prototype = {
-		init: function(node, surface, delegate, parseNumber, makeNumber) {
+	var addCommonMethods = function(type, editable) {
+		editable.build = function(node, surface, delegate, parseValue, makeValue) {
 			this.surface = surface;
 			this.delegate = delegate;
-			this.parseNumber = parseNumber;
-			this.makeNumber = makeNumber;
+			this.parseValue = parseValue;
+			this.makeValue = makeValue;
 
 			this.line = node.lineLoc.line;
 			this.column = node.lineLoc.column;
 			this.column2 = node.lineLoc.column2;
 			this.text = delegate.getEditablesText(node);
-			this.valid = this.parseNumber(this.text);
+			this.valid = this.parseValue(this.text);
 
-			this.$marking = $('<div class="editor-marking editor-editable editor-number-editable"></div>');
+			this.$marking = $('<div class="editor-marking editor-editable editor-' + type + '-editable"></div>');
 			this.surface.addElement(this.$marking);
-			this.touchable = new clayer.Touchable(this.$marking, this);
 			this.box = null;
+			this.touchable = null;
 			this.updateMarking();
-		},
+			this.init();
+		};
 
-		remove: function() {
-			this.touchable.setTouchable(false);
-			this.$marking.remove();
-			if (this.box !== null) {
-				this.box.remove();
-			}
-		},
-
-		offsetColumn: function(column, amount) {
+		editable.offsetColumn = function(column, amount) {
 			if (this.column2 > column) {
 				this.column2 += amount;
 				if (this.column > column) {
@@ -44,25 +37,56 @@ module.exports = function(editor) {
 				}
 				this.updateMarking();
 			}
-		},
+		};
 
-		isValid: function() {
-			return this.valid;
-		},
+		editable.remove = function() {
+			this.$marking.remove();
+			if (this.touchable !== null) {
+				this.touchable.setTouchable(false);
+			}
+			if (this.box !== null) {
+				this.box.remove();
+			}
+		};
 
 		/// INTERNAL FUNCTIONS ///
 
-		updateMarking: function() {
+		editable.updateMarking = function() {
+			if (!this.valid) this.remove();
 			this.surface.setElementLocationRange(this.$marking, this.line, this.column, this.line+1, this.column2);
 			if (this.box !== null) {
 				this.box.updatePosition();
 			}
+		};
+
+		editable.updateValue = function() {
+			this.delegate.editableReplaceCode(this.line, this.column, this.column2, this.text);
+		};
+	};
+
+	editor.editables.CycleEditable.prototype = addCommonMethods('cycle', {
+		init: function() {
+			this.$marking.on('click', $.proxy(this.cycle, this));
+		},
+		cycle: function() {
+			this.text = this.makeValue();
+			this.updateValue();
+			this.valid = this.parseValue(this.text);
+		}
+	});
+
+	editor.editables.NumberEditable.prototype = addCommonMethods('number', {
+		init: function() {
+			this.box = null;
+			this.touchable = new clayer.Touchable(this.$marking, this);
 		},
 
+		/// INTERNAL FUNCTIONS ///
 		showBox: function() {
 			if (this.box === null) {
 				this.box = new editor.Box(this.$marking, this.surface);
 				this.box.html('&larr; drag &rarr;');
+				this.box.$element.on('click', $.proxy(this.hideBox, this));
 			}
 			this.box.$element.fadeIn(150);
 		},
@@ -78,22 +102,15 @@ module.exports = function(editor) {
 		},
 
 		touchMove: function(touch) {
-			var newText = this.makeNumber(touch.translation.x);
-			//this.editor.setCode(this.editor.code.replaceOffsetRange(this.offset, this.offset+this.text.length, newText));
-			this.delegate.editableReplaceCode(this.line, this.column, this.column2, newText);
-
-			if (newText.length !== this.text.length) {
-				//this.editor.offsetEditables(this.line, this.column, newText.length - this.text.length);
-			}
-
-			this.text = newText;
+			this.text = this.makeValue(touch.translation.x);
+			this.updateValue();
 		},
 
 		touchUp: function(touch) {
-			this.valid = this.parseNumber(this.text);
+			this.valid = this.parseValue(this.text);
 			if (touch.wasTap) {
 				this.showBox();
 			}
 		}
-	};
+	});
 };
