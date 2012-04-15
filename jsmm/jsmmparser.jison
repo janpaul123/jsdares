@@ -8,10 +8,10 @@ alpha			[a-zA-Z_]
 alphanum		[0-9a-zA-Z_]
 exponent		(?:[eE][+-]?{digit}+)
 whitespace		(?:[ \f\r\t\v\u00A0\u2028\u2029]+)
-linecomment		(?:[/][/][^\n]*)
-multicomment	(?:[/][*]([^*]*[*][^/])*[^*]*[*][/])
+linecomment		(?:(?:[/][/][^\n]*)|(?:[/][*](?:[^*\n]*[*][^/\n])*[^*\n]*[*][/]))
+multicomment	(?:[/][*](?:[^*]*[*][^/])*[^*]*[*][/])
 skip			(?:{whitespace}|{linecomment}|{multicomment})
-newlines		(?:(?:[\n]{skip}?)+)
+newlines		(?:{skip}*(?:[\n]{skip}*)+)
 fraction		(?:"."{digit}+)
 number			(?:(?:(?:[1-9]{digit}*)|"0"){fraction}?{exponent}?)
 string			(?:["][^\\"\n]*(?:[\\][nt"\\][^\\"]*)*["])
@@ -21,7 +21,22 @@ reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new
 
 %%
 
-{skip}										/* skip and comments */
+(?:{whitespace}|{linecomment})				/* skip and comments */
+{reserved}(?!{alphanum})					return "RESERVED";
+"true"										return "TRUE";
+"false"										return "FALSE";
+"if"										return "IF";
+{newlines}?"else"							return "ELSE";
+"while"										return "WHILE";
+"for"										return "FOR";
+"var"										return "VAR";
+"function"									return "FUNCTION";
+"return"									return "RETURN";
+{alpha}{alphanum}*							return "NAME";
+{newlines}									return "NEWLINE";
+{number}									return "NUMBER";
+{string}									return "STRING";
+<<EOF>>										return "EOF";
 ("+="|"-="|"*="|"/="|"%=")					return "+=";
 ("=="|"!="|">="|"<="|">"|"<")				return "==";
 "&&"										return "&&";
@@ -39,21 +54,6 @@ reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new
 "]"											return "]";
 "."											return ".";
 ","											return ",";
-{reserved}(?!{alphanum})					return "RESERVED";
-"true"										return "TRUE";
-"false"										return "FALSE";
-"if"										return "IF";
-{newlines}?"else"							return "ELSE";
-"while"										return "WHILE";
-"for"										return "FOR";
-"var"										return "VAR";
-"function"									return "FUNCTION";
-"return"									return "RETURN";
-{alpha}{alphanum}*							return "NAME";
-{newlines}									return "NEWLINE";
-{number}									return "NUMBER";
-{string}									return "STRING";
-<<EOF>>										return "EOF";
 
 /lex
 
