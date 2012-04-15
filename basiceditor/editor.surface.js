@@ -167,7 +167,7 @@ module.exports = function(editor) {
 		},
 
 		disableMouse: function() {
-			this.$div.off('mousemove', 'mouseleave');
+			this.$div.off('mousemove mouseleave');
 		},
 
 		showErrorMessage: function(message) {

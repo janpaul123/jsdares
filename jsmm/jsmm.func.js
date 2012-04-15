@@ -6,7 +6,7 @@ module.exports = function(jsmm) {
 	
 	jsmm.func = {};
 	jsmm.func.maxCallStackDepth = 100;
-	jsmm.func.maxExecutionCounter = 10000;
+	jsmm.func.maxExecutionCounter = 4000;
 	
 	var findVar = function(scope, name) {
 		do {

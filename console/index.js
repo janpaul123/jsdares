@@ -43,7 +43,6 @@ cs.Console.prototype = {
 		}
 		$element.text(text);
 		$element.data('node', node);
-		$element.on('mousemove', $.proxy(this.mouseMove, this));
 		this.$content.append($element);
 
 		if (this.color !== '') $element.css('color', this.color);
@@ -66,6 +65,7 @@ cs.Console.prototype = {
 	enableHighlighting: function() {
 		this.highlighting = true;
 		this.$div.addClass('cs-highlighting');
+		this.$div.on('mousemove', $.proxy(this.mouseMove, this));
 		this.autoScroll = false;
 		this.$div.removeClass('cs-autoscroll');
 	},
@@ -74,6 +74,7 @@ cs.Console.prototype = {
 		this.highlighting = false;
 		this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
 		this.$div.removeClass('cs-highlighting');
+		this.$div.off('mousemove');
 		this.refreshAutoScroll();
 	},
 
@@ -109,7 +110,7 @@ cs.Console.prototype = {
 	mouseMove: function(event) {
 		if (this.highlighting) {
 			var $target = $(event.target);
-			if (!$target.hasClass('cs-highlight-line')) {
+			if ($target.data('node') !== undefined && !$target.hasClass('cs-highlight-line')) {
 				this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
 				$target.addClass('cs-highlight-line');
 				this.editor.highlightNode($target.data('node'));

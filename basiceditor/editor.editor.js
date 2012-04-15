@@ -23,6 +23,9 @@ module.exports = function(editor) {
 			this.highlightLine = 0;
 			this.currentHighlightNode = null;
 
+			this.updateTimeout = null;
+			this.runTimeout = null;
+
 			this.setText(text || '');
 		},
 
@@ -52,7 +55,15 @@ module.exports = function(editor) {
 			}
 		},
 
+		delayedUpdate: function() {
+			this.code = new editor.Code(this.surface.getText());
+			if (this.updateTimeout === null) {
+				this.updateTimeout = setTimeout($.proxy(this.update, this), 5);
+			}
+		},
+
 		update: function() {
+			this.updateTimeout = null;
 			this.code = new editor.Code(this.surface.getText());
 			this.tree = new this.language.Tree(this.code.text);
 			if (this.tree.hasError()) {
@@ -73,7 +84,14 @@ module.exports = function(editor) {
 			this.delegate.textChanged(this.code);
 		},
 
+		delayedRun: function() {
+			if (this.runTimeout === null) {
+				this.runTimeout = setTimeout($.proxy(this.run, this), 5);
+			}
+		},
+
 		run: function() {
+			this.runTimeout = null;
 			this.callOutputs('startRun');
 			this.runner.newTree(this.tree);
 			this.runner.run();
@@ -144,7 +162,7 @@ module.exports = function(editor) {
 		},
 
 		userChangedText: function() { // callback
-			this.update();
+			this.update(); // refreshEditables uses this.tree
 			if (this.editablesEnabled) {
 				this.refreshEditables();
 			}
@@ -205,7 +223,7 @@ module.exports = function(editor) {
 					this.editablesByLine[line][i].offsetColumn(column, changeOffset);
 				}
 			}
-			this.update();
+			this.delayedUpdate();
 			this.surface.restoreCursor(offset2, changeOffset);
 		},
 
@@ -239,7 +257,7 @@ module.exports = function(editor) {
 			if (this.highlightingEnabled) {
 				this.highlightLine = line;
 				if (this.refreshHighlights()) {
-					this.run();
+					this.delayedRun();
 				}
 			}
 		},
@@ -268,7 +286,7 @@ module.exports = function(editor) {
 			if (this.highlightingEnabled) {
 				this.currentHighlightNode = null;
 				if (this.refreshHighlights()) {
-					this.run();
+					this.delayedRun();
 				}
 			}
 		},
