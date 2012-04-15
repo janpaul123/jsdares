@@ -67,13 +67,13 @@ module.exports = function(jsmm) {
 	jsmm.func.binary = function(node, expression1, symbol, expression2) {
 		/*jshint eqeqeq:false*/
 		if (expression1.value === undefined) {
-			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression1.str) + ' is ' + f('undefined'); });
+			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression1.name) + ' is ' + f('undefined'); });
 		} else if (expression2.value === undefined) {
-			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression2.str) + ' is ' + f('undefined'); });
+			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression2.name) + ' is ' + f('undefined'); });
 		} else if (expression1.value === null) {
-			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression1.str) + ' is ' + f('null'); });
+			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression1.name) + ' is ' + f('null'); });
 		} else if (expression2.value === null) {
-			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression2.str) + ' is ' + f('null'); });
+			throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression2.name) + ' is ' + f('null'); });
 		} else if (['-', '*', '/', '%', '-=', '*=', '/=', '%=', '>', '>=', '<', '<='].indexOf(symbol) >= 0) {
 			if (typeof expression1.value !== 'number' || !isFinite(expression1.value)) {
 				throw new jsmm.msg.Error(node, function(f){ return f(symbol) + ' not possible since ' + f(expression1.str) + ' is not a number'; });
@@ -200,9 +200,9 @@ module.exports = function(jsmm) {
 			
 		for (var i=0; i<args.length; i++) {
 			if (args[i].value === undefined) {
-				throw new jsmm.msg.Error(node, function(f){ return 'Argument ' + f(args[i].name) + ' is undefined'; });
+				throw new jsmm.msg.Error(node, function(f){ return 'Argument ' + f(args[i].name) + ' is ' + f('undefined'); });
 			} else if (args[i].value === undefined) {
-				throw new jsmm.msg.Error(node, function(f){ return 'Argument ' + f(args[i].name) + ' is null'; });
+				throw new jsmm.msg.Error(node, function(f){ return 'Argument ' + f(args[i].name) + ' is ' + f('null'); });
 			} else {
 				funcArgs.push(args[i].value);
 			}
@@ -255,7 +255,7 @@ module.exports = function(jsmm) {
 	
 	jsmm.func.checkExecutionCounter = function(node, executionCounter) {
 		if (executionCounter > jsmm.func.maxExecutionCounter) {
-			throw new jsmm.msg.Error(node, function(f){ return 'Program takes too long to run, perhaps there is an infinite loop somewhere'; });
+			throw new jsmm.msg.Error(node, function(f){ return 'Program takes too long to run'; });
 		}
 	};
 };
