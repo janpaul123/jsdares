@@ -8,6 +8,7 @@ require('./jsmm.base')(jsmm);
 require('./jsmm.parser')(jsmm);
 require('./jsmm.safe')(jsmm);
 require('./jsmm.step')(jsmm);
+require('./jsmm.dot')(jsmm);
 require('./jsmm.simple.runner')(jsmm);
 require('./jsmm.static.runner')(jsmm);
 require('./jsmm.test')(jsmm);

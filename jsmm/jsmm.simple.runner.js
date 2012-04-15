@@ -14,7 +14,7 @@ module.exports = function(jsmm) {
 		},
 		
 		reset: function() {
-			this.context = null;
+			this.tree = null;
 			this.rawFunc = null;
 			this.safeFunc = null;
 			this.stack = null;
@@ -53,12 +53,12 @@ module.exports = function(jsmm) {
 		
 		parse: function() {
 			this.resetError();
-			if (this.context !== null) return true;
+			if (this.tree !== null) return true;
 			
 			try {
-				this.context = new jsmm.Tree(this.code);
-				if (this.context.hasError()) {
-					this.handleError(this.context.getError());
+				this.tree = new jsmm.Tree(this.code);
+				if (this.tree.hasError()) {
+					this.handleError(this.tree.getError());
 					return false;
 				}
 				return true;
@@ -72,24 +72,24 @@ module.exports = function(jsmm) {
 			this.resetError();
 			if (!this.parse()) return undefined;
 
-			return this.context.nodesByType[type];
+			return this.tree.nodesByType[type];
 		},
 
 		getElementByLine: function(line) {
 			this.resetError();
 			if (!this.parse()) return undefined;
 
-			return this.context.nodesByLine[line];
+			return this.tree.nodesByLine[line];
 		},
 
 		addHookBeforeNode: function(node, func) {
 			this.safeFunc = null;
-			this.context.addHookBeforeNode(node, func);
+			this.tree.addHookBeforeNode(node, func);
 		},
 
 		addHookAfterNode: function(node, func) {
 			this.safeFunc = null;
-			this.context.addHookAfterNode(node, func);
+			this.tree.addHookAfterNode(node, func);
 		},
 		
 		getDot: function() {
@@ -97,7 +97,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return undefined;
 			
 			try {
-				return this.context.programNode.getDot();
+				return this.tree.programNode.getDot();
 			} catch (error) {
 				this.handleError(error);
 				return undefined;
@@ -109,7 +109,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return undefined;
 			
 			try {
-				return this.context.programNode.getCode();
+				return this.tree.programNode.getCode();
 			} catch (error) {
 				this.handleError(error);
 				return undefined;
@@ -122,7 +122,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return false;
 			
 			try {
-				this.rawFunc = this.context.programNode.getFunction(this.scope);
+				this.rawFunc = this.tree.programNode.getFunction(this.scope);
 				return true;
 			} catch (error) {
 				this.handleError(error);
@@ -148,7 +148,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return undefined;
 			
 			try {
-				return this.context.programNode.getSafeCode();
+				return this.tree.programNode.getSafeCode();
 			} catch (error) {
 				this.handleError(error);
 				return undefined;
@@ -161,7 +161,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return false;
 			
 			try {
-				this.safeFunc = this.context.programNode.getSafeFunction(this.scope);
+				this.safeFunc = this.tree.programNode.getSafeFunction(this.scope);
 				return true;
 			} catch (error) {
 				this.handleError(error);
@@ -186,7 +186,7 @@ module.exports = function(jsmm) {
 			this.resetError();
 			if (!this.parse()) return false;
 			try {
-				this.stack = new jsmm.step.Stack(this.context, this.scope);
+				this.stack = new jsmm.step.Stack(this.tree, this.scope);
 				this.stepPos = 0;
 				return true;
 			} catch (error) {

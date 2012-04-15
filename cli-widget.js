@@ -96,6 +96,10 @@ $(function() {
 		runner.setText(ed.getText());
 	};
 
+	var log = function(text) {
+		myConsole.log(null, text);
+	};
+
 	var isMac = navigator.platform.indexOf("Mac") >= 0;
 	$('#highlight').tooltip({title: '<strong>ctrl</strong>' + (isMac ? ' or <strong>cmd</strong> (&#8984;)' : ''), placement: 'bottom'});
 	$('#edit').tooltip({title: '<strong>alt</strong>' + (isMac ? ' (&#8997;)' : ''), placement: 'bottom'});
@@ -195,41 +199,39 @@ $(function() {
 	
 	$('#extra-compile').click(function(e) {
 		clear();
-		myConsole.log(runner.getRawCode());
+		log(runner.getRawCode());
 	});
 	
 	$('#extra-safe').click(function(e) {
 		clear();
-		myConsole.log(runner.getSafeCode());
+		log(runner.getSafeCode());
 	});
 	
 	$('#extra-tree').click(function(e) {
 		clear();
 		window.open('https://chart.googleapis.com/chart?cht=gv&chl=' + encodeURIComponent(runner.getDot()));
-		myConsole.log('"dot" string (renderable with Graphviz):\n');
-		myConsole.log(runner.getDot());
+		log('"dot" string (renderable with Graphviz):\n');
+		log(runner.getDot());
 	});
 	
-	$('#extra-elements').click(function(e) {
+	$('#extra-nodes').click(function(e) {
 		clear();
 		runner.parse();
 		
-		//myConsole.log('There may be multiple instances of the same element due to parser behaviour. (??)\n');
-		
-		for (var i=0; i<runner.context.elements.length; i++) {
-			var element = runner.context.elements[i];
-			myConsole.log(element.type + ' @ line ' + element.startPos.line + ', column ' + element.startPos.column);
+		for (var i=0; i<runner.tree.nodes.length; i++) {
+			var node = runner.tree.nodes[i];
+			log(node.type + ' @ line ' + node.lineLoc.line + ', column ' + node.lineLoc.column);
 		}
 		
-		if (realConsole.log(runner.context)) {
-			myConsole.log('\nNote: full context has also been printed to browser console.');
+		if (realConsole.log(runner.tree)) {
+			log('\nNote: full tree has also been printed to browser console.');
 		}
 	});
 	
 	$('#extra-tests').click(function(e) {
 		clear();
 		jsmm.test.runAll();
-		myConsole.log(jsmm.test.output);
+		log(jsmm.test.output);
 	});
 	
 	var stressTime = function(n, f) {
@@ -246,22 +248,22 @@ $(function() {
 		var parseGenAvg = stressTime(200, function() { runner.reset(); runner.makeSafeFunc(); });
 		var runAvg = stressTime(200, function() { runner.runSafe(); });
 		clear();
-		myConsole.log('Program average parse time: ' + parseAvg + 'ms (out of 200 trials)');
-		myConsole.log('Program average parse + code generation time: ' + parseGenAvg + 'ms (out of 200 trials)');
-		myConsole.log('Program average run time: ' + runAvg + 'ms (out of 200 trials)');
-		myConsole.log();
-		myConsole.log('Note: the Javascript time function is not completely reliable...');
+		log('Program average parse time: ' + parseAvg + 'ms (out of 200 trials)');
+		log('Program average parse + code generation time: ' + parseGenAvg + 'ms (out of 200 trials)');
+		log('Program average run time: ' + runAvg + 'ms (out of 200 trials)');
+		log();
+		log('Note: the Javascript time function is not completely reliable...');
 	});
 	
 	/*
 	$('#extra-scope').click(function(e) {
 		clear();
 		if (!runner.isStepping()) {
-			myConsole.log('Not stepping...');
+			log('Not stepping...');
 			return;
 		}
 		
-		myConsole.log(JSON.stringify(runner.stack.getLastStackElement().scope, function(key, value) {
+		log(JSON.stringify(runner.stack.getLastStackElement().scope, function(key, value) {
 			if (typeof value === 'function') {
 				return '[Function]';
 			} else {
@@ -270,52 +272,52 @@ $(function() {
 		}, 2));
 		
 		if (realConsole.log(runner.stack.getLastStackElement().scope)) {
-			myConsole.log('\nNote: scope has also been printed to browser console.');
+			log('\nNote: scope has also been printed to browser console.');
 		}
 	});
 	
 	$('#extra-stack').click(function(e) {
 		clear();
 		if (!runner.isStepping()) {
-			myConsole.log('Not stepping...');
+			log('Not stepping...');
 			return;
 		}
 		
 		for (var i=0; i<runner.stack.elements.length; i++) {
 			var element = runner.stack.elements[i].element;
-			myConsole.log(element.type + ' @ line ' + element.startPos.line);
+			log(element.type + ' @ line ' + element.startPos.line);
 		}
 		
 		if (realConsole.log(runner.stack)) {
-			myConsole.log('\nNote: full stack has also been printed to browser console.');
+			log('\nNote: full stack has also been printed to browser console.');
 		}
 	});
 	
 	$('#extra-error').click(function(e) {
 		clear();
-		myConsole.log(JSON.stringify(runner.getError(), null, 2));
+		log(JSON.stringify(runner.getError(), null, 2));
 		
 		if (realConsole.log(runner.getError())) {
-			myConsole.log('\nNote: error has also been printed to browser console.');
+			log('\nNote: error has also been printed to browser console.');
 		}
 	});
 	
 	$('#about').click(function(e) {
 		clear();
-		myConsole.log('This is a tool to become a good programmer. The primary objective is to teach programming in an engaging way. It can also give current programmers insights in what it is they are doing.');
-		myConsole.log();
-		myConsole.log('The programming language you program in is js--, a subset of Javascript. A lot of things allowed in Javascript are not allowed here, yet it is still quite an expressive language. The intention is to stimulate learning by giving meaningful error messages and sensible operations.');
-		myConsole.log();
-		myConsole.log('Most of the interface ideas presented in this and feature prototypes are stolen from Bret Victor. I share his belief that direct interaction and abstraction are very powerful concepts, both in programming and other fields. We should program and teach programming this way.');
-		myConsole.log();
-		myConsole.log('This is a first step, mostly to test the compiler, and verify that something like this is possible in the runner. Next on the roadmap are:');
-		myConsole.log('* drawing on canvas');
-		myConsole.log('* autocompletion');
-		myConsole.log('* interactive programs (event handling, time-based)');
-		myConsole.log('* direct value manipulation');
-		myConsole.log('* up on the ladder of abstraction!');
-		myConsole.log();
-		myConsole.log('If you have any ideas, complaints, or suggestions about this prototype or its wider context, do not hesitate to mail me at me@janpaulposma.nl.');
+		log('This is a tool to become a good programmer. The primary objective is to teach programming in an engaging way. It can also give current programmers insights in what it is they are doing.');
+		log();
+		log('The programming language you program in is js--, a subset of Javascript. A lot of things allowed in Javascript are not allowed here, yet it is still quite an expressive language. The intention is to stimulate learning by giving meaningful error messages and sensible operations.');
+		log();
+		log('Most of the interface ideas presented in this and feature prototypes are stolen from Bret Victor. I share his belief that direct interaction and abstraction are very powerful concepts, both in programming and other fields. We should program and teach programming this way.');
+		log();
+		log('This is a first step, mostly to test the compiler, and verify that something like this is possible in the runner. Next on the roadmap are:');
+		log('* drawing on canvas');
+		log('* autocompletion');
+		log('* interactive programs (event handling, time-based)');
+		log('* direct value manipulation');
+		log('* up on the ladder of abstraction!');
+		log();
+		log('If you have any ideas, complaints, or suggestions about this prototype or its wider context, do not hesitate to mail me at me@janpaulposma.nl.');
 	});
 */
 	
