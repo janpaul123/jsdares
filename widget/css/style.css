@@ -4211,6 +4211,9 @@ a.thumbnail:hover {
   font-weight: bold;
   color: #eeee00;
 }
+.editor-number-editable {
+  cursor: col-resize;
+}
 div.colorpicker div.circle.lightness {
   border-color: rgba(30, 30, 30, 0.95);
 }
