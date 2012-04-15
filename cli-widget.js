@@ -10,18 +10,24 @@ $(function() {
 		window.localStorage.setItem('2', "console.setColor(\"#e2c221\");\nconsole.log(\"Colourful multiplication table:\");\nconsole.log(\"\");\n\nfunction printLine(x) {\n  var line = \"\";\n  for (var i=1; i<=9; i++) {\n    var number = i*x;\n    line += number + \"\\t\";\n  }\n  console.log(line);\n}\n\nfunction drawLine() {\n    var width = 8;\n    var line = \"\";\n    for (var i=1; i<=width; i++) {\n      line += \"--------\"; // 8 dashes\n    }\n    line += \"---\"; // some extra for the last column\n    \n    console.setColor(\"#e821e1\");\n    console.log(line);  \n}\n\nfor (var i=1; i<=29; i++) {\n  console.setColor(\"hsl(\" + i*11 + \", 100%, 50%)\");\n  printLine(i);\n  if (i % 10 == 0) {\n    drawLine();\n  }\n}\n\nconsole.setColor(\"hsla(129, 75.29%, 56%, 0.9)\");\nconsole.log(\"\");\nconsole.log(\"By Jan Paul Posma\");\nconsole.log(\"\");\nconsole.setColor(\"rgba(232, 229, 65, 1)\");\nconsole.log(\";)\");");
 	}
 
+	var highlightingKey = false, editablesKey = false;
+
 	var ui = {
 		editablesEnabled: function() {
 			$('#edit').addClass('active');
 		},
 		editablesDisabled: function() {
 			$('#edit').removeClass('active');
+			editablesKey = false;
+			refreshCheckKeys();
 		},
 		highlightingEnabled: function() {
 			$('#highlight').addClass('active');
 		},
 		highLightingDisabled: function() {
 			$('#highlight').removeClass('active');
+			highlightingKey = false;
+			refreshCheckKeys();
 		},
 		criticalError: function() {
 			$('#step').addClass('disabled');
@@ -90,8 +96,9 @@ $(function() {
 		runner.setText(ed.getText());
 	};
 
-	$('#highlight').tooltip({title: '<strong>ctrl</strong> / <strong>&#8984;</strong>', placement: 'bottom'});
-	$('#edit').tooltip({title: '<strong>alt</strong> / <strong>&#8997;</strong>', placement: 'bottom'});
+	var isMac = navigator.platform.indexOf("Mac") >= 0;
+	$('#highlight').tooltip({title: '<strong>ctrl</strong>' + (isMac ? ' or <strong>cmd</strong> (&#8984;)' : ''), placement: 'bottom'});
+	$('#edit').tooltip({title: '<strong>alt</strong>' + (isMac ? ' (&#8997;)' : ''), placement: 'bottom'});
 
 	$('#step').click($.proxy(ed.stepForward, ed));
 	$('#step-back').click($.proxy(ed.stepBackward, ed));
@@ -110,23 +117,47 @@ $(function() {
 		$('#console').show();
 	});
 
+
+	var checkKeys = function(event) {
+		if (highlightingKey && !(event.ctrlKey || event.metaKey)) {
+			ed.disableHighlighting();
+		}
+		if (editablesKey && !event.altKey) {
+			ed.disableEditables();
+		}
+	};
+
+	var refreshCheckKeys = function() {
+		if (highlightingKey || editablesKey) {
+			$(document).on('mousemove', checkKeys);
+		} else {
+			$(document).off('mousemove', checkKeys);
+		}
+	};
+
 	$(document).on('keydown', function(event) {
-		// 17 == CTRL, 18 == ALT, (17, 91, 224) == COMMAND
-		if ([17, 91, 224].indexOf(event.keyCode) >= 0) {
+		// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+		if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
 			ed.enableHighlighting();
+			highlightingKey = true;
+			refreshCheckKeys();
 		} else if (event.keyCode === 18) {
 			ed.enableEditables();
+			editablesKey = true;
+			refreshCheckKeys();
 		}
 	});
 
 	$(document).on('keyup', function(event) {
-		// 17 == CTRL, 18 == ALT, (17, 91, 224) == COMMAND
-		if ([17, 91, 224].indexOf(event.keyCode) >= 0) {
+		// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+		if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
 			ed.disableHighlighting();
 		} else if (event.keyCode === 18) {
 			ed.disableEditables();
 		}
 	});
+
+
 
 	/*
 	$('#canvas-button').click(function(e) {

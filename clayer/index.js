@@ -173,6 +173,14 @@ clayer.Touchable.prototype = {
 		this.touchMove = $.proxy(this.touchMoveHandler, this);
 		this.touchEnd = $.proxy(this.touchEndHandler, this);
 
+		this.documentEvents = {
+			mousemove: this.mouseMove,
+			mouseup: this.mouseUp,
+			touchmove: this.touchMove,
+			touchend: this.touchEnd,
+			touchcancel: this.touchEnd
+		};
+
 		this.setTouchable(true);
 	},
 
@@ -188,7 +196,7 @@ clayer.Touchable.prototype = {
 		}
 		else {
 			this.$element.off('mousedown touchstart');
-			this.$document.off('touchmove touchend touchcancel');
+			this.$document.off(this.documentEvents);
 		}
 	},
 
@@ -220,7 +228,7 @@ clayer.Touchable.prototype = {
 			
 			delete this.touch;
 		}
-		this.$document.off('mousemove mouseup');
+		this.$document.off(this.documentEvents);
 		return false;
 	},
 
@@ -256,7 +264,7 @@ clayer.Touchable.prototype = {
 			
 			delete this.touch;
 		}
-		this.$document.off('touchmove touchend touchcancel');
+		this.$document.off(this.documentEvents);
 		return false;
 	}
 };
