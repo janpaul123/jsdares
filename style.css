@@ -4158,9 +4158,8 @@ a.thumbnail:hover {
 .editor-marking {
   position: absolute;
   background-color: rgba(50, 250, 50, 0.4);
-  margin-top: 0px;
-  margin-left: 0px;
-  padding: 2px 1px 1px 1px;
+  margin-top: 1px;
+  margin-left: 1px;
   cursor: pointer;
   cursor: hand;
 }

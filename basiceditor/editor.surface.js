@@ -270,8 +270,9 @@ module.exports = function(editor) {
 			this.$mirror.text('a');
 			this.textOffset = {x: this.$mirror.outerWidth(), y: this.$mirror.outerHeight()};
 
-			this.$mirror.text('aa');
-			this.charWidth = this.$mirror.outerWidth() - this.textOffset.x;
+			// this trick of measuring a long string especially helps Firefox get an accurate character width
+			this.$mirror.text('a' + new Array(100+1).join('a'));
+			this.charWidth = (this.$mirror.outerWidth() - this.textOffset.x)/100;
 
 			this.$mirror.text('a\na');
 			this.lineHeight = this.$mirror.outerHeight() - this.textOffset.y;
