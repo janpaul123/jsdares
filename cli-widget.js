@@ -94,6 +94,7 @@ $(function() {
 		myConsole.clear();
 		//myCanvas.clear();
 		runner.setText(ed.getText());
+		$('#refresh').removeClass('disabled');
 	};
 
 	var log = function(text) {
@@ -251,7 +252,7 @@ $(function() {
 		log('Program average parse time: ' + parseAvg + 'ms (out of 200 trials)');
 		log('Program average parse + code generation time: ' + parseGenAvg + 'ms (out of 200 trials)');
 		log('Program average run time: ' + runAvg + 'ms (out of 200 trials)');
-		log();
+		log('');
 		log('Note: the Javascript time function is not completely reliable...');
 	});
 	
