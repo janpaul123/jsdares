@@ -3,8 +3,8 @@
 
 $(function() {
 	var jsmm = require('./jsmm');
-	var editor = require('./basiceditor');
-	var cs = require('./console');
+	var editor = require('./editor');
+	var output = require('./output');
 
 	if (window.localStorage.getItem('2') === null) {
 		window.localStorage.setItem('2', "console.setColor(\"#fbf706\");\nconsole.log(\"Colourful multiplication table:\");\nconsole.log(\"\");\n\nvar width = 9;\n\nfunction printLine(x) {\n  var line = \"\";\n  for (var i=1; i<=width; i++) {\n    var number = i*x;\n    line += number + \"\\t\";\n  }\n  console.log(line);\n}\n\nfunction drawLine() {\n    var line = \"\";\n    for (var i=1; i<=width-1; i++) {\n      line += \"--------\"; // 8 dashes\n    }\n    line += \"---\"; // some extra for the last column\n    \n    console.setColor(\"#e821e1\");\n    console.log(line);  \n}\n\nfor (var i=1; i<=29; i++) {\n  console.setColor(\"hsl(\" + i*11 + \", 100%, 50%)\");\n  printLine(i);\n  \n  // try playing with true and false here! :)\n  if (i % 10 == 0 && true || false) {\n    drawLine();\n  }\n}\n\nconsole.setColor(\"hsla(130, 75%, 55%, 0.9)\");\nconsole.log(\"\");\nconsole.log(\"By Jan Paul Posma\");\nconsole.log(\"\");\n\nconsole.setColor(\"rgba(230, 230, 0, 1)\");\nconsole.log(\";)\");");
@@ -71,7 +71,7 @@ $(function() {
 
 	var ed = new editor.Editor(jsmm, $('#editor'), ui, window.localStorage.getItem('2'));
 	window.ed = ed;
-	var myConsole = new cs.Console($('#console'), ed);
+	var myConsole = new output.Console($('#console'), ed);
 
 	var scope = {console: myConsole.getAugmentedObject()};
 

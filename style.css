@@ -4176,7 +4176,7 @@ a.thumbnail:hover {
 }
 .editor-box {
   position: absolute;
-  margin-top: 5px;
+  margin-top: 6px;
   display: block;
   background-color: rgba(30, 30, 30, 0.95);
   font-size: 14px;
@@ -4282,13 +4282,147 @@ body {
   width: auto;
   height: auto;
 }
-#console {
+#console,
+#canvas {
   position: absolute;
-  top: 50px;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  width: auto;
+  height: auto;
+  background-color: #333;
+}
+#output {
+  position: absolute;
+  top: 23px;
   left: 17px;
   right: 50%;
   margin-right: 10px;
   bottom: 17px;
+  width: auto;
+  height: auto;
+  /*
+	.btn:hover {
+  color: @grayDark;
+  text-decoration: none;
+  background-color: darken(@white, 10%);
+  background-position: 0 -15px;
+
+  // transition is only when going to hover, otherwise the background
+  // behind the gradient (there for IE<=9 fallback) gets mismatched
+  .transition(background-position .1s linear);
+}
+
+// Focus state for keyboard and accessibility
+.btn:focus {
+  .tab-focus();
+}
+
+// Active state
+.btn.active,
+.btn:active {
+  background-image: none;
+  @shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05);
+  .box-shadow(@shadow);
+  background-color: darken(@white, 10%);
+  background-color: darken(@white, 15%) e("\9");
+  outline: 0;
+}
+*/
+
+}
+#output .nav-tabs {
+  border-bottom: none;
+  margin-bottom: 0px;
+}
+#output .nav-tabs li > a {
+  padding: 6px 10px 3px;
+  margin-right: 8px;
+  line-height: 18px;
+  font-size: 13px;
+  color: white;
+  border: none;
+  background-color: #2c2c2c;
+  background-image: -moz-linear-gradient(top, #333333, #222222);
+  background-image: -ms-linear-gradient(top, #333333, #222222);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#333333), to(#222222));
+  background-image: -webkit-linear-gradient(top, #333333, #222222);
+  background-image: -o-linear-gradient(top, #333333, #222222);
+  background-image: linear-gradient(top, #333333, #222222);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#222222', GradientType=0);
+  border-color: #222222 #222222 #000000;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+  background-color: #222;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+#output .nav-tabs li > a:hover,
+#output .nav-tabs li > a:active,
+#output .nav-tabs li > a.active,
+#output .nav-tabs li > a.disabled,
+#output .nav-tabs li > a[disabled] {
+  background-color: #222222;
+}
+#output .nav-tabs li > a:active,
+#output .nav-tabs li > a.active {
+  background-color: #080808 \9;
+}
+#output .nav-tabs li > a:hover,
+#output .nav-tabs li > afocus {
+  background-color: #222;
+  background-position: 0 -30px;
+  -webkit-transition: background-position 0.1s linear;
+  -moz-transition: background-position 0.1s linear;
+  -ms-transition: background-position 0.1s linear;
+  -o-transition: background-position 0.1s linear;
+  transition: background-position 0.1s linear;
+}
+#output .nav-tabs .active > a {
+  background-position: 0 0px !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+  background-color: #474747;
+  background-image: -moz-linear-gradient(top, #555555, #333333);
+  background-image: -ms-linear-gradient(top, #555555, #333333);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#555555), to(#333333));
+  background-image: -webkit-linear-gradient(top, #555555, #333333);
+  background-image: -o-linear-gradient(top, #555555, #333333);
+  background-image: linear-gradient(top, #555555, #333333);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#555555', endColorstr='#333333', GradientType=0);
+  border-color: #333333 #333333 #0d0d0d;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+  background-color: #333;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+#output .nav-tabs .active > a:hover,
+#output .nav-tabs .active > a:active,
+#output .nav-tabs .active > a.active,
+#output .nav-tabs .active > a.disabled,
+#output .nav-tabs .active > a[disabled] {
+  background-color: #333333;
+}
+#output .nav-tabs .active > a:active,
+#output .nav-tabs .active > a.active {
+  background-color: #1a1a1a \9;
+}
+#output .tab-content {
+  display: block;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 27px;
+  bottom: 0px;
   width: auto;
   height: auto;
 }
@@ -4303,10 +4437,12 @@ body {
 }
 #title {
   position: absolute;
-  left: 22px;
+  left: 50%;
+  margin-left: -265px;
   top: 5px;
   font-size: 58px;
   line-height: 58px;
+  text-shadow: 1px -1px 5px #222222;
 }
 /* put in bootstrap, forgot btn-warning */
 .btn-warning .caret {

@@ -1,7 +1,7 @@
 @import "colorpicker/jquery.ui.colorPicker.less";
 @import "bootstrap/less/bootstrap.less";
-@import "basiceditor/basiceditor.less";
-@import "console/console.less";
+@import "editor/editor.less";
+@import "output/output.console.less";
 
 textarea[readonly] {
   cursor: text;
@@ -41,15 +41,102 @@ html, body {
 	height: auto;
 }
 
-#console {
+#console, #canvas {
 	position: absolute;
-	top: 50px;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	width: auto;
+	height: auto;
+	background-color: #333;
+}
+
+#output {
+	position: absolute;
+	top: 23px;
 	left: 17px;
 	right: 50%;
 	margin-right: 10px;
 	bottom: 17px;
 	width: auto;
 	height: auto;
+
+	.nav-tabs {
+		border-bottom: none;
+		margin-bottom: 0px;
+
+		li > a {
+			padding: 6px 10px 3px;
+			margin-right: 8px;
+			line-height: 18px;
+			font-size: 13px;
+			color: white;
+			border: none;
+			.buttonBackground(#333, #222);
+			background-color: #222;
+			@shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 2px rgba(0,0,0,.05);
+			.box-shadow(@shadow);
+
+			&:hover, &focus {
+				background-color: #222;
+				background-position: 0 -30px;
+				.transition(background-position .1s linear);
+			}
+		}
+
+		.active > a {
+			background-position: 0 0px !important;
+			.transition(none) !important;
+			.buttonBackground(#555, #333);
+			background-color: #333;
+			@shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+			.box-shadow(@shadow);
+		}
+	}
+
+	/*
+	.btn:hover {
+  color: @grayDark;
+  text-decoration: none;
+  background-color: darken(@white, 10%);
+  background-position: 0 -15px;
+
+  // transition is only when going to hover, otherwise the background
+  // behind the gradient (there for IE<=9 fallback) gets mismatched
+  .transition(background-position .1s linear);
+}
+
+// Focus state for keyboard and accessibility
+.btn:focus {
+  .tab-focus();
+}
+
+// Active state
+.btn.active,
+.btn:active {
+  background-image: none;
+  @shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05);
+  .box-shadow(@shadow);
+  background-color: darken(@white, 10%);
+  background-color: darken(@white, 15%) e("\9");
+  outline: 0;
+}
+*/
+
+	.tab-content {
+		display: block;
+		position: absolute;
+		left: 0px;
+		right: 0px;
+		top: 27px;
+		bottom: 0px;
+		width: auto;
+		height: auto;
+		.tab-pane {
+			// position: relative;
+		}
+	}
 }
 
 #editor-bar {
@@ -67,10 +154,12 @@ html, body {
 
 #title {
 	position: absolute;
-	left: 22px;
+	left: 50%;
+	margin-left: -265px;
 	top: 5px;
 	font-size: 58px;
 	line-height: 58px;
+	text-shadow: 1px -1px 5px #222;
 }
 
 /* put in bootstrap, forgot btn-warning */
