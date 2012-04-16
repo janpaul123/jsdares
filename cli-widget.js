@@ -72,8 +72,9 @@ $(function() {
 	var ed = new editor.Editor(jsmm, $('#editor'), ui, window.localStorage.getItem('2'));
 	window.ed = ed;
 	var myConsole = new output.Console($('#console'), ed);
+	var canvas = new output.Canvas($('#canvas'), ed);
 
-	var scope = {console: myConsole.getAugmentedObject()};
+	var scope = {console: myConsole.getAugmentedObject(), canvas: canvas.getAugmentedObject()};
 
 	ed.setScope(scope);
 	

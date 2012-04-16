@@ -7,13 +7,14 @@ module.exports = function(output) {
 	output.Console.prototype = {
 		init: function($div, editor) {
 			this.$div = $div;
-			this.$div.addClass('cs-console');
+			this.$div.addClass('console');
 			this.$div.on('scroll', $.proxy(this.refreshAutoScroll, this));
 
-			this.$content = $('<div class="cs-content"></div>');
+			this.$content = $('<div class="console-content"></div>');
 			this.$div.append(this.$content);
 
 			//this.debugToBrowser = true;
+			this.highlighting = false;
 			this.highlightNextLines = false;
 			this.autoScroll = false;
 			this.editor = editor;
@@ -25,20 +26,21 @@ module.exports = function(output) {
 
 		getAugmentedObject: function() {
 			return {
-				log: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
-				clear: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
-				setColor: {isAugmentedFunction: true, func: $.proxy(this.setColor, this)}
+				log: {augmented: 'function', func: $.proxy(this.log, this)},
+				clear: {augmented: 'function', func: $.proxy(this.log, this)},
+				setColor: {augmented: 'function', func: $.proxy(this.setColor, this)}
 			};
 		},
 
-		log: function(node, value) {
+		log: function(name, node, args) {
+			var value = args[0];
 			var text = '' + value;
 			if (typeof value === 'object') text = '[object]';
 			else if (typeof value === 'function') text = '[function]';
 
-			var $element = $('<div class="cs-line"></div>');
+			var $element = $('<div class="console-line"></div>');
 			if (this.highlightNextLines) {
-				$element.addClass('cs-highlight-line');
+				$element.addClass('console-highlight-line');
 			}
 			$element.text(text);
 			$element.data('node', node);
@@ -49,7 +51,8 @@ module.exports = function(output) {
 			if (this.debugToBrowser && console && console.log) console.log(value);
 		},
 
-		setColor: function(node, color) {
+		setColor: function(name, node, args) {
+			var color = args[0];
 			this.color = color;
 		},
 
@@ -63,16 +66,16 @@ module.exports = function(output) {
 
 		enableHighlighting: function() {
 			this.highlighting = true;
-			this.$div.addClass('cs-highlighting');
+			this.$div.addClass('console-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
 			this.autoScroll = false;
-			this.$div.removeClass('cs-autoscroll');
+			this.$div.removeClass('console-autoscroll');
 		},
 
 		disableHighlighting: function() {
 			this.highlighting = false;
-			this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
-			this.$div.removeClass('cs-highlighting');
+			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+			this.$div.removeClass('console-highlighting');
 			this.$div.off('mousemove');
 			this.refreshAutoScroll();
 		},
@@ -84,7 +87,7 @@ module.exports = function(output) {
 
 		endRun: function() {
 			if (this.highlighting) {
-				var $last = this.$content.children('.cs-highlight-line').last();
+				var $last = this.$content.children('.console-highlight-line').last();
 				if ($last.length > 0) {
 					// the offset is weird since .position().top changes when scrolling
 					this.scrollToY($last.position().top + this.$div.scrollTop());
@@ -96,7 +99,7 @@ module.exports = function(output) {
 
 		clear: function() {
 			this.color = '';
-			this.$content.children('.cs-line').remove(); // like this to prevent $.data memory leaks
+			this.$content.children('.console-line').remove(); // like this to prevent $.data memory leaks
 			if (this.debugToBrowser && console && console.clear) console.clear();
 		},
 
@@ -109,9 +112,9 @@ module.exports = function(output) {
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.target);
-				if ($target.data('node') !== undefined && !$target.hasClass('cs-highlight-line')) {
-					this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
-					$target.addClass('cs-highlight-line');
+				if ($target.data('node') !== undefined && !$target.hasClass('console-highlight-line')) {
+					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+					$target.addClass('console-highlight-line');
 					this.editor.highlightNode($target.data('node'));
 				}
 			}
@@ -120,10 +123,10 @@ module.exports = function(output) {
 		refreshAutoScroll: function() {
 			if (!this.highlighting) {
 				if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-4) {
-					this.$div.addClass('cs-autoscroll');
+					this.$div.addClass('console-autoscroll');
 					this.autoScroll = true;
 				} else {
-					this.$div.removeClass('cs-autoscroll');
+					this.$div.removeClass('console-autoscroll');
 					this.autoScroll = false;
 				}
 			}

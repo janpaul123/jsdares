@@ -4216,21 +4216,21 @@ a.thumbnail:hover {
 div.colorpicker div.circle.lightness {
   border-color: rgba(30, 30, 30, 0.95);
 }
-.cs-console {
+.console {
   position: relative;
   background-color: #333333;
   overflow: auto;
 }
-.cs-highlighting {
+.console-highlighting {
   cursor: crosshair;
 }
-.cs-autoscroll {
+.console-autoscroll {
   border-bottom: 1px solid #444444;
 }
-.cs-content {
+.console-content {
   margin: 10px;
 }
-.cs-line {
+.console-line {
   color: #00dd00;
   font-size: 14px;
   line-height: 16px;
@@ -4244,8 +4244,25 @@ div.colorpicker div.circle.lightness {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-.cs-highlight-line {
+.console-highlight-line {
   background-color: rgba(50, 250, 50, 0.4);
+}
+.canvas {
+  position: relative;
+  background-color: #333333;
+  overflow: auto;
+  padding: 15px;
+}
+.canvas-canvas {
+  width: 100%;
+  max-width: 540px;
+  background-color: #dddddd;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
 }
 textarea[readonly] {
   cursor: text;

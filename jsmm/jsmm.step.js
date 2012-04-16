@@ -112,7 +112,7 @@ module.exports = function(jsmm) {
 			case 1:
 				var result = jsmm.func.postfix(this, se.args[0], this.symbol);
 				stack.up(null);
-				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
+				var message = function(f) { return f(se.args[0].name) + ' = ' + f(jsmm.func.stringify(this, result.value)); };
 				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message)];
 		}
 	};
@@ -128,7 +128,7 @@ module.exports = function(jsmm) {
 				var result = jsmm.func.assignment(this, se.args[0], this.symbol, se.args[1]);
 				var up = stack.up(result);
 				var append = (up.node.type === 'VarItem');
-				var message = function(f) { return f(se.args[0].name) + ' = ' + f(result.str); };
+				var message = function(f) { return f(se.args[0].name) + ' = ' + f(jsmm.func.stringify(this, result.value)); };
 				return [new jsmm.msg.Inline(this, message), new jsmm.msg.Line(this, message, append)];
 		}
 	};
@@ -184,7 +184,7 @@ module.exports = function(jsmm) {
 						lastStackElement = stack.up(result);
 					}
 					// Postcondition: lastStackElement is a FunctionCall or a Program
-					return [new jsmm.msg.Line(this, 'return ' + se.args[0].str),
+					return [new jsmm.msg.Line(this, 'return ' + jsmm.func.stringify(this, se.args[0].value)),
 						new jsmm.msg.Continue(this)];
 			}
 		}
@@ -202,7 +202,7 @@ module.exports = function(jsmm) {
 				stack.up(result);
 				var that = this;
 				return [new jsmm.msg.Inline(this, function(f) {
-					return f(se.args[0].str) + ' ' + that.symbol + ' ' + f(se.args[1].str) + ' = ' + f(result.str);
+					return f(jsmm.func.stringify(this, se.args[0].value)) + ' ' + that.symbol + ' ' + f(jsmm.func.stringify(this, se.args[1].value)) + ' = ' + f(jsmm.func.stringify(this, result.value));
 				})];
 		}
 	};
@@ -217,7 +217,7 @@ module.exports = function(jsmm) {
 				stack.up(result);
 				var that = this;
 				return [new jsmm.msg.Inline(this, function(f) {
-					return that.symbol + f(se.args[0].str) + ' = ' + f(result.str);
+					return that.symbol + f(jsmm.func.stringify(this, se.args[0].value)) + ' = ' + f(jsmm.func.stringify(this, result.value));
 				})];
 		}
 	};
@@ -269,9 +269,9 @@ module.exports = function(jsmm) {
 		// calculate function name once all the arguments are known
 		if (se.args.length > this.expressionArgs.length) {
 			var name = se.args[0].name + '(';
-			if (this.expressionArgs.length > 0) name += se.args[1].str;
+			if (this.expressionArgs.length > 0) name += jsmm.func.stringify(this, se.args[1].value);
 			for (var i=1; i<this.expressionArgs.length; i++) {
-				name += ', ' + se.args[i+1].str;
+				name += ', ' + jsmm.func.stringify(this, se.args[i+1].value);
 			}
 			name += ')';
 		}
@@ -313,7 +313,7 @@ module.exports = function(jsmm) {
 				new jsmm.msg.Continue(this)
 			];
 		} else {
-			return [new jsmm.msg.Inline(this, function(f) { return f(name) + ' = ' + f(result.str); })];
+			return [new jsmm.msg.Inline(this, function(f) { return f(name) + ' = ' + f(jsmm.func.stringify(this, result.value)); })];
 		}
 	};
 	
@@ -446,7 +446,7 @@ module.exports = function(jsmm) {
 					
 					var args = [];
 					for(var name in scope.vars) {
-						args.push(scope.vars[name].str);
+						args.push(jsmm.func.stringify(this, scope.vars[name].value));
 					}
 					var message = that.name + '(' + args.join(', ') + ')';
 					return [new jsmm.msg.Inline(that, function(f) { return f(message); }),

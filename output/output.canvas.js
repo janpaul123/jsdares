@@ -1,134 +1,123 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var cs = {};
+module.exports = function(output) {
+	output.Canvas = function() { return this.init.apply(this, arguments); };
 
-cs.Console = function() { return this.init.apply(this, arguments); };
+	output.Canvas.prototype = {
+		init: function($div, editor) {
+			this.$div = $div;
+			this.$div.addClass('canvas');
 
-cs.Console.prototype = {
-	init: function($div, editor) {
-		this.$div = $div;
-		this.$div.addClass('cs-console');
-		this.$div.on('scroll', $.proxy(this.refreshAutoScroll, this));
+			this.$canvas = $('<canvas class="canvas-canvas"></canvas>');
+			this.$div.append(this.$canvas);
 
-		this.$content = $('<div class="cs-content"></div>');
-		this.$div.append(this.$content);
+			this.size = this.$canvas.css('max-width').replace('px', '');
+			this.$canvas.attr('width', this.size);
+			this.$canvas.attr('height', this.size);
+			this.context = this.$canvas[0].getContext('2d');
+			this.context.save();
 
-		//this.debugToBrowser = true;
-		this.highlightNextLines = false;
-		this.autoScroll = false;
-		this.editor = editor;
-		this.editor.addOutput(this);
+			//this.debugToBrowser = true;
+			this.highlighting = false;
+			this.highlightNextShapes = false;
+			this.editor = editor;
+			this.editor.addOutput(this);
 
-		this.refreshAutoScroll();
-		this.clear();
-	},
+			this.clear();
+		},
 
-	getAugmentedObject: function() {
-		return {
-			log: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
-			clear: {isAugmentedFunction: true, func: $.proxy(this.log, this)},
-			setColor: {isAugmentedFunction: true, func: $.proxy(this.setColor, this)}
-		};
-	},
+		functions: [
+			{name: 'clearRect', type: 'method', example: 'clearRect(100, 100, 100, 100)'},
+			{name: 'fillRect', type: 'method', example: 'fillRect(100, 100, 100, 100)'},
+			{name: 'strokeRect', type: 'method', example: 'clearRect(100, 100, 100, 100)'},
+			{name: 'fillStyle', type: 'attribute', example: 'fillStyle = "#a00"'},
+			{name: 'strokeStyle', type: 'attribute', example: 'strokeStyle = "#a00"'}
+		],
 
-	log: function(node, value) {
-		var text = '' + value;
-		if (typeof value === 'object') text = '[object]';
-		else if (typeof value === 'function') text = '[function]';
-
-		var $element = $('<div class="cs-line"></div>');
-		if (this.highlightNextLines) {
-			$element.addClass('cs-highlight-line');
-		}
-		$element.text(text);
-		$element.data('node', node);
-		this.$content.append($element);
-
-		if (this.color !== '') $element.css('color', this.color);
-
-		if (this.debugToBrowser && console && console.log) console.log(value);
-	},
-
-	setColor: function(node, color) {
-		this.color = color;
-	},
-
-	startHighlighting: function() {
-		this.highlightNextLines = true;
-	},
-
-	stopHighlighting: function() {
-		this.highlightNextLines = false;
-	},
-
-	enableHighlighting: function() {
-		this.highlighting = true;
-		this.$div.addClass('cs-highlighting');
-		this.$div.on('mousemove', $.proxy(this.mouseMove, this));
-		this.autoScroll = false;
-		this.$div.removeClass('cs-autoscroll');
-	},
-
-	disableHighlighting: function() {
-		this.highlighting = false;
-		this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
-		this.$div.removeClass('cs-highlighting');
-		this.$div.off('mousemove');
-		this.refreshAutoScroll();
-	},
-
-	startRun: function() {
-		this.stopHighlighting();
-		this.clear();
-	},
-
-	endRun: function() {
-		if (this.highlighting) {
-			var $last = this.$content.children('.cs-highlight-line').last();
-			if ($last.length > 0) {
-				// the offset is weird since .position().top changes when scrolling
-				this.scrollToY($last.position().top + this.$div.scrollTop());
+		getAugmentedObject: function() {
+			var obj = {};
+			for (var i=0; i<this.functions.length; i++) {
+				var func = this.functions[i];
+				if (func.type === 'method') {
+					obj[func.name] = {
+						name: func.name,
+						augmented: 'function',
+						func: $.proxy(this.handleMethod, this),
+						example: func.example
+					};
+				} else if (func.type === 'attribute') {
+					obj[func.name] = {
+						name: func.name,
+						augmented: 'variable',
+						get: $.proxy(this.handleAttributeGet, this),
+						set: $.proxy(this.handleAttributeSet, this),
+						example: func.example
+					};
+				}
 			}
-		} else if (this.autoScroll) {
-			this.scrollToY(this.$content.height());
-		}
-	},
+			return obj;
+		},
 
-	clear: function() {
-		this.color = '';
-		this.$content.children('.cs-line').remove(); // like this to prevent $.data memory leaks
-		if (this.debugToBrowser && console && console.clear) console.clear();
-	},
+		handleMethod: function(node, name, args) {
+			return this.context[name].apply(this.context, args);
+		},
 
-	/// INTERNAL FUNCTIONS ///
-	scrollToY: function(y) {
-		y = Math.max(0, y - this.$div.height()/2);
-		this.$div.stop(true).animate({scrollTop : y}, 150);
-	},
+		handleAttributeGet: function(node, name) {
+			return this.context[name];
+		},
 
-	mouseMove: function(event) {
-		if (this.highlighting) {
-			var $target = $(event.target);
-			if ($target.data('node') !== undefined && !$target.hasClass('cs-highlight-line')) {
-				this.$content.children('.cs-highlight-line').removeClass('cs-highlight-line');
-				$target.addClass('cs-highlight-line');
-				this.editor.highlightNode($target.data('node'));
-			}
-		}
-	},
+		handleAttributeSet: function(node, name, value) {
+			this.context[name] = value;
+		},
 
-	refreshAutoScroll: function() {
-		if (!this.highlighting) {
-			if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-4) {
-				this.$div.addClass('cs-autoscroll');
-				this.autoScroll = true;
-			} else {
-				this.$div.removeClass('cs-autoscroll');
-				this.autoScroll = false;
+		startHighlighting: function() {
+			this.highlightNextShapes = true;
+		},
+
+		stopHighlighting: function() {
+			this.highlightNextShapes = false;
+		},
+
+		enableHighlighting: function() {
+			this.highlighting = true;
+			this.$div.addClass('canvas-highlighting');
+			//this.$div.on('mousemove', $.proxy(this.mouseMove, this));
+		},
+
+		disableHighlighting: function() {
+			this.highlighting = false;
+			this.$div.removeClass('canvas-highlighting');
+			//this.$div.off('mousemove');
+		},
+
+		startRun: function() {
+			this.stopHighlighting();
+			this.clear();
+		},
+
+		endRun: function() {
+
+		},
+
+		clear: function() {
+			console.log('cleeear', this.size);
+			//this.context.restore();
+			//this.context.save();
+			this.context.clearRect(0, 0, this.size, this.size);
+			this.context.beginPath();
+		},
+
+		/// INTERNAL FUNCTIONS ///
+		mouseMove: function(event) {
+			if (this.highlighting) {
+				var $target = $(event.target);
+				if ($target.data('node') !== undefined && !$target.hasClass('canvas-highlight-line')) {
+					this.$content.children('.canvas-highlight-line').removeClass('canvas-highlight-line');
+					$target.addClass('canvas-highlight-line');
+					this.editor.highlightNode($target.data('node'));
+				}
 			}
 		}
-	}
+	};
 };
-
-module.exports = cs;
