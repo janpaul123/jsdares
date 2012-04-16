@@ -291,7 +291,7 @@ module.exports = function(editor) {
 
 		mouseLeave: function(event) { //callback
 			if (this.highlightingEnabled) {
-				this.currentHighlightNode = null;
+				this.highlightLine = 0;
 				if (this.refreshHighlights()) {
 					this.delayedRun();
 				}
