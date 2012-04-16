@@ -169,6 +169,11 @@ module.exports = function(editor) {
 			//window.localStorage.setItem('1', this.code.text);
 		},
 
+		outputRequestsRerun: function() { //callback
+			this.delayedRun();
+		},
+
+		/// EDITABLES METHODS AND CALLBACKS ///
 		enableEditables: function() {
 			if (!this.tree.hasError()) {
 				this.editablesEnabled = true;
@@ -227,6 +232,7 @@ module.exports = function(editor) {
 			this.surface.restoreCursor(offset2, changeOffset);
 		},
 
+		/// HIGHLIGHTING METHODS AND CALLBACKS ///
 		enableHighlighting: function() {
 			if (!this.tree.hasError()) {
 				this.surface.enableMouse();
@@ -253,15 +259,7 @@ module.exports = function(editor) {
 			this.surface.scrollToLine(node.lineLoc.line);
 		},
 
-		mouseMove: function(event, line, column) { // callback
-			if (this.highlightingEnabled) {
-				this.highlightLine = line;
-				if (this.refreshHighlights()) {
-					this.delayedRun();
-				}
-			}
-		},
-
+		// internal method; return whether or not a rerun is required
 		refreshHighlights: function() {
 			var node = this.tree.getNodeByLine(this.highlightLine);
 
@@ -282,6 +280,15 @@ module.exports = function(editor) {
 			}
 		},
 
+		mouseMove: function(event, line, column) { // callback
+			if (this.highlightingEnabled) {
+				this.highlightLine = line;
+				if (this.refreshHighlights()) {
+					this.delayedRun();
+				}
+			}
+		},
+
 		mouseLeave: function(event) { //callback
 			if (this.highlightingEnabled) {
 				this.currentHighlightNode = null;
@@ -299,6 +306,7 @@ module.exports = function(editor) {
 			this.callOutputs('stopHighlighting');
 		},
 
+		/// KEYBOARD CALLBACKS ///
 		tabIndent: function(event, offset1, offset2) { // callback
 			// 9 == tab key
 			if (event.keyCode === 9) {

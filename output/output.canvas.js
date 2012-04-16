@@ -60,6 +60,7 @@ module.exports = function(output) {
 		},
 
 		handleMethod: function(node, name, args) {
+			if (this.highlightNextShapes) this.highlightNext();
 			return this.context[name].apply(this.context, args);
 		},
 
@@ -68,15 +69,25 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(node, name, value) {
+			if (this.highlightNextShapes) this.highlightNext();
 			this.context[name] = value;
+			if (name === 'strokeStyle') {
+				this.actualStrokeStyle = this.context.strokeStyle;
+			} else {
+				this.actualFillStyle = this.context.fillStyle;
+			}
 		},
 
 		startHighlighting: function() {
 			this.highlightNextShapes = true;
+			this.actualStrokeStyle = this.context.strokeStyle;
+			this.actualFillStyle = this.context.fillStyle;
 		},
 
 		stopHighlighting: function() {
 			this.highlightNextShapes = false;
+			this.context.strokeStyle = this.actualStrokeStyle;
+			this.context.fillStyle = this.actualFillStyle;
 		},
 
 		enableHighlighting: function() {
@@ -89,6 +100,7 @@ module.exports = function(output) {
 			this.highlighting = false;
 			this.$div.removeClass('canvas-highlighting');
 			//this.$div.off('mousemove');
+			this.editor.outputRequestsRerun();
 		},
 
 		startRun: function() {
@@ -101,14 +113,18 @@ module.exports = function(output) {
 		},
 
 		clear: function() {
-			console.log('cleeear', this.size);
-			//this.context.restore();
-			//this.context.save();
+			this.context.restore();
+			this.context.save();
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.beginPath();
 		},
 
 		/// INTERNAL FUNCTIONS ///
+		highlightNext: function() {
+			this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
+			this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
+		},
+
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.target);

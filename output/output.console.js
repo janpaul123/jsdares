@@ -32,7 +32,7 @@ module.exports = function(output) {
 			};
 		},
 
-		log: function(name, node, args) {
+		log: function(node, name, args) {
 			var value = args[0];
 			var text = '' + value;
 			if (typeof value === 'object') text = '[object]';
@@ -51,7 +51,7 @@ module.exports = function(output) {
 			if (this.debugToBrowser && console && console.log) console.log(value);
 		},
 
-		setColor: function(name, node, args) {
+		setColor: function(node, name, args) {
 			var color = args[0];
 			this.color = color;
 		},
@@ -112,6 +112,7 @@ module.exports = function(output) {
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.target);
+				console.log($target);
 				if ($target.data('node') !== undefined && !$target.hasClass('console-highlight-line')) {
 					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 					$target.addClass('console-highlight-line');
