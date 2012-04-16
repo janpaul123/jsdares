@@ -99,7 +99,7 @@ $(function() {
 	};
 
 	var log = function(text) {
-		myConsole.log(null, text);
+		myConsole.log(null, 'log', [text]);
 	};
 
 	var isMac = navigator.platform.indexOf("Mac") >= 0;
@@ -214,6 +214,12 @@ $(function() {
 		window.open('https://chart.googleapis.com/chart?cht=gv&chl=' + encodeURIComponent(runner.getDot()));
 		log('"dot" string (renderable with Graphviz):\n');
 		log(runner.getDot());
+	});
+
+	$('#extra-canvas-mirror').click(function(e) {
+		clear();
+		$('#canvas').addClass('canvas-show-mirror');
+		log('The canvas mirror is used to map canvas x-y coordinates back to lines of code. With the console this is easy, as DOM elements can be given jQuery data attributes. Canvas pixels, however, can be drawn using complex functions such as splines. As such, the mirror mimics every action of the real canvas, but the three colour channels are used for encoding call information. This way the corresponding line in the code can be highlighted, and all corresponding pixels in the image can be highlighted as well. Note that the specific call, and not only the line of code, is stored, so that only the pixels of that specific call are highlighted.');
 	});
 	
 	$('#extra-nodes').click(function(e) {
