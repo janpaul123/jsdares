@@ -27,7 +27,7 @@ module.exports = function(output) {
 			//this.debugToBrowser = true;
 			this.highlighting = false;
 			this.highlightNextShapes = false;
-			this.highlightCallTarget = -1;
+			this.highlightCallTarget = 0;
 			this.editor = editor;
 			this.editor.addOutput(this);
 
@@ -35,9 +35,22 @@ module.exports = function(output) {
 		},
 
 		functions: {
-			clearRect: {type: 'method', example: 'clearRect(100, 100, 100, 100)', draws: true, mirror: true},
-			fillRect: {type: 'method', example: 'fillRect(100, 100, 100, 100)', draws: true, mirror: true},
-			strokeRect: {type: 'method', example: 'clearRect(100, 100, 100, 100)', draws: true, mirror: true},
+			clearRect: {type: 'method', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', draws: true, mirror: true},
+			fillRect: {type: 'method', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', draws: true, mirror: true},
+			strokeRect: {type: 'method', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', draws: true, mirror: true},
+			beginPath: {type: 'method', argsMin: 0, argsMax: 0, example: 'beginPath()', draws: false, mirror: true},
+			closePath: {type: 'method', argsMin: 0, argsMax: 0, example: 'closePath()', draws: false, mirror: true},
+			fill: {type: 'method', argsMin: 0, argsMax: 0, example: 'fill()', draws: true, mirror: true},
+			stroke: {type: 'method', argsMin: 0, argsMax: 0, example: 'stroke()', draws: true, mirror: true},
+			clip: {type: 'method', argsMin: 0, argsMax: 0, example: 'clip()', draws: false, mirror: true},
+			moveTo: {type: 'method', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', draws: false, mirror: true},
+			lineTo: {type: 'method', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', draws: false, mirror: true},
+			quadraticCurveTo: {type: 'method', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', draws: false, mirror: true},
+			bezierCurveTo: {type: 'method', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', draws: false, mirror: true},
+			arcTo: {type: 'method', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', draws: false, mirror: true},
+			arc: {type: 'method', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', draws: false, mirror: true},
+			rect: {type: 'method', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', draws: false, mirror: true},
+			isPointInPath: {type: 'method', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', draws: false, mirror: true},
 			fillStyle: {type: 'attribute', example: 'fillStyle = "#a00"', draws: false, mirror: false},
 			strokeStyle: {type: 'attribute', example: 'strokeStyle = "#a00"', draws: false, mirror: false}
 		},
@@ -101,10 +114,12 @@ module.exports = function(output) {
 			this.highlighting = true;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
+			this.editor.outputRequestsRerun();
 		},
 
 		disableHighlighting: function() {
 			this.highlighting = false;
+			this.highlightCallTarget = 0;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
 			this.editor.outputRequestsRerun();
@@ -116,7 +131,7 @@ module.exports = function(output) {
 		},
 
 		endRun: function() {
-			this.highlightCallTarget = -1;
+
 		},
 
 		clear: function() {
@@ -130,15 +145,19 @@ module.exports = function(output) {
 				this.mirrorContext.save();
 				this.mirrorContext.clearRect(0, 0, this.size, this.size);
 				this.mirrorContext.beginPath();
-				this.highlightCallCounter = 0;
+				this.highlightCallCounter = 1;
 			}
 		},
 
 		/// INTERNAL FUNCTIONS ///
 		highlight: function(node, name, args) {
 			if (this.functions[name].draws) {
-				this.highlightCallCounter++;
-				var color = 'rgb(' + (~~(this.highlightCallCounter/65536)%256) + ',' + (~~(this.highlightCallCounter/256)%256) + ',' + (this.highlightCallCounter%256) + ')';
+				// some spread is needed between the numbers as borders are blurred, and colour information is thus not 100% reliable
+				// therefore we use calculation modulo prime, so that eventually all numbers are used, and this also introduces a nice cycle,
+				// so that colours can be used again; the assumption is that whenever there are so many elements on the screen, the ones
+				// that introduced faulty colours, or the original ones in case of reusing colours, are most likely overwritten already
+				this.highlightCallCounter = (this.highlightCallCounter + 464651) % 16777213;
+				var color = 'rgba(' + (~~(this.highlightCallCounter/65536)%256) + ',' + (~~(this.highlightCallCounter/256)%256) + ',' + (this.highlightCallCounter%256) + ', 1)';
 				this.mirrorContext.strokeStyle = color;
 				this.mirrorContext.fillStyle = color;
 			}
@@ -146,8 +165,7 @@ module.exports = function(output) {
 			if (this.highlightNextShapes || this.highlightCallCounter === this.highlightCallTarget) {
 				this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
 				this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
-				if (this.highlightCallTarget >= 0) this.editor.highlightNode(node);
-				this.highlightCallTarget = -1;
+				if (this.highlightCallTarget > 0) this.editor.highlightNode(node);
 			}
 		},
 
@@ -156,8 +174,14 @@ module.exports = function(output) {
 				var offset = this.$canvas.offset();
 				var x = event.pageX - offset.left, y = event.pageY - offset.top;
 				var pixel = this.mirrorContext.getImageData(x, y, 1, 1).data;
-				this.highlightCallTarget = pixel[0]*65536 + pixel[1]*256 + pixel[2];
-				this.editor.outputRequestsRerun();
+				// use the alpha channel as an extra safeguard
+				var target = (pixel[3] < 255 ? 0 : (pixel[0]*65536 + pixel[1]*256 + pixel[2]) % 16777213);
+				console.log(pixel, target);
+
+				if (this.highlightCallTarget !== target) {
+					this.highlightCallTarget = target;
+					this.editor.outputRequestsRerun();
+				}
 			}
 		}
 	};
