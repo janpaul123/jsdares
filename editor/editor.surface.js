@@ -105,7 +105,6 @@ module.exports = function(editor) {
 
 			this.$textarea.on('keydown', $.proxy(this.keyDown, this));
 			this.$textarea.on('keyup', $.proxy(this.keyUp, this));
-			this.$textarea.on('paste', $.proxy(this.paste, this));
 
 			// setting up surface
 			this.$surface = $('<div class="editor-surface"></div>');
@@ -351,15 +350,6 @@ module.exports = function(editor) {
 			if (this.userChangedText) {
 				this.userChangedText = false;
 				this.showElements();
-				this.delegate.userChangedText();
-			}
-		},
-
-		paste: function(event) {
-			if (this.$textarea.val() !== this.text) {
-				this.text = this.$textarea.val();
-				this.updateSize();
-				this.userChangedText = false;
 				this.delegate.userChangedText();
 			}
 		},

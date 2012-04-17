@@ -70,10 +70,50 @@ module.exports = function(output) {
 			miterLimit: {type: 'attribute', example: 'miterLimit = 3', draws: false, mirror: true},
 			font: {type: 'attribute', example: 'font = "40pt Calibri"', draws: false, mirror: true},
 			textAlign: {type: 'attribute', example: 'textAlign = "center"', draws: false, mirror: true},
-			textBaseline: {type: 'attribute', example: 'textBaseline = "top"', draws: false, mirror: true}
+			textBaseline: {type: 'attribute', example: 'textBaseline = "top"', draws: false, mirror: true},
 		},
 
 		getAugmentedObject: function() {
+			return {
+				width: {
+					name: 'width',
+					augmented: 'variable',
+					example: 'width',
+					get: $.proxy(function() {
+						return this.size;
+					}, this),
+					set: function() {
+						throw function(f) { return f('width') + ' cannot be set'; };
+					}
+				},
+				height: {
+					name: 'height',
+					augmented: 'variable',
+					example: 'height',
+					get: $.proxy(function() {
+						return this.size;
+					}, this),
+					set: function() {
+						throw function(f) { return f('height') + ' cannot be set'; };
+					}
+				},
+				getContext: {
+					name: 'getContext',
+					augmented: 'function',
+					example: 'getContext("2d")',
+					func: $.proxy(function(node, name, args) {
+						if (args.length !== 1) {
+							throw function(f) { return f('getContext') + ' takes exactly ' + f('1') + ' argument'; };
+						} else if (args[0] !== '2d') {
+							throw function(f) { return 'Only the ' + f('2d') + ' context is supported'; };
+						}
+						return this.getContextObject();
+					}, this)
+				}
+			};
+		},
+
+		getContextObject: function() {
 			var obj = {};
 			for (var name in this.functions) {
 				var func = this.functions[name];
@@ -94,10 +134,17 @@ module.exports = function(output) {
 					};
 				}
 			}
+			this.getContextObject = function() { return obj; };
 			return obj;
 		},
 
 		handleMethod: function(node, name, args) {
+			var min = this.functions[name].argsMin, max = this.functions[name].argsMax;
+			if (args.length < min) {
+				throw function(f) { return f(name) + ' requires at least ' + f('' + min) + ' arguments'; };
+			} else if (args.length > max) {
+				throw function(f) { return f(name) + ' accepts no more than ' + f('' + max) + ' arguments'; };
+			}
 			if (this.highlighting) return this.highlight(node, name, args);
 			else return this.context[name].apply(this.context, args);
 		},
@@ -107,7 +154,6 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(node, name, value) {
-			// for now there are no attributes that can cause a highlight
 			this.context[name] = value;
 			if (this.highlighting) {
 				if (this.functions[name].mirror) this.mirrorContext[name] = value;
@@ -180,7 +226,7 @@ module.exports = function(output) {
 					// therefore we use calculation modulo prime, so that eventually all numbers are used, and this also introduces a nice cycle,
 					// so that colours can be used again; the assumption is that whenever there are so many elements on the screen, the ones
 					// that introduced faulty colours, or the original ones in case of reusing colours, are most likely overwritten already
-					this.highlightCallCounter = (this.highlightCallCounter + 464651) % 16777213;
+					this.highlightCallCounter = (this.highlightCallCounter + 67*65536 + 111*256 + 11) % 16777213;
 					//this.highlightCallCounter++;
 					var color = 'rgba(' + (~~(this.highlightCallCounter/65536)%256) + ',' + (~~(this.highlightCallCounter/256)%256) + ',' + (this.highlightCallCounter%256) + ', 1)';
 					this.mirrorContext.strokeStyle = color;
@@ -215,11 +261,12 @@ module.exports = function(output) {
 				var pixel = this.mirrorContext.getImageData(x, y, 1, 1).data;
 				// use the alpha channel as an extra safeguard
 				var target = (pixel[3] < 255 ? 0 : (pixel[0]*65536 + pixel[1]*256 + pixel[2]) % 16777213);
-				//console.log(pixel, target);
 
 				if (this.highlightCallTarget !== target) {
 					this.highlightCallTarget = target;
-					this.editor.outputRequestsRerun();
+					if (!this.editor.outputRequestsRerun()) {
+						this.highlightCallTarget = 0;
+					}
 				}
 			}
 		}

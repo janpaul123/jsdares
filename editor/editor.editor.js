@@ -170,7 +170,12 @@ module.exports = function(editor) {
 		},
 
 		outputRequestsRerun: function() { //callback
-			this.delayedRun();
+			if (!this.tree.hasError()) {
+				this.delayedRun();
+				return true;
+			} else {
+				return false;
+			}
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///

@@ -71,7 +71,16 @@ module.exports = function(jsmm) {
 			value = getValue(node, jsmm.func.binary(node, variable, symbol, expression));
 		}
 		if (typeof variable.value === 'object' && variable.value.augmented === 'variable') {
-			variable.value.set(node, variable.value.name, value);
+			try {
+				variable.value.set(node, variable.value.name, value);
+			} catch (error) {
+				// augmented variables should do their own error handling, so wrap the resulting strings or functions in jsmm messages
+				if (['string', 'function'].indexOf(typeof error) >= 0) {
+					throw new jsmm.msg.Error(node, error);
+				} else {
+					throw error;
+				}
+			}
 		} else {
 			variable.value = value;
 		}
@@ -201,7 +210,6 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.func.funcCall = function(node, func, args) {
-		/*jshint loopfunc:true*/
 		var funcValue = getValue(node, func), funcArgs = [], appFunc;
 
 		for (var i=0; i<args.length; i++) {
@@ -209,7 +217,16 @@ module.exports = function(jsmm) {
 		}
 
 		if (typeof funcValue === 'object' && funcValue.augmented === 'function') {
-			return jsmm.func.funcWrapResult(node, func, funcValue.func.call(func.parent || null, node, funcValue.name, funcArgs));
+			try {
+				return jsmm.func.funcWrapResult(node, func, funcValue.func.call(func.parent || null, node, funcValue.name, funcArgs));
+			} catch (error) {
+				// augmented functions should do their own error handling, so wrap the resulting strings or functions in jsmm messages
+				if (['string', 'function'].indexOf(typeof error) >= 0) {
+					throw new jsmm.msg.Error(node, error);
+				} else {
+					throw error;
+				}
+			}
 		} else if (typeof funcValue !== 'function') {
 			throw new jsmm.msg.Error(node, function(f){ return 'Variable ' + f(func.name) + ' is not a function'; });
 		} else {
