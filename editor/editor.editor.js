@@ -62,9 +62,9 @@ module.exports = function(editor) {
 			}
 		},
 
-		update: function() {
+		update: function(previewText) {
 			this.updateTimeout = null;
-			this.code = new editor.Code(this.surface.getText());
+			this.code = new editor.Code(previewText || this.surface.getText());
 			this.tree = new this.language.Tree(this.code.text);
 			if (this.tree.hasError()) {
 				if (this.editablesEnabled) {
@@ -387,7 +387,44 @@ module.exports = function(editor) {
 					this.surface.restoreCursor(startOffset, spaces);
 				}
 			}
-		}
+		},
+
+		showAutoCompletion: function(examples, pos, width) {
+
+		},
 		
+		autoComplete: function(event, offset) {
+			// 190 == ., 48-90 == alpha-num, 8 == backspace
+			if (event.keyCode === 190 || (event.keyCode >= 48 && event.keyCode <= 90) || event.keyCode === 8) {
+				var code = new editor.Code(this.surface.getText());
+
+				var pos = code.offsetToLoc(offset);
+				if (pos.line > 1) {
+					var line = code.getLine(pos.line);
+					var match = /([A-Za-z][A-Za-z0-9]*[.])+([A-Za-z][A-Za-z0-9]*)?$/.exec(line.substring(0, pos.column));
+					if (match !== null) {
+						var examples = this.runner.getExamples(match[0]);
+						if (examples !== null) {
+							var addSemicolon = line.substring(pos.column).replace(' ', '').length <= 0;
+							this.surface.showAutoCompleteBox(pos.line, pos.column-examples.width, offset-examples.width, examples, addSemicolon);
+							return;
+						}
+					}
+				}
+			}
+			this.surface.hideAutoCompleteBox();
+		},
+
+		previewExample: function(offset1, offset2, example) {
+			var text = this.surface.getText();
+			this.update(text.substring(0, offset1) + example + text.substring(offset2));
+		},
+
+		insertExample: function(offset1, offset2, example) {
+			var text = this.surface.getText();
+			this.surface.setText(text.substring(0, offset1) + example + text.substring(offset2));
+			this.surface.hideAutoCompleteBox();
+			this.surface.setCursor(offset1 + example.length, offset1 + example.length);
+		}
 	};
 };

@@ -6,6 +6,7 @@ var clayer = require('../clayer');
 module.exports = function(editor) {
 	editor.Box = function() { return this.init.apply(this, arguments); };
 	editor.Message = function() { return this.init.apply(this, arguments); };
+	editor.AutoCompleteBox = function() { return this.init.apply(this, arguments); };
 	editor.Surface = function() { return this.init.apply(this, arguments); };
 	
 	editor.Box.prototype = {
@@ -93,6 +94,51 @@ module.exports = function(editor) {
 		}
 	};
 
+	editor.AutoCompleteBox.prototype = {
+		init: function(surface, delegate, line, column, offset) {
+			this.$element = $('<div class="editor-autocomplete-box"><div class="editor-autocomplete-arrow"></div></div>');
+			surface.addElement(this.$element);
+
+			this.$content = $('<div class="editor-autocomplete-content"></div>');
+			this.$element.append(this.$content);
+
+			this.line = line; this.column = column, this.offset = offset;
+			surface.setElementLocation(this.$element, line+1, column);
+
+			this.delegate = delegate;
+			this.width = 0;
+			this.offset = offset;
+			this.addSemicolon = false;
+		},
+		setExamples: function(examples, text, addSemicolon) {
+			this.$content.children('.editor-autocomplete-line').remove();
+			for (var i=0; i<examples.examples.length; i++) {
+				var $line = $('<div class="editor-autocomplete-line"></div>');
+				$line.html(examples.prefix + '<strong>' + examples.examples[i].substring(0, examples.width) + '</strong>' + examples.examples[i].substring(examples.width));
+				$line.on('mousemove', $.proxy(this.mouseMove, this));
+				$line.on('click', $.proxy(this.click, this));
+				$line.data('example', examples.examples[i]);
+				this.$content.append($line);
+			}
+			this.width = examples.width;
+			this.text = text;
+			this.addSemicolon = addSemicolon;
+		},
+		remove: function() {
+			this.$element.remove();
+		},
+		/// INTERNAL FUNCTIONS ///
+		mouseMove: function(event) {
+			var example = $(event.delegateTarget).data('example') + (this.addSemicolon ? ';' : '');
+			this.delegate.previewExample(this.offset, this.offset+this.width, example);
+			//this.surface.previewExample(this.text.substring(0, this.offset) + $(event.delegateTarget).data('example') + ';' + this.text.substring(this.offset+this.width));
+		},
+		click: function(event) {
+			var example = $(event.delegateTarget).data('example') + (this.addSemicolon ? ';' : '');
+			this.delegate.insertExample(this.offset, this.offset+this.width, example);
+		}
+	};
+
 	editor.Surface.prototype = {
 		init: function($div, delegate) {
 			this.$div = $div;
@@ -105,6 +151,7 @@ module.exports = function(editor) {
 
 			this.$textarea.on('keydown', $.proxy(this.keyDown, this));
 			this.$textarea.on('keyup', $.proxy(this.keyUp, this));
+			this.$textarea.on('click', $.proxy(this.click, this));
 
 			// setting up surface
 			this.$surface = $('<div class="editor-surface"></div>');
@@ -127,6 +174,7 @@ module.exports = function(editor) {
 
 			this.text = '';
 			this.userChangedText = false;
+			this.autoCompleteBox = null;
 		},
 
 		getText: function() {
@@ -142,6 +190,7 @@ module.exports = function(editor) {
 			this.updateSize();
 			this.$textarea[0].selectionStart = this.lastSelectionStart;
 			this.$textarea[0].selectionEnd = this.lastSelectionStart;
+			this.hideAutoCompleteBox();
 		},
 
 		columnToX: function(column) {
@@ -253,9 +302,33 @@ module.exports = function(editor) {
 			}
 		},
 
+		setCursor: function(start, end) {
+			this.$textarea[0].selectionStart = start;
+			this.$textarea[0].selectionEnd = end;
+		},
+
 		resetCursor: function() {
 			this.lastSelectionStart = null;
 			this.lastSelectionEnd = null;
+		},
+
+		showAutoCompleteBox: function(line, column, offset, examples, addSemicolon) {
+			if (this.autoCompleteBox !== null) {
+				if (this.autoCompleteBox.offset !== offset) {
+					this.autoCompleteBox.remove();
+					this.autoCompleteBox = new editor.AutoCompleteBox(this, this.delegate, line, column, offset);
+				}
+			} else {
+				this.autoCompleteBox = new editor.AutoCompleteBox(this, this.delegate, line, column, offset);
+			}
+			this.autoCompleteBox.setExamples(examples, this.text, addSemicolon);
+		},
+
+		hideAutoCompleteBox: function() {
+			if (this.autoCompleteBox !== null) {
+				this.autoCompleteBox.remove();
+				this.autoCompleteBox = null;
+			}
 		},
 
 		/// INTERNAL FUNCTIONS ///
@@ -324,13 +397,14 @@ module.exports = function(editor) {
 
 		keyDown: function(event) {
 			if (this.$textarea.val() !== this.text) {
+				// note: this will never be called at the first keypress, only when holding it!
 				this.text = this.$textarea.val();
 				this.updateSize();
 				this.userChangedText = true;
-			} else {
-				if (this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd)) {
-					this.userChangedText = true;
-				}
+			}
+
+			if (this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd)) {
+				this.userChangedText = true;
 			}
 
 			if (this.userChangedText) {
@@ -352,6 +426,12 @@ module.exports = function(editor) {
 				this.showElements();
 				this.delegate.userChangedText();
 			}
+
+			this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
+		},
+
+		click: function() {
+			this.hideAutoCompleteBox();
 		},
 
 		mouseMove: function(event) {

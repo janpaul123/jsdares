@@ -3,6 +3,44 @@
 
 module.exports = function(jsmm) {
 	jsmm.editor = {};
+
+	jsmm.editor.autocompletion = {
+		// expected text format: someObject.someProperty.startOfAFunction
+		getExamples: function(scope, text) {
+			var split = text.split('.');
+
+			var obj;
+			try {
+				obj = jsmm.func.name(null, scope, split[0]);
+				for (var i=1; i<split.length-1; i++) {
+					obj = jsmm.func.object(null, obj, split[i]);
+				}
+				obj = obj.value;
+			} catch (error) {
+				return null;
+			}
+
+			var examples = [];
+			var start = split[split.length-1].toLowerCase();
+			for (var name in obj) {
+				var example;
+				if (typeof obj[name] === 'object' && obj[name].example !== undefined) {
+					example = obj[name].example;
+				} else {
+					example = name;
+				}
+				if (start.length === 0 || example.substring(0, start.length).toLowerCase() === start) {
+					examples.push(example);
+				}
+			}
+			return {
+				examples: examples,
+				width: start.length,
+				prefix: text.substring(0, text.length - start.length)
+			};
+		}
+	};
+
 	jsmm.editor.editables = {
 		generate: function(tree, editorEditables, surface, editor) {
 			var editables = [];

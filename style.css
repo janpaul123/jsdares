@@ -4134,7 +4134,6 @@ a.thumbnail:hover {
   top: 0px;
   right: 5px;
   cursor: pointer;
-  cursor: hand;
   z-index: 10;
   margin-top: -5px;
 }
@@ -4161,7 +4160,6 @@ a.thumbnail:hover {
   margin-top: 1px;
   margin-left: 1px;
   cursor: pointer;
-  cursor: hand;
 }
 .editor-marking:hover,
 .editor-marking.active {
@@ -4182,7 +4180,6 @@ a.thumbnail:hover {
   font-size: 14px;
   z-index: 10;
   cursor: pointer;
-  cursor: hand;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -4215,6 +4212,46 @@ a.thumbnail:hover {
 }
 div.colorpicker div.circle.lightness {
   border-color: rgba(30, 30, 30, 0.95);
+}
+.editor-autocomplete-box {
+  position: absolute;
+  background-color: rgba(30, 30, 30, 0.95);
+  margin-top: 6px;
+  margin-left: -13px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.editor-autocomplete-box .editor-autocomplete-arrow {
+  top: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid rgba(30, 30, 30, 0.95);
+  position: absolute;
+  width: 0;
+  height: 0;
+  margin-top: -5px;
+  left: 10px;
+}
+.editor-autocomplete-content {
+  min-width: 100px;
+  max-height: 140px;
+  padding: 8px;
+  overflow-y: auto;
+}
+.editor-autocomplete-line {
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
+  font-family: "Courier", monospace;
+  padding: 0px 2px;
+  cursor: pointer;
+}
+.editor-autocomplete-line:hover,
+.editor-autocomplete-line.editor-autocomplete-highlight {
+  background-color: rgba(50, 250, 50, 0.4);
 }
 .console {
   position: relative;

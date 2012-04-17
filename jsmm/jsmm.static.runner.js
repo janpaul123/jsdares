@@ -11,6 +11,7 @@ module.exports = function(jsmm) {
 			this.tree = null;
 			this.scope = null;
 			this.error = null;
+			this.lastScope = null;
 			this.stepCount = 0;
 			this.messages = [];
 		},
@@ -75,6 +76,14 @@ module.exports = function(jsmm) {
 			this.scope = scope;
 		},
 
+		getExamples: function(text) {
+			var scope = this.lastScope === null ? new jsmm.func.Scope(this.scope) : this.lastScope;
+			if (scope === null) return null;
+			else {
+				return jsmm.editor.autocompletion.getExamples(scope, text);
+			}
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		handleError: function(error) {
 			if (error instanceof jsmm.msg.Error) {
@@ -90,7 +99,7 @@ module.exports = function(jsmm) {
 			this.messages = [];
 
 			try {
-				this.tree.programNode.getSafeFunction(this.scope)();
+				this.lastScope = this.tree.programNode.getSafeFunction(this.scope)();
 				return true;
 			} catch (error) {
 				this.handleError(error);
