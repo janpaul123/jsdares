@@ -65,7 +65,10 @@ module.exports = function(editor) {
 			this.tree = new this.language.Tree(text);
 			if (!this.tree.hasError()) {
 				this.runner.restart();
-				this.run();
+				this.callOutputs('startRun');
+				this.runner.newTree(this.tree);
+				this.runner.run();
+				this.callOutputs('endRun');
 			}
 		},
 
@@ -410,11 +413,10 @@ module.exports = function(editor) {
 		autoComplete: function(event, offset) {
 			// 190 == ., 48-90 == alpha-num, 8 == backspace
 			if (event.keyCode === 190 || (event.keyCode >= 48 && event.keyCode <= 90) || event.keyCode === 8) {
-				var code = new editor.Code(this.surface.getText());
-
-				var pos = code.offsetToLoc(offset);
+				this.code = new editor.Code(this.surface.getText());
+				var pos = this.code.offsetToLoc(offset);
 				if (pos.line > 1) {
-					var line = code.getLine(pos.line);
+					var line = this.code.getLine(pos.line);
 					var match = /([A-Za-z][A-Za-z0-9]*[.])+([A-Za-z][A-Za-z0-9]*)?$/.exec(line.substring(0, pos.column));
 					if (match !== null) {
 						var examples = this.runner.getExamples(match[0]);

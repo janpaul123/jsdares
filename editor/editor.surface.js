@@ -42,7 +42,7 @@ module.exports = function(editor) {
 	editor.Message.prototype = {
 		init: function(type, surface) {
 			this.surface = surface;
-			this.$marginIcon = $('<div class="editor-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
+			this.$marginIcon = $('<div class="editor-margin-icon editor-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
 			this.$marginIcon.hide();
 			this.$marking = $('<div class="editor-marking"></div>');
@@ -102,6 +102,12 @@ module.exports = function(editor) {
 			this.$content = $('<div class="editor-autocomplete-content"></div>');
 			this.$element.append(this.$content);
 
+			this.$marginIcon = $('<div class="editor-margin-icon"><img src="img/margin-message-icon-preview.png"/></div>');
+			surface.addElementToMargin(this.$marginIcon);
+			this.$marginIcon.css('top', surface.lineToY(line));
+			this.$marginIcon.hide();
+			this.$marginIcon.fadeIn(150);
+
 			this.line = line; this.column = column, this.offset = offset;
 			surface.setElementLocation(this.$element, line+1, column);
 
@@ -135,6 +141,7 @@ module.exports = function(editor) {
 		},
 		remove: function() {
 			this.$element.remove();
+			this.$marginIcon.remove();
 		},
 		up: function() {
 			if (this.selected > 0) {
@@ -142,6 +149,7 @@ module.exports = function(editor) {
 			} else {
 				this.select(this.examples.length-1);
 			}
+			this.scrollToSelected();
 			return true;
 		},
 		down: function() {
@@ -150,6 +158,7 @@ module.exports = function(editor) {
 			} else {
 				this.select(0);
 			}
+			this.scrollToSelected();
 			return true;
 		},
 		enter: function() {
@@ -168,7 +177,12 @@ module.exports = function(editor) {
 				this.$lines[this.selected].addClass('editor-autocomplete-selected');
 				var example = this.examples[this.selected] + (this.addSemicolon ? ';' : '');
 				this.delegate.previewExample(this.offset, this.offset+this.width, example);
-
+			} else {
+				this.delegate.previewExample(this.offset, this.offset+this.width, '');
+			}
+		},
+		scrollToSelected: function() {
+			if (this.selected >= 0) {
 				// the offset is weird since .position().top changes when scrolling
 				var y = this.$lines[this.selected].position().top + this.$content.scrollTop();
 				y = Math.max(0, y - this.$content.height()/2);
@@ -184,14 +198,9 @@ module.exports = function(editor) {
 		},
 		mouseMove: function(event) {
 			this.select($(event.delegateTarget).data('example-number'));
-			//var example = this.examples[$(event.delegateTarget).data('example-number')] + (this.addSemicolon ? ';' : '');
-			// this.delegate.previewExample(this.offset, this.offset+this.width, example);
-			//this.surface.previewExample(this.text.substring(0, this.offset) + $(event.delegateTarget).data('example') + ';' + this.text.substring(this.offset+this.width));
 		},
 		click: function(event) {
 			this.insert($(event.delegateTarget).data('example-number'));
-			// var example = this.examples[$(event.delegateTarget).data('example-number')] + (this.addSemicolon ? ';' : '');
-			// this.delegate.insertExample(this.offset, this.offset+this.width, example);
 		}
 	};
 
@@ -378,6 +387,8 @@ module.exports = function(editor) {
 				this.autoCompleteBox = new editor.AutoCompleteBox(this, this.delegate, line, column, offset);
 			}
 			this.autoCompleteBox.setExamples(examples, this.text, addSemicolon);
+			this.hideErrorMessage();
+			this.hideStepMessage();
 		},
 
 		hideAutoCompleteBox: function() {
@@ -499,15 +510,17 @@ module.exports = function(editor) {
 				this.userChangedText = true;
 			}
 
-			if (this.userChangedText) {
-				this.userChangedText = false;
-				this.showElements();
-				this.delegate.userChangedText();
-			}
-
 			// 38 == up, 40 == down, 13 == enter, 16 == shift
 			if ([38, 40, 13, 16].indexOf(event.keyCode) < 0) {
 				this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
+			}
+
+			if (this.userChangedText) {
+				this.userChangedText = false;
+				this.showElements();
+				if (this.autoCompleteBox === null) {
+					this.delegate.userChangedText();
+				}
 			}
 		},
 
@@ -524,8 +537,3 @@ module.exports = function(editor) {
 		}
 	};
 };
-
-
-
-	
-

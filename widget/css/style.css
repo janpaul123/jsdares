@@ -4128,8 +4128,7 @@ a.thumbnail:hover {
   overflow: visible;
   z-index: 5;
 }
-.editor-margin-message-icon-error,
-.editor-margin-message-icon-step {
+.editor-margin-icon {
   position: absolute;
   top: 0px;
   right: 5px;
@@ -4249,7 +4248,6 @@ div.colorpicker div.circle.lightness {
   padding: 0px 2px;
   cursor: pointer;
 }
-.editor-autocomplete-line:hover,
 .editor-autocomplete-line.editor-autocomplete-selected {
   background-color: rgba(50, 250, 50, 0.4);
 }
