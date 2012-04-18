@@ -70,7 +70,7 @@ module.exports = function(output) {
 			miterLimit: {type: 'attribute', example: 'miterLimit = 3', draws: false, mirror: true},
 			font: {type: 'attribute', example: 'font = "40pt Calibri"', draws: false, mirror: true},
 			textAlign: {type: 'attribute', example: 'textAlign = "center"', draws: false, mirror: true},
-			textBaseline: {type: 'attribute', example: 'textBaseline = "top"', draws: false, mirror: true},
+			textBaseline: {type: 'attribute', example: 'textBaseline = "top"', draws: false, mirror: true}
 		},
 
 		getAugmentedObject: function() {
@@ -194,10 +194,15 @@ module.exports = function(output) {
 		startRun: function() {
 			this.stopHighlighting();
 			this.clear();
+			this.$canvas.removeClass('canvas-error');
 		},
 
 		endRun: function() {
 
+		},
+
+		hasError: function() {
+			this.$canvas.addClass('canvas-error');
 		},
 
 		clear: function() {

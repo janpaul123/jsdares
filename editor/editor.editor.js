@@ -150,6 +150,7 @@ module.exports = function(editor) {
 			this.surface.hideStepMessage();
 			this.surface.hideAutoCompleteBox();
 			this.surface.showErrorMessage(error);
+			this.callOutputs('hasError');
 		},
 
 		handleMessages: function(messages) {

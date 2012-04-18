@@ -26,9 +26,24 @@ module.exports = function(output) {
 
 		getAugmentedObject: function() {
 			return {
-				log: {augmented: 'function', func: $.proxy(this.log, this)},
-				clear: {augmented: 'function', func: $.proxy(this.log, this)},
-				setColor: {augmented: 'function', func: $.proxy(this.setColor, this)}
+				log: {
+					name: 'log',
+					augmented: 'function',
+					example: 'log("Hello World!")',
+					func: $.proxy(this.log, this)
+				},
+				clear: {
+					name: 'clear',
+					augmented: 'function',
+					example: 'clear()',
+					func: $.proxy(this.clear, this)
+				},
+				setColor: {
+					name: 'setColor',
+					augmented: 'function',
+					example: 'setColor("#a00")',
+					func: $.proxy(this.setColor, this)
+				}
 			};
 		},
 
@@ -83,6 +98,7 @@ module.exports = function(output) {
 		startRun: function() {
 			this.stopHighlighting();
 			this.clear();
+			this.$content.removeClass('console-error');
 		},
 
 		endRun: function() {
@@ -95,6 +111,10 @@ module.exports = function(output) {
 			} else if (this.autoScroll) {
 				this.scrollToY(this.$content.height());
 			}
+		},
+
+		hasError: function() {
+			this.$content.addClass('console-error');
 		},
 
 		clear: function() {
@@ -112,7 +132,6 @@ module.exports = function(output) {
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.target);
-				console.log($target);
 				if ($target.data('node') !== undefined && !$target.hasClass('console-highlight-line')) {
 					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 					$target.addClass('console-highlight-line');

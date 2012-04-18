@@ -4265,6 +4265,9 @@ div.colorpicker div.circle.lightness {
 .console-content {
   margin: 10px;
 }
+.console-error {
+  opacity: 0.5;
+}
 .console-line {
   color: #00dd00;
   font-size: 14px;
@@ -4301,6 +4304,9 @@ div.colorpicker div.circle.lightness {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+}
+.canvas-error {
+  opacity: 0.5;
 }
 .canvas-mirror {
   visibility: hidden;
