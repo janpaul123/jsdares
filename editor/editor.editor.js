@@ -23,6 +23,8 @@ module.exports = function(editor) {
 			this.highlightLine = 0;
 			this.currentHighlightNode = null;
 
+			this.autoCompletionEnabled = false;
+
 			this.updateTimeout = null;
 			this.runTimeout = null;
 
@@ -52,23 +54,6 @@ module.exports = function(editor) {
 		callOutputs: function(funcName) {
 			for (var i=0; i<this.outputs.length; i++) {
 				this.outputs[i][funcName]();
-			}
-		},
-
-		preview: function(text) {
-			if (this.editablesEnabled) {
-				this.disableEditables();
-			}
-			if (this.highlightingEnabled) {
-				this.disableHighlighting();
-			}
-			this.tree = new this.language.Tree(text);
-			if (!this.tree.hasError()) {
-				this.runner.restart();
-				this.callOutputs('startRun');
-				this.runner.newTree(this.tree);
-				this.runner.run();
-				this.callOutputs('endRun');
 			}
 		},
 
@@ -117,14 +102,14 @@ module.exports = function(editor) {
 		},
 
 		restart: function() {
-			if (!this.tree.hasError()) {
+			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.runner.restart();
 				this.run();
 			}
 		},
 
 		stepForward: function() {
-			if (!this.tree.hasError()) {
+			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.callOutputs('clear');
 				if (!this.runner.isStepping()) {
 					this.surface.openStepMessage();
@@ -135,7 +120,7 @@ module.exports = function(editor) {
 		},
 
 		stepBackward: function() {
-			if (!this.tree.hasError()) {
+			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.callOutputs('clear');
 				this.runner.stepBackward();
 				this.handleRunnerOutput();
@@ -143,6 +128,7 @@ module.exports = function(editor) {
 		},
 
 		handleRunnerOutput: function() {
+			this.surface.hideAutoCompleteBox();
 			if (this.runner.hasError()) {
 				this.handleError(this.runner.getError());
 				if (this.runner.isStepping()) {
@@ -162,6 +148,7 @@ module.exports = function(editor) {
 
 		handleError: function(error) {
 			this.surface.hideStepMessage();
+			this.surface.hideAutoCompleteBox();
 			this.surface.showErrorMessage(error);
 		},
 
@@ -197,7 +184,7 @@ module.exports = function(editor) {
 
 		/// EDITABLES METHODS AND CALLBACKS ///
 		enableEditables: function() {
-			if (!this.tree.hasError()) {
+			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.editablesEnabled = true;
 				this.delegate.editablesEnabled();
 				this.refreshEditables();
@@ -256,7 +243,7 @@ module.exports = function(editor) {
 
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
 		enableHighlighting: function() {
-			if (!this.tree.hasError()) {
+			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.surface.enableMouse();
 				this.surface.enableHighlighting();
 				this.highlightingEnabled = true;
@@ -406,11 +393,7 @@ module.exports = function(editor) {
 			}
 		},
 
-		showAutoCompletion: function(examples, pos, width) {
-
-		},
-		
-		autoComplete: function(event, offset) {
+		autoComplete: function(event, offset) { // callback
 			// 190 == ., 48-90 == alpha-num, 8 == backspace
 			if (event.keyCode === 190 || (event.keyCode >= 48 && event.keyCode <= 90) || event.keyCode === 8) {
 				this.code = new editor.Code(this.surface.getText());
@@ -428,20 +411,45 @@ module.exports = function(editor) {
 					}
 				}
 			}
-			this.surface.hideAutoCompleteBox();
+			this.disableAutoCompletion();
 		},
 
-		previewExample: function(offset1, offset2, example) {
+		previewExample: function(offset1, offset2, example) { // callback
+			this.autoCompletionEnabled = true;
+			if (this.editablesEnabled) {
+				this.disableEditables();
+			}
+			if (this.highlightingEnabled) {
+				this.disableHighlighting();
+			}
+
 			var text = this.surface.getText();
-			this.preview(text.substring(0, offset1) + example + text.substring(offset2));
+			this.tree = new this.language.Tree(text.substring(0, offset1) + example + text.substring(offset2));
+			if (!this.tree.hasError()) {
+				this.runner.restart();
+				this.callOutputs('startRun');
+				this.runner.newTree(this.tree);
+				this.runner.run();
+				this.callOutputs('endRun');
+			}
+			
+			this.delegate.previewing();
 		},
 
-		insertExample: function(offset1, offset2, example) {
-			var text = this.surface.getText();
-			this.surface.hideAutoCompleteBox();
-			this.surface.setText(text.substring(0, offset1) + example + text.substring(offset2));
-			this.surface.setCursor(offset1 + example.length, offset1 + example.length);
-			this.update();
+		insertExample: function(offset1, offset2, example) { // callback
+			if (this.autoCompletionEnabled) {
+				var text = this.surface.getText();
+				this.surface.setText(text.substring(0, offset1) + example + text.substring(offset2));
+				this.surface.setCursor(offset1 + example.length, offset1 + example.length);
+				this.disableAutoCompletion();
+			}
+		},
+
+		disableAutoCompletion: function() {
+			if (this.autoCompletionEnabled) {
+				this.autoCompletionEnabled = false;
+				this.delayedUpdate();
+			}
 		}
 	};
 };

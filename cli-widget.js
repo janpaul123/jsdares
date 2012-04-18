@@ -29,6 +29,13 @@ $(function() {
 			highlightingKey = false;
 			refreshCheckKeys();
 		},
+		previewing: function() {
+			$('#step').addClass('disabled');
+			$('#step-back').addClass('disabled');
+			$('#refresh').addClass('disabled');
+			$('#edit').addClass('disabled');
+			$('#highlight').addClass('disabled');
+		},
 		criticalError: function() {
 			$('#step').addClass('disabled');
 			$('#step-back').addClass('disabled');

@@ -255,7 +255,6 @@ module.exports = function(editor) {
 			this.updateSize();
 			this.$textarea[0].selectionStart = this.lastSelectionStart;
 			this.$textarea[0].selectionEnd = this.lastSelectionStart;
-			this.hideAutoCompleteBox();
 		},
 
 		columnToX: function(column) {
@@ -525,7 +524,7 @@ module.exports = function(editor) {
 		},
 
 		click: function() {
-			this.hideAutoCompleteBox();
+			this.delegate.disableAutoCompletion();
 		},
 
 		mouseMove: function(event) {
