@@ -80,8 +80,14 @@ $(function() {
 	window.ed = ed;
 	var myConsole = new output.Console($('#console'), ed);
 	var canvas = new output.Canvas($('#canvas'), ed);
+	var robot = new output.Robot($('#robot'), ed, 8, 8);
+	window.robot = robot;
 
-	var scope = {console: myConsole.getAugmentedObject(), canvas: canvas.getAugmentedObject()};
+	var scope = {
+		console: myConsole.getAugmentedObject(),
+		canvas: canvas.getAugmentedObject(),
+		robot: robot.getAugmentedObject()
+	};
 
 	ed.setScope(scope);
 	

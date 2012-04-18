@@ -399,7 +399,7 @@ module.exports = function(editor) {
 			if (event.keyCode === 190 || (event.keyCode >= 48 && event.keyCode <= 90) || event.keyCode === 8) {
 				this.code = new editor.Code(this.surface.getText());
 				var pos = this.code.offsetToLoc(offset);
-				if (pos.line > 1) {
+				if (pos.line > 0) {
 					var line = this.code.getLine(pos.line);
 					var match = /([A-Za-z][A-Za-z0-9]*[.])+([A-Za-z][A-Za-z0-9]*)?$/.exec(line.substring(0, pos.column));
 					if (match !== null) {
