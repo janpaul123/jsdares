@@ -175,7 +175,6 @@ div.colorpicker div.circle.lightness {
 /// AUTOCOMPLETE ///
 @autocomplete-arrow-size: 5px;
 @autocomplete-width: 300px;
-@autocomplete-padding: 8px;
 .editor-autocomplete-box {
 	position: absolute;
 	background-color: @editor-box-background-color;
@@ -196,7 +195,7 @@ div.colorpicker div.circle.lightness {
 .editor-autocomplete-content {
 	min-width: 100px;
 	max-height: 140px;
-	padding: @autocomplete-padding;
+	margin: 8px;
 	overflow-y: auto;
 }
 
@@ -208,7 +207,7 @@ div.colorpicker div.circle.lightness {
 	padding: 0px 2px;
 	cursor: pointer;
 
-	&:hover, &.editor-autocomplete-highlight {
+	&:hover, &.editor-autocomplete-selected {
 		background-color: @highlight-color;
 	}
 }

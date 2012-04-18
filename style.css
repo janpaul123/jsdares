@@ -4238,7 +4238,7 @@ div.colorpicker div.circle.lightness {
 .editor-autocomplete-content {
   min-width: 100px;
   max-height: 140px;
-  padding: 8px;
+  margin: 8px;
   overflow-y: auto;
 }
 .editor-autocomplete-line {
@@ -4250,7 +4250,7 @@ div.colorpicker div.circle.lightness {
   cursor: pointer;
 }
 .editor-autocomplete-line:hover,
-.editor-autocomplete-line.editor-autocomplete-highlight {
+.editor-autocomplete-line.editor-autocomplete-selected {
   background-color: rgba(50, 250, 50, 0.4);
 }
 .console {

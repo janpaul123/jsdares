@@ -109,33 +109,89 @@ module.exports = function(editor) {
 			this.width = 0;
 			this.offset = offset;
 			this.addSemicolon = false;
+			this.selected = -1;
+			this.examples = [];
 		},
 		setExamples: function(examples, text, addSemicolon) {
-			this.$content.children('.editor-autocomplete-line').remove();
-			for (var i=0; i<examples.examples.length; i++) {
-				var $line = $('<div class="editor-autocomplete-line"></div>');
-				$line.html(examples.prefix + '<strong>' + examples.examples[i].substring(0, examples.width) + '</strong>' + examples.examples[i].substring(examples.width));
-				$line.on('mousemove', $.proxy(this.mouseMove, this));
-				$line.on('click', $.proxy(this.click, this));
-				$line.data('example', examples.examples[i]);
-				this.$content.append($line);
-			}
+			var previousExample = this.examples[this.selected] || '';
+			this.examples = examples.examples;
 			this.width = examples.width;
 			this.text = text;
 			this.addSemicolon = addSemicolon;
+			this.$content.children('.editor-autocomplete-line').remove();
+			this.$lines = [];
+			var selected = -1;
+			for (var i=0; i<this.examples.length; i++) {
+				var $line = $('<div class="editor-autocomplete-line"></div>');
+				$line.html(examples.prefix + '<strong>' + this.examples[i].substring(0, examples.width) + '</strong>' + this.examples[i].substring(this.width));
+				$line.on('mousemove', $.proxy(this.mouseMove, this));
+				$line.on('click', $.proxy(this.click, this));
+				$line.data('example-number', i);
+				this.$content.append($line);
+				this.$lines.push($line);
+				if (this.examples[i] === previousExample) selected = i;
+			}
+			this.select(selected);
 		},
 		remove: function() {
 			this.$element.remove();
 		},
+		up: function() {
+			if (this.selected > 0) {
+				this.select(this.selected-1);
+			} else {
+				this.select(this.examples.length-1);
+			}
+			return true;
+		},
+		down: function() {
+			if (this.selected < this.examples.length-1) {
+				this.select(this.selected+1);
+			} else {
+				this.select(0);
+			}
+			return true;
+		},
+		enter: function() {
+			if (this.selected >= 0 && this.selected < this.examples.length) {
+				this.insert();
+				return true;
+			} else {
+				return false;
+			}
+		},
 		/// INTERNAL FUNCTIONS ///
+		select: function(number) {
+			this.$content.children('.editor-autocomplete-line').removeClass('editor-autocomplete-selected');
+			this.selected = number;
+			if (this.selected >= 0) {
+				this.$lines[this.selected].addClass('editor-autocomplete-selected');
+				var example = this.examples[this.selected] + (this.addSemicolon ? ';' : '');
+				this.delegate.previewExample(this.offset, this.offset+this.width, example);
+
+				// the offset is weird since .position().top changes when scrolling
+				var y = this.$lines[this.selected].position().top + this.$content.scrollTop();
+				y = Math.max(0, y - this.$content.height()/2);
+				this.$content.stop(true).animate({scrollTop : y}, 150);
+			} else {
+				this.$content.stop(true).animate({scrollTop : 0}, 150);
+			}
+		},
+		insert: function(number) {
+			number = number || this.selected;
+			var example = this.examples[number] + (this.addSemicolon ? ';' : '');
+			this.delegate.insertExample(this.offset, this.offset+this.width, example);
+		},
 		mouseMove: function(event) {
-			var example = $(event.delegateTarget).data('example') + (this.addSemicolon ? ';' : '');
-			this.delegate.previewExample(this.offset, this.offset+this.width, example);
+			this.select($(event.delegateTarget).data('example-number'));
+			//var example = this.examples[$(event.delegateTarget).data('example-number')] + (this.addSemicolon ? ';' : '');
+			// this.delegate.previewExample(this.offset, this.offset+this.width, example);
 			//this.surface.previewExample(this.text.substring(0, this.offset) + $(event.delegateTarget).data('example') + ';' + this.text.substring(this.offset+this.width));
 		},
 		click: function(event) {
-			var example = $(event.delegateTarget).data('example') + (this.addSemicolon ? ';' : '');
-			this.delegate.insertExample(this.offset, this.offset+this.width, example);
+			this.insert($(event.delegateTarget).data('example-number'));
+			// var example = this.examples[$(event.delegateTarget).data('example-number')] + (this.addSemicolon ? ';' : '');
+			// this.delegate.insertExample(this.offset, this.offset+this.width, example);
 		}
 	};
 
@@ -331,6 +387,22 @@ module.exports = function(editor) {
 			}
 		},
 
+		autoCompleteNavigate: function(event) {
+			if (event.keyCode === 38) { // 38 == up
+				if (this.autoCompleteBox.up()) {
+					event.preventDefault();
+				}
+			} else if (event.keyCode === 40) { // 40 == down
+				if (this.autoCompleteBox.down()) {
+					event.preventDefault();
+				}
+			} else if (event.keyCode === 13) { // 13 == enter
+				if (this.autoCompleteBox.enter()) {
+					event.preventDefault();
+				}
+			}
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		initOffsets: function($div) {
 			// setting up mirror
@@ -407,6 +479,12 @@ module.exports = function(editor) {
 				this.userChangedText = true;
 			}
 
+			if (this.autoCompleteBox !== null) {
+				this.autoCompleteNavigate(event);
+			}
+
+			//this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
+
 			if (this.userChangedText) {
 				this.hideElements();
 			}
@@ -427,7 +505,10 @@ module.exports = function(editor) {
 				this.delegate.userChangedText();
 			}
 
-			this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
+			// 38 == up, 40 == down, 13 == enter, 16 == shift
+			if ([38, 40, 13, 16].indexOf(event.keyCode) < 0) {
+				this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
+			}
 		},
 
 		click: function() {

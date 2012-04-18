@@ -55,6 +55,20 @@ module.exports = function(editor) {
 			}
 		},
 
+		preview: function(text) {
+			if (this.editablesEnabled) {
+				this.disableEditables();
+			}
+			if (this.highlightingEnabled) {
+				this.disableHighlighting();
+			}
+			this.tree = new this.language.Tree(text);
+			if (!this.tree.hasError()) {
+				this.runner.restart();
+				this.run();
+			}
+		},
+
 		delayedUpdate: function() {
 			this.code = new editor.Code(this.surface.getText());
 			if (this.updateTimeout === null) {
@@ -62,9 +76,9 @@ module.exports = function(editor) {
 			}
 		},
 
-		update: function(previewText) {
+		update: function() {
 			this.updateTimeout = null;
-			this.code = new editor.Code(previewText || this.surface.getText());
+			this.code = new editor.Code(this.surface.getText());
 			this.tree = new this.language.Tree(this.code.text);
 			if (this.tree.hasError()) {
 				if (this.editablesEnabled) {
@@ -417,14 +431,15 @@ module.exports = function(editor) {
 
 		previewExample: function(offset1, offset2, example) {
 			var text = this.surface.getText();
-			this.update(text.substring(0, offset1) + example + text.substring(offset2));
+			this.preview(text.substring(0, offset1) + example + text.substring(offset2));
 		},
 
 		insertExample: function(offset1, offset2, example) {
 			var text = this.surface.getText();
-			this.surface.setText(text.substring(0, offset1) + example + text.substring(offset2));
 			this.surface.hideAutoCompleteBox();
+			this.surface.setText(text.substring(0, offset1) + example + text.substring(offset2));
 			this.surface.setCursor(offset1 + example.length, offset1 + example.length);
+			this.update();
 		}
 	};
 };
