@@ -89,6 +89,7 @@ module.exports = function(output) {
 
 			this.highlighting = false;
 			this.highlightNext = false;
+			this.stateChangedCallback = null;
 
 			this.initialState(columns, rows);
 			this.clear();
@@ -252,7 +253,8 @@ module.exports = function(output) {
 				initialAngle: this.initialAngle,
 				mazeObjects: this.mazeObjects,
 				verticalActive: verticalActive,
-				horizontalActive: horizontalActive
+				horizontalActive: horizontalActive,
+				blockGoal: blockGoal
 			};
 		},
 
@@ -276,6 +278,7 @@ module.exports = function(output) {
 					this.blockGoal[x][y] = state.blockGoal[x][y];
 				}
 			}
+			//console.log(this.verticalActive);
 			this.drawInterface();
 		},
 
@@ -302,6 +305,10 @@ module.exports = function(output) {
 			this.drawInterface();
 		},
 
+		setStateChangedCallback: function(callback) {
+			this.stateChangedCallback = callback;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		drawInterface: function() {
 			var x, y, $line, $block;
@@ -316,7 +323,6 @@ module.exports = function(output) {
 			this.$verticalLines = [];
 			this.$horizontalLines = [];
 			this.$blocks = [];
-			this.mazeObjects = 0;
 			for (x=0; x<this.columns; x++) {
 				this.$verticalLines[x] = [];
 				this.$horizontalLines[x] = [];
@@ -388,6 +394,7 @@ module.exports = function(output) {
 				$target.removeClass('robot-maze-line-active');
 			}
 			this.editor.outputRequestsRerun();
+			this.stateChanged();
 		},
 
 		clickHorizontalLine: function(event) {
@@ -402,6 +409,7 @@ module.exports = function(output) {
 				$target.removeClass('robot-maze-line-active');
 			}
 			this.editor.outputRequestsRerun();
+			this.stateChanged();
 		},
 		
 		isWall: function(x, y, angle) {
@@ -496,6 +504,7 @@ module.exports = function(output) {
 				this.initialY = $target.data('y');
 				this.drawInitial();
 				this.editor.outputRequestsRerun();
+				this.stateChanged();
 			}
 		},
 
@@ -511,6 +520,13 @@ module.exports = function(output) {
 				$target.removeClass('robot-maze-block-goal');
 			}
 			this.editor.outputRequestsRerun();
+			this.stateChanged();
+		},
+
+		stateChanged: function() {
+			if (this.stateChangedCallback !== null) {
+				this.stateChangedCallback(this.getState());
+			}
 		}
 	};
 };

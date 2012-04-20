@@ -83,6 +83,14 @@ $(function() {
 	var robot = new output.Robot($('#robot'), ed, 8, 8);
 	window.robot = robot;
 
+	if (window.localStorage.getItem('robot-2') !== null) {
+		robot.setState(JSON.parse(window.localStorage.getItem('robot-2')));
+	}
+
+	robot.setStateChangedCallback(function(state) {
+		window.localStorage.setItem('robot-2', JSON.stringify(state));
+	});
+
 	var scope = {
 		console: myConsole.getAugmentedObject(),
 		canvas: canvas.getAugmentedObject(),
