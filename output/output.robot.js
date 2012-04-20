@@ -103,8 +103,8 @@ module.exports = function(output) {
 
 				if (this.mazeLinesActive > 0) {
 					var positive = amount > 0;
-					for (var i=0; i<amount; i++) {
-						if (this.detectWall(this.robotX, this.robotY, positive ? this.robotAngle : (this.robotAngle + 180)%360)) {
+					for (var i=0; i<Math.abs(amount); i++) {
+						if (this.isWall(this.robotX, this.robotY, positive ? this.robotAngle : (this.robotAngle + 180)%360)) {
 							this.insertLine(node, fromX, fromY, this.getPathPos(this.robotX), this.getPathPos(this.robotY));
 							throw 'Robot ran into a wall';
 						}
@@ -168,6 +168,12 @@ module.exports = function(output) {
 					augmented: 'function',
 					example: 'turnRight()',
 					func: $.proxy(this.turn, this)
+				},
+				detectWall: {
+					name: 'detectWall',
+					augmented: 'function',
+					example: 'detectWall()',
+					func: $.proxy(this.detectWall, this)
 				}
 			};
 		},
@@ -194,13 +200,14 @@ module.exports = function(output) {
 
 		startRun: function() {
 			this.clear();
+			this.$container.removeClass('robot-error');
 		},
 
 		endRun: function() {
 		},
 
 		hasError: function() {
-			//this.$canvas.addClass('robot-error');
+			this.$container.addClass('robot-error');
 		},
 
 		clear: function() {
@@ -355,7 +362,7 @@ module.exports = function(output) {
 				return false;
 			} else {
 				if (angle === 0) {
-					if (x >= this.columns || this.verticalActive[x+1][y]) {
+					if (x >= this.columns-1 || this.verticalActive[x+1][y]) {
 						return true;
 					}
 				} else if (angle === 90) {
@@ -367,7 +374,7 @@ module.exports = function(output) {
 						return true;
 					}
 				} else if (angle === 270) {
-					if (y >= this.rows || this.horizontalActive[x][y+1]) {
+					if (y >= this.rows-1 || this.horizontalActive[x][y+1]) {
 						return true;
 					}
 				}
