@@ -69,6 +69,8 @@ module.exports = function(output) {
 			this.$div.addClass('robot');
 
 			this.$container = $('<div class="robot-container robot-not-highlighting"></div>');
+			this.$container.on('mouseup', $.proxy(this.containerMouseUp, this));
+			this.$container.on('mouseleave', $.proxy(this.containerMouseLeave, this));
 			this.$div.append(this.$container);
 
 			this.$maze = $('<div class="robot-maze"></div>');
@@ -77,8 +79,10 @@ module.exports = function(output) {
 			this.$path = $('<div class="robot-path"></div>');
 			this.$container.append(this.$path);
 
-			//this.$robot = $('<div class="robot-robot"></div>');
-			//this.$container.append(this.$robot);
+			this.$initial = $('<div class="robot-robot robot-initial"></div>');
+			this.$initial.on('mousedown', $.proxy(this.initialMouseDown, this));
+			this.$initial.on('mouseup', $.proxy(this.initialMouseUp, this));
+			this.$container.append(this.$initial);
 
 			this.editor = editor;
 			this.editor.addOutput(this);
@@ -96,12 +100,12 @@ module.exports = function(output) {
 				throw function(f) { return f('forward') + ' accepts no more than' + f('1') + ' argument'; };
 			} else if (typeof amount !== 'number' || !isFinite(amount)) {
 				throw function(f) { return 'Argument has to be a valid number'; };
-			} else if (Math.round(amount) !== amount && this.mazeLinesActive > 0) {
+			} else if (Math.round(amount) !== amount && this.mazeObjects > 0) {
 				throw function(f) { return 'Fractional amounts are only allowed when the maze is empty'; };
 			} else if (amount !== 0) {
 				var fromX = this.getPathPos(this.robotX), fromY = this.getPathPos(this.robotY);
 
-				if (this.mazeLinesActive > 0) {
+				if (this.mazeObjects > 0) {
 					var positive = amount > 0;
 					for (var i=0; i<Math.abs(amount); i++) {
 						if (this.isWall(this.robotX, this.robotY, positive ? this.robotAngle : (this.robotAngle + 180)%360)) {
@@ -134,7 +138,7 @@ module.exports = function(output) {
 				throw function(f) { return f(name) + ' accepts no more than' + f('1') + ' argument'; };
 			} else if (typeof amount !== 'number' || !isFinite(amount)) {
 				throw function(f) { return 'Argument has to be a valid number'; };
-			} else if ([0, 90, 180, 270].indexOf(amount) < 0 && this.mazeLinesActive > 0) {
+			} else if ([0, 90, 180, 270].indexOf(amount) < 0 && this.mazeObjects > 0) {
 				throw function(f) { return 'Only 90, 180 and 270 degrees are allowed when the maze is not empty'; };
 			} else {
 				if (amount > 0) {
@@ -147,6 +151,11 @@ module.exports = function(output) {
 
 		detectWall: function(node, name, args) {
 			return this.isWall(this.robotX, this.robotY, this.robotAngle);
+		},
+
+		detectGoal: function(node, name, args) {
+			if (this.mazeObjects <= 0) return false;
+			else return this.blockGoal[this.robotX][this.robotY];
 		},
 		
 		getAugmentedObject: function() {
@@ -174,6 +183,12 @@ module.exports = function(output) {
 					augmented: 'function',
 					example: 'detectWall()',
 					func: $.proxy(this.detectWall, this)
+				},
+				detectGoal: {
+					name: 'detectGoal',
+					augmented: 'function',
+					example: 'detectGoal()',
+					func: $.proxy(this.detectGoal, this)
 				}
 			};
 		},
@@ -218,13 +233,15 @@ module.exports = function(output) {
 		},
 
 		getState: function() {
-			var verticalActive = [], horizontalActive = [];
+			var verticalActive = [], horizontalActive = [], blockGoal = [];
 			for (var x=0; x<this.columns; x++) {
 				verticalActive[x] = [];
 				horizontalActive[x] = [];
+				blockGoal[x] = [];
 				for (var y=0; y<this.rows; y++) {
 					verticalActive[x][y] = this.verticalActive[x][y];
 					horizontalActive[x][y] = this.horizontalActive[x][y];
+					blockGoal[x][y] = this.blockGoal[x][y];
 				}
 			}
 			return {
@@ -233,7 +250,7 @@ module.exports = function(output) {
 				initialX: this.initialX,
 				initialY: this.initialY,
 				initialAngle: this.initialAngle,
-				mazeLinesActive: this.mazeLinesActive,
+				mazeObjects: this.mazeObjects,
 				verticalActive: verticalActive,
 				horizontalActive: horizontalActive
 			};
@@ -245,18 +262,21 @@ module.exports = function(output) {
 			this.initialX = state.initialX;
 			this.initialY = state.initialY;
 			this.initialAngle = state.initialAngle;
-			this.mazeLinesActive = state.mazeLinesActive;
+			this.mazeObjects = state.mazeObjects;
 			this.verticalActive = [];
 			this.horizontalActive = [];
+			this.blockGoal = [];
 			for (var x=0; x<this.columns; x++) {
 				this.verticalActive[x] = [];
 				this.horizontalActive[x] = [];
+				this.blockGoal[x] = [];
 				for (var y=0; y<this.rows; y++) {
 					this.verticalActive[x][y] = state.verticalActive[x][y];
 					this.horizontalActive[x][y] = state.horizontalActive[x][y];
+					this.blockGoal[x][y] = state.blockGoal[x][y];
 				}
 			}
-			this.buildInterface();
+			this.drawInterface();
 		},
 
 		initialState: function(columns, rows) {
@@ -265,23 +285,26 @@ module.exports = function(output) {
 			this.initialX = Math.floor(this.columns/2);
 			this.initialY = rows-1;
 			this.initialAngle = 90;
-			this.mazeLinesActive = 0;
+			this.mazeObjects = 0;
 			this.verticalActive = [];
 			this.horizontalActive = [];
+			this.blockGoal = [];
 			for (var x=0; x<this.columns; x++) {
 				this.verticalActive[x] = [];
 				this.horizontalActive[x] = [];
+				this.blockGoal[x] = [];
 				for (var y=0; y<this.rows; y++) {
 					this.verticalActive[x][y] = false;
 					this.horizontalActive[x][y] = false;
+					this.blockGoal[x][y] = false;
 				}
 			}
-			this.buildInterface();
+			this.drawInterface();
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		buildInterface: function() {
-			var x, y, $line;
+		drawInterface: function() {
+			var x, y, $line, $block;
 
 			this.width = this.columns * this.blockSize;
 			this.height = this.rows * this.blockSize;
@@ -289,13 +312,30 @@ module.exports = function(output) {
 			this.$container.height(this.height);
 
 			// inits
-			this.$container.children('.robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
+			this.$container.children('.robot-maze-block .robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
 			this.$verticalLines = [];
 			this.$horizontalLines = [];
-			this.mazeLinesActive = 0;
+			this.$blocks = [];
+			this.mazeObjects = 0;
 			for (x=0; x<this.columns; x++) {
 				this.$verticalLines[x] = [];
 				this.$horizontalLines[x] = [];
+				this.$blocks[x] = [];
+			}
+
+			// blocks
+			for (x=0; x<this.columns; x++) {
+				for (y=0; y<this.rows; y++) {
+					$block = $('<div class="robot-maze-block"></div>');
+					$block.css('left', x*this.blockSize);
+					$block.css('top', y*this.blockSize);
+					$block.data('x', x);
+					$block.data('y', y);
+					$block.on('click', $.proxy(this.clickBlock, this));
+					if (this.blockGoal[x][y]) $block.addClass('robot-maze-block-goal');
+					this.$maze.append($block);
+					this.$blocks[x][y] = $block;
+				}
 			}
 
 			// vertical lines
@@ -327,6 +367,13 @@ module.exports = function(output) {
 					this.$horizontalLines[x][y] = {$line: $line, active: false};
 				}
 			}
+
+			this.drawInitial();
+		},
+
+		drawInitial: function() {
+			this.$initial.css('left', this.initialX * this.blockSize);
+			this.$initial.css('top', this.initialY * this.blockSize);
 		},
 
 		clickVerticalLine: function(event) {
@@ -334,10 +381,10 @@ module.exports = function(output) {
 			var active = !this.verticalActive[$target.data('x')][$target.data('y')];
 			this.verticalActive[$target.data('x')][$target.data('y')] = active;
 			if (active) {
-				this.mazeLinesActive++;
+				this.mazeObjects++;
 				$target.addClass('robot-maze-line-active');
 			} else {
-				this.mazeLinesActive--;
+				this.mazeObjects--;
 				$target.removeClass('robot-maze-line-active');
 			}
 			this.editor.outputRequestsRerun();
@@ -348,17 +395,17 @@ module.exports = function(output) {
 			var active = !this.horizontalActive[$target.data('x')][$target.data('y')];
 			this.horizontalActive[$target.data('x')][$target.data('y')] = active;
 			if (active) {
-				this.mazeLinesActive++;
+				this.mazeObjects++;
 				$target.addClass('robot-maze-line-active');
 			} else {
-				this.mazeLinesActive--;
+				this.mazeObjects--;
 				$target.removeClass('robot-maze-line-active');
 			}
 			this.editor.outputRequestsRerun();
 		},
 		
 		isWall: function(x, y, angle) {
-			if (this.mazeLinesActive <= 0) {
+			if (this.mazeObjects <= 0) {
 				return false;
 			} else {
 				if (angle === 0) {
@@ -424,6 +471,46 @@ module.exports = function(output) {
 					this.editor.highlightNode($target.data('node'));
 				}
 			}
+		},
+
+		initialMouseDown: function(event) {
+			this.$container.on('mousemove', $.proxy(this.containerInitialMouseMove, this));
+			this.$initial.addClass('robot-initial-dragging');
+			event.preventDefault();
+		},
+
+		containerMouseUp: function(event) {
+			this.$container.off('mousemove');
+			this.$initial.removeClass('robot-initial-dragging');
+		},
+
+		containerMouseLeave: function(event) {
+			this.$container.off('mousemove');
+			this.$initial.removeClass('robot-initial-dragging');
+		},
+
+		containerInitialMouseMove: function(event) {
+			var $target = $(event.target);
+			if ($target.hasClass('robot-maze-block')) {
+				this.initialX = $target.data('x');
+				this.initialY = $target.data('y');
+				this.drawInitial();
+				this.editor.outputRequestsRerun();
+			}
+		},
+
+		clickBlock: function(event) {
+			var $target = $(event.delegateTarget);
+			var goal = !this.blockGoal[$target.data('x')][$target.data('y')];
+			this.blockGoal[$target.data('x')][$target.data('y')] = goal;
+			if (goal) {
+				this.mazeObjects++;
+				$target.addClass('robot-maze-block-goal');
+			} else {
+				this.mazeObjects--;
+				$target.removeClass('robot-maze-block-goal');
+			}
+			this.editor.outputRequestsRerun();
 		}
 	};
 };
