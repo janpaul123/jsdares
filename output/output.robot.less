@@ -11,7 +11,7 @@
 	cursor: crosshair;
 }
 
-@block-size: 65px;
+@block-size: 64px;
 @hover-size: 20px;
 @thin-size: 2px;
 @fat-size: 6px;
@@ -85,7 +85,7 @@
 	}
 }
 
-.robot-container:hover .robot-maze {
+.robot-container.robot-not-highlighting:hover .robot-maze {
 	.robot-maze-line-vertical, .robot-maze-line-horizontal {
 		cursor: hand;
 		.robot-maze-line-inside {
@@ -93,6 +93,9 @@
 		}
 		&:hover .robot-maze-line-inside {
 			background-color: #888;
+		}
+		&.robot-maze-line-active:hover .robot-maze-line-inside {
+			background-color: #000 !important;
 		}
 	}
 }
@@ -120,6 +123,85 @@
 
 	&.robot-red {
 		background-position-x: -82px;
+	}
+	
+}
+
+@robot-path-point-hover: 14px;
+@robot-path-point-size: 6px;
+.robot-path {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+
+	.robot-path-line {
+		position: absolute;
+		height: 2px;
+		margin-top: -1px;
+		z-index: 15;
+
+		.robot-path-line-inside {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			height: 2px;
+			width: 100%;
+			background-color: #333;
+		}
+
+		&.robot-path-highlight .robot-path-line-inside {
+			background-color: rgba(5, 195, 5, 0.85);
+		}
+	}
+
+	.robot-path-point {
+		position: absolute;
+		width: @robot-path-point-size;
+		height: @robot-path-point-size;
+		margin-left: -@robot-path-point-size/2;
+		margin-top: -@robot-path-point-size/2;
+		.border-radius(@robot-path-point-size);
+		z-index: 16;
+
+		.robot-path-point-inside {
+			position: absolute;
+			background-color: #333;
+			top: @robot-path-point-size/2;
+			left: @robot-path-point-size/2;
+			width: @robot-path-point-size;
+			height: @robot-path-point-size;
+			margin-top: -@robot-path-point-size/2;
+			margin-left: -@robot-path-point-size/2;
+			.border-radius(@robot-path-point-size);
+		}
+
+		&.robot-path-highlight .robot-path-point-inside {
+			background-color: rgba(5, 195, 5, 0.85);
+		}
+	}
+}
+
+.robot-highlighting .robot-path {
+	.robot-path-line {
+		height: 20px;
+		margin-top: -10px;
+
+		.robot-path-line-inside {
+			top: 9px;
+		}
+	}
+
+	.robot-path-point {
+		width: @robot-path-point-hover;
+		height: @robot-path-point-hover;
+		margin-left: -@robot-path-point-hover/2;
+		margin-top: -@robot-path-point-hover/2;
+		.border-radius(@robot-path-point-hover);
+
+		.robot-path-point-inside {
+			top: @robot-path-point-hover/2;
+			left: @robot-path-point-hover/2;
+		}
 	}
 	
 }
