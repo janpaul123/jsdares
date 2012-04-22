@@ -265,8 +265,12 @@ module.exports = function(editor) {
 		},
 
 		highlightNode: function(node) { // callback
-			this.surface.showHighlight(node.lineLoc.line, node.lineLoc.column, node.lineLoc.line+1, node.lineLoc.column2);
-			this.surface.scrollToLine(node.lineLoc.line);
+			if (node !== null) {
+				this.surface.showHighlight(node.lineLoc.line, node.lineLoc.column, node.lineLoc.line+1, node.lineLoc.column2);
+				this.surface.scrollToLine(node.lineLoc.line);
+			} else {
+				this.surface.hideHighlight();
+			}
 		},
 
 		// internal method; return whether or not a rerun is required

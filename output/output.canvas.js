@@ -272,6 +272,9 @@ module.exports = function(output) {
 					if (!this.editor.outputRequestsRerun()) {
 						this.highlightCallTarget = 0;
 					}
+					if (this.highlightCallTarget <= 0) {
+						this.editor.highlightNode(null);
+					}
 				}
 			}
 		}

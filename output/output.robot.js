@@ -455,6 +455,7 @@ module.exports = function(output) {
 				$line.addClass('robot-path-highlight');
 			}
 			$line.on('mousemove', $.proxy(this.pathMouseMove, this));
+			$line.on('mouseleave', $.proxy(this.pathMouseLeave, this));
 			$line.data('node', node);
 		},
 
@@ -467,6 +468,7 @@ module.exports = function(output) {
 				$point.addClass('robot-path-highlight');
 			}
 			$point.on('mousemove', $.proxy(this.pathMouseMove, this));
+			$point.on('mouseleave', $.proxy(this.pathMouseLeave, this));
 			$point.data('node', node);
 		},
 
@@ -481,20 +483,36 @@ module.exports = function(output) {
 			}
 		},
 
+		pathMouseLeave: function(event) {
+			if (this.highlighting) {
+				this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
+				this.editor.highlightNode(null);
+			}
+		},
+
 		initialMouseDown: function(event) {
-			this.$container.on('mousemove', $.proxy(this.containerInitialMouseMove, this));
-			this.$initial.addClass('robot-initial-dragging');
-			event.preventDefault();
+			if (!this.draggingInitial) {
+				this.draggingInitial = true;
+				this.$container.on('mousemove', $.proxy(this.containerInitialMouseMove, this));
+				this.$initial.addClass('robot-initial-dragging');
+				event.preventDefault();
+			}
 		},
 
 		containerMouseUp: function(event) {
-			this.$container.off('mousemove');
-			this.$initial.removeClass('robot-initial-dragging');
+			if (this.draggingInitial) {
+				this.$container.off('mousemove');
+				this.$initial.removeClass('robot-initial-dragging');
+				this.draggingInitial = false;
+			}
 		},
 
 		containerMouseLeave: function(event) {
-			this.$container.off('mousemove');
-			this.$initial.removeClass('robot-initial-dragging');
+			if (this.draggingInitial) {
+				this.$container.off('mousemove');
+				this.$initial.removeClass('robot-initial-dragging');
+				this.draggingInitial = false;
+			}
 		},
 
 		containerInitialMouseMove: function(event) {

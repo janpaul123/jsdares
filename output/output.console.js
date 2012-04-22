@@ -83,6 +83,7 @@ module.exports = function(output) {
 			this.highlighting = true;
 			this.$div.addClass('console-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
+			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
 			this.autoScroll = false;
 			this.$div.removeClass('console-autoscroll');
 		},
@@ -91,7 +92,7 @@ module.exports = function(output) {
 			this.highlighting = false;
 			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 			this.$div.removeClass('console-highlighting');
-			this.$div.off('mousemove');
+			this.$div.off('mousemove mouseleave');
 			this.refreshAutoScroll();
 		},
 
@@ -132,11 +133,20 @@ module.exports = function(output) {
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.target);
+				this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 				if ($target.data('node') !== undefined && !$target.hasClass('console-highlight-line')) {
-					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 					$target.addClass('console-highlight-line');
 					this.editor.highlightNode($target.data('node'));
+				} else {
+					this.editor.highlightNode(null);
 				}
+			}
+		},
+
+		mouseLeave: function(event) {
+			if (this.highlighting) {
+				this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+				this.editor.highlightNode(null);
 			}
 		},
 
