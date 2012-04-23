@@ -6,8 +6,12 @@ $(function() {
 	var editor = require('./editor');
 	var output = require('./output');
 
-	if (window.localStorage.getItem('2') === null) {
-		window.localStorage.setItem('2', "console.setColor(\"#fbf706\");\nconsole.log(\"Colourful multiplication table:\");\nconsole.log(\"\");\n\nvar width = 9;\n\nfunction printLine(x) {\n  var line = \"\";\n  for (var i=1; i<=width; i++) {\n    var number = i*x;\n    line += number + \"\\t\";\n  }\n  console.log(line);\n}\n\nfunction drawLine() {\n    var line = \"\";\n    for (var i=1; i<=width-1; i++) {\n      line += \"--------\"; // 8 dashes\n    }\n    line += \"---\"; // some extra for the last column\n    \n    console.setColor(\"#e821e1\");\n    console.log(line);  \n}\n\nfor (var i=1; i<=29; i++) {\n  console.setColor(\"hsl(\" + i*11 + \", 100%, 50%)\");\n  printLine(i);\n  \n  // try playing with true and false here! :)\n  if (i % 10 == 0 && true || false) {\n    drawLine();\n  }\n}\n\nconsole.setColor(\"hsla(130, 75%, 55%, 0.9)\");\nconsole.log(\"\");\nconsole.log(\"By Jan Paul Posma\");\nconsole.log(\"\");\n\nconsole.setColor(\"rgba(230, 230, 0, 1)\");\nconsole.log(\";)\");");
+	if (window.localStorage.getItem('program-3') === null) {
+		window.localStorage.setItem('program-3', "/// EXAMPLE CONSOLE PROGRAM ///\nconsole.setColor(\"#64e9e1\");\nconsole.log(\"Colourful multiplication table:\");\nconsole.log(\"\");\nvar width=9;\n\nfunction printLine(x) {\n  var line = \"\";\n  for (var i=1; i<=width; i++) {\n    var number = i*x;\n    line += number + \"\\t\";\n  }\n  console.log(line);\n}\n\nfor (var i=1; i<=30; i++) {\n  console.setColor(\"hsl(\" + i*11 + \", 100%, 50%)\");\n  printLine(i);\n}\n\n/// EXAMPLE CANVAS PROGRAM ///\nvar context = canvas.getContext(\"2d\");\nfor (var i=0; i<22; i++) {\n  context.fillStyle = \"hsla(\" + (i*17) + \", 80%, 50%, 0.8)\";\n  context.fillRect(10+i*19.7, 254+i*-52.3+i*i*3.3, 50, 50);\n}\n\ncontext.strokeStyle = \"#a526a5\";\ncontext.font = \"32pt Calibri\";\ncontext.lineWidth = 2;\ncontext.strokeText(\"Hello World!\", 73, 399);\n\n/// EXAMPLE ROBOT PROGRAM ///\nwhile(!robot.detectGoal()) {\n  robot.turnLeft();\n  while (robot.detectWall()) {\n    robot.turnRight();\n  }\n  robot.drive();\n}");
+	}
+
+	if (window.localStorage.getItem('robot-3') === null) {
+		window.localStorage.setItem('robot-3', "{\"columns\":8,\"rows\":8,\"initialX\":3,\"initialY\":7,\"initialAngle\":90,\"mazeObjects\":49,\"verticalActive\":[[false,false,false,false,false,false,false,false],[false,false,false,false,true,true,false,false],[false,false,true,true,false,false,false,false],[false,true,true,false,false,true,false,true],[false,false,false,false,true,false,false,false],[false,true,false,false,true,true,true,false],[false,false,false,true,false,true,true,false],[false,true,true,true,true,true,true,true]],\"horizontalActive\":[[false,true,false,true,false,false,false,false],[false,true,true,false,true,false,true,true],[false,true,false,true,true,true,false,true],[false,true,false,false,true,false,true,false],[false,false,true,true,false,false,true,true],[false,true,true,true,true,false,false,true],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],\"blockGoal\":[[true,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]]}");
 	}
 
 	var highlightingKey = false, editablesKey = false;
@@ -72,23 +76,23 @@ $(function() {
 			$('#highlight').removeClass('disabled');
 		},
 		textChanged: function(code) {
-			window.localStorage.setItem('2', code.text);
+			window.localStorage.setItem('program-3', code.text);
 		}
 	};
 
-	var ed = new editor.Editor(jsmm, $('#editor'), ui, window.localStorage.getItem('2'));
+	var ed = new editor.Editor(jsmm, $('#editor'), ui, window.localStorage.getItem('program-3'));
 	window.ed = ed;
 	var myConsole = new output.Console($('#console'), ed);
 	var canvas = new output.Canvas($('#canvas'), ed);
 	var robot = new output.Robot($('#robot'), ed, 8, 8);
 	window.robot = robot;
 
-	if (window.localStorage.getItem('robot-2') !== null) {
-		robot.setState(JSON.parse(window.localStorage.getItem('robot-2')));
+	if (window.localStorage.getItem('robot-3') !== null) {
+		robot.setState(JSON.parse(window.localStorage.getItem('robot-3')));
 	}
 
 	robot.setStateChangedCallback(function(state) {
-		window.localStorage.setItem('robot-2', JSON.stringify(state));
+		window.localStorage.setItem('robot-3', JSON.stringify(state));
 	});
 
 	var scope = {
@@ -184,7 +188,11 @@ $(function() {
 		}
 	});
 
-
+	$('#robot-link').click(function() {
+		setTimeout(function() {
+			robot.makeActive();
+		}, 0);
+	});
 
 	/*
 	$('#canvas-button').click(function(e) {

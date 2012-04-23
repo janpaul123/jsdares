@@ -123,7 +123,6 @@ module.exports = function(output) {
 		},
 
 		playAll: function() {
-			console.log('playAll');
 			if (this.animationQueue.length > 0) {
 				this.lastNumber = this.animationQueue.length-1;
 				this.playAnimation(0);
@@ -433,7 +432,6 @@ module.exports = function(output) {
 					this.blockGoal[x][y] = state.blockGoal[x][y];
 				}
 			}
-			//console.log(this.verticalActive);
 			this.drawInterface();
 		},
 
@@ -462,6 +460,10 @@ module.exports = function(output) {
 
 		setStateChangedCallback: function(callback) {
 			this.stateChangedCallback = callback;
+		},
+
+		makeActive: function() {
+			this.animation.playAll();
 		},
 
 		/// INTERNAL FUNCTIONS ///
