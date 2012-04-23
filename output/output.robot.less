@@ -11,7 +11,7 @@
 	cursor: crosshair;
 }
 
-@block-size: 64px;
+@block-size: 64px; // edit this in JS as well
 @hover-size: 20px;
 @thin-size: 2px;
 @fat-size: 6px;
@@ -162,8 +162,10 @@
 	}
 }
 
-@robot-path-point-hover: 14px;
+@robot-path-point-hover: 10px;
 @robot-path-point-size: 6px;
+@robot-path-point-arrow-size: 4px;
+@robot-path-point-arrow-hover: 10px; // edit this in JS as well
 .robot-path {
 	position: absolute;
 	left: 0px;
@@ -191,9 +193,9 @@
 
 	.robot-path-point {
 		position: absolute;
-		width: @robot-path-point-size;
+		width: @robot-path-point-size + @robot-path-point-arrow-hover;
 		height: @robot-path-point-size;
-		margin-left: -@robot-path-point-size/2;
+		margin-left: -@robot-path-point-size/2 - @robot-path-point-arrow-hover/2;
 		margin-top: -@robot-path-point-size/2;
 		.border-radius(@robot-path-point-size);
 		z-index: 16;
@@ -208,10 +210,26 @@
 			margin-top: -@robot-path-point-size/2;
 			margin-left: -@robot-path-point-size/2;
 			.border-radius(@robot-path-point-size);
+
+			.robot-path-point-arrow {
+				position: absolute;
+				left: @robot-path-point-size;
+				top: @robot-path-point-size/2 - 1;
+				width: @robot-path-point-arrow-size;
+				height: 2px;
+				background-color: #333;
+			}
 		}
 
-		&.robot-path-highlight .robot-path-point-inside {
-			background-color: rgba(5, 195, 5, 0.85);
+		&.robot-path-highlight {
+			z-index: 17;
+			.robot-path-point-inside {
+				background-color: rgba(5, 195, 5, 0.85);
+
+				.robot-path-point-arrow {
+					background-color: rgba(5, 195, 5, 0.85);
+				}
+			}
 		}
 	}
 }
@@ -227,9 +245,9 @@
 	}
 
 	.robot-path-point {
-		width: @robot-path-point-hover;
+		width: @robot-path-point-hover + @robot-path-point-arrow-hover;
 		height: @robot-path-point-hover;
-		margin-left: -@robot-path-point-hover/2;
+		margin-left: -@robot-path-point-hover/2 - @robot-path-point-arrow-hover/2;
 		margin-top: -@robot-path-point-hover/2;
 		.border-radius(@robot-path-point-hover);
 

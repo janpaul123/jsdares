@@ -64,7 +64,7 @@ module.exports = function(output) {
 			this.detectWallLength = 40000;
 			this.animationQueue = [];
 			this.animationLength = 0;
-			this.duration = 0.01;
+			this.duration = 0.006;
 			this.animateTimeout = null;
 			this.currentAnimation = null;
 			this.lastNumber = 0;
@@ -285,7 +285,7 @@ module.exports = function(output) {
 				}
 				this.robotAngle += amount;
 				this.robotAngle = ((this.robotAngle%360)+360)%360;
-				this.insertPoint(node, this.robotX, this.robotY);
+				this.insertPoint(node, this.robotX, this.robotY, this.robotAngle);
 			}
 		},
 
@@ -610,11 +610,14 @@ module.exports = function(output) {
 			$line.data('node', node);
 		},
 
-		insertPoint: function(node, x, y) {
-			var $point = $('<div class="robot-path-point"><div class="robot-path-point-inside"></div>');
+		insertPoint: function(node, x, y, angle) {
+			var $point = $('<div class="robot-path-point"><div class="robot-path-point-inside"><div class="robot-path-point-arrow"></div></div></div>');
 			this.$path.append($point);
-			$point.css('left', x*blockSize + blockSize/2);
-			$point.css('top', y*blockSize + blockSize/2);
+			var angleRad = angle/180*Math.PI;
+			// 5 = 0.5*@robot-path-point-arrow-hover
+			$point.css('left', x*blockSize + blockSize/2 + 5*Math.cos(angleRad));
+			$point.css('top', y*blockSize + blockSize/2 - 5*Math.sin(angleRad));
+			setCss3($point, 'transform', 'rotate(' + (-angle) + 'deg)');
 			if (this.highlightNext) {
 				$point.addClass('robot-path-highlight');
 			}
