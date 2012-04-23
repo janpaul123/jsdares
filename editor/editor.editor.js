@@ -97,7 +97,7 @@ module.exports = function(editor) {
 			this.callOutputs('startRun');
 			this.runner.newTree(this.tree);
 			this.runner.run();
-			this.callOutputs('endRun');
+			//this.callOutputs('endRun');
 			this.handleRunnerOutput();
 		},
 
@@ -110,19 +110,21 @@ module.exports = function(editor) {
 
 		stepForward: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				this.callOutputs('clear');
 				if (!this.runner.isStepping()) {
 					this.surface.openStepMessage();
 				}
+				this.callOutputs('startRun');
 				this.runner.stepForward();
+				//this.callOutputs('endRun');
 				this.handleRunnerOutput();
 			}
 		},
 
 		stepBackward: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				this.callOutputs('clear');
+				this.callOutputs('startRun');
 				this.runner.stepBackward();
+				//this.callOutputs('endRun');
 				this.handleRunnerOutput();
 			}
 		},
@@ -136,12 +138,15 @@ module.exports = function(editor) {
 				} else {
 					this.delegate.runningWithError();
 				}
+				this.callOutputs('endRun');
 			} else {
 				this.handleMessages(this.runner.getMessages());
 				if (this.runner.isStepping()) {
 					this.delegate.steppingWithoutError();
+					this.callOutputs('endRunStepping');
 				} else {
 					this.delegate.runningWithoutError();
+					this.callOutputs('endRun');
 				}
 			}
 		},

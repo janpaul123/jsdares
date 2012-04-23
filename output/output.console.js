@@ -114,6 +114,10 @@ module.exports = function(output) {
 			}
 		},
 
+		endRunStepping: function() {
+			this.endRun();
+		},
+
 		hasError: function() {
 			this.$content.addClass('console-error');
 		},

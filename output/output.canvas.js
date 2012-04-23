@@ -201,6 +201,10 @@ module.exports = function(output) {
 
 		},
 
+		endRunStepping: function() {
+
+		},
+
 		hasError: function() {
 			this.$canvas.addClass('canvas-error');
 		},
