@@ -2,6 +2,12 @@
 "use strict";
 
 $(function() {
+	var output = require('./output');
+
+	var ui = new output.UI();
+	window.ui = ui;
+	
+	/*
 	var jsmm = require('./jsmm');
 	var editor = require('./editor');
 	var output = require('./output');
@@ -194,6 +200,15 @@ $(function() {
 		}, 0);
 	});
 
+	$('#dare-select').modal({
+		show: false
+	});
+
+	$('#select-dare').click(function() {
+		$('#dare-select').modal('show');
+	});
+	*/
+
 	/*
 	$('#canvas-button').click(function(e) {
 		$('#canvas').show();
@@ -228,6 +243,7 @@ $(function() {
 	});
 */
 	
+	/*
 	$('#extra-compile').click(function(e) {
 		clear();
 		log(runner.getRawCode());
@@ -291,6 +307,7 @@ $(function() {
 		log('');
 		log('Note: the Javascript time function is not completely reliable...');
 	});
+	*/
 	
 	/*
 	$('#extra-scope').click(function(e) {

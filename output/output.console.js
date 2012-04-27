@@ -24,6 +24,14 @@ module.exports = function(output) {
 			this.clear();
 		},
 
+		remove: function() {
+			this.clear();
+			this.$content.remove();
+			this.$div.removeClass('console');
+			this.$div.off('scroll mousemove mouseleave');
+			this.editor.removeOutput(this);
+		},
+
 		getAugmentedObject: function() {
 			return {
 				log: {

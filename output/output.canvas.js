@@ -17,11 +17,11 @@ module.exports = function(output) {
 			this.context = this.$canvas[0].getContext('2d');
 			this.context.save();
 
-			var $mirror = $('<canvas class="canvas-mirror"></canvas>');
-			this.$div.append($mirror);
-			$mirror.attr('width', this.size);
-			$mirror.attr('height', this.size);
-			this.mirrorContext = $mirror[0].getContext('2d');
+			this.$mirror = $('<canvas class="canvas-mirror"></canvas>');
+			this.$div.append(this.$mirror);
+			this.$mirror.attr('width', this.size);
+			this.$mirror.attr('height', this.size);
+			this.mirrorContext = this.$mirror[0].getContext('2d');
 			this.mirrorContext.save();
 
 			//this.debugToBrowser = true;
@@ -32,6 +32,14 @@ module.exports = function(output) {
 			this.editor.addOutput(this);
 
 			this.clear();
+		},
+
+		remove: function() {
+			this.$canvas.remove();
+			this.$mirror.remove();
+			this.$div.removeClass('canvas');
+			this.$div.off('mousemove');
+			this.editor.removeOutput(this);
 		},
 
 		functions: {
@@ -225,6 +233,10 @@ module.exports = function(output) {
 				this.actualFillStyle = this.context.fillStyle;
 				this.actualShadowColor = this.context.shadowColor;
 			}
+		},
+
+		getImageData: function() {
+			return this.context.getImageData(0, 0, 550, 550);
 		},
 
 		/// INTERNAL FUNCTIONS ///

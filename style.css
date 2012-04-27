@@ -4551,6 +4551,199 @@ div.colorpicker div.circle.lightness {
   top: 5px;
   left: 5px;
 }
+#dares-popup {
+  display: none;
+  width: 700px;
+  height: 500px;
+  margin-left: -350px;
+  margin-top: -250px;
+  background-color: #333;
+  color: white;
+}
+#dares-popup .modal-header {
+  border-bottom-color: #555;
+  height: 25px;
+}
+#dares-popup .modal-body {
+  max-height: none;
+}
+#dares-popup .modal-footer {
+  height: 30px;
+}
+#dares-popup .close {
+  color: white;
+  text-shadow-color: black;
+}
+#dares-popup .close:hover {
+  color: white;
+}
+#dares-popup h2 {
+  font-size: 36px;
+  line-height: 36px;
+  font-family: "Times New Roman", Times, serif;
+  text-align: center;
+}
+#dares-popup .dares-table-item {
+  position: relative;
+  border-top: 1px solid #555;
+  padding: 5px 5px 2px 5px;
+  cursor: pointer;
+  overflow: hidden;
+}
+#dares-popup .dares-table-item > span {
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
+}
+#dares-popup .dares-table-item .dares-table-cell-name {
+  width: 450px;
+  font-weight: bold;
+}
+#dares-popup .dares-table-item .dares-table-output {
+  font-weight: normal;
+  background-color: black;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  vertical-align: text-top;
+  line-height: 16px;
+  background-color: #111;
+  padding: 3px 5px;
+  margin-left: 3px;
+}
+#dares-popup .dares-table-item .dares-table-cell-difficulty {
+  width: 110px;
+  font-size: 14px;
+}
+#dares-popup .dares-table-item .dares-table-cell-completed {
+  width: 90px;
+  font-size: 14px;
+}
+#dares-popup .dares-table-item .dares-table-cell-preview {
+  margin-left: 0px;
+  overflow: auto;
+  padding-bottom: 2px;
+  z-index: 10;
+}
+#dares-popup .dares-table-item .dares-table-cell-preview .dares-table-cell-preview-points {
+  display: inline-block;
+  font-family: Courier, monospace;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  background-color: #111;
+  padding: 1px 6px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+#dares-popup .dares-table-item .dares-table-cell-preview .dares-image-canvas {
+  float: right;
+  background-color: #dddddd;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  max-width: 200px;
+  margin: 0px 8px 5px 15px;
+}
+#dares-popup .dares-table-item:hover {
+  z-index: 11;
+  background-color: #555;
+  -webkit-box-shadow: 0px 0px 2px #2a2a2a;
+  -moz-box-shadow: 0px 0px 2px #2a2a2a;
+  box-shadow: 0px 0px 2px #2a2a2a;
+}
+#dares-popup .dares-table-item.dares-table-item-active {
+  z-index: 12;
+  background-color: #555;
+  -webkit-box-shadow: 0px 0px 5px #2a2a2a;
+  -moz-box-shadow: 0px 0px 5px #2a2a2a;
+  box-shadow: 0px 0px 5px #2a2a2a;
+}
+#dares-popup .dares-table-item.dares-table-item-active:hover {
+  background-color: #666;
+}
+.imagedare {
+  padding: 15px;
+}
+.imagedare .dare-text {
+  margin-bottom: 10px;
+}
+.imagedare .imagedare-original-container {
+  float: right;
+  position: relative;
+  cursor: pointer;
+  background-color: #dddddd;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  margin: 0px 8px 5px 15px;
+  width: 200px;
+  height: 200px;
+}
+.imagedare .imagedare-original-container .imagedare-original-canvas {
+  width: 200px;
+}
+.imagedare .imagedare-original-container .imagedare-original-refresh {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -8.5px;
+  margin-top: -10.5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 14px;
+  height: 20px;
+  padding: 1px 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.imagedare .imagedare-original-container:hover .imagedare-original-refresh {
+  display: block;
+}
+.imagedare .imagedare-result {
+  display: none;
+}
+.imagedare .dare-points {
+  font-family: "Courier", monospace;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #111;
+  padding: 0px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
+  position: relative;
+  overflow: auto;
+  width: 90%;
+}
+.imagedare .dare-points .dare-points-console {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+}
+.imagedare .dare-points .dare-points-code {
+  float: right;
+  padding: 5px 5px 5px 5%;
+  border-left: 1px solid #333;
+  width: 75%;
+}
+.imagedare .dare-points .dare-points-code .dare-points-changing {
+  background-color: rgba(50, 250, 50, 0.4);
+}
 textarea[readonly] {
   cursor: text;
 }
@@ -4565,9 +4758,9 @@ body {
   background-color: #000;
   max-width: 1200px;
   min-width: 930px;
-  min-height: 400px;
+  min-height: 550px;
   max-height: 700px;
-  color: #333;
+  color: white;
   font-family: Helvetica;
   font-size: 16px;
   line-height: 25px;
@@ -4582,21 +4775,16 @@ body {
   left: 50%;
   margin-left: 10px;
   right: 17px;
-  bottom: 17px;
+  bottom: 10px;
   width: auto;
   height: auto;
 }
-#console,
-#canvas,
-#robot {
+#select-dare {
+  bottom: 10px;
   position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 0px;
-  bottom: 0px;
-  width: auto;
-  height: auto;
-  background-color: #333;
+  left: 16px;
+  font-size: 26px;
+  line-height: 35px;
 }
 #output {
   position: absolute;
@@ -4604,7 +4792,7 @@ body {
   left: 17px;
   right: 50%;
   margin-right: 10px;
-  bottom: 17px;
+  bottom: 80px;
   width: auto;
   height: auto;
   /*
@@ -4640,6 +4828,18 @@ body {
 #output .nav-tabs {
   border-bottom: none;
   margin-bottom: 0px;
+}
+#output .nav-tabs li {
+  position: relative;
+  top: 35px;
+  -webkit-transition: top 0.5s ease-out;
+  -moz-transition: top 0.5s ease-out;
+  -ms-transition: top 0.5s ease-out;
+  -o-transition: top 0.5s ease-out;
+  transition: top 0.5s ease-out;
+}
+#output .nav-tabs li.tab-button-enabled {
+  top: 0px;
 }
 #output .nav-tabs li > a {
   padding: 6px 10px 3px;
@@ -4721,6 +4921,17 @@ body {
 #output .nav-tabs .active > a.active {
   background-color: #1a1a1a \9;
 }
+#output .tab-output {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  width: auto;
+  height: auto;
+  background-color: #333;
+  overflow: auto;
+}
 #output .tab-content {
   display: block;
   position: absolute;
@@ -4736,18 +4947,26 @@ body {
   top: 3px;
   left: 50%;
   margin-left: 10px;
+  right: 17px;
+  width: auto;
+}
+#extra-button {
+  float: right;
 }
 #extra-button .dropdown-menu a {
   font-size: 12px;
 }
 #title {
   position: absolute;
+  color: #333;
   left: 50%;
-  margin-left: -265px;
+  margin-left: -260px;
   top: 5px;
   font-size: 58px;
   line-height: 58px;
   text-shadow: 1px -1px 5px #222222;
+  width: 250px;
+  text-align: right;
 }
 /* put in bootstrap, forgot btn-warning */
 .btn-warning .caret {

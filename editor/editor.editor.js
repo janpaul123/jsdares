@@ -8,10 +8,10 @@ module.exports = function(editor) {
 	editor.Editor = function() { return this.init.apply(this, arguments); };
 
 	editor.Editor.prototype = {
-		init: function(language, $div, delegate, text) {
+		init: function(language, $div, $toolbar) {
 			this.language = language;
 			this.surface = new editor.Surface($div, this);
-			this.delegate = delegate;
+			this.toolbar = new editor.Toolbar($toolbar, this);
 			this.outputs = [];
 			this.runner = new language.StaticRunner();
 
@@ -28,7 +28,15 @@ module.exports = function(editor) {
 			this.updateTimeout = null;
 			this.runTimeout = null;
 
-			this.setText(text || '');
+			this.textChangeCallback = function(){};
+
+			this.setText('');
+		},
+
+		remove: function() {
+			this.removeEditables();
+			this.surface.remove();
+			this.toolbar.remove();
 		},
 
 		getText: function() {
@@ -49,6 +57,13 @@ module.exports = function(editor) {
 		addOutput: function(output) {
 			this.outputs.push(output);
 			this.update();
+		},
+
+		removeOutput: function(output) {
+			var index = this.outputs.indexOf(output);
+			if (index >= 0) {
+				this.outputs.splice(index, 1);
+			}
 		},
 
 		callOutputs: function(funcName) {
@@ -76,14 +91,14 @@ module.exports = function(editor) {
 					this.disableHighlighting();
 				}
 				this.handleError(this.tree.getError());
-				this.delegate.criticalError();
+				this.toolbar.criticalError();
 			} else {
 				if (this.highlightingEnabled) {
 					this.refreshHighlights();
 				}
 				this.run();
 			}
-			this.delegate.textChanged(this.code);
+			this.textChangeCallback(this.code.text);
 		},
 
 		delayedRun: function() {
@@ -134,18 +149,18 @@ module.exports = function(editor) {
 			if (this.runner.hasError()) {
 				this.handleError(this.runner.getError());
 				if (this.runner.isStepping()) {
-					this.delegate.steppingWithError();
+					this.toolbar.steppingWithError();
 				} else {
-					this.delegate.runningWithError();
+					this.toolbar.runningWithError();
 				}
 				this.callOutputs('endRun');
 			} else {
 				this.handleMessages(this.runner.getMessages());
 				if (this.runner.isStepping()) {
-					this.delegate.steppingWithoutError();
+					this.toolbar.steppingWithoutError();
 					this.callOutputs('endRunStepping');
 				} else {
-					this.delegate.runningWithoutError();
+					this.toolbar.runningWithoutError();
 					this.callOutputs('endRun');
 				}
 			}
@@ -192,7 +207,7 @@ module.exports = function(editor) {
 		enableEditables: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.editablesEnabled = true;
-				this.delegate.editablesEnabled();
+				this.toolbar.editablesEnabled();
 				this.refreshEditables();
 			}
 		},
@@ -200,7 +215,7 @@ module.exports = function(editor) {
 		disableEditables: function() {
 			this.removeEditables();
 			this.editablesEnabled = false;
-			this.delegate.editablesDisabled();
+			this.toolbar.editablesDisabled();
 		},
 
 		refreshEditables: function() {
@@ -253,7 +268,7 @@ module.exports = function(editor) {
 				this.surface.enableMouse();
 				this.surface.enableHighlighting();
 				this.highlightingEnabled = true;
-				this.delegate.highlightingEnabled();
+				this.toolbar.highlightingEnabled();
 				this.callOutputs('enableHighlighting');
 			}
 		},
@@ -265,7 +280,7 @@ module.exports = function(editor) {
 			this.surface.disableMouse();
 			this.surface.disableHighlighting();
 			this.highlightingEnabled = false;
-			this.delegate.highLightingDisabled();
+			this.toolbar.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
 		},
 
@@ -443,7 +458,7 @@ module.exports = function(editor) {
 				this.callOutputs('endRun');
 			}
 			
-			this.delegate.previewing();
+			this.toolbar.previewing();
 		},
 
 		insertExample: function(offset1, offset2, example) { // callback

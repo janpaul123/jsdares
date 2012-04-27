@@ -76,6 +76,11 @@ module.exports = function(editor) {
 			this.$marginIcon.fadeOut(150);
 			this.updateMessage();
 		},
+		remove: function() {
+			this.$marginIcon.remove();
+			this.$marking.remove();
+			this.box.remove();
+		},
 		/// INTERNAL FUNCTIONS ///
 		toggleMesssage: function() {
 			this.messageOpen = !this.messageOpen;
@@ -240,6 +245,18 @@ module.exports = function(editor) {
 			this.text = '';
 			this.userChangedText = false;
 			this.autoCompleteBox = null;
+		},
+
+		remove: function() {
+			this.hideAutoCompleteBox();
+			this.$highlightMarking.remove();
+			this.errorMessage.remove();
+			this.stepMessage.remove();
+			this.$margin.remove();
+			this.$surface.remove();
+			this.$textarea.remove();
+			this.$div.html('');
+			this.$div.removeClass('editor');
 		},
 
 		getText: function() {

@@ -4,6 +4,7 @@
 @import "output/output.console.less";
 @import "output/output.canvas.less";
 @import "output/output.robot.less";
+@import "output/output.dares.less";
 
 textarea[readonly] {
   cursor: text;
@@ -20,9 +21,9 @@ html, body {
 	background-color: #000;
 	max-width: 1200px;
 	min-width: 930px;
-	min-height: 400px;
+	min-height: 550px;
 	max-height: 700px;
-	color: #333;
+	color: white;
 	font-family: Helvetica;
 	font-size: 16px;
 	line-height: 25px;
@@ -38,20 +39,17 @@ html, body {
 	left: 50%;
 	margin-left: 10px;
 	right: 17px;
-	bottom: 17px;
+	bottom: 10px;
 	width: auto;
 	height: auto;
 }
 
-#console, #canvas, #robot {
+#select-dare {
+	bottom: 10px;
 	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
-	width: auto;
-	height: auto;
-	background-color: #333;
+	left: 16px;
+	font-size: 26px;
+	line-height: 35px;
 }
 
 #output {
@@ -60,13 +58,23 @@ html, body {
 	left: 17px;
 	right: 50%;
 	margin-right: 10px;
-	bottom: 17px;
+	bottom: 80px;
 	width: auto;
 	height: auto;
 
 	.nav-tabs {
 		border-bottom: none;
 		margin-bottom: 0px;
+
+		li {
+			position:relative;
+			top: 35px;
+			.transition(top 0.5s ease-out);
+
+			&.tab-button-enabled {
+				top: 0px;
+			}
+		}
 
 		li > a {
 			padding: 6px 10px 3px;
@@ -95,6 +103,18 @@ html, body {
 			@shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
 			.box-shadow(@shadow);
 		}
+	}
+
+	.tab-output {
+		position: absolute;
+		left: 0px;
+		right: 0px;
+		top: 0px;
+		bottom: 0px;
+		width: auto;
+		height: auto;
+		background-color: #333;
+		overflow: auto;
 	}
 
 	/*
@@ -146,9 +166,12 @@ html, body {
 	top: 3px;
 	left: 50%;
 	margin-left:10px;
+	right: 17px;
+	width: auto;
 }
 
 #extra-button {
+	float: right;
 	.dropdown-menu a {
 		font-size: 12px;
 	}
@@ -156,12 +179,15 @@ html, body {
 
 #title {
 	position: absolute;
+	color: #333;
 	left: 50%;
-	margin-left: -265px;
+	margin-left: -260px;
 	top: 5px;
 	font-size: 58px;
 	line-height: 58px;
 	text-shadow: 1px -1px 5px #222;
+	width: 250px;
+	text-align: right;
 }
 
 /* put in bootstrap, forgot btn-warning */

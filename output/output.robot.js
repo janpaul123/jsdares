@@ -53,6 +53,15 @@ module.exports = function(output) {
 				this.runningAnimation.playLast();
 			}
 			this.insertingAnimation = null;
+		},
+
+		remove: function() {
+			if (this.runningAnimation !== null) {
+				this.runningAnimation.remove();
+			}
+			if (this.insertingAnimation !== null) {
+				this.insertingAnimation.remove();
+			}
 		}
 	};
 
@@ -225,6 +234,20 @@ module.exports = function(output) {
 
 			this.editor = editor;
 			this.editor.addOutput(this);
+		},
+
+		remove: function() {
+			this.clear();
+			this.$container.children('.robot-maze-block .robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
+			this.animationManager.remove();
+
+			this.$container.remove();
+			this.$maze.remove();
+			this.$path.remove();
+			this.$initial.remove();
+			this.$robot.remove();
+			this.$div.removeClass('robot');
+			this.editor.removeOutput(this);
 		},
 
 		drive: function(node, name, args) {
