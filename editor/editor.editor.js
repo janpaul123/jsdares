@@ -203,6 +203,10 @@ module.exports = function(editor) {
 			}
 		},
 
+		getContentLines: function() {
+			return this.tree.getNodeLines();
+		},
+
 		/// EDITABLES METHODS AND CALLBACKS ///
 		enableEditables: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
@@ -290,6 +294,14 @@ module.exports = function(editor) {
 				this.surface.scrollToLine(node.lineLoc.line);
 			} else {
 				this.surface.hideHighlight();
+			}
+		},
+
+		highlightSingleLine: function(line) {
+			if (line === null) {
+				this.highlightNode(null);
+			} else {
+				this.highlightNode(this.tree.getNodeByLine(line));
 			}
 		},
 

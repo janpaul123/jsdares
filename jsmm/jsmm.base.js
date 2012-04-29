@@ -41,7 +41,7 @@ module.exports = function(jsmm) {
 				ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], CallStatement: [], IfBlock: [], ElseIfBlock: [],
 				ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 			};
-			this.nodesByLine = [];
+			this.nodesByLine = {};
 			this.nodesWithHook = [];
 			this.error = null;
 			jsmm.parser.yy.tree = this;
@@ -68,6 +68,13 @@ module.exports = function(jsmm) {
 		getNodeByLine: function(line) {
 			if (this.nodesByLine[line] === undefined) return null;
 			else return this.nodesByLine[line];
+		},
+		getNodeLines: function() {
+			var lines = [];
+			for (var line in this.nodesByLine) {
+				lines.push(line);
+			}
+			return lines;
 		},
 		getNodesByType: function(type) {
 			return this.nodesByType[type];

@@ -6,8 +6,7 @@ module.exports = function(output) {
 
 	var AnimatedCanvas = function() { return this.init.apply(this, arguments); };
 	AnimatedCanvas.prototype = {
-		init: function(context) {
-			this.context = context;
+		init: function() {
 			this.queue = [];
 			this.next = 0;
 			this.timeout = null;
@@ -21,7 +20,9 @@ module.exports = function(output) {
 		push: function(func) {
 			this.queue.push(func);
 		},
-		run: function(delay) {
+		run: function(context, delay) {
+			this.clearTimeout();
+			this.context = context;
 			if (delay <= 0) {
 				for (var i=0; i<this.queue.length; i++)	{
 					this.queue[i](this.context);
@@ -32,11 +33,15 @@ module.exports = function(output) {
 				this.animateNext();
 			}
 		},
-		animateNext: function() {
+		/// INTERNAL FUNCTIONS ///
+		clearTimeout: function() {
 			if (this.timeout !== null) {
 				clearTimeout(this.timeout);
 				this.timeout = null;
 			}
+		},
+		animateNext: function() {
+			this.clearTimeout();
 			this.queue[this.next++](this.context);
 			if (this.next < this.queue.length) {
 				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
@@ -140,9 +145,9 @@ module.exports = function(output) {
 			$preview.append(this.$previewAccept);
 
 			var context = $canvas[0].getContext('2d');
-			this.previewAnim = new AnimatedCanvas(context);
+			this.previewAnim = new AnimatedCanvas();
 			this.original(this.previewAnim);
-			this.previewAnim.run(this.speed);
+			this.previewAnim.run(context, this.speed);
 		},
 
 		removePreviewAnim: function() {
@@ -164,9 +169,12 @@ module.exports = function(output) {
 			this.$div = $div;
 			$div.addClass('imagedare');
 
+			this.$description = $('<div class="dare-description"></div>');
+			this.$div.append(this.$description);
+
 			this.$originalCanvasContainer = $('<div class="imagedare-original-container"><div class="imagedare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
 			this.$originalCanvasContainer.on('click', $.proxy(this.animateImage, this));
-			this.$div.append(this.$originalCanvasContainer);
+			this.$description.append(this.$originalCanvasContainer);
 			this.$originalCanvas = $('<canvas class="imagedare-original-canvas" width="550" height="550"></canvas>');
 			this.size = 550;
 			this.$originalCanvasContainer.append(this.$originalCanvas);
@@ -177,27 +185,29 @@ module.exports = function(output) {
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
 			var $text = $('<div class="dare-text">' + this.description + '</div>');
-			this.$div.append($text);
+			this.$description.append($text);
 
 			var $submit = $('<div class="btn btn-success">Submit</div>');
 			$submit.on('click', $.proxy(this.submit, this));
-			this.$div.append($submit);
+			this.$description.append($submit);
 
-			this.originalAnim = new AnimatedCanvas(this.originalContext);
+			this.originalAnim = new AnimatedCanvas();
 			this.original(this.originalAnim);
 			this.drawImage(0);
 			this.imageData = this.originalContext.getImageData(0, 0, this.size, this.size);
+
+			var targetContext = this.canvasOutput.makeTargetCanvas();
+			this.originalAnim.run(targetContext, 0);
 
 			var $points = $('<div></div>');
 			this.$div.append($points);
 			this.animatedPoints = new AnimatedPoints($points);
 			this.animatedPoints.addFactor('numMatchingPixels', 1);
-			this.animatedPoints.addFactor('numLines', -50);
+			this.animatedPoints.addFactor('numLines', -5000);
 			this.animatedPoints.setThreshold(this.threshold);
 			this.animatedPoints.finish();
 
 			this.pointsAnimationTimeout = null;
-			this.pointsAnimationPosition = 0;
 
 			this.animateImage();
 		},
@@ -208,7 +218,7 @@ module.exports = function(output) {
 
 		drawImage: function(speed) {
 			this.originalContext.clearRect(0, 0, this.size, this.size);
-			this.originalAnim.run(speed);
+			this.originalAnim.run(this.originalContext, speed);
 		},
 
 		submit: function() {
@@ -242,7 +252,8 @@ module.exports = function(output) {
 			this.resultContext.putImageData(resultImageData, 0, 0);
 
 			this.pointsAnimationPosition = 0;
-			this.pointsAnimationPositionMatching = 0;
+			this.pointsAnimationMatching = 0;
+			this.pointsAnimationContentLines = this.editor.getContentLines();
 			this.pointsAnimationCallback();
 		},
 
@@ -251,25 +262,34 @@ module.exports = function(output) {
 				clearTimeout(this.pointsAnimationTimeout);
 			}
 
-			var speed = 1;
-
 			if (this.pointsAnimationPosition < this.size) {
-				speed = 10;
+				var speed = 10;
 				var y = this.pointsAnimationPosition;
 				if (y === 0) {
 					this.drawImage(0);
 					this.animatedPoints.setChanging('numMatchingPixels');
 				}
 				for (var i=0; i<speed; i++) {
-					this.pointsAnimationPositionMatching += this.pointsPerLine[y+i];
+					this.pointsAnimationMatching += this.pointsPerLine[y+i];
 				}
-				this.animatedPoints.setValue('numMatchingPixels', this.pointsAnimationPositionMatching);
+				this.animatedPoints.setValue('numMatchingPixels', this.pointsAnimationMatching);
 				this.originalContext.drawImage(this.$resultCanvas[0], 0, y, this.size, speed, 0, y, this.size, speed);
-				this.pointsAnimationPosition+=speed;
-			}
+				this.pointsAnimationPosition += speed;
 
-			if (this.pointsAnimationPosition < this.size) {
 				this.pointsAnimationTimeout = setTimeout($.proxy(this.pointsAnimationCallback, this), 50);
+			} else if (this.pointsAnimationPosition < this.size + this.pointsAnimationContentLines.length ) {
+				var line = this.pointsAnimationPosition - this.size;
+				if (line === 0) {
+					this.animatedPoints.setChanging('numLines');
+				}
+				this.editor.highlightSingleLine(this.pointsAnimationContentLines[line]);
+				this.animatedPoints.setValue('numLines', line+1);
+				this.pointsAnimationPosition++;
+
+				this.pointsAnimationTimeout = setTimeout($.proxy(this.pointsAnimationCallback, this), 100);
+			} else {
+				this.animatedPoints.setChanging(null);
+				this.editor.highlightSingleLine(null);
 			}
 		}
 	};

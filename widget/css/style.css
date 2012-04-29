@@ -4294,9 +4294,9 @@ div.colorpicker div.circle.lightness {
 .canvas-highlighting {
   cursor: crosshair;
 }
-.canvas-canvas {
+.canvas-container {
+  position: relative;
   width: 100%;
-  max-width: 540px;
   background-color: #dddddd;
   -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
   -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
@@ -4304,6 +4304,17 @@ div.colorpicker div.circle.lightness {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+}
+.canvas-container .canvas-canvas {
+  width: 100%;
+}
+.canvas-container .canvas-target {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
 }
 .canvas-error {
   opacity: 0.5;
@@ -4672,6 +4683,9 @@ div.colorpicker div.circle.lightness {
 .imagedare {
   padding: 15px;
 }
+.imagedare .dare-description {
+  overflow: auto;
+}
 .imagedare .dare-text {
   margin-bottom: 10px;
 }
@@ -4686,7 +4700,7 @@ div.colorpicker div.circle.lightness {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
-  margin: 0px 8px 5px 15px;
+  margin: 0px 1px 5px 15px;
   width: 200px;
   height: 200px;
 }
@@ -4728,7 +4742,7 @@ div.colorpicker div.circle.lightness {
   line-height: 16px;
   position: relative;
   overflow: auto;
-  width: 90%;
+  width: 100%;
 }
 .imagedare .dare-points .dare-points-console {
   position: absolute;

@@ -124,6 +124,10 @@
 .imagedare {
 	padding: 15px;
 
+	.dare-description {
+		overflow: auto;
+	}
+
 	.dare-text {
 		margin-bottom: 10px;
 	}
@@ -136,7 +140,7 @@
 		@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
 		.box-shadow(@shadow);
 		.border-radius(4px);
-		margin: 0px 8px 5px 15px;
+		margin: 0px 1px 5px 15px;
 		width: 200px;
 		height: 200px;
 
@@ -179,7 +183,7 @@
 		line-height: @code-line-height;
 		position: relative;
 		overflow: auto;
-		width: 90%;
+		width: 100%;
 
 		.dare-points-console {
 			position: absolute;

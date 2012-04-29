@@ -9,20 +9,28 @@ module.exports = function(output) {
 			this.$div = $div;
 			this.$div.addClass('canvas');
 
+			this.$container = $('<div class="canvas-container"></div>');
+			this.$div.append(this.$container);
+
 			this.$canvas = $('<canvas class="canvas-canvas"></canvas>');
-			this.$div.append(this.$canvas);
-			this.size = this.$canvas.css('max-width').replace('px', '');
+			this.$container.append(this.$canvas);
+			//this.size = this.$canvas.css('max-width').replace('px', '');
+			this.size = 550;
+			this.$container.css('max-width', this.size);
+
 			this.$canvas.attr('width', this.size);
 			this.$canvas.attr('height', this.size);
 			this.context = this.$canvas[0].getContext('2d');
 			this.context.save();
 
-			this.$mirror = $('<canvas class="canvas-mirror"></canvas>');
-			this.$div.append(this.$mirror);
-			this.$mirror.attr('width', this.size);
-			this.$mirror.attr('height', this.size);
-			this.mirrorContext = this.$mirror[0].getContext('2d');
+			this.$mirrorCanvas = $('<canvas class="canvas-mirror"></canvas>');
+			this.$div.append(this.$mirrorCanvas);
+			this.$mirrorCanvas.attr('width', this.size);
+			this.$mirrorCanvas.attr('height', this.size);
+			this.mirrorContext = this.$mirrorCanvas[0].getContext('2d');
 			this.mirrorContext.save();
+
+			this.$targetCanvas = null;
 
 			//this.debugToBrowser = true;
 			this.highlighting = false;
@@ -36,7 +44,12 @@ module.exports = function(output) {
 
 		remove: function() {
 			this.$canvas.remove();
-			this.$mirror.remove();
+			this.$mirrorCanvas.remove();
+			if (this.$targetCanvas !== null) {
+				this.$targetCanvas.remove();
+			}
+			this.$container.remove();
+
 			this.$div.removeClass('canvas');
 			this.$div.off('mousemove');
 			this.editor.removeOutput(this);
@@ -202,7 +215,7 @@ module.exports = function(output) {
 		startRun: function() {
 			this.stopHighlighting();
 			this.clear();
-			this.$canvas.removeClass('canvas-error');
+			this.$container.removeClass('canvas-error');
 		},
 
 		endRun: function() {
@@ -214,7 +227,7 @@ module.exports = function(output) {
 		},
 
 		hasError: function() {
-			this.$canvas.addClass('canvas-error');
+			this.$container.addClass('canvas-error');
 		},
 
 		clear: function() {
@@ -237,6 +250,14 @@ module.exports = function(output) {
 
 		getImageData: function() {
 			return this.context.getImageData(0, 0, 550, 550);
+		},
+
+		makeTargetCanvas: function() {
+			this.$targetCanvas = $('<canvas class="canvas-target"></canvas>');
+			this.$container.append(this.$targetCanvas);
+			this.$targetCanvas.attr('width', this.size);
+			this.$targetCanvas.attr('height', this.size);
+			return this.$targetCanvas[0].getContext('2d');
 		},
 
 		/// INTERNAL FUNCTIONS ///
