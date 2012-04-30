@@ -4600,6 +4600,13 @@ div.colorpicker div.circle.lightness {
   padding: 5px 5px 2px 5px;
   cursor: pointer;
   overflow: hidden;
+  /*
+		.dares-table-cell-completed {
+			width: 90px;
+			font-size: 14px;
+		}
+		*/
+
 }
 #dares-popup .dares-table-item > span {
   display: inline-block;
@@ -4629,7 +4636,7 @@ div.colorpicker div.circle.lightness {
   width: 110px;
   font-size: 14px;
 }
-#dares-popup .dares-table-item .dares-table-cell-completed {
+#dares-popup .dares-table-item .dares-table-cell-highscore {
   width: 90px;
   font-size: 14px;
 }
@@ -4639,14 +4646,17 @@ div.colorpicker div.circle.lightness {
   padding-bottom: 2px;
   z-index: 10;
 }
-#dares-popup .dares-table-item .dares-table-cell-preview .dares-table-cell-preview-points {
-  display: inline-block;
-  font-family: Courier, monospace;
+#dares-popup .dares-table-item .dares-table-cell-preview .dares-table-cell-preview-points-container {
   margin-top: 10px;
   margin-bottom: 10px;
-  font-size: 15px;
+}
+#dares-popup .dares-table-item .dares-table-cell-preview .dares-table-cell-preview-points-container .dares-table-cell-preview-points {
+  font-family: "Courier", monospace;
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
   background-color: #111;
-  padding: 1px 6px;
+  padding: 5px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -4768,6 +4778,13 @@ body {
   padding: 0px;
   height: 100%;
 }
+.icon-trophy {
+  background-position: 0px 0px;
+  background-image: url(../img/trophy16.png);
+}
+.icon-trophy.icon-white {
+  background-image: url(../img/trophy16white.png);
+}
 #main {
   background-color: #000;
   max-width: 1200px;
@@ -4793,12 +4810,18 @@ body {
   width: auto;
   height: auto;
 }
-#select-dare {
+#start-dare {
   bottom: 10px;
   position: absolute;
   left: 16px;
   font-size: 26px;
   line-height: 35px;
+}
+#switch-abort-dare-group {
+  position: absolute;
+  left: 16px;
+  bottom: 10px;
+  display: none;
 }
 #output {
   position: absolute;
@@ -4809,6 +4832,11 @@ body {
   bottom: 80px;
   width: auto;
   height: auto;
+  -webkit-transition: bottom 0.5s ease-in-out;
+  -moz-transition: bottom 0.5s ease-in-out;
+  -ms-transition: bottom 0.5s ease-in-out;
+  -o-transition: bottom 0.5s ease-in-out;
+  transition: bottom 0.5s ease-in-out;
   /*
 	.btn:hover {
   color: @grayDark;
@@ -4955,6 +4983,15 @@ body {
   bottom: 0px;
   width: auto;
   height: auto;
+}
+.ui-dares-active #start-dare {
+  display: none;
+}
+.ui-dares-active #switch-abort-dare-group {
+  display: block;
+}
+.ui-dares-active #output {
+  bottom: 50px;
 }
 #editor-bar {
   position: absolute;

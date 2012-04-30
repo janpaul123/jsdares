@@ -17,6 +17,14 @@ html, body {
 	height: 100%;
 }
 
+.icon-trophy {
+	background-position: 0px 0px;
+	background-image: url(../img/trophy16.png);
+	&.icon-white {
+		background-image: url(../img/trophy16white.png);
+	}
+}
+
 #main {
 	background-color: #000;
 	max-width: 1200px;
@@ -44,12 +52,19 @@ html, body {
 	height: auto;
 }
 
-#select-dare {
+#start-dare {
 	bottom: 10px;
 	position: absolute;
 	left: 16px;
 	font-size: 26px;
 	line-height: 35px;
+}
+
+#switch-abort-dare-group {
+	position: absolute;
+	left: 16px;
+	bottom: 10px;
+	display: none;
 }
 
 #output {
@@ -61,6 +76,7 @@ html, body {
 	bottom: 80px;
 	width: auto;
 	height: auto;
+	.transition(bottom 0.5s ease-in-out);
 
 	.nav-tabs {
 		border-bottom: none;
@@ -158,6 +174,18 @@ html, body {
 		.tab-pane {
 			// position: relative;
 		}
+	}
+}
+
+.ui-dares-active {
+	#start-dare {
+		display: none;
+	}
+	#switch-abort-dare-group {
+		display: block;
+	}
+	#output {
+		bottom: 50px;
 	}
 }
 

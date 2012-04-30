@@ -71,7 +71,14 @@
 			font-size: 14px;
 		}
 
+		/*
 		.dares-table-cell-completed {
+			width: 90px;
+			font-size: 14px;
+		}
+		*/
+
+		.dares-table-cell-highscore {
 			width: 90px;
 			font-size: 14px;
 		}
@@ -82,15 +89,19 @@
 			padding-bottom: 2px;
 			z-index: 10;
 
-			.dares-table-cell-preview-points {
-				display: inline-block;
-				font-family: Courier, monospace;
+			.dares-table-cell-preview-points-container {
 				margin-top: 10px;
 				margin-bottom: 10px;
-				font-size: 15px;
-				background-color: #111;
-				padding: 1px 6px;
-				.border-radius(5px);
+
+				.dares-table-cell-preview-points {
+					font-family: @code-font-family;
+					color: @code-color;
+					font-size: @code-font-size;
+					line-height: @code-line-height;
+					background-color: #111;
+					padding: 5px;
+					.border-radius(5px);
+				}
 			}
 
 			.dares-image-canvas {

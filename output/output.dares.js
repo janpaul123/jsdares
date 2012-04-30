@@ -50,7 +50,8 @@ module.exports = function(output) {
 				}
 				$item.append($difficulty);
 
-				$item.append('<span class="dares-table-cell-completed"><i class="icon-user icon-white"></i> ' + dare.completed +'</span>');
+				//$item.append('<span class="dares-table-cell-completed"><i class="icon-user icon-white"></i> ' + dare.completed +'</span>');
+				$item.append('<span class="dares-table-cell-highscore"><i class="icon-trophy icon-white"></i> ' + dare.highscore +'</span>');
 				$item.append('<span class="dares-table-cell-preview"></span>');
 
 				$item.data('dare', dare);
@@ -70,7 +71,7 @@ module.exports = function(output) {
 				$preview.slideUp(200);
 				$target.removeClass('dares-table-item-active');
 			} else {
-				dare.addPreview($preview);
+				dare.setPreview($preview);
 				$target.addClass('dares-table-item-active');
 				$preview.hide();
 				$preview.slideDown(200);
@@ -107,6 +108,7 @@ module.exports = function(output) {
 
 		init: function() {
 			this.editor = this.console = this.canvas = this.robot = this.dare = null;
+			this.$main = $('#main');
 			this.initTabs();
 			this.loadInitial();
 
@@ -208,11 +210,13 @@ module.exports = function(output) {
 				}]
 			});
 
-			$('#select-dare').click($.proxy(function() {
+			$('#start-dare, #switch-dare').click($.proxy(function() {
 				this.dares.show();
 			}, this));
 
-			this.dares.selectDare(0, 0);
+			$('#abort-dare').click($.proxy(function() {
+				this.loadInitial();
+			}, this));
 		},
 
 		initTabs: function() {
@@ -248,6 +252,7 @@ module.exports = function(output) {
 			this.scope = {};
 			this.$tabs.children('li').remove();
 			this.$content.children('div').remove();
+			this.$main.removeClass('ui-dares-active');
 			this.tabNumber = 0;
 		},
 
@@ -299,6 +304,7 @@ module.exports = function(output) {
 			this.addTab('dare');
 			this.dare = dare;
 			dare.makeActive($('#dare'), this);
+			this.$main.addClass('ui-dares-active');
 			return this.dare;
 		},
 

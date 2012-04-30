@@ -125,23 +125,25 @@ module.exports = function(output) {
 			this.outputs = ['canvas'];
 			this.difficulty = options.difficulty || 1;
 			this.completed = options.completed || 0;
+			this.highscore = options.highscore || 0;
 			this.original = options.original;
 			this.speed = options.speed || 50;
 			this.threshold = options.threshold || 300000;
+			this.linePenalty = options.linePenalty || 5000;
 
 			this.previewAnim = null;
 		},
 
-		addPreview: function($preview) {
+		setPreview: function($preview) {
 			this.removePreviewAnim();
 
 			var $canvas = $('<canvas class="dares-image-canvas" width="550" height="550"></canvas>');
 			$preview.html($canvas);
 			$preview.append(this.description);
-			$preview.append('<span class="dares-table-cell-preview-points">var points = numMatchingPixels - numLines*50;</span>');
+			$preview.append('<div class="dares-table-cell-preview-points-container"><span class="dares-table-cell-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
 
 			this.$previewAccept = $('<button class="btn btn-success">Accept</button>');
-			this.$previewAccept.on('click', $.proxy(this.selectDare, this));
+			this.$previewAccept.on('click', $.proxy(function(event) { event.stopImmediatePropagation(); this.selectDare(); }, this));
 			$preview.append(this.$previewAccept);
 
 			var context = $canvas[0].getContext('2d');
@@ -187,9 +189,9 @@ module.exports = function(output) {
 			var $text = $('<div class="dare-text">' + this.description + '</div>');
 			this.$description.append($text);
 
-			var $submit = $('<div class="btn btn-success">Submit</div>');
-			$submit.on('click', $.proxy(this.submit, this));
-			this.$description.append($submit);
+			this.$submit = $('<div class="btn btn-success">Submit</div>');
+			this.$submit.on('click', $.proxy(this.submit, this));
+			this.$description.append(this.$submit);
 
 			this.originalAnim = new AnimatedCanvas();
 			this.original(this.originalAnim);
@@ -203,13 +205,21 @@ module.exports = function(output) {
 			this.$div.append($points);
 			this.animatedPoints = new AnimatedPoints($points);
 			this.animatedPoints.addFactor('numMatchingPixels', 1);
-			this.animatedPoints.addFactor('numLines', -5000);
+			this.animatedPoints.addFactor('numLines', -this.linePenalty);
 			this.animatedPoints.setThreshold(this.threshold);
 			this.animatedPoints.finish();
 
 			this.pointsAnimationTimeout = null;
 
 			this.animateImage();
+		},
+
+		remove: function() {
+			this.cancelTimeout();
+			this.$submit.remove();
+			this.$originalCanvasContainer.remove();
+			this.$div.html('');
+			this.$div.removeClass('imagedare');
 		},
 
 		animateImage: function() {
@@ -258,9 +268,7 @@ module.exports = function(output) {
 		},
 
 		pointsAnimationCallback: function() {
-			if (this.pointsAnimationTimeout !== null) {
-				clearTimeout(this.pointsAnimationTimeout);
-			}
+			this.cancelTimeout();
 
 			if (this.pointsAnimationPosition < this.size) {
 				var speed = 10;
@@ -290,6 +298,12 @@ module.exports = function(output) {
 			} else {
 				this.animatedPoints.setChanging(null);
 				this.editor.highlightSingleLine(null);
+			}
+		},
+
+		cancelTimeout: function() {
+			if (this.pointsAnimationTimeout !== null) {
+				clearTimeout(this.pointsAnimationTimeout);
 			}
 		}
 	};
