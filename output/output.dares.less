@@ -47,10 +47,11 @@
 		> span {
 			display: inline-block;
 			.ie7-inline-block();
+			font-size: 14px;
 		}
 
 		.dares-table-cell-name {
-			width: 650-110-90px;
+			width: 650-110-90-20px;
 			font-weight: bold;
 		}
 
@@ -68,19 +69,15 @@
 
 		.dares-table-cell-difficulty {
 			width: 110px;
-			font-size: 14px;
 		}
-
-		/*
-		.dares-table-cell-completed {
-			width: 90px;
-			font-size: 14px;
-		}
-		*/
 
 		.dares-table-cell-highscore {
 			width: 90px;
 			font-size: 14px;
+		}
+
+		.dares-table-cell-completed {
+			width: 20px;
 		}
 
 		.dares-table-cell-preview {
@@ -184,14 +181,14 @@
 
 	.dare-points {
 		font-family: @code-font-family;
+		color: @code-color;
+		font-size: @code-font-size;
+		line-height: @code-line-height;
 		margin-top: 10px;
 		margin-bottom: 10px;
 		background-color: #111;
 		padding: 0px;
 		.border-radius(5px);
-		color: @code-color;
-		font-size: @code-font-size;
-		line-height: @code-line-height;
 		position: relative;
 		overflow: auto;
 		width: 100%;
@@ -211,6 +208,36 @@
 			.dare-points-changing {
 				background-color: @highlight-color;
 			}
+		}
+	}
+
+	.dare-score {
+		font-family: @code-font-family;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		background-color: #111;
+		.border-radius(5px);
+		color: white;
+		font-size: 13px;
+		line-height: 20px;
+		padding: 5px;
+		background-image: url(../img/star.png);
+		-webkit-animation-name: STAR-MOVE;
+		-webkit-animation-duration: 1.5s;
+		-webkit-animation-timing-function: linear;
+		-webkit-animation-iteration-count: infinite;
+
+		span {
+			margin-right: 10px;
+		}
+	}
+
+	@-webkit-keyframes STAR-MOVE {
+		from {
+			background-position: 0px 0px;
+		}
+		to {
+			background-position: 0px 18px;
 		}
 	}
 }

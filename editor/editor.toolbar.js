@@ -23,7 +23,7 @@ module.exports = function(editor) {
 			this.$stepForward.click($.proxy(this.editor.stepForward, this.editor));
 			$stepGroup.append(this.$stepForward);
 
-			this.$restart = $('<button class="btn btn-success editor-toolbar-restart"><i class="icon-refresh icon-white"></i></button>');
+			this.$restart = $('<button class="btn btn-success editor-toolbar-restart"><i class="icon-repeat icon-white"></i></button>');
 			this.$restart.click($.proxy(this.editor.restart, this.editor));
 			$stepGroup.append(this.$restart);
 			this.$div.append($stepGroup);

@@ -4298,6 +4298,7 @@ div.colorpicker div.circle.lightness {
   position: relative;
   width: 100%;
   background-color: #dddddd;
+  line-height: 0px;
   -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
   -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
@@ -4600,13 +4601,6 @@ div.colorpicker div.circle.lightness {
   padding: 5px 5px 2px 5px;
   cursor: pointer;
   overflow: hidden;
-  /*
-		.dares-table-cell-completed {
-			width: 90px;
-			font-size: 14px;
-		}
-		*/
-
 }
 #dares-popup .dares-table-item > span {
   display: inline-block;
@@ -4614,9 +4608,10 @@ div.colorpicker div.circle.lightness {
   /* IE7 inline-block hack */
 
   *zoom: 1;
+  font-size: 14px;
 }
 #dares-popup .dares-table-item .dares-table-cell-name {
-  width: 450px;
+  width: 430px;
   font-weight: bold;
 }
 #dares-popup .dares-table-item .dares-table-output {
@@ -4634,11 +4629,13 @@ div.colorpicker div.circle.lightness {
 }
 #dares-popup .dares-table-item .dares-table-cell-difficulty {
   width: 110px;
-  font-size: 14px;
 }
 #dares-popup .dares-table-item .dares-table-cell-highscore {
   width: 90px;
   font-size: 14px;
+}
+#dares-popup .dares-table-item .dares-table-cell-completed {
+  width: 20px;
 }
 #dares-popup .dares-table-item .dares-table-cell-preview {
   margin-left: 0px;
@@ -4740,6 +4737,9 @@ div.colorpicker div.circle.lightness {
 }
 .imagedare .dare-points {
   font-family: "Courier", monospace;
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
   margin-top: 10px;
   margin-bottom: 10px;
   background-color: #111;
@@ -4747,9 +4747,6 @@ div.colorpicker div.circle.lightness {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  color: #00dd00;
-  font-size: 14px;
-  line-height: 16px;
   position: relative;
   overflow: auto;
   width: 100%;
@@ -4768,6 +4765,35 @@ div.colorpicker div.circle.lightness {
 .imagedare .dare-points .dare-points-code .dare-points-changing {
   background-color: rgba(50, 250, 50, 0.4);
 }
+.imagedare .dare-score {
+  font-family: "Courier", monospace;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #111;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  color: white;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 5px;
+  background-image: url(../img/star.png);
+  -webkit-animation-name: STAR-MOVE;
+  -webkit-animation-duration: 1.5s;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+}
+.imagedare .dare-score span {
+  margin-right: 10px;
+}
+@-webkit-keyframes STAR-MOVE {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 0px 18px;
+  }
+}
 textarea[readonly] {
   cursor: text;
 }
@@ -4779,11 +4805,23 @@ body {
   height: 100%;
 }
 .icon-trophy {
-  background-position: 0px 0px;
+  background-position: -1px 0px;
   background-image: url(../img/trophy16.png);
 }
 .icon-trophy.icon-white {
   background-image: url(../img/trophy16white.png);
+}
+.icon-twitter {
+  background-position: 0px -1px;
+  background-image: url(../img/twitter-16x16.png);
+  width: 16px;
+  height: 16px;
+}
+.icon-facebook {
+  background-position: 0px -1px;
+  background-image: url(../img/facebook-16x16.png);
+  width: 16px;
+  height: 16px;
 }
 #main {
   background-color: #000;

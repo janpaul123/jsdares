@@ -14,8 +14,8 @@
 .canvas-container {
 	position: relative;
 	width: 100%;
-	//max-width: @canvas-max-outer-width - @canvas-padding*2;
 	background-color: @canvas-background-color;
+	line-height: 0px;
 	@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
 	.box-shadow(@shadow);
 	.border-radius(4px);
@@ -32,7 +32,6 @@
 		.opacity(20);
 	}
 }
-
 
 .canvas-error {
 	opacity: 0.5;

@@ -197,8 +197,8 @@ module.exports = function(output) {
 
 	output.Robot.prototype = {
 		init: function($div, editor, columns, rows) {
-			this.columns = columns;
-			this.rows = rows;
+			this.columns = columns || 8;
+			this.rows = rows || 8;
 
 			this.$div = $div;
 			this.$div.addClass('robot');
@@ -422,7 +422,7 @@ module.exports = function(output) {
 					blockGoal[x][y] = this.blockGoal[x][y];
 				}
 			}
-			return {
+			return JSON.stringify({
 				columns: this.columns,
 				rows: this.rows,
 				initialX: this.initialX,
@@ -432,10 +432,11 @@ module.exports = function(output) {
 				verticalActive: verticalActive,
 				horizontalActive: horizontalActive,
 				blockGoal: blockGoal
-			};
+			});
 		},
 
 		setState: function(state) {
+			state = JSON.parse(state);
 			this.columns = state.columns;
 			this.rows = state.rows;
 			this.initialX = state.initialX;

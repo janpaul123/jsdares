@@ -52,6 +52,7 @@ module.exports = function(output) {
 
 				//$item.append('<span class="dares-table-cell-completed"><i class="icon-user icon-white"></i> ' + dare.completed +'</span>');
 				$item.append('<span class="dares-table-cell-highscore"><i class="icon-trophy icon-white"></i> ' + dare.highscore +'</span>');
+				$item.append('<span class="dares-table-cell-completed">' + (dare.completed ? '<i class="icon-ok icon-white"></i>' : '') + '</span>');
 				$item.append('<span class="dares-table-cell-preview"></span>');
 
 				$item.data('dare', dare);
@@ -125,6 +126,7 @@ module.exports = function(output) {
 						new output.ImageDare({
 							name: 'Gravity',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
+							threshold: 270000,
 							original: function(anim) {
 								var drawBlock = function(i) {
 									return function(context) {
@@ -137,7 +139,7 @@ module.exports = function(output) {
 							}
 						}, this),
 						new output.ImageDare({
-							name: 'Gravity',
+							name: 'Gravity 2',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							original: function(anim) {
 								var drawBlock = function(i) {
@@ -151,7 +153,7 @@ module.exports = function(output) {
 							}
 						}, this),
 						new output.ImageDare({
-							name: 'Gravity',
+							name: 'Gravity 3',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							original: function(anim) {
 								var drawBlock = function(i) {
@@ -272,7 +274,6 @@ module.exports = function(output) {
 
 		addEditor: function() {
 			this.editor = new editor.Editor(jsmm, $('#editor'), $('#editor-bar'));
-			this.editor.setText(window.localStorage.getItem('program-3'));
 			return this.editor;
 		},
 
@@ -286,7 +287,7 @@ module.exports = function(output) {
 
 		addCanvas: function() {
 			this.addTab('canvas');
-			this.canvas = new output.Canvas($('#canvas'), this.editor);
+			this.canvas = new output.Canvas($('#canvas'), this.editor, 540);
 			this.scope.canvas = this.canvas.getAugmentedObject();
 			this.editor.setScope(this.scope);
 			return this.canvas;
@@ -314,6 +315,16 @@ module.exports = function(output) {
 			this.addConsole();
 			this.addCanvas();
 			this.addRobot();
+			this.editor.setText(window.localStorage.getItem('initial-code') || '');
+			this.editor.setTextChangeCallback(function(text) {
+				window.localStorage.setItem('initial-code', text);
+			});
+			if (window.localStorage.getItem('initial-robot') !== null) {
+				this.robot.setState(window.localStorage.getItem('initial-robot'));
+			}
+			this.robot.setStateChangedCallback(function(state) {
+				window.localStorage.setItem('initial-robot', state);
+			});
 		},
 
 		hideDares: function() {

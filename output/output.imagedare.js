@@ -124,12 +124,15 @@ module.exports = function(output) {
 			this.description = options.description || '';
 			this.outputs = ['canvas'];
 			this.difficulty = options.difficulty || 1;
-			this.completed = options.completed || 0;
-			this.highscore = options.highscore || 0;
+			//this.completed = options.completed || 0;
+			//this.highscore = options.highscore || 0;
 			this.original = options.original;
 			this.speed = options.speed || 50;
 			this.threshold = options.threshold || 300000;
 			this.linePenalty = options.linePenalty || 5000;
+
+			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;
+			this.completed = JSON.parse(window.localStorage.getItem('dare-completed-' + this.name)) || false;
 
 			this.previewAnim = null;
 		},
@@ -137,14 +140,14 @@ module.exports = function(output) {
 		setPreview: function($preview) {
 			this.removePreviewAnim();
 
-			var $canvas = $('<canvas class="dares-image-canvas" width="550" height="550"></canvas>');
+			var $canvas = $('<canvas class="dares-image-canvas" width="540" height="540"></canvas>');
 			$preview.html($canvas);
 			$preview.append(this.description);
 			$preview.append('<div class="dares-table-cell-preview-points-container"><span class="dares-table-cell-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
 
-			this.$previewAccept = $('<button class="btn btn-success">Accept</button>');
-			this.$previewAccept.on('click', $.proxy(function(event) { event.stopImmediatePropagation(); this.selectDare(); }, this));
-			$preview.append(this.$previewAccept);
+			this.$previewSelect = $('<button class="btn btn-success">Select</button>');
+			this.$previewSelect.on('click', $.proxy(function(event) { event.stopImmediatePropagation(); this.selectDare(); }, this));
+			$preview.append(this.$previewSelect);
 
 			var context = $canvas[0].getContext('2d');
 			this.previewAnim = new AnimatedCanvas();
@@ -167,6 +170,13 @@ module.exports = function(output) {
 		makeActive: function($div, ui) {
 			this.editor = this.ui.addEditor();
 			this.canvasOutput = this.ui.addCanvas();
+			this.size = this.canvasOutput.getSize();
+
+			var codeName = 'dare-code-' + this.name;
+			this.editor.setText(window.localStorage.getItem(codeName) || '');
+			this.editor.setTextChangeCallback(function(text) {
+				window.localStorage.setItem(codeName, text);
+			});
 
 			this.$div = $div;
 			$div.addClass('imagedare');
@@ -177,17 +187,15 @@ module.exports = function(output) {
 			this.$originalCanvasContainer = $('<div class="imagedare-original-container"><div class="imagedare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
 			this.$originalCanvasContainer.on('click', $.proxy(this.animateImage, this));
 			this.$description.append(this.$originalCanvasContainer);
-			this.$originalCanvas = $('<canvas class="imagedare-original-canvas" width="550" height="550"></canvas>');
-			this.size = 550;
+			this.$originalCanvas = $('<canvas class="imagedare-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$originalCanvasContainer.append(this.$originalCanvas);
 			this.originalContext = this.$originalCanvas[0].getContext('2d');
 
-			this.$resultCanvas = $('<canvas class="imagedare-result" width="550" height="550"></canvas>');
+			this.$resultCanvas = $('<canvas class="imagedare-result" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$div.append(this.$resultCanvas);
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
-			var $text = $('<div class="dare-text">' + this.description + '</div>');
-			this.$description.append($text);
+			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
 
 			this.$submit = $('<div class="btn btn-success">Submit</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));
@@ -209,6 +217,9 @@ module.exports = function(output) {
 			this.animatedPoints.setThreshold(this.threshold);
 			this.animatedPoints.finish();
 
+			this.$score = $('<div class="dare-score"></div>');
+			this.$div.append(this.$score);
+
 			this.pointsAnimationTimeout = null;
 
 			this.animateImage();
@@ -222,7 +233,38 @@ module.exports = function(output) {
 			this.$div.removeClass('imagedare');
 		},
 
+		updateScore: function(points) {
+			if (points > this.threshold) {
+				this.completed = true;
+				this.highscore = Math.max(this.highscore, points);
+				window.localStorage.setItem('dare-completed-' + this.name, true);
+				window.localStorage.setItem('dare-highscore-' + this.name, this.highscore);
+			}
+		},
+
+		drawScore: function() {
+			if (this.completed) {
+				this.$score.html('');
+				this.$score.append('<div class="dare-score-completed"><i class="icon-ok icon-white"></i> Dare completed!</div>');
+				this.$score.append('<div class="dare-score-highscore"><i class="icon-trophy icon-white"></i> Highscore: ' + this.highscore + ' points</div>');
+				var $share = $('<div class="dare-score-share"><i class="icon-share icon-white"></i> Share: </div>');
+				var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + this.highscore + ' points on @jsdare!');
+				var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
+				$twitter.click(function(event) {
+					event.preventDefault();
+					window.open(twitUrl, '', 'width=550,height=300');
+				});
+				$share.append($twitter);
+				// for Facebook see https://developers.facebook.com/docs/reference/dialogs/feed/
+				this.$score.append($share);
+				this.$score.slideDown(150);
+			} else {
+				this.$score.hide();
+			}
+		},
+
 		animateImage: function() {
+			this.finishAnimation();
 			this.drawImage(50);
 		},
 
@@ -264,6 +306,10 @@ module.exports = function(output) {
 			this.pointsAnimationPosition = 0;
 			this.pointsAnimationMatching = 0;
 			this.pointsAnimationContentLines = this.editor.getContentLines();
+
+			points -= this.linePenalty*this.pointsAnimationContentLines.length;
+			this.updateScore(points);
+
 			this.pointsAnimationCallback();
 		},
 
@@ -296,8 +342,7 @@ module.exports = function(output) {
 
 				this.pointsAnimationTimeout = setTimeout($.proxy(this.pointsAnimationCallback, this), 100);
 			} else {
-				this.animatedPoints.setChanging(null);
-				this.editor.highlightSingleLine(null);
+				this.finishAnimation();
 			}
 		},
 
@@ -305,6 +350,13 @@ module.exports = function(output) {
 			if (this.pointsAnimationTimeout !== null) {
 				clearTimeout(this.pointsAnimationTimeout);
 			}
+		},
+
+		finishAnimation: function() {
+			this.cancelTimeout();
+			this.animatedPoints.setChanging(null);
+			this.editor.highlightSingleLine(null);
+			this.drawScore();
 		}
 	};
 };

@@ -59,6 +59,10 @@ module.exports = function(editor) {
 			this.update();
 		},
 
+		setTextChangeCallback: function(callback) {
+			this.textChangeCallback = callback;
+		},
+
 		removeOutput: function(output) {
 			var index = this.outputs.indexOf(output);
 			if (index >= 0) {

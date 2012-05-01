@@ -5,18 +5,17 @@ module.exports = function(output) {
 	output.Canvas = function() { return this.init.apply(this, arguments); };
 
 	output.Canvas.prototype = {
-		init: function($div, editor) {
+		init: function($div, editor, size) {
 			this.$div = $div;
 			this.$div.addClass('canvas');
 
+			this.size = size || 550;
 			this.$container = $('<div class="canvas-container"></div>');
 			this.$div.append(this.$container);
+			this.$container.css('max-width', this.size);
 
 			this.$canvas = $('<canvas class="canvas-canvas"></canvas>');
 			this.$container.append(this.$canvas);
-			//this.size = this.$canvas.css('max-width').replace('px', '');
-			this.size = 550;
-			this.$container.css('max-width', this.size);
 
 			this.$canvas.attr('width', this.size);
 			this.$canvas.attr('height', this.size);
@@ -249,7 +248,7 @@ module.exports = function(output) {
 		},
 
 		getImageData: function() {
-			return this.context.getImageData(0, 0, 550, 550);
+			return this.context.getImageData(0, 0, this.size, this.size);
 		},
 
 		makeTargetCanvas: function() {
@@ -258,6 +257,10 @@ module.exports = function(output) {
 			this.$targetCanvas.attr('width', this.size);
 			this.$targetCanvas.attr('height', this.size);
 			return this.$targetCanvas[0].getContext('2d');
+		},
+
+		getSize: function() {
+			return this.size;
 		},
 
 		/// INTERNAL FUNCTIONS ///
