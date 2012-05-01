@@ -81,9 +81,10 @@ module.exports = function(output) {
 			var dare = $target.data('dare');
 			var $preview = $target.children('.dares-table-preview');
 			if ($target.hasClass('dares-table-item-active')) {
-				$preview.slideUp(200);
 				$target.removeClass('dares-table-item-active');
+				$preview.slideUp(200);
 			} else {
+				this.$body.find('.dares-table-item-active').removeClass('dares-table-item-active').children('.dares-table-preview').slideUp(200);
 				dare.setPreview($preview);
 				$target.addClass('dares-table-item-active');
 				$preview.hide();
