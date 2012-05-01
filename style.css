@@ -4596,13 +4596,12 @@ div.colorpicker div.circle.lightness {
   text-align: center;
 }
 #dares-popup .dares-table-item {
-  position: relative;
   border-top: 1px solid #555;
   padding: 5px 5px 2px 5px;
   cursor: pointer;
   overflow: hidden;
 }
-#dares-popup .dares-table-item > span {
+#dares-popup .dares-table-item .dares-table-cell > span {
   display: inline-block;
   *display: inline;
   /* IE7 inline-block hack */
@@ -4610,11 +4609,11 @@ div.colorpicker div.circle.lightness {
   *zoom: 1;
   font-size: 14px;
 }
-#dares-popup .dares-table-item .dares-table-cell-name {
+#dares-popup .dares-table-item .dares-table-cell .dares-table-cell-name {
   width: 430px;
   font-weight: bold;
 }
-#dares-popup .dares-table-item .dares-table-output {
+#dares-popup .dares-table-item .dares-table-cell .dares-table-output {
   font-weight: normal;
   background-color: black;
   -webkit-border-radius: 10px;
@@ -4627,27 +4626,27 @@ div.colorpicker div.circle.lightness {
   padding: 3px 5px;
   margin-left: 3px;
 }
-#dares-popup .dares-table-item .dares-table-cell-difficulty {
+#dares-popup .dares-table-item .dares-table-cell .dares-table-cell-difficulty {
   width: 110px;
 }
-#dares-popup .dares-table-item .dares-table-cell-highscore {
+#dares-popup .dares-table-item .dares-table-cell .dares-table-cell-highscore {
   width: 90px;
   font-size: 14px;
 }
-#dares-popup .dares-table-item .dares-table-cell-completed {
+#dares-popup .dares-table-item .dares-table-cell .dares-table-cell-completed {
   width: 20px;
 }
-#dares-popup .dares-table-item .dares-table-cell-preview {
+#dares-popup .dares-table-item .dares-table-preview {
   margin-left: 0px;
   overflow: auto;
   padding-bottom: 2px;
   z-index: 10;
 }
-#dares-popup .dares-table-item .dares-table-cell-preview .dares-table-cell-preview-points-container {
+#dares-popup .dares-table-item .dares-table-preview .dares-table-preview-points-container {
   margin-top: 10px;
   margin-bottom: 10px;
 }
-#dares-popup .dares-table-item .dares-table-cell-preview .dares-table-cell-preview-points-container .dares-table-cell-preview-points {
+#dares-popup .dares-table-item .dares-table-preview .dares-table-preview-points-container .dares-table-preview-points {
   font-family: "Courier", monospace;
   color: #00dd00;
   font-size: 14px;
@@ -4658,7 +4657,7 @@ div.colorpicker div.circle.lightness {
   -moz-border-radius: 5px;
   border-radius: 5px;
 }
-#dares-popup .dares-table-item .dares-table-cell-preview .dares-image-canvas {
+#dares-popup .dares-table-item .dares-table-preview .dares-image-canvas {
   float: right;
   background-color: #dddddd;
   -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);

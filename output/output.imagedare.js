@@ -12,10 +12,7 @@ module.exports = function(output) {
 			this.timeout = null;
 		},
 		remove: function() {
-			if (this.timeout !== null) {
-				clearTimeout(this.timeout);
-				this.timeout = null;
-			}
+			this.clearTimeout();
 		},
 		push: function(func) {
 			this.queue.push(func);
@@ -117,24 +114,152 @@ module.exports = function(output) {
 		}
 	};
 
-	output.ImageDare.prototype = {
-		init: function(options, ui) {
+	var SegmentedAnimation = function() { return this.init.apply(this, arguments); };
+	SegmentedAnimation.prototype = {
+		init: function() {
+			this.segments = [];
+			this.total = 0;
+			this.timeout = null;
+		},
+		remove: function() {
+			this.clearTimeout();
+		},
+		addSegment: function(to, delay, callback) {
+			this.segments.push({
+				from: this.total,
+				to: to+this.total,
+				delay: delay,
+				callback: callback
+			});
+			this.total += to;
+		},
+		run: function() {
+			this.position = 0;
+			this.segment = 0;
+			this.animateNext();
+		},
+		/// INTERNAL FUNCTIONS ///
+		clearTimeout: function() {
+			if (this.timeout !== null) {
+				clearTimeout(this.timeout);
+				this.timeout = null;
+			}
+		},
+		animateNext: function() {
+			this.clearTimeout();
+			if (this.position < this.total) {
+				var segment = this.segments[this.segment];
+				if (this.position >= segment.to) {
+					this.segment++;
+					segment = this.segments[this.segment];
+				}
+				segment.callback(this.position-segment.from);
+				this.timeout = setTimeout($.proxy(this.animateNext, this), segment.delay);
+				this.position++;
+			}
+		}
+	};
+
+	output.addCommonDareMethods = function(dare) {
+		dare.loadOptions = function(options, ui) {
 			this.ui = ui;
+			this.outputs = [];
 			this.name = options.name || '';
 			this.description = options.description || '';
-			this.outputs = ['canvas'];
 			this.difficulty = options.difficulty || 1;
-			//this.completed = options.completed || 0;
-			//this.highscore = options.highscore || 0;
 			this.original = options.original;
-			this.speed = options.speed || 50;
 			this.threshold = options.threshold || 300000;
 			this.linePenalty = options.linePenalty || 5000;
 
 			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;
 			this.completed = JSON.parse(window.localStorage.getItem('dare-completed-' + this.name)) || false;
+		};
 
+		dare.makePreviewButton = function() {
+			var $previewSelect = $('<button class="btn btn-success">Select</button>');
+			$previewSelect.on('click', $.proxy(function(event) { event.stopImmediatePropagation(); this.selectDare(); }, this));
+			return $previewSelect;
+		};
+
+		dare.selectDare = function() {
+			this.ui.removeAll();
+			this.ui.hideDares();
+			this.ui.addDare(this);
+		};
+
+		dare.loadEditor = function(ui) {
+			this.editor = this.ui.addEditor();
+
+			var codeName = 'dare-code-' + this.name;
+			this.editor.setText(window.localStorage.getItem(codeName) || '');
+			this.editor.setTextChangeCallback(function(text) {
+				window.localStorage.setItem(codeName, text);
+			});
+		};
+
+		dare.updateScore = function(points) {
+			if (points > this.threshold) {
+				this.completed = true;
+				this.highscore = Math.max(this.highscore, points);
+				window.localStorage.setItem('dare-completed-' + this.name, true);
+				window.localStorage.setItem('dare-highscore-' + this.name, this.highscore);
+			}
+		};
+
+		dare.drawScore = function() {
+			if (this.completed) {
+				this.$score.html('');
+				this.$score.append('<div class="dare-score-completed"><i class="icon-ok icon-white"></i> Dare completed!</div>');
+				this.$score.append('<div class="dare-score-highscore"><i class="icon-trophy icon-white"></i> Highscore: ' + this.highscore + ' points</div>');
+				var $share = $('<div class="dare-score-share"><i class="icon-share icon-white"></i> Share: </div>');
+				var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + this.highscore + ' points on @jsdare!');
+				var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
+				$twitter.click(function(event) {
+					event.preventDefault();
+					window.open(twitUrl, '', 'width=550,height=300');
+				});
+				$share.append($twitter);
+				// for Facebook see https://developers.facebook.com/docs/reference/dialogs/feed/
+				this.$score.append($share);
+				this.$score.slideDown(150);
+			} else {
+				this.$score.hide();
+			}
+		};
+
+		dare.updateScoreAndAnimationWithLines = function(points) {
+			this.contentLines = this.editor.getContentLines();
+			this.animation.addSegment(this.contentLines.length, 100, $.proxy(this.animationLinesCallback, this));
+			points -= this.linePenalty*this.contentLines.length;
+			this.updateScore(points);
+		};
+
+		dare.animationLinesCallback = function(line) {
+			if (line === 0) {
+				this.animatedPoints.setChanging('numLines');
+			}
+			this.editor.highlightSingleLine(this.contentLines[line]);
+			this.animatedPoints.setValue('numLines', line+1);
+		};
+
+		dare.animationFinish = function() {
+			if (this.animation !== null) {
+				this.animation.remove();
+				this.animatedPoints.setChanging(null);
+				this.editor.highlightSingleLine(null);
+				this.drawScore();
+			}
+		};
+		return dare;
+	};
+
+	output.ImageDare.prototype = output.addCommonDareMethods({
+		init: function(options, ui) {
+			this.loadOptions(options, ui);
+			this.outputs = ['canvas'];
+			this.speed = options.speed || 50;
 			this.previewAnim = null;
+			this.animation = null;
 		},
 
 		setPreview: function($preview) {
@@ -143,11 +268,9 @@ module.exports = function(output) {
 			var $canvas = $('<canvas class="dares-image-canvas" width="540" height="540"></canvas>');
 			$preview.html($canvas);
 			$preview.append(this.description);
-			$preview.append('<div class="dares-table-cell-preview-points-container"><span class="dares-table-cell-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
+			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
 
-			this.$previewSelect = $('<button class="btn btn-success">Select</button>');
-			this.$previewSelect.on('click', $.proxy(function(event) { event.stopImmediatePropagation(); this.selectDare(); }, this));
-			$preview.append(this.$previewSelect);
+			$preview.append(this.makePreviewButton());
 
 			var context = $canvas[0].getContext('2d');
 			this.previewAnim = new AnimatedCanvas();
@@ -161,25 +284,13 @@ module.exports = function(output) {
 			}
 		},
 
-		selectDare: function() {
-			this.ui.removeAll();
-			this.ui.hideDares();
-			this.ui.addDare(this);
-		},
-
 		makeActive: function($div, ui) {
-			this.editor = this.ui.addEditor();
-			this.canvasOutput = this.ui.addCanvas();
-			this.size = this.canvasOutput.getSize();
-
-			var codeName = 'dare-code-' + this.name;
-			this.editor.setText(window.localStorage.getItem(codeName) || '');
-			this.editor.setTextChangeCallback(function(text) {
-				window.localStorage.setItem(codeName, text);
-			});
+			this.loadEditor(ui);
 
 			this.$div = $div;
 			$div.addClass('imagedare');
+			this.canvasOutput = this.ui.addCanvas();
+			this.size = this.canvasOutput.getSize();
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
@@ -219,53 +330,22 @@ module.exports = function(output) {
 
 			this.$score = $('<div class="dare-score"></div>');
 			this.$div.append(this.$score);
-
-			this.pointsAnimationTimeout = null;
+			this.drawScore();
 
 			this.animateImage();
 		},
 
 		remove: function() {
-			this.cancelTimeout();
+			this.animationFinish();
 			this.$submit.remove();
 			this.$originalCanvasContainer.remove();
 			this.$div.html('');
 			this.$div.removeClass('imagedare');
 		},
 
-		updateScore: function(points) {
-			if (points > this.threshold) {
-				this.completed = true;
-				this.highscore = Math.max(this.highscore, points);
-				window.localStorage.setItem('dare-completed-' + this.name, true);
-				window.localStorage.setItem('dare-highscore-' + this.name, this.highscore);
-			}
-		},
-
-		drawScore: function() {
-			if (this.completed) {
-				this.$score.html('');
-				this.$score.append('<div class="dare-score-completed"><i class="icon-ok icon-white"></i> Dare completed!</div>');
-				this.$score.append('<div class="dare-score-highscore"><i class="icon-trophy icon-white"></i> Highscore: ' + this.highscore + ' points</div>');
-				var $share = $('<div class="dare-score-share"><i class="icon-share icon-white"></i> Share: </div>');
-				var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + this.highscore + ' points on @jsdare!');
-				var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
-				$twitter.click(function(event) {
-					event.preventDefault();
-					window.open(twitUrl, '', 'width=550,height=300');
-				});
-				$share.append($twitter);
-				// for Facebook see https://developers.facebook.com/docs/reference/dialogs/feed/
-				this.$score.append($share);
-				this.$score.slideDown(150);
-			} else {
-				this.$score.hide();
-			}
-		},
-
 		animateImage: function() {
-			this.finishAnimation();
-			this.drawImage(50);
+			this.animationFinish();
+			this.drawImage(this.speed);
 		},
 
 		drawImage: function(speed) {
@@ -274,6 +354,7 @@ module.exports = function(output) {
 		},
 
 		submit: function() {
+			this.animationFinish();
 			var userImageData = this.canvasOutput.getImageData();
 			var resultImageData = this.resultContext.createImageData(this.size, this.size);
 			this.pointsPerLine = [];
@@ -303,60 +384,25 @@ module.exports = function(output) {
 			this.resultContext.clearRect(0, 0, this.size, this.size);
 			this.resultContext.putImageData(resultImageData, 0, 0);
 
-			this.pointsAnimationPosition = 0;
-			this.pointsAnimationMatching = 0;
-			this.pointsAnimationContentLines = this.editor.getContentLines();
-
-			points -= this.linePenalty*this.pointsAnimationContentLines.length;
-			this.updateScore(points);
-
-			this.pointsAnimationCallback();
+			this.animation = new SegmentedAnimation();
+			this.animation.addSegment(this.size/10, 50, $.proxy(this.animationMatchingCallback, this));
+			this.animationMatchingNumber = 0;
+			this.updateScoreAndAnimationWithLines(points);
+			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
+			this.animation.run();
 		},
 
-		pointsAnimationCallback: function() {
-			this.cancelTimeout();
-
-			if (this.pointsAnimationPosition < this.size) {
-				var speed = 10;
-				var y = this.pointsAnimationPosition;
-				if (y === 0) {
-					this.drawImage(0);
-					this.animatedPoints.setChanging('numMatchingPixels');
-				}
-				for (var i=0; i<speed; i++) {
-					this.pointsAnimationMatching += this.pointsPerLine[y+i];
-				}
-				this.animatedPoints.setValue('numMatchingPixels', this.pointsAnimationMatching);
-				this.originalContext.drawImage(this.$resultCanvas[0], 0, y, this.size, speed, 0, y, this.size, speed);
-				this.pointsAnimationPosition += speed;
-
-				this.pointsAnimationTimeout = setTimeout($.proxy(this.pointsAnimationCallback, this), 50);
-			} else if (this.pointsAnimationPosition < this.size + this.pointsAnimationContentLines.length ) {
-				var line = this.pointsAnimationPosition - this.size;
-				if (line === 0) {
-					this.animatedPoints.setChanging('numLines');
-				}
-				this.editor.highlightSingleLine(this.pointsAnimationContentLines[line]);
-				this.animatedPoints.setValue('numLines', line+1);
-				this.pointsAnimationPosition++;
-
-				this.pointsAnimationTimeout = setTimeout($.proxy(this.pointsAnimationCallback, this), 100);
-			} else {
-				this.finishAnimation();
+		animationMatchingCallback: function(y) {
+			y *= 10;
+			if (y === 0) {
+				this.drawImage(0);
+				this.animatedPoints.setChanging('numMatchingPixels');
 			}
-		},
-
-		cancelTimeout: function() {
-			if (this.pointsAnimationTimeout !== null) {
-				clearTimeout(this.pointsAnimationTimeout);
+			for (var i=0; i<10; i++) {
+				this.animationMatchingNumber += this.pointsPerLine[y+i];
 			}
-		},
-
-		finishAnimation: function() {
-			this.cancelTimeout();
-			this.animatedPoints.setChanging(null);
-			this.editor.highlightSingleLine(null);
-			this.drawScore();
+			this.animatedPoints.setValue('numMatchingPixels', this.animationMatchingNumber);
+			this.originalContext.drawImage(this.$resultCanvas[0], 0, y, this.size, 10, 0, y, this.size, 10);
 		}
-	};
+	});
 };

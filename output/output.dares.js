@@ -37,23 +37,9 @@ module.exports = function(output) {
 				var dare = table.dares[i];
 
 				var $item = $('<div class="dares-table-item"></div>');
-				var $name = $('<span class="dares-table-cell-name">' + dare.name + ' </span>');
-				for (var j=0; j<dare.outputs.length; j++) {
-					var output = dare.outputs[j];
-					$name.append('<span class="dares-table-output"><i class="' + this.icons[output] + ' icon-white"></i> ' + output + '</span>');
-				}
-				$item.append($name);
-
-				var $difficulty = $('<span class="dares-table-cell-difficulty"></span>');
-				for (j=0; j<5; j++) {
-					$difficulty.append('<i class="icon-star' + (dare.difficulty <= j ? '-empty' : '') + ' icon-white"></i>');
-				}
-				$item.append($difficulty);
-
-				//$item.append('<span class="dares-table-cell-completed"><i class="icon-user icon-white"></i> ' + dare.completed +'</span>');
-				$item.append('<span class="dares-table-cell-highscore"><i class="icon-trophy icon-white"></i> ' + dare.highscore +'</span>');
-				$item.append('<span class="dares-table-cell-completed">' + (dare.completed ? '<i class="icon-ok icon-white"></i>' : '') + '</span>');
-				$item.append('<span class="dares-table-cell-preview"></span>');
+				var $cell = $('<div class="dares-table-cell"></div>');
+				$item.append($cell);
+				$item.append('<div class="dares-table-preview"></div>');
 
 				$item.data('dare', dare);
 				$item.on('click', $.proxy(this.itemClick, this));
@@ -64,10 +50,36 @@ module.exports = function(output) {
 			this.$body.append($table);
 		},
 
+		updateCells: function() {
+			this.$body.find('.dares-table-item').each($.proxy(function(index, element) {
+				var $item = $(element);
+				var $cell = $item.children('.dares-table-cell');
+				$cell.html('');
+				var dare = $item.data('dare');
+
+				var $name = $('<span class="dares-table-cell-name">' + dare.name + ' </span>');
+				for (var j=0; j<dare.outputs.length; j++) {
+					var output = dare.outputs[j];
+					$name.append('<span class="dares-table-output"><i class="' + this.icons[output] + ' icon-white"></i> ' + output + '</span>');
+				}
+				$cell.append($name);
+
+				var $difficulty = $('<span class="dares-table-cell-difficulty"></span>');
+				for (j=0; j<5; j++) {
+					$difficulty.append('<i class="icon-star' + (dare.difficulty <= j ? '-empty' : '') + ' icon-white"></i>');
+				}
+				$cell.append($difficulty);
+
+				//$cell.append('<span class="dares-table-cell-completed"><i class="icon-user icon-white"></i> ' + dare.completed +'</span>');
+				$cell.append('<span class="dares-table-cell-highscore"><i class="icon-trophy icon-white"></i> ' + dare.highscore +'</span>');
+				$cell.append('<span class="dares-table-cell-completed">' + (dare.completed ? '<i class="icon-ok icon-white"></i>' : '') + '</span>');
+			}, this));
+		},
+
 		itemClick: function(event) {
 			var $target = $(event.delegateTarget);
 			var dare = $target.data('dare');
-			var $preview = $target.children('.dares-table-cell-preview');
+			var $preview = $target.children('.dares-table-preview');
 			if ($target.hasClass('dares-table-item-active')) {
 				$preview.slideUp(200);
 				$target.removeClass('dares-table-item-active');
@@ -80,6 +92,7 @@ module.exports = function(output) {
 		},
 
 		show: function() {
+			this.updateCells();
 			this.$popup.modal('show');
 		},
 
@@ -141,6 +154,7 @@ module.exports = function(output) {
 						new output.ImageDare({
 							name: 'Gravity 2',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
+							threshold: 270000,
 							original: function(anim) {
 								var drawBlock = function(i) {
 									return function(context) {
