@@ -4669,6 +4669,26 @@ div.colorpicker div.circle.lightness {
   max-width: 200px;
   margin: 0px 8px 5px 15px;
 }
+#dares-popup .dares-table-item .dares-table-preview .dares-consolematch-console {
+  float: right;
+  background-color: #111;
+  color: #00dd00;
+  font-family: "Courier", monospace;
+  font-size: 10px;
+  line-height: 10px;
+  white-space: pre;
+  overflow: hidden;
+  width: 190px;
+  height: 190px;
+  padding: 5px;
+  margin: 0px 8px 5px 15px;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
 #dares-popup .dares-table-item:hover {
   z-index: 11;
   background-color: #555;
@@ -5049,9 +5069,9 @@ body {
   color: #333;
   left: 50%;
   margin-left: -260px;
-  top: 5px;
-  font-size: 58px;
-  line-height: 58px;
+  top: 14px;
+  font-size: 52px;
+  line-height: 52px;
   text-shadow: 1px -1px 5px #222222;
   width: 250px;
   text-align: right;

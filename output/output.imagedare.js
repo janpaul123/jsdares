@@ -47,6 +47,51 @@ module.exports = function(output) {
 		}
 	};
 
+	var AnimatedConsole = function() { return this.init.apply(this, arguments); };
+	AnimatedConsole.prototype = {
+		init: function($div) {
+			this.$div = $div;
+			this.fullText = '';
+			this.queue = [];
+			this.next = 0;
+			this.timeout = null;
+		},
+		remove: function() {
+			this.clearTimeout();
+		},
+		push: function(text) {
+			this.fullText += '' + text;
+			this.queue.push(this.fullText);
+		},
+		getFullText: function() {
+			return this.fullText;
+		},
+		run: function(delay) {
+			this.clearTimeout();
+			if (delay <= 0) {
+				this.$div.text(this.fullText);
+			} else {
+				this.delay = delay;
+				this.next = 0;
+				this.animateNext();
+			}
+		},
+		/// INTERNAL FUNCTIONS ///
+		clearTimeout: function() {
+			if (this.timeout !== null) {
+				clearTimeout(this.timeout);
+				this.timeout = null;
+			}
+		},
+		animateNext: function() {
+			this.clearTimeout();
+			this.$div.text(this.queue[this.next++]);
+			if (this.next < this.queue.length) {
+				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+			}
+		}
+	};
+
 	var AnimatedPoints = function() { return this.init.apply(this, arguments); };
 	AnimatedPoints.prototype = {
 		init: function($div) {
@@ -66,11 +111,14 @@ module.exports = function(output) {
 		hide: function() {
 			this.$div.slideUp(150);
 		},
-		addFactor: function(name, factor) {
+		addFactor: function(name, factor, comment) {
 			var $factor = $('<div class="dare-points-factor">var ' + name + ' = </div>');
 			var $number = $('<span class="dare-points-factor-number">0</span>');
 			$factor.append($number);
 			$factor.append(';');
+			if (comment !== undefined) {
+				$factor.append(' // ' + comment);
+			}
 			this.$code.append($factor);
 			this.factors[name] = {factor: factor, $number: $number, value: 0};
 		},
@@ -180,6 +228,7 @@ module.exports = function(output) {
 			this.original = options.original;
 			this.threshold = options.threshold || 300000;
 			this.linePenalty = options.linePenalty || 5000;
+			this.speed = options.speed || 50;
 
 			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;
 			this.completed = JSON.parse(window.localStorage.getItem('dare-completed-' + this.name)) || false;
@@ -267,7 +316,6 @@ module.exports = function(output) {
 		init: function(options, ui) {
 			this.loadOptions(options, ui);
 			this.outputs = ['canvas'];
-			this.speed = options.speed || 50;
 			this.previewAnim = null;
 			this.animation = null;
 		},
@@ -299,8 +347,8 @@ module.exports = function(output) {
 
 			this.$div = $div;
 			$div.addClass('imagedare');
-			this.canvasOutput = this.ui.addCanvas();
-			this.size = this.canvasOutput.getSize();
+			this.canvas = this.ui.addCanvas();
+			this.size = this.canvas.getSize();
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
@@ -327,13 +375,13 @@ module.exports = function(output) {
 			this.drawImage(0);
 			this.imageData = this.originalContext.getImageData(0, 0, this.size, this.size);
 
-			var targetContext = this.canvasOutput.makeTargetCanvas();
+			var targetContext = this.canvas.makeTargetCanvas();
 			this.originalAnim.run(targetContext, 0);
 
 			var $points = $('<div></div>');
 			this.$div.append($points);
 			this.animatedPoints = new AnimatedPoints($points);
-			this.animatedPoints.addFactor('numMatchingPixels', 1);
+			this.animatedPoints.addFactor('numMatchingPixels', 1, 'max: ' + (this.size*this.size));
 			this.animatedPoints.addFactor('numLines', -this.linePenalty);
 			this.animatedPoints.setThreshold(this.threshold);
 			this.animatedPoints.finish();
@@ -367,7 +415,7 @@ module.exports = function(output) {
 			this.animationFinish();
 			this.animatedPoints.show();
 
-			var userImageData = this.canvasOutput.getImageData();
+			var userImageData = this.canvas.getImageData();
 			var resultImageData = this.resultContext.createImageData(this.size, this.size);
 			this.pointsPerLine = [];
 
@@ -423,6 +471,7 @@ module.exports = function(output) {
 			this.loadOptions(options, ui);
 			this.outputs = ['console'];
 			this.original = options.original;
+			this.previewAnim = null;
 			this.animation = null;
 		},
 
@@ -430,16 +479,17 @@ module.exports = function(output) {
 			this.removePreviewAnim();
 
 			var $console = $('<div class="dares-consolematch-console"></div>');
-			$preview.html($canvas);
+			var $container = $('<div class="dares-table-preview-console-container"></div>');
+			$container.append($console);
+			$preview.html($container);
 			$preview.append(this.description);
 			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
 
 			$preview.append(this.makePreviewButton());
 
-			var context = $canvas[0].getContext('2d');
-			this.previewAnim = new AnimatedCanvas();
+			this.previewAnim = new AnimatedConsole($console);
 			this.original(this.previewAnim);
-			this.previewAnim.run(context, this.speed);
+			this.previewAnim.run(this.speed);
 		},
 
 		removePreviewAnim: function() {
@@ -452,23 +502,17 @@ module.exports = function(output) {
 			this.loadEditor(ui);
 
 			this.$div = $div;
-			$div.addClass('imagedare');
-			this.canvasOutput = this.ui.addCanvas();
-			this.size = this.canvasOutput.getSize();
+			$div.addClass('consolematchdare');
+			this.console = this.ui.addConsole();
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
 
-			this.$originalCanvasContainer = $('<div class="imagedare-original-container"><div class="imagedare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
-			this.$originalCanvasContainer.on('click', $.proxy(this.animateImage, this));
-			this.$description.append(this.$originalCanvasContainer);
-			this.$originalCanvas = $('<canvas class="imagedare-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
-			this.$originalCanvasContainer.append(this.$originalCanvas);
-			this.originalContext = this.$originalCanvas[0].getContext('2d');
-
-			this.$resultCanvas = $('<canvas class="imagedare-result" width="' + this.size + '" height="' + this.size + '"></canvas>');
-			this.$div.append(this.$resultCanvas);
-			this.resultContext = this.$resultCanvas[0].getContext('2d');
+			this.$originalConsoleContainer = $('<div class="consolematchdare-original-container"><div class="consolematchdare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
+			this.$originalConsoleContainer.on('click', $.proxy(this.animateConsole, this));
+			this.$description.append(this.$originalConsoleContainer);
+			this.$originalConsole = $('<div class="consolematchdare-original-console"></div>');
+			this.$originalConsoleContainer.append(this.$originalConsole);
 
 			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
 
@@ -476,18 +520,13 @@ module.exports = function(output) {
 			this.$submit.on('click', $.proxy(this.submit, this));
 			this.$description.append(this.$submit);
 
-			this.originalAnim = new AnimatedCanvas();
+			this.originalAnim = new AnimatedConsole(this.$originalConsole);
 			this.original(this.originalAnim);
-			this.drawImage(0);
-			this.imageData = this.originalContext.getImageData(0, 0, this.size, this.size);
-
-			var targetContext = this.canvasOutput.makeTargetCanvas();
-			this.originalAnim.run(targetContext, 0);
 
 			var $points = $('<div></div>');
 			this.$div.append($points);
 			this.animatedPoints = new AnimatedPoints($points);
-			this.animatedPoints.addFactor('numMatchingPixels', 1);
+			this.animatedPoints.addFactor('numMatchingChars', 1);
 			this.animatedPoints.addFactor('numLines', -this.linePenalty);
 			this.animatedPoints.setThreshold(this.threshold);
 			this.animatedPoints.finish();
@@ -496,32 +535,31 @@ module.exports = function(output) {
 			this.$div.append(this.$score);
 			this.drawScore();
 
-			this.animateImage();
+			this.animateConsole();
 		},
 
 		remove: function() {
 			this.animationFinish();
 			this.$submit.remove();
-			this.$originalCanvasContainer.remove();
+			this.$originalConsoleContainer.remove();
 			this.$div.html('');
-			this.$div.removeClass('imagedare');
+			this.$div.removeClass('consolematchdare');
 		},
 
-		animateImage: function() {
+		animateConsole: function() {
 			this.animationFinish();
-			this.drawImage(this.speed);
+			this.drawConsole(this.speed);
 		},
 
-		drawImage: function(speed) {
-			this.originalContext.clearRect(0, 0, this.size, this.size);
-			this.originalAnim.run(this.originalContext, speed);
+		drawConsole: function(speed) {
+			this.originalAnim.run(speed);
 		},
 
 		submit: function() {
 			this.animationFinish();
 			this.animatedPoints.show();
 
-			var userImageData = this.canvasOutput.getImageData();
+			var userImageData = this.canvas.getImageData();
 			var resultImageData = this.resultContext.createImageData(this.size, this.size);
 			this.pointsPerLine = [];
 

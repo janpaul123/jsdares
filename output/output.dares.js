@@ -181,17 +181,17 @@ module.exports = function(output) {
 								}
 							}
 						}, this),
-						new output.ImageDare({
-							name: 'Gravity',
+						new output.ConsoleMatchDare({
+							name: 'Multiplication Tables',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
+							speed: 100,
 							original: function(anim) {
-								var drawBlock = function(i) {
-									return function(context) {
-										context.fillRect(10+i*25, 270+i*-65+i*i*4, 50, 50);
-									};
-								};
-								for (var i=0; i<20; i++) {
-									anim.push(drawBlock(i));
+								for (var y=1; y<=20; y++) {
+									var text = '';
+									for (var x=1; x<=9; x++) {
+										text += (x*y) + (x === 9 ? '\n' : '\t');
+									}
+									anim.push(text);
 								}
 							}
 						}, this),

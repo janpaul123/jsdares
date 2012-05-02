@@ -111,6 +111,24 @@
 				max-width: 200px;
 				margin: 0px 8px 5px 15px;
 			}
+
+			.dares-consolematch-console {
+				float: right;
+				background-color: #111;
+				color: @code-color;
+				font-family: @code-font-family;
+				font-size: 10px;
+				line-height: 10px;
+				white-space: pre;
+				overflow: hidden;
+				width: 200px-5*2;
+				height: 200px-5*2;
+				padding: 5px;
+				margin: 0px 8px 5px 15px;	
+				@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+				.box-shadow(@shadow);
+				.border-radius(4px);
+			}
 		}
 
 		&:hover {

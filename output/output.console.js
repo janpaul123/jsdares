@@ -68,6 +68,7 @@ module.exports = function(output) {
 			$element.text(text);
 			$element.data('node', node);
 			this.$content.append($element);
+			this.text += text + '\n';
 
 			if (this.color !== '') $element.css('color', this.color);
 
@@ -132,8 +133,13 @@ module.exports = function(output) {
 
 		clear: function() {
 			this.color = '';
+			this.text = '';
 			this.$content.children('.console-line').remove(); // like this to prevent $.data memory leaks
 			if (this.debugToBrowser && console && console.clear) console.clear();
+		},
+
+		getText: function() {
+			return this.text;
 		},
 
 		/// INTERNAL FUNCTIONS ///
