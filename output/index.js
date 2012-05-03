@@ -6,7 +6,6 @@ var output = {};
 require('./output.console')(output);
 require('./output.canvas')(output);
 require('./output.robot')(output);
-require('./output.dares')(output);
-require('./output.imagedare')(output);
+require('./output.ui')(output);
 
 module.exports = output;
