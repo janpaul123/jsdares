@@ -4360,6 +4360,228 @@ div.colorpicker div.circle.lightness {
   -moz-border-radius: 4px;
   border-radius: 4px;
 }
+.robot {
+  padding: 15px;
+}
+.robot-highlighting {
+  cursor: crosshair;
+}
+.robot-container {
+  background-color: #dddddd;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  line-height: 0px;
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+.robot-maze {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}
+.robot-maze .robot-maze-block {
+  position: absolute;
+  height: 64px;
+  width: 64px;
+  cursor: hand;
+}
+.robot-maze .robot-maze-block.robot-maze-block-goal {
+  background-color: #0a0;
+}
+.robot-maze .robot-maze-line-vertical {
+  position: absolute;
+  height: 64px;
+  width: 20px;
+  margin-left: -10px;
+  cursor: hand;
+}
+.robot-maze .robot-maze-line-vertical .robot-maze-line-inside {
+  position: absolute;
+  left: 9px;
+  top: 0px;
+  width: 2px;
+  height: 64px;
+  z-index: 5;
+}
+.robot-maze .robot-maze-line-vertical.robot-maze-line-active .robot-maze-line-inside {
+  left: 7px;
+  width: 6px;
+  top: -3px;
+  height: 70px;
+  background-color: #333 !important;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  z-index: 10;
+}
+.robot-maze .robot-maze-line-horizontal {
+  position: absolute;
+  height: 20px;
+  width: 64px;
+  margin-top: -10px;
+  cursor: hand;
+}
+.robot-maze .robot-maze-line-horizontal .robot-maze-line-inside {
+  position: absolute;
+  top: 9px;
+  left: 0px;
+  width: 64px;
+  height: 2px;
+  z-index: 5;
+}
+.robot-maze .robot-maze-line-horizontal.robot-maze-line-active .robot-maze-line-inside {
+  left: -3px;
+  height: 6px;
+  top: 7px;
+  width: 70px;
+  background-color: #333 !important;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  z-index: 10;
+}
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-block:hover {
+  background-color: #0a0;
+  opacity: 0.3;
+}
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-block.robot-maze-block-goal:hover {
+  background-color: #0a0;
+  opacity: 0.7;
+}
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-line-vertical .robot-maze-line-inside,
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-line-horizontal .robot-maze-line-inside {
+  background-color: #ccc;
+}
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-line-vertical:hover .robot-maze-line-inside,
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-line-horizontal:hover .robot-maze-line-inside {
+  background-color: #888;
+}
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-line-vertical.robot-maze-line-active:hover .robot-maze-line-inside,
+.robot-container.robot-not-highlighting:hover .robot-maze .robot-maze-line-horizontal.robot-maze-line-active:hover .robot-maze-line-inside {
+  background-color: #000 !important;
+}
+.robot-error {
+  opacity: 0.5;
+}
+.robot-robot {
+  position: absolute;
+  top: 150px;
+  left: 150px;
+  width: 38px;
+  margin-left: 13px;
+  height: 44px;
+  margin-top: 10px;
+  overflow: hidden;
+  background-image: url(../img/robot.png);
+  background-position-x: 0px;
+  z-index: 20;
+}
+.robot-robot.robot-green {
+  background-position-x: -41px;
+}
+.robot-robot.robot-red {
+  background-position-x: -82px;
+}
+.robot-robot.robot-initial {
+  opacity: 0.4;
+  cursor: pointer;
+}
+.robot-robot.robot-initial:hover {
+  opacity: 0.6;
+}
+.robot-robot.robot-initial.robot-initial-dragging {
+  opacity: 0.8;
+}
+.robot-path {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+.robot-path .robot-path-line {
+  position: absolute;
+  height: 2px;
+  margin-top: -1px;
+  z-index: 15;
+}
+.robot-path .robot-path-line .robot-path-line-inside {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 2px;
+  width: 100%;
+  background-color: #333;
+}
+.robot-path .robot-path-line.robot-path-highlight .robot-path-line-inside {
+  background-color: rgba(5, 195, 5, 0.85);
+}
+.robot-path .robot-path-point {
+  position: absolute;
+  width: 16px;
+  height: 6px;
+  margin-left: -8px;
+  margin-top: -3px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  z-index: 16;
+}
+.robot-path .robot-path-point .robot-path-point-inside {
+  position: absolute;
+  background-color: #333;
+  top: 3px;
+  left: 3px;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+}
+.robot-path .robot-path-point .robot-path-point-inside .robot-path-point-arrow {
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 2px;
+  background-color: #333;
+}
+.robot-path .robot-path-point.robot-path-highlight {
+  z-index: 17;
+}
+.robot-path .robot-path-point.robot-path-highlight .robot-path-point-inside {
+  background-color: rgba(5, 195, 5, 0.85);
+}
+.robot-path .robot-path-point.robot-path-highlight .robot-path-point-inside .robot-path-point-arrow {
+  background-color: rgba(5, 195, 5, 0.85);
+}
+.robot-highlighting .robot-path .robot-path-line {
+  height: 20px;
+  margin-top: -10px;
+}
+.robot-highlighting .robot-path .robot-path-line .robot-path-line-inside {
+  top: 9px;
+}
+.robot-highlighting .robot-path .robot-path-point {
+  width: 20px;
+  height: 10px;
+  margin-left: -10px;
+  margin-top: -5px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+}
+.robot-highlighting .robot-path .robot-path-point .robot-path-point-inside {
+  top: 5px;
+  left: 5px;
+}
 #dares-popup {
   display: none;
   width: 700px;
