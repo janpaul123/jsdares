@@ -69,9 +69,15 @@ module.exports = function(dares) {
 			var $container = $('<div class="dares-table-preview-console-container"></div>');
 			$container.append($console);
 			$preview.html($container);
+
+			if (this.previewHeight === undefined) {
+				$console.text(this.fullText);
+				this.previewHeight = $console.height();
+			}
+			$console.height(this.previewHeight); // fix height
+
 			$preview.append(this.description);
 			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numMatchingChars - ' + this.linePenalty + '*numLines;</span></div>');
-
 			$preview.append(this.makePreviewButton());
 
 			this.previewAnim = new dares.AnimatedConsole($console);
