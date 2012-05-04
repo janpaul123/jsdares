@@ -2,13 +2,62 @@
 "use strict";
 
 module.exports = function(dares) {
+	dares.AnimatedConsole = function() { return this.init.apply(this, arguments); };
 	dares.ConsoleMatchDare = function() { return this.init.apply(this, arguments); };
+	
+	dares.AnimatedConsole.prototype = {
+		init: function($div) {
+			this.$div = $div || null;
+			this.fullText = '';
+			this.queue = [];
+			this.next = 0;
+			this.timeout = null;
+		},
+		remove: function() {
+			this.clearTimeout();
+		},
+		push: function(text) {
+			this.fullText += '' + text;
+			this.queue.push(this.fullText);
+		},
+		getFullText: function() {
+			return this.fullText;
+		},
+		run: function(delay) {
+			this.clearTimeout();
+			if (delay <= 0) {
+				this.$div.text(this.fullText);
+			} else {
+				this.delay = delay;
+				this.next = 0;
+				this.animateNext();
+			}
+		},
+		/// INTERNAL FUNCTIONS ///
+		clearTimeout: function() {
+			if (this.timeout !== null) {
+				clearTimeout(this.timeout);
+				this.timeout = null;
+			}
+		},
+		animateNext: function() {
+			this.clearTimeout();
+			this.$div.text(this.queue[this.next++]);
+			if (this.next < this.queue.length) {
+				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+			}
+		}
+	};
 
 	dares.ConsoleMatchDare.prototype = dares.addCommonDareMethods({
 		init: function(options, ui) {
 			this.loadOptions(options, ui);
 			this.outputs = ['console'];
 			this.original = options.original;
+			this.fullText = this.original(new dares.AnimatedConsole()).getFullText();
+			this.linePenalty = options.linePenalty || 3;
+			this.maxLines = options.maxLines || 10;
+			this.threshold = options.threshold || this.fullText.length - this.linePenalty * this.maxLines;
 			this.previewAnim = null;
 			this.animation = null;
 		},
@@ -40,31 +89,45 @@ module.exports = function(dares) {
 			this.loadEditor(ui);
 
 			this.$div = $div;
-			$div.addClass('consolematchdare');
+			$div.addClass('dare dare-consolematch');
 			this.console = this.ui.addConsole();
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
-
-			this.$originalConsoleContainer = $('<div class="consolematchdare-original-container"><div class="consolematchdare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
-			this.$originalConsoleContainer.on('click', $.proxy(this.animateConsole, this));
-			this.$description.append(this.$originalConsoleContainer);
-			this.$originalConsole = $('<div class="consolematchdare-original-console"></div>');
-			this.$originalConsoleContainer.append(this.$originalConsole);
-
 			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
 
 			this.$submit = $('<div class="btn btn-success">Submit</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));
 			this.$description.append(this.$submit);
 
+			this.$originalConsoleContainer = $('<span class="dare-consolematch-original-container"></span>');
+			this.$originalConsoleContainer.on('click', $.proxy(this.animateConsole, this));
+			this.$div.append(this.$originalConsoleContainer);
+
+			this.$resultCanvas = $('<canvas class="dare-consolematch-result"></canvas>');
+			this.$originalConsoleContainer.append(this.$resultCanvas);
+			this.resultContext = this.$resultCanvas[0].getContext('2d');
+
+			this.$originalConsoleContainer.append('<div class="dare-consolematch-original-refresh"><i class="icon-repeat icon-white"></i></div>');
+			this.$originalConsole = $('<span class="dare-consolematch-original-console"></span>');
+			this.$originalConsoleContainer.append(this.$originalConsole);
+
 			this.originalAnim = new dares.AnimatedConsole(this.$originalConsole);
 			this.original(this.originalAnim);
+			this.initOffsets();
+
+			this.$originalConsole.text(this.fullText);
+			this.width = this.$originalConsole.width() + this.charWidth;
+			this.height = this.$originalConsole.height();
+			this.$originalConsole.width(this.width); // fix width and height
+			this.$originalConsole.height(this.height);
+			this.$resultCanvas.attr('width', this.width);
+			this.$resultCanvas.attr('height', this.height + this.lineHeight);
 
 			var $points = $('<div></div>');
 			this.$div.append($points);
 			this.animatedPoints = new dares.AnimatedPoints($points);
-			this.animatedPoints.addFactor('numMatchingChars', 1);
+			this.animatedPoints.addFactor('numMatchingChars', 1, 'max: ' + this.fullText.length);
 			this.animatedPoints.addFactor('numLines', -this.linePenalty);
 			this.animatedPoints.setThreshold(this.threshold);
 			this.animatedPoints.finish();
@@ -81,7 +144,7 @@ module.exports = function(dares) {
 			this.$submit.remove();
 			this.$originalConsoleContainer.remove();
 			this.$div.html('');
-			this.$div.removeClass('consolematchdare');
+			this.$div.removeClass('dare dare-consolematch');
 		},
 
 		animateConsole: function() {
@@ -90,6 +153,7 @@ module.exports = function(dares) {
 		},
 
 		drawConsole: function(speed) {
+			this.resultContext.clearRect(0, 0, this.width, this.height+this.lineHeight);
 			this.originalAnim.run(speed);
 		},
 
@@ -97,54 +161,95 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.animatedPoints.show();
 
-			var userImageData = this.canvas.getImageData();
-			var resultImageData = this.resultContext.createImageData(this.size, this.size);
-			this.pointsPerLine = [];
+			var userText = this.console.getText();
+			this.animationRects = [];
+			var points = 0, x = 0, y = 0, maxX = 0;
 
-			var i=0, points = 0;
-			for (var y=0; y<this.size; y++) {
-				var linePoints = 0;
-				for (var x=0; x<this.size; x++) {
-					var dr = userImageData.data[i] - this.imageData.data[i++];
-					var dg = userImageData.data[i] - this.imageData.data[i++];
-					var db = userImageData.data[i] - this.imageData.data[i++];
-					var da = userImageData.data[i] - this.imageData.data[i++];
-					var distance = dr*dr + dg*dg + db*db + da*da;
+			for (var i=0; i<this.fullText.length; i++) {
+				var orig = this.fullText.charAt(i);
+				var match = orig === userText.charAt(i);
+				if (match) points++;
 
-					resultImageData.data[i-1] = 140; // alpha
-					if (distance < 20) {
-						points++;
-						linePoints++;
-						resultImageData.data[i-3] = 255; // green
+				if (orig === '\n') {
+					this.animationRects.push({x1: x, x2: x+1, y: y, match: match, points: points});
+					x = 0; y++;
+				} else {
+					var prevX = x, prevY = y;
+					if (orig === '\t') {
+						// tab width: 8
+						x += 8-(x%8);
 					} else {
-						resultImageData.data[i-4] = 255; // red
+						x++;
 					}
+					this.animationRects.push({x1: prevX, x2: x, y: y, match: match, points: points});
+					maxX = Math.max(x, maxX);
 				}
-				this.pointsPerLine.push(linePoints);
 			}
 
-			this.resultContext.clearRect(0, 0, this.size, this.size);
-			this.resultContext.putImageData(resultImageData, 0, 0);
+			var surplus = userText.length - this.fullText.length;
+			maxX += 2; // account for last character and endline marker
+			if (surplus > 0) {
+				var origPoints = points;
+				var parts = Math.min(surplus, 1000);
+				for (i=0; i<parts; i++) {
+					points = Math.floor(origPoints - i/parts*surplus);
+					this.animationRects.push({x1: maxX*i/parts, x2: maxX*(i+1)/parts, y: y, match: false, points: points});
+				}
+				points = origPoints - surplus;
+			}
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(this.size/10, 50, $.proxy(this.animationMatchingCallback, this));
-			this.animationMatchingNumber = 0;
+			this.animation.addSegment(Math.ceil(this.animationRects.length/10), 50, $.proxy(this.animationMatchingCallback, this));
 			this.updateScoreAndAnimationWithLines(points);
 			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
 			this.animation.run();
 		},
 
-		animationMatchingCallback: function(y) {
-			y *= 10;
-			if (y === 0) {
-				this.drawImage(0);
-				this.animatedPoints.setChanging('numMatchingPixels');
+		initOffsets: function() {
+			// setting up mirror
+			var $mirror = $('<span class="dare-consolematch-mirror"></span>');
+			this.$originalConsoleContainer.append($mirror);
+
+			$mirror.text('a');
+			var textOffset = {x: $mirror.outerWidth(), y: $mirror.outerHeight()};
+
+			// this trick of measuring a long string especially helps Firefox get an accurate character width
+			$mirror.text('a' + new Array(100+1).join('a'));
+			this.charWidth = ($mirror.outerWidth() - textOffset.x)/100;
+
+			$mirror.text('a\na');
+			this.lineHeight = $mirror.outerHeight() - textOffset.y;
+			
+			// this works assuming there is no padding on the right or bottom
+			textOffset.x -= this.charWidth;
+			textOffset.y -= this.lineHeight;
+
+			this.$resultCanvas.css('left', textOffset.x);
+			this.$resultCanvas.css('top', textOffset.y);
+			$mirror.remove();
+		},
+
+		animationMatchingCallback: function(i) {
+			i *= 10;
+			if (i === 0) {
+				this.drawConsole(0);
+				this.animatedPoints.setChanging('numMatchingChars');
 			}
-			for (var i=0; i<10; i++) {
-				this.animationMatchingNumber += this.pointsPerLine[y+i];
+
+			var rectangle = null;
+			for (var j=0; j<10 && i+j<this.animationRects.length; j++) {
+				rectangle = this.animationRects[i+j];
+				if (rectangle.match) {
+					this.resultContext.fillStyle = '#030';
+				} else {
+					this.resultContext.fillStyle = '#300';
+				}
+				this.resultContext.fillRect(rectangle.x1*this.charWidth, rectangle.y*this.lineHeight, (rectangle.x2-rectangle.x1)*this.charWidth, this.lineHeight);
 			}
-			this.animatedPoints.setValue('numMatchingPixels', this.animationMatchingNumber);
-			this.originalContext.drawImage(this.$resultCanvas[0], 0, y, this.size, 10, 0, y, this.size, 10);
+			
+			if (rectangle !== null) {
+				this.animatedPoints.setValue('numMatchingChars', rectangle.points);
+			}
 		}
 	});
 };

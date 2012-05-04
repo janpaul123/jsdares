@@ -7,11 +7,11 @@ widget/js/browser.js: browser.js
 widget/css/style.css: style.css
 	cp style.css widget/css/style.css
 
-browser.js: cli-widget.js jsmm/jsmmparser.js jsmm/*.js editor/*.js clayer/*.js output/*.js
+browser.js: cli-widget.js jsmm/jsmmparser.js jsmm/*.js editor/*.js clayer/*.js output/*.js dares/*.js
 	$(MAKE) test
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
-style.css: cli-widget.less global.less editor/*.less output/*.less bootstrap/less/*.less colorpicker/*.less
+style.css: cli-widget.less global.less editor/*.less output/*.less bootstrap/less/*.less colorpicker/*.less dares/*.less
 	node_modules/.bin/lessc cli-widget.less > style.css
 
 # color picker

@@ -2,93 +2,6 @@
 "use strict";
 
 module.exports = function(dares) {
-	dares.AnimatedCanvas = function() { return this.init.apply(this, arguments); };
-	dares.AnimatedCanvas.prototype = {
-		init: function() {
-			this.queue = [];
-			this.next = 0;
-			this.timeout = null;
-		},
-		remove: function() {
-			this.clearTimeout();
-		},
-		push: function(func) {
-			this.queue.push(func);
-		},
-		run: function(context, delay) {
-			this.clearTimeout();
-			this.context = context;
-			if (delay <= 0) {
-				for (var i=0; i<this.queue.length; i++)	{
-					this.queue[i](this.context);
-				}
-			} else {
-				this.delay = delay;
-				this.next = 0;
-				this.animateNext();
-			}
-		},
-		/// INTERNAL FUNCTIONS ///
-		clearTimeout: function() {
-			if (this.timeout !== null) {
-				clearTimeout(this.timeout);
-				this.timeout = null;
-			}
-		},
-		animateNext: function() {
-			this.clearTimeout();
-			this.queue[this.next++](this.context);
-			if (this.next < this.queue.length) {
-				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
-			}
-		}
-	};
-
-	dares.AnimatedConsole = function() { return this.init.apply(this, arguments); };
-	dares.AnimatedConsole.prototype = {
-		init: function($div) {
-			this.$div = $div;
-			this.fullText = '';
-			this.queue = [];
-			this.next = 0;
-			this.timeout = null;
-		},
-		remove: function() {
-			this.clearTimeout();
-		},
-		push: function(text) {
-			this.fullText += '' + text;
-			this.queue.push(this.fullText);
-		},
-		getFullText: function() {
-			return this.fullText;
-		},
-		run: function(delay) {
-			this.clearTimeout();
-			if (delay <= 0) {
-				this.$div.text(this.fullText);
-			} else {
-				this.delay = delay;
-				this.next = 0;
-				this.animateNext();
-			}
-		},
-		/// INTERNAL FUNCTIONS ///
-		clearTimeout: function() {
-			if (this.timeout !== null) {
-				clearTimeout(this.timeout);
-				this.timeout = null;
-			}
-		},
-		animateNext: function() {
-			this.clearTimeout();
-			this.$div.text(this.queue[this.next++]);
-			if (this.next < this.queue.length) {
-				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
-			}
-		}
-	};
-
 	dares.AnimatedPoints = function() { return this.init.apply(this, arguments); };
 	dares.AnimatedPoints.prototype = {
 		init: function($div) {
@@ -223,8 +136,8 @@ module.exports = function(dares) {
 			this.description = options.description || '';
 			this.difficulty = options.difficulty || 1;
 			this.original = options.original;
-			this.threshold = options.threshold || 300000;
-			this.linePenalty = options.linePenalty || 5000;
+			this.threshold = options.threshold || 1000;
+			this.linePenalty = options.linePenalty || 1;
 			this.speed = options.speed || 50;
 
 			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;

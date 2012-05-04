@@ -431,7 +431,7 @@ module.exports = function(editor) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		initOffsets: function($div) {
+		initOffsets: function() {
 			// setting up mirror
 			this.$mirror = $('<div class="editor-mirror"></div>');
 			var $mirrorContainer = $('<div class="editor-mirror-container"></div>');

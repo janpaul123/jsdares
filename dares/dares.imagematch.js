@@ -2,11 +2,55 @@
 "use strict";
 
 module.exports = function(dares) {
-	dares.ImageDare = function() { return this.init.apply(this, arguments); };
+	dares.AnimatedCanvas = function() { return this.init.apply(this, arguments); };
+	dares.ImageMatchDare = function() { return this.init.apply(this, arguments); };
 	
-	dares.ImageDare.prototype = dares.addCommonDareMethods({
+	dares.AnimatedCanvas.prototype = {
+		init: function() {
+			this.queue = [];
+			this.next = 0;
+			this.timeout = null;
+		},
+		remove: function() {
+			this.clearTimeout();
+		},
+		push: function(func) {
+			this.queue.push(func);
+		},
+		run: function(context, delay) {
+			this.clearTimeout();
+			this.context = context;
+			if (delay <= 0) {
+				for (var i=0; i<this.queue.length; i++)	{
+					this.queue[i](this.context);
+				}
+			} else {
+				this.delay = delay;
+				this.next = 0;
+				this.animateNext();
+			}
+		},
+		/// INTERNAL FUNCTIONS ///
+		clearTimeout: function() {
+			if (this.timeout !== null) {
+				clearTimeout(this.timeout);
+				this.timeout = null;
+			}
+		},
+		animateNext: function() {
+			this.clearTimeout();
+			this.queue[this.next++](this.context);
+			if (this.next < this.queue.length) {
+				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+			}
+		}
+	};
+	
+	dares.ImageMatchDare.prototype = dares.addCommonDareMethods({
 		init: function(options, ui) {
 			this.loadOptions(options, ui);
+			this.threshold = options.threshold || 300000;
+			this.linePenalty = options.linePenalty || 5000;
 			this.outputs = ['canvas'];
 			this.previewAnim = null;
 			this.animation = null;
@@ -15,7 +59,7 @@ module.exports = function(dares) {
 		setPreview: function($preview) {
 			this.removePreviewAnim();
 
-			var $canvas = $('<canvas class="dares-image-canvas" width="540" height="540"></canvas>');
+			var $canvas = $('<canvas class="dares-imagematch-canvas" width="540" height="540"></canvas>');
 			$preview.html($canvas);
 			$preview.append(this.description);
 			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
@@ -38,21 +82,21 @@ module.exports = function(dares) {
 			this.loadEditor(ui);
 
 			this.$div = $div;
-			$div.addClass('imagedare');
+			$div.addClass('dare dare-imagematch');
 			this.canvas = this.ui.addCanvas();
 			this.size = this.canvas.getSize();
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
 
-			this.$originalCanvasContainer = $('<div class="imagedare-original-container"><div class="imagedare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
+			this.$originalCanvasContainer = $('<div class="dare-imagematch-original-container"><div class="dare-imagematch-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
 			this.$originalCanvasContainer.on('click', $.proxy(this.animateImage, this));
 			this.$description.append(this.$originalCanvasContainer);
-			this.$originalCanvas = $('<canvas class="imagedare-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
+			this.$originalCanvas = $('<canvas class="dare-imagematch-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$originalCanvasContainer.append(this.$originalCanvas);
 			this.originalContext = this.$originalCanvas[0].getContext('2d');
 
-			this.$resultCanvas = $('<canvas class="imagedare-result" width="' + this.size + '" height="' + this.size + '"></canvas>');
+			this.$resultCanvas = $('<canvas class="dare-imagematch-result" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$div.append(this.$resultCanvas);
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
@@ -90,7 +134,7 @@ module.exports = function(dares) {
 			this.$submit.remove();
 			this.$originalCanvasContainer.remove();
 			this.$div.html('');
-			this.$div.removeClass('imagedare');
+			this.$div.removeClass('dare dare-imagematch');
 		},
 
 		animateImage: function() {

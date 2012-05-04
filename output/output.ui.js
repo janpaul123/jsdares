@@ -27,7 +27,7 @@ module.exports = function(output) {
 				tables: [{
 					title: 'I',
 					dares: [
-						new dares.ImageDare({
+						new dares.ImageMatchDare({
 							name: 'Gravity',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							threshold: 270000,
@@ -42,7 +42,7 @@ module.exports = function(output) {
 								}
 							}
 						}, this),
-						new dares.ImageDare({
+						new dares.ImageMatchDare({
 							name: 'Gravity 2',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							threshold: 270000,
@@ -57,7 +57,7 @@ module.exports = function(output) {
 								}
 							}
 						}, this),
-						new dares.ImageDare({
+						new dares.ImageMatchDare({
 							name: 'Gravity 3',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							original: function(anim) {
@@ -76,16 +76,17 @@ module.exports = function(output) {
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							speed: 100,
 							original: function(anim) {
-								for (var y=1; y<=20; y++) {
+								for (var y=1; y<=10; y++) {
 									var text = '';
-									for (var x=1; x<=9; x++) {
-										text += (x*y) + (x === 9 ? '\n' : '\t');
+									for (var x=1; x<=5; x++) {
+										text += (x*y) + '\t';
 									}
-									anim.push(text);
+									anim.push(text + '\n');
 								}
+								return anim;
 							}
 						}, this),
-						new dares.ImageDare({
+						new dares.ImageMatchDare({
 							name: 'Gravity',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							original: function(anim) {
@@ -99,7 +100,7 @@ module.exports = function(output) {
 								}
 							}
 						}, this),
-						new dares.ImageDare({
+						new dares.ImageMatchDare({
 							name: 'Gravity',
 							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
 							original: function(anim) {
@@ -239,7 +240,7 @@ module.exports = function(output) {
 		getCanvas: function() {
 			return this.canvas;
 		},
-		
+
 		textChanged: function(code) {
 			window.localStorage.setItem('program-3', code.text);
 		}

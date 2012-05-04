@@ -7,7 +7,7 @@ module.exports = function(output) {
 	output.Canvas.prototype = {
 		init: function($div, editor, size) {
 			this.$div = $div;
-			this.$div.addClass('canvas');
+			this.$div.addClass('output canvas');
 
 			this.size = size || 550;
 			this.$container = $('<div class="canvas-container"></div>');
@@ -49,7 +49,7 @@ module.exports = function(output) {
 			}
 			this.$container.remove();
 
-			this.$div.removeClass('canvas');
+			this.$div.removeClass('output canvas');
 			this.$div.off('mousemove');
 			this.editor.removeOutput(this);
 		},

@@ -1,20 +1,15 @@
-@import "../global.less";
-
 /// TEXTAREA ///
 .editor {
 	margin: 0;
 	padding: 0;
 	position: relative;
-	background-color: @code-background-color;
+	background-color: @editor-background-color;
 	overflow: auto;
 }
 
 .editor-code, .editor-mirror {
-	color: @code-color;
-	font-size: @code-font-size;
-	line-height: @code-line-height;
-	font-family: @code-font-family;
-	background-color: @code-background-color;
+	.code-foreground();
+	background-color: @editor-background-color;
 	position: absolute;
 	border: none;
 	margin: 0px;
@@ -200,10 +195,7 @@ div.colorpicker div.circle.lightness {
 }
 
 .editor-autocomplete-line {
-	color: @code-color;
-	font-size: @code-font-size;
-	line-height: @code-line-height;
-	font-family: @code-font-family;
+	.code-foreground();
 	padding: 0px 2px;
 	cursor: pointer;
 

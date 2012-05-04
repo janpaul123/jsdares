@@ -1,9 +1,4 @@
-@import "../global.less";
-
 .robot {
-	position: relative;
-	background-color: @code-background-color;
-	overflow: auto;
 	padding: @canvas-padding;
 }
 
@@ -17,13 +12,10 @@
 @fat-size: 6px;
 
 .robot-container {
+	.canvas-well();
 	position: relative;
 	left: 0px;
 	top: 0px;
-	background-color: @canvas-background-color;
-	@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-	.box-shadow(@shadow);
-	.border-radius(4px);
 }
 
 .robot-maze {

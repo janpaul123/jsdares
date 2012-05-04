@@ -1,0 +1,115 @@
+#dares-popup {
+	display: none;
+	width: 700px;
+	height: 500px;
+	margin-left: -700px / 2;
+	margin-top: -500px / 2;
+	background-color: #333;
+	color: white;
+
+	.modal-header {
+		border-bottom-color: #555;
+		height: 25px;
+	}
+
+	.modal-body {
+		max-height: none;
+	}
+
+	.modal-footer {
+		height: 30px;
+	}
+
+	.close {
+		color: white;
+		text-shadow-color: black;
+		&:hover {
+			color: white;
+		}
+	}
+
+	h2 {
+		font-size: 36px;
+		line-height: 36px;
+		font-family: "Times New Roman", Times, serif;
+		text-align: center;
+	}
+
+	.dares-table-item {
+		border-top: 1px solid #555;
+		padding: 5px 5px 2px 5px;
+		cursor: pointer;
+		overflow: hidden;
+
+		.dares-table-cell {
+			> span {
+				display: inline-block;
+				.ie7-inline-block();
+				font-size: 14px;
+			}
+
+			.dares-table-cell-name {
+				width: 650-110-90-20px;
+				font-weight: bold;
+			}
+
+			.dares-table-output {
+				font-weight: normal;
+				background-color: black;
+				.border-radius(10px);
+				font-size: 12px;
+				vertical-align: text-top;
+				line-height: 16px;
+				background-color: #111;
+				padding: 3px 5px;
+				margin-left: 3px;
+			}
+
+			.dares-table-cell-difficulty {
+				width: 110px;
+			}
+
+			.dares-table-cell-highscore {
+				width: 90px;
+				font-size: 14px;
+			}
+
+			.dares-table-cell-completed {
+				width: 20px;
+			}
+		}
+
+		.dares-table-preview {
+			margin-left: 0px;
+			overflow: auto;
+			padding-bottom: 2px;
+			z-index: 10;
+
+			.dares-table-preview-points-container {
+				margin-top: 10px;
+				margin-bottom: 10px;
+
+				.dares-table-preview-points {
+					.code-well();
+					.box-shadow(none);
+					padding: 5px;
+				}
+			}
+		}
+
+		&:hover {
+			z-index: 11;
+			background-color: #555;
+			.box-shadow(0px 0px 2px #2a2a2a);
+		}
+
+		&.dares-table-item-active {
+			z-index: 12;
+			background-color: #555;
+			.box-shadow(0px 0px 5px #2a2a2a);
+			&:hover {
+				background-color: #666;
+			}
+		}
+	}
+}

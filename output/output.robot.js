@@ -201,7 +201,7 @@ module.exports = function(output) {
 			this.rows = rows || 8;
 
 			this.$div = $div;
-			this.$div.addClass('robot');
+			this.$div.addClass('output robot');
 
 			this.$container = $('<div class="robot-container robot-not-highlighting"></div>');
 			this.$container.on('mouseup', $.proxy(this.containerMouseUp, this));
@@ -246,7 +246,7 @@ module.exports = function(output) {
 			this.$path.remove();
 			this.$initial.remove();
 			this.$robot.remove();
-			this.$div.removeClass('robot');
+			this.$div.removeClass('output robot');
 			this.editor.removeOutput(this);
 		},
 

@@ -1,9 +1,4 @@
-@import "../global.less";
-
 .canvas {
-	position: relative;
-	background-color: @code-background-color;
-	overflow: auto;
 	padding: @canvas-padding;
 }
 
@@ -12,13 +7,9 @@
 }
 
 .canvas-container {
+	.canvas-well();
 	position: relative;
 	width: 100%;
-	background-color: @canvas-background-color;
-	line-height: 0px;
-	@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-	.box-shadow(@shadow);
-	.border-radius(4px);
 
 	.canvas-canvas {
 		width: 100%;

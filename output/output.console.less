@@ -1,8 +1,6 @@
-@import "../global.less";
-
 .console {
 	position: relative;
-	background-color: @code-background-color;
+	background-color: @output-background-color;
 	overflow: auto;
 }
 
@@ -23,11 +21,8 @@
 }
 
 .console-line {
-	color: @code-color;
-	font-size: @code-font-size;
-	line-height: @code-line-height;
-	font-family: @code-font-family;
-	background-color: @code-background-color;
+	.code-foreground();
+	background-color: @output-background-color;
 	min-height: @code-line-height;
 	border: none;
 	margin: 0px;

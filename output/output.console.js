@@ -7,7 +7,7 @@ module.exports = function(output) {
 	output.Console.prototype = {
 		init: function($div, editor) {
 			this.$div = $div;
-			this.$div.addClass('console');
+			this.$div.addClass('output console');
 			this.$div.on('scroll', $.proxy(this.refreshAutoScroll, this));
 
 			this.$content = $('<div class="console-content"></div>');
@@ -27,7 +27,7 @@ module.exports = function(output) {
 		remove: function() {
 			this.clear();
 			this.$content.remove();
-			this.$div.removeClass('console');
+			this.$div.removeClass('output console');
 			this.$div.off('scroll mousemove mouseleave');
 			this.editor.removeOutput(this);
 		},

@@ -4056,6 +4056,25 @@ a.thumbnail:hover {
 .invisible {
   visibility: hidden;
 }
+.icon-trophy {
+  background-position: -1px 0px;
+  background-image: url(../img/trophy16.png);
+}
+.icon-trophy.icon-white {
+  background-image: url(../img/trophy16white.png);
+}
+.icon-twitter {
+  background-position: 0px -1px;
+  background-image: url(../img/twitter-16x16.png);
+  width: 16px;
+  height: 16px;
+}
+.icon-facebook {
+  background-position: 0px -1px;
+  background-image: url(../img/facebook-16x16.png);
+  width: 16px;
+  height: 16px;
+}
 .editor {
   margin: 0;
   padding: 0;
@@ -4065,10 +4084,10 @@ a.thumbnail:hover {
 }
 .editor-code,
 .editor-mirror {
+  font-family: "Courier", monospace;
   color: #00dd00;
   font-size: 14px;
   line-height: 16px;
-  font-family: "Courier", monospace;
   background-color: #333333;
   position: absolute;
   border: none;
@@ -4241,15 +4260,20 @@ div.colorpicker div.circle.lightness {
   overflow-y: auto;
 }
 .editor-autocomplete-line {
+  font-family: "Courier", monospace;
   color: #00dd00;
   font-size: 14px;
   line-height: 16px;
-  font-family: "Courier", monospace;
   padding: 0px 2px;
   cursor: pointer;
 }
 .editor-autocomplete-line.editor-autocomplete-selected {
   background-color: rgba(50, 250, 50, 0.4);
+}
+.output {
+  position: relative;
+  background-color: #333333;
+  overflow: auto;
 }
 .console {
   position: relative;
@@ -4269,10 +4293,10 @@ div.colorpicker div.circle.lightness {
   opacity: 0.5;
 }
 .console-line {
+  font-family: "Courier", monospace;
   color: #00dd00;
   font-size: 14px;
   line-height: 16px;
-  font-family: "Courier", monospace;
   background-color: #333333;
   min-height: 16px;
   border: none;
@@ -4286,25 +4310,22 @@ div.colorpicker div.circle.lightness {
   background-color: rgba(50, 250, 50, 0.4);
 }
 .canvas {
-  position: relative;
-  background-color: #333333;
-  overflow: auto;
   padding: 15px;
 }
 .canvas-highlighting {
   cursor: crosshair;
 }
 .canvas-container {
-  position: relative;
-  width: 100%;
   background-color: #dddddd;
-  line-height: 0px;
-  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+  line-height: 0px;
+  position: relative;
+  width: 100%;
 }
 .canvas-container .canvas-canvas {
   width: 100%;
@@ -4427,43 +4448,17 @@ div.colorpicker div.circle.lightness {
   color: #00dd00;
   font-size: 14px;
   line-height: 16px;
-  background-color: #111;
-  padding: 5px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-}
-#dares-popup .dares-table-item .dares-table-preview .dares-image-canvas {
-  float: right;
-  background-color: #dddddd;
-  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+  background-color: #111111;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
-  max-width: 200px;
-  margin: 0px 8px 5px 15px;
-}
-#dares-popup .dares-table-item .dares-table-preview .dares-consolematch-console {
-  float: right;
-  background-color: #111;
-  color: #00dd00;
-  font-family: "Courier", monospace;
-  font-size: 10px;
-  line-height: 10px;
-  white-space: pre;
-  overflow: hidden;
-  width: 190px;
-  height: 190px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
   padding: 5px;
-  margin: 0px 8px 5px 15px;
-  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
 }
 #dares-popup .dares-table-item:hover {
   z-index: 11;
@@ -4482,40 +4477,159 @@ div.colorpicker div.circle.lightness {
 #dares-popup .dares-table-item.dares-table-item-active:hover {
   background-color: #666;
 }
-.imagedare {
+.dare {
   padding: 15px;
 }
-.imagedare .dare-description {
+.dare .dare-description {
   overflow: auto;
 }
-.imagedare .dare-text {
+.dare .dare-text {
   margin-bottom: 10px;
 }
-.imagedare .imagedare-original-container {
-  float: right;
-  position: relative;
-  cursor: pointer;
-  background-color: #dddddd;
-  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+.dare .dare-points {
+  font-family: "Courier", monospace;
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
+  background-color: #111111;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 0px;
+  position: relative;
+  overflow: auto;
+  width: 100%;
+}
+.dare .dare-points .dare-points-console {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+}
+.dare .dare-points .dare-points-code {
+  float: right;
+  padding: 5px 5px 5px 5%;
+  border-left: 1px solid #333;
+  width: 75%;
+}
+.dare .dare-points .dare-points-code .dare-points-changing {
+  background-color: rgba(50, 250, 50, 0.4);
+}
+.dare .dare-score {
+  font-family: "Courier", monospace;
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
+  background-color: #111111;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 0px #333333;
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 0px #333333;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 0px #333333;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: white;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 5px;
+  background-image: url(../img/star.png);
+  -webkit-animation-name: dare-score-star-move;
+  -webkit-animation-duration: 1.5s;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+}
+.dare .dare-score span {
+  margin-right: 10px;
+}
+@keyframes dare-score-star-move {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 0px 18px;
+  }
+}
+@-webkit-keyframes dare-score-star-move {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 0px 18px;
+  }
+}
+@-moz-keyframes dare-score-star-move {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 0px 18px;
+  }
+}
+@-ms-keyframes dare-score-star-move {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 0px 18px;
+  }
+}
+@-o-keyframes dare-score-star-move {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 0px 18px;
+  }
+}
+#dares-popup .dares-imagematch-canvas {
+  background-color: #dddddd;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  line-height: 0px;
+  float: right;
+  width: 200px;
+  height: 200px;
+  margin: 0px 8px 5px 15px;
+}
+.dare-imagematch .dare-imagematch-original-container {
+  background-color: #dddddd;
+  -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  line-height: 0px;
+  float: right;
+  position: relative;
+  cursor: pointer;
   margin: 0px 1px 5px 15px;
   width: 200px;
   height: 200px;
 }
-.imagedare .imagedare-original-container .imagedare-original-canvas {
+.dare-imagematch .dare-imagematch-original-container .dare-imagematch-original-canvas {
   width: 200px;
 }
-.imagedare .imagedare-original-container .imagedare-original-refresh {
+.dare-imagematch .dare-imagematch-original-container .dare-imagematch-original-refresh {
   display: none;
   position: absolute;
   top: 50%;
   left: 50%;
   margin-left: -8.5px;
   margin-top: -10.5px;
+  line-height: 24px;
   background-color: rgba(0, 0, 0, 0.7);
   width: 14px;
   height: 20px;
@@ -4524,70 +4638,82 @@ div.colorpicker div.circle.lightness {
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-.imagedare .imagedare-original-container:hover .imagedare-original-refresh {
+.dare-imagematch .dare-imagematch-original-container:hover .dare-imagematch-original-refresh {
   display: block;
 }
-.imagedare .imagedare-result {
+.dare-imagematch .dare-imagematch-result {
   display: none;
 }
-.imagedare .dare-points {
+#dares-popup .dares-consolematch-console {
   font-family: "Courier", monospace;
   color: #00dd00;
   font-size: 14px;
   line-height: 16px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  background-color: #111;
-  padding: 0px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  position: relative;
-  overflow: auto;
-  width: 100%;
-}
-.imagedare .dare-points .dare-points-console {
-  position: absolute;
-  left: 5px;
-  top: 5px;
-}
-.imagedare .dare-points .dare-points-code {
+  background-color: #111111;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
   float: right;
-  padding: 5px 5px 5px 5%;
-  border-left: 1px solid #333;
-  width: 75%;
-}
-.imagedare .dare-points .dare-points-code .dare-points-changing {
-  background-color: rgba(50, 250, 50, 0.4);
-}
-.imagedare .dare-score {
-  font-family: "Courier", monospace;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  background-color: #111;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  color: white;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 10px;
+  line-height: 10px;
+  white-space: pre;
+  overflow: hidden;
+  width: 190px;
+  height: 190px;
   padding: 5px;
-  background-image: url(../img/star.png);
-  -webkit-animation-name: STAR-MOVE;
-  -webkit-animation-duration: 1.5s;
-  -webkit-animation-timing-function: linear;
-  -webkit-animation-iteration-count: infinite;
+  margin: 0px 8px 5px 15px;
 }
-.imagedare .dare-score span {
-  margin-right: 10px;
+.dare-consolematch .dare-consolematch-original-container {
+  font-family: "Courier", monospace;
+  color: #00dd00;
+  font-size: 14px;
+  line-height: 16px;
+  background-color: #111111;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  margin-top: 10px;
+  overflow: hidden;
 }
-@-webkit-keyframes STAR-MOVE {
-  from {
-    background-position: 0px 0px;
-  }
-  to {
-    background-position: 0px 18px;
-  }
+.dare-consolematch .dare-consolematch-original-container .dare-consolematch-original-console,
+.dare-consolematch .dare-consolematch-original-container .dare-consolematch-mirror {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+}
+.dare-consolematch .dare-consolematch-original-container .dare-consolematch-original-refresh {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -8.5px;
+  margin-top: -10.5px;
+  line-height: 24px;
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 14px;
+  height: 20px;
+  padding: 1px 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.dare-consolematch .dare-consolematch-original-container:hover .dare-consolematch-original-refresh {
+  display: block;
+}
+.dare-consolematch .dare-consolematch-original-container .dare-consolematch-result {
+  position: absolute;
+  margin-left: 8px;
+  margin-top: 8px;
 }
 textarea[readonly] {
   cursor: text;
@@ -4598,25 +4724,6 @@ body {
   margin: 0px;
   padding: 0px;
   height: 100%;
-}
-.icon-trophy {
-  background-position: -1px 0px;
-  background-image: url(../img/trophy16.png);
-}
-.icon-trophy.icon-white {
-  background-image: url(../img/trophy16white.png);
-}
-.icon-twitter {
-  background-position: 0px -1px;
-  background-image: url(../img/twitter-16x16.png);
-  width: 16px;
-  height: 16px;
-}
-.icon-facebook {
-  background-position: 0px -1px;
-  background-image: url(../img/facebook-16x16.png);
-  width: 16px;
-  height: 16px;
 }
 #main {
   background-color: #000;

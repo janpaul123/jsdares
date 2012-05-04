@@ -1,0 +1,107 @@
+.dare {
+	padding: 15px;
+
+	.dare-description {
+		overflow: auto;
+	}
+
+	.dare-text {
+		margin-bottom: 10px;
+	}
+	
+	.dare-points {
+		.code-well();
+		margin-top: 10px;
+		margin-bottom: 10px;
+		padding: 0px;
+		position: relative;
+		overflow: auto;
+		width: 100%;
+
+		.dare-points-console {
+			position: absolute;
+			left: 5px;
+			top: 5px;
+		}
+
+		.dare-points-code {
+			float: right;
+			padding: 5px 5px 5px 5%; // intentional!
+			border-left: 1px solid #333;
+			width: 75%;
+
+			.dare-points-changing {
+				background-color: @highlight-color;
+			}
+		}
+	}
+
+	.dare-score {
+		.code-well();
+		@shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 0px #333;
+		.box-shadow(@shadow);
+
+		margin-top: 10px;
+		margin-bottom: 10px;
+		color: white;
+		font-size: 13px;
+		line-height: 20px;
+		padding: 5px;
+		background-image: url(../img/star.png);
+		-webkit-animation-name: dare-score-star-move;
+		-webkit-animation-duration: 1.5s;
+		-webkit-animation-timing-function: linear;
+		-webkit-animation-iteration-count: infinite;
+
+		span {
+			margin-right: 10px;
+		}
+	}
+}
+
+// hack hack hack
+@keyframes dare-score-star-move {
+	from {
+		background-position: 0px 0px;
+	}
+	to {
+		background-position: 0px 18px;
+	}
+}
+
+@-webkit-keyframes dare-score-star-move {
+	from {
+		background-position: 0px 0px;
+	}
+	to {
+		background-position: 0px 18px;
+	}
+}
+
+@-moz-keyframes dare-score-star-move {
+	from {
+		background-position: 0px 0px;
+	}
+	to {
+		background-position: 0px 18px;
+	}
+}
+
+@-ms-keyframes dare-score-star-move {
+	from {
+		background-position: 0px 0px;
+	}
+	to {
+		background-position: 0px 18px;
+	}
+}
+
+@-o-keyframes dare-score-star-move {
+	from {
+		background-position: 0px 0px;
+	}
+	to {
+		background-position: 0px 18px;
+	}
+}
+

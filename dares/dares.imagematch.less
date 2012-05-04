@@ -1,0 +1,46 @@
+#dares-popup .dares-imagematch-canvas {
+	.canvas-well();
+	float: right;
+	width: 200px;
+	height: 200px;
+	margin: 0px 8px 5px 15px;
+}
+
+.dare-imagematch {
+	.dare-imagematch-original-container {
+		.canvas-well();
+		float: right;
+		position: relative;
+		cursor: pointer;
+		margin: 0px 1px 5px 15px;
+		width: 200px;
+		height: 200px;
+
+		.dare-imagematch-original-canvas {
+			width: 200px;
+		}
+
+		.dare-imagematch-original-refresh {
+			display: none;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: -(14+3)/2px;
+			margin-top: -(20+1)/2px;
+			line-height: 24px;
+			background-color: rgba(0, 0, 0, 0.7);
+			width: 14px;
+			height: 20px;
+			padding: 1px 3px;
+			.border-radius(3px);
+		}
+
+		&:hover .dare-imagematch-original-refresh {
+			display: block;
+		}
+	}
+
+	.dare-imagematch-result {
+		display: none;
+	}
+}
