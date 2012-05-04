@@ -1,9 +1,3 @@
-.console {
-	position: relative;
-	background-color: @output-background-color;
-	overflow: auto;
-}
-
 .console-highlighting {
 	cursor: crosshair;
 }
@@ -13,7 +7,8 @@
 }
 
 .console-content {
-	margin: 10px;
+	.code-well();
+	padding: 10px;
 }
 
 .console-error {
@@ -21,8 +16,6 @@
 }
 
 .console-line {
-	.code-foreground();
-	background-color: @output-background-color;
 	min-height: @code-line-height;
 	border: none;
 	margin: 0px;

@@ -1,7 +1,3 @@
-.canvas {
-	padding: @canvas-padding;
-}
-
 .canvas-highlighting {
 	cursor: crosshair;
 }
@@ -39,7 +35,7 @@
 	position: relative;
 	visibility: visible;
 	width: 100%;
-	max-width: @canvas-max-outer-width - @canvas-padding*2;
+	max-width: @canvas-max-outer-width - @output-padding*2;
 	background-color: @canvas-background-color;
 	@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
 	.box-shadow(@shadow);
