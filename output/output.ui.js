@@ -62,21 +62,27 @@ module.exports = function(output) {
 			this.$tabs.children('li').remove();
 			this.$content.children('div').remove();
 			this.$main.removeClass('ui-dares-active');
-			this.tabNumber = 0;
+			this.tabs = [];
 		},
 
 		addTab: function(name) {
-			var $tab = $('<li id="tab-button-' + name + '"><a href="#tab-' + name + '" id="tab-link-' + name + '" data-toggle="tab"><i class="' + this.icons[name] + ' icon-white"></i> ' + name + '</a></li>');
-			setTimeout(function() { $tab.addClass('tab-button-enabled'); }, 50*this.tabNumber);
+			var $tab = $('<li id="tab-button-' + name + '"><a href="#tab-' + name + '" id="tab-link-' + name + '"><i class="' + this.icons[name] + ' icon-white"></i> ' + name + '</a></li>');
+			setTimeout(function() { $tab.addClass('tab-button-enabled'); }, 50*this.tabs.length);
 			this.$tabs.append($tab);
 
 			var $pane = $('<div class="tab-pane" id="tab-' + name + '"><div id="' + name + '" class="tab-output"></div></div>');
 			this.$content.append($pane);
 
-			if (this.tabNumber === 0) {
-				$tab.children('a').tab('show');
+			$('#tab-link-' + name).click($.proxy(function(event) {
+				event.preventDefault();
+				this.selectTab(name);
+			}, this));
+
+			if (this.tabs.length === 0) {
+				$pane.addClass('active');
 			}
-			this.tabNumber++;
+
+			this.tabs.push(name);
 		},
 
 		addEditor: function() {
@@ -89,13 +95,6 @@ module.exports = function(output) {
 			this.console = new output.Console($('#console'), this.editor);
 			this.scope.console = this.console.getAugmentedObject();
 			this.editor.setScope(this.scope);
-
-			$('#tab-link-console').click($.proxy(function() {
-				setTimeout($.proxy(function() {
-					this.console.makeActive();
-				}, this), 0);
-			}, this));
-
 			return this.console;
 		},
 
@@ -112,13 +111,6 @@ module.exports = function(output) {
 			this.robot = new output.Robot($('#robot'), this.editor, width || 8, height || 8);
 			this.scope.robot = this.robot.getAugmentedObject();
 			this.editor.setScope(this.scope);
-
-			$('#tab-link-robot').click($.proxy(function() {
-				setTimeout($.proxy(function() {
-					this.robot.makeActive();
-				}, this), 0);
-			}, this));
-
 			return this.robot;
 		},
 
@@ -128,6 +120,18 @@ module.exports = function(output) {
 			dare.makeActive($('#dare'), this);
 			this.$main.addClass('ui-dares-active');
 			return this.dare;
+		},
+
+		finish: function() {
+			this.selectTab(this.tabs[0]);
+		},
+
+		selectTab: function(name) {
+			this.$content.children('.active').removeClass('active');
+			this.$tabs.children('ul li.active').removeClass('active');
+			$('#tab-button-' + name).addClass('active');
+			$('#tab-' + name).addClass('active');
+			if (this[name].setFocus !== undefined) this[name].setFocus();
 		},
 
 		loadInitial: function() {
@@ -146,6 +150,7 @@ module.exports = function(output) {
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem('initial-code', text);
 			});
+			this.finish();
 		},
 
 		hideDares: function() {

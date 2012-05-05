@@ -486,7 +486,7 @@ module.exports = function(output) {
 			this.stateChangedCallback = callback;
 		},
 
-		makeActive: function() {
+		setFocus: function() {
 			this.animation.playAll();
 		},
 

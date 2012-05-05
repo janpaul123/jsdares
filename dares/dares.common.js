@@ -154,6 +154,7 @@ module.exports = function(dares) {
 			this.ui.removeAll();
 			this.ui.hideDares();
 			this.ui.addDare(this);
+			this.ui.finish();
 		};
 
 		dare.loadEditor = function(ui) {

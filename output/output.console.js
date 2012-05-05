@@ -160,7 +160,7 @@ module.exports = function(output) {
 			}
 		},
 
-		makeActive: function() {
+		setFocus: function() {
 			this.$content.css('min-height', this.$targetConsole.height());
 		},
 

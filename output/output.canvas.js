@@ -263,6 +263,10 @@ module.exports = function(output) {
 			return this.size;
 		},
 
+		setFocus: function() {
+
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		highlight: function(node, name, args) {
 			if (this.functions[name].draws) {
