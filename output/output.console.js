@@ -10,8 +10,14 @@ module.exports = function(output) {
 			this.$div.addClass('output console');
 			this.$div.on('scroll', $.proxy(this.refreshAutoScroll, this));
 
+			this.$container = $('<div class="console-container"></div>');
+			this.$div.append(this.$container);
+
+			this.$targetConsole = $('<div class="console-target"></div>');
+			this.$container.append(this.$targetConsole);
+
 			this.$content = $('<div class="console-content"></div>');
-			this.$div.append(this.$content);
+			this.$container.append(this.$content);
 
 			//this.debugToBrowser = true;
 			this.highlighting = false;
@@ -26,7 +32,7 @@ module.exports = function(output) {
 
 		remove: function() {
 			this.clear();
-			this.$content.remove();
+			this.$container.remove();
 			this.$div.removeClass('output console');
 			this.$div.off('scroll mousemove mouseleave');
 			this.editor.removeOutput(this);
@@ -140,6 +146,22 @@ module.exports = function(output) {
 
 		getText: function() {
 			return this.text;
+		},
+
+		makeTargetConsole: function(content) {
+			var lines = content.split('\n');
+			while (lines.length > 0 && lines[lines.length-1] === '') {
+				lines.pop();
+			}
+			for (var i=0; i<lines.length; i++) {
+				var $element = $('<div class="console-line"></div>');
+				$element.text(lines[i]);
+				this.$targetConsole.append($element);
+			}
+		},
+
+		makeActive: function() {
+			this.$content.css('min-height', this.$targetConsole.height());
 		},
 
 		/// INTERNAL FUNCTIONS ///

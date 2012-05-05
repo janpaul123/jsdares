@@ -1,9 +1,6 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var jsmm = require('../jsmm');
-var editor = require('../editor');
-
 module.exports = function(dares) {
 	dares.Dares = function() { return this.init.apply(this, arguments); };
 

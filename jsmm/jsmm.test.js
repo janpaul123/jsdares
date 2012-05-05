@@ -297,8 +297,8 @@ module.exports = function(jsmm) {
 	jsmm.test.tests.fail_twoway.unary_4 = 'console.log(-"string");';
 	jsmm.test.tests.fail_twoway.unary_5 = 'console.log(!"string");';
 	jsmm.test.tests.fail_twoway.unary_6 = 'console.log(!5);';
-	jsmm.test.tests.fail_twoway.invalid_funcion_call_1 = 'function f(a, b) {\n return a;\n }\n f(1);';
-	jsmm.test.tests.fail_twoway.invalid_funcion_call_2 = 'function f(a, b) {\n return a+b;\n }\n f(1);';
+	jsmm.test.tests.fail_twoway.invalid_function_call_1 = 'function f(a, b) {\n return a;\n }\n f(1);';
+	jsmm.test.tests.fail_twoway.invalid_function_call_2 = 'function f(a, b) {\n return a+b;\n }\n f(1);';
 	//jsmm.test.tests.fail_twoway.repeated_declaration_1 = 'var a;\n var a;';
 	//jsmm.test.tests.fail_twoway.repeated_declaration_2 = 'var a = 1;\n var a;';
 };

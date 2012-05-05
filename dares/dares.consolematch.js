@@ -97,6 +97,7 @@ module.exports = function(dares) {
 			this.$div = $div;
 			$div.addClass('dare dare-consolematch');
 			this.console = this.ui.addConsole();
+			this.console.makeTargetConsole(this.fullText);
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);

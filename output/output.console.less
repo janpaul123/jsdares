@@ -2,13 +2,27 @@
 	cursor: crosshair;
 }
 
+.console-container {
+	.code-well();
+	position: relative;
+	overflow: hidden;
+}
+
 .console-autoscroll {
 	border-bottom: 1px solid @console-auto-scroll-border-color;
 }
 
 .console-content {
-	.code-well();
 	padding: 10px;
+	position: relative;
+}
+
+.console-target {
+	padding: 10px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	.opacity(20);
 }
 
 .console-error {

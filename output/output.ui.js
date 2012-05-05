@@ -17,100 +17,7 @@ module.exports = function(output) {
 			this.initTabs();
 			this.loadInitial();
 
-			this.dares = new dares.Dares($('#dares-popup'), {
-				tables: [{
-					title: 'I',
-					dares: [
-						new dares.ImageMatchDare({
-							name: 'Gravity',
-							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
-							threshold: 270000,
-							original: function(anim) {
-								var drawBlock = function(i) {
-									return function(context) {
-										context.fillRect(10+i*25, 270+i*-65+i*i*4, 50, 50);
-									};
-								};
-								for (var i=0; i<20; i++) {
-									anim.push(drawBlock(i));
-								}
-							}
-						}, this),
-						new dares.ImageMatchDare({
-							name: 'Gravity 2',
-							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
-							threshold: 270000,
-							original: function(anim) {
-								var drawBlock = function(i) {
-									return function(context) {
-										context.fillRect(10+i*25, 270+i*-65+i*i*4, 50, 50);
-									};
-								};
-								for (var i=0; i<20; i++) {
-									anim.push(drawBlock(i));
-								}
-							}
-						}, this),
-						new dares.ImageMatchDare({
-							name: 'Gravity 3',
-							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
-							original: function(anim) {
-								var drawBlock = function(i) {
-									return function(context) {
-										context.fillRect(10+i*25, 270+i*-65+i*i*4, 50, 50);
-									};
-								};
-								for (var i=0; i<20; i++) {
-									anim.push(drawBlock(i));
-								}
-							}
-						}, this),
-						new dares.ConsoleMatchDare({
-							name: 'Multiplication Tables',
-							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
-							speed: 100,
-							original: function(anim) {
-								for (var y=1; y<=10; y++) {
-									var text = '';
-									for (var x=1; x<=5; x++) {
-										text += (x*y) + '\t';
-									}
-									anim.push(text + '\n');
-								}
-								return anim;
-							}
-						}, this),
-						new dares.ImageMatchDare({
-							name: 'Gravity',
-							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
-							original: function(anim) {
-								var drawBlock = function(i) {
-									return function(context) {
-										context.fillRect(10+i*25, 270+i*-65+i*i*4, 50, 50);
-									};
-								};
-								for (var i=0; i<20; i++) {
-									anim.push(drawBlock(i));
-								}
-							}
-						}, this),
-						new dares.ImageMatchDare({
-							name: 'Gravity',
-							description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
-							original: function(anim) {
-								var drawBlock = function(i) {
-									return function(context) {
-										context.fillRect(10+i*25, 270+i*-65+i*i*4, 50, 50);
-									};
-								};
-								for (var i=0; i<20; i++) {
-									anim.push(drawBlock(i));
-								}
-							}
-						}, this)
-					]
-				}]
-			});
+			this.dares = new dares.Dares($('#dares-popup'), dares.getContent(this));
 
 			$('#start-dare, #switch-dare').click($.proxy(function() {
 				this.dares.show();
@@ -182,20 +89,27 @@ module.exports = function(output) {
 			this.console = new output.Console($('#console'), this.editor);
 			this.scope.console = this.console.getAugmentedObject();
 			this.editor.setScope(this.scope);
+
+			$('#tab-link-console').click($.proxy(function() {
+				setTimeout($.proxy(function() {
+					this.console.makeActive();
+				}, this), 0);
+			}, this));
+
 			return this.console;
 		},
 
-		addCanvas: function() {
+		addCanvas: function(size) {
 			this.addTab('canvas');
-			this.canvas = new output.Canvas($('#canvas'), this.editor, 540);
+			this.canvas = new output.Canvas($('#canvas'), this.editor, size || 540);
 			this.scope.canvas = this.canvas.getAugmentedObject();
 			this.editor.setScope(this.scope);
 			return this.canvas;
 		},
 
-		addRobot: function() {
+		addRobot: function(width, height) {
 			this.addTab('robot');
-			this.robot = new output.Robot($('#robot'), this.editor, 8, 8);
+			this.robot = new output.Robot($('#robot'), this.editor, width || 8, height || 8);
 			this.scope.robot = this.robot.getAugmentedObject();
 			this.editor.setScope(this.scope);
 
