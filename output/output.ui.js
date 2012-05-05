@@ -17,12 +17,6 @@ module.exports = function(output) {
 			this.initTabs();
 			this.loadInitial();
 
-			$('#robot-link').click($.proxy(function() {
-				setTimeout($.proxy(function() {
-					this.robot.makeActive();
-				}, this), 0);
-			}, this));
-
 			this.dares = new dares.Dares($('#dares-popup'), {
 				tables: [{
 					title: 'I',
@@ -165,7 +159,7 @@ module.exports = function(output) {
 		},
 
 		addTab: function(name) {
-			var $tab = $('<li id="tab-button-' + name + '"><a href="#tab-' + name + '" data-toggle="tab"><i class="' + this.icons[name] + ' icon-white"></i> ' + name + '</a></li>');
+			var $tab = $('<li id="tab-button-' + name + '"><a href="#tab-' + name + '" id="tab-link-' + name + '" data-toggle="tab"><i class="' + this.icons[name] + ' icon-white"></i> ' + name + '</a></li>');
 			setTimeout(function() { $tab.addClass('tab-button-enabled'); }, 50*this.tabNumber);
 			this.$tabs.append($tab);
 
@@ -204,6 +198,13 @@ module.exports = function(output) {
 			this.robot = new output.Robot($('#robot'), this.editor, 8, 8);
 			this.scope.robot = this.robot.getAugmentedObject();
 			this.editor.setScope(this.scope);
+
+			$('#tab-link-robot').click($.proxy(function() {
+				setTimeout($.proxy(function() {
+					this.robot.makeActive();
+				}, this), 0);
+			}, this));
+
 			return this.robot;
 		},
 
@@ -221,15 +222,15 @@ module.exports = function(output) {
 			this.addConsole();
 			this.addCanvas();
 			this.addRobot();
-			this.editor.setText(window.localStorage.getItem('initial-code') || '');
-			this.editor.setTextChangeCallback(function(text) {
-				window.localStorage.setItem('initial-code', text);
-			});
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
 			}
 			this.robot.setStateChangedCallback(function(state) {
 				window.localStorage.setItem('initial-robot', state);
+			});
+			this.editor.setText(window.localStorage.getItem('initial-code') || '');
+			this.editor.setTextChangeCallback(function(text) {
+				window.localStorage.setItem('initial-code', text);
 			});
 		},
 

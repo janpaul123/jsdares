@@ -15,9 +15,9 @@ module.exports = function(editor) {
 			this.$div.addClass('btn-toolbar editor-toolbar');
 
 			var $stepGroup = $('<div class="btn-group editor-toolbar-step-group"></div>');
-			this.$stepBack = $('<button class="btn btn-success editor-toolbar-step-back"><i class="icon-arrow-left icon-white"></i></button>');
-			this.$stepBack.click($.proxy(this.editor.stepBack, this.editor));
-			$stepGroup.append(this.$stepBack);
+			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
+			this.$stepBackward.click($.proxy(this.editor.stepBackward, this.editor));
+			$stepGroup.append(this.$stepBackward);
 
 			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon-arrow-right icon-white"></i> Step</button>');
 			this.$stepForward.click($.proxy(this.editor.stepForward, this.editor));
@@ -52,7 +52,7 @@ module.exports = function(editor) {
 		},
 
 		remove: function() {
-			this.$stepBack.remove();
+			this.$stepBackward.remove();
 			this.$stepForward.remove();
 			this.$restart.remove();
 			this.$highlight.remove();
@@ -86,7 +86,7 @@ module.exports = function(editor) {
 
 		previewing: function() {
 			this.$stepForward.addClass('disabled');
-			this.$stepBack.addClass('disabled');
+			this.$stepBackward.addClass('disabled');
 			this.$restart.addClass('disabled');
 			this.$edit.addClass('disabled');
 			this.$highlight.addClass('disabled');
@@ -94,7 +94,7 @@ module.exports = function(editor) {
 
 		criticalError: function() {
 			this.$stepForward.addClass('disabled');
-			this.$stepBack.addClass('disabled');
+			this.$stepBackward.addClass('disabled');
 			this.$restart.addClass('disabled');
 			this.$edit.addClass('disabled');
 			this.$highlight.addClass('disabled');
@@ -102,7 +102,7 @@ module.exports = function(editor) {
 
 		runningWithoutError: function() {
 			this.$stepForward.removeClass('disabled');
-			this.$stepBack.addClass('disabled');
+			this.$stepBackward.addClass('disabled');
 			this.$restart.addClass('disabled');
 			this.$edit.removeClass('disabled');
 			this.$highlight.removeClass('disabled');
@@ -110,7 +110,7 @@ module.exports = function(editor) {
 
 		runningWithError: function() {
 			this.$stepForward.removeClass('disabled');
-			this.$stepBack.addClass('disabled');
+			this.$stepBackward.addClass('disabled');
 			this.$restart.addClass('disabled');
 			this.$edit.removeClass('disabled');
 			this.$highlight.removeClass('disabled');
@@ -118,7 +118,7 @@ module.exports = function(editor) {
 
 		steppingWithoutError: function() {
 			this.$stepForward.removeClass('disabled');
-			this.$stepBack.removeClass('disabled');
+			this.$stepBackward.removeClass('disabled');
 			this.$restart.removeClass('disabled');
 			this.$edit.removeClass('disabled');
 			this.$highlight.removeClass('disabled');
@@ -126,7 +126,7 @@ module.exports = function(editor) {
 
 		steppingWithError: function() {
 			this.$stepForward.addClass('disabled');
-			this.$stepBack.removeClass('disabled');
+			this.$stepBackward.removeClass('disabled');
 			this.$restart.removeClass('disabled');
 			this.$edit.removeClass('disabled');
 			this.$highlight.removeClass('disabled');

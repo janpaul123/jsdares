@@ -179,14 +179,15 @@ module.exports = function(editor) {
 
 		handleMessages: function(messages) {
 			this.surface.hideErrorMessage();
-			if (messages.length <= 0) {
-				this.surface.hideStepMessage();
-			} else {
-				for (var i=0; i<messages.length; i++) {
-					if (messages[i].type === 'Inline') {
-						this.surface.showStepMessage(messages[i]);
-					}
+			var shown = false;
+			for (var i=0; i<messages.length; i++) {
+				if (messages[i].type === 'Inline') {
+					this.surface.showStepMessage(messages[i]);
+					shown = true;
 				}
+			}
+			if (!shown) {
+				this.surface.hideStepMessage();
 			}
 		},
 
