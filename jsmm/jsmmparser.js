@@ -47,7 +47,7 @@ case 22: this.$ = new yy.nodes.ReturnStatement(this._$, undefined, null);
 break;
 case 23: this.$ = new yy.nodes.ReturnStatement(this._$, undefined, $$[$0-1]); 
 break;
-case 25: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 25: console.log(yytext); this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
 break;
 case 27: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
 break;
