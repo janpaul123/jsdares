@@ -9,6 +9,7 @@
 // ---------------------------------
 
 // assignments and arithmetic
+
 var a;
 var b=5, c=3*3+5;
 var c;

@@ -119,16 +119,16 @@ module.exports = function(jsmm) {
 			this.parent = null;
 			this.init.apply(this, [].slice.call(arguments, 2));
 		};
-		node.runHooksBefore = function(scope) {
+		node.runHooksBefore = function(context, scope) {
 			if (this.hooksBefore === undefined) throw new Error('runHooksBefore on unhookable node');
 			for (var i=0; i<this.hooksBefore.length; i++) {
-				this.hooksBefore[i](this, scope);
+				this.hooksBefore[i](this, context, scope);
 			}
 		};
-		node.runHooksAfter = function(scope) {
+		node.runHooksAfter = function(context, scope) {
 			if (this.hooksAfter === undefined) throw new Error('runHooksAfter on unhookable node');
 			for (var i=0; i<this.hooksAfter.length; i++) {
-				this.hooksAfter[i](this, scope);
+				this.hooksAfter[i](this, context, scope);
 			}
 		};
 		return node;
@@ -492,12 +492,12 @@ module.exports = function(jsmm) {
 			this.hooksAfter = [];
 		},
 		getArgList: function() {
-			var output = "(";
+			var output = '(';
 			if (this.nameArgs.length > 0) output += this.nameArgs[0];
 			for (var i=1; i<this.nameArgs.length; i++) {
 				output += ', ' + this.nameArgs[i];
 			}
-			return output + ")";
+			return output + ')';
 		},
 		getCode: function() {
 			var output = "function " + this.name + this.getArgList() + "{\n" + this.statementList.getCode() + "}";
