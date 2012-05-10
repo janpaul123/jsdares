@@ -83,20 +83,24 @@ module.exports = function(output) {
 		addMovement: function(x1, y1, x2, y2, angle) {
 			var dx = (x2-x1)*blockSize, dy = (y2-y1)*blockSize;
 			var length = Math.sqrt(dx*dx + dy*dy);
-			this.animationQueue.push({
-				type: 'movement', x: x1, y: y1, x2: x2, y2: y2, angle: angle, length: length
-			});
-			this.animationLength += length;
-			this.animationString += 'm' + x1 + ',' + y1 + ',' + x2 + ',' + y2 + ',' + angle;
+			if (length > 0) {
+				this.animationQueue.push({
+					type: 'movement', x: x1, y: y1, x2: x2, y2: y2, angle: angle, length: length
+				});
+				this.animationLength += length;
+				this.animationString += 'm' + x1 + ',' + y1 + ',' + x2 + ',' + y2 + ',' + angle;
+			}
 		},
 
 		addRotation: function(x, y, angle1, angle2) {
 			var length = Math.abs(angle2-angle1);
-			this.animationQueue.push({
-				type: 'rotation', x: x, y: y, angle: angle1, angle2: angle2, length: length
-			});
-			this.animationLength += length*this.rotationFactor;
-			this.animationString += 'r' + x + ',' + y + ',' + angle1 + ',' + angle2;
+			if (length > 0) {
+				this.animationQueue.push({
+					type: 'rotation', x: x, y: y, angle: angle1, angle2: angle2, length: length
+				});
+				this.animationLength += length*this.rotationFactor;
+				this.animationString += 'r' + x + ',' + y + ',' + angle1 + ',' + angle2;
+			}
 		},
 
 		addDetectWall: function(x, y, angle, wall) {
@@ -127,7 +131,6 @@ module.exports = function(output) {
 				this.animateTimeout = setTimeout($.proxy(this.animationEnd, this), this.duration*this.detectWallLength);
 			} else {
 				this.animateTimeout = setTimeout($.proxy(this.animationStart, this), 0);
-				this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', $.proxy(this.animationEnd, this));
 			}
 		},
 
@@ -156,6 +159,7 @@ module.exports = function(output) {
 		/// INTERNAL FUNCTIONS ///
 		animationStart: function() {
 			this.animateTimeout = null;
+			this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', $.proxy(this.animationEnd, this));
 			var animation = this.animationQueue[this.number];
 			var duration = this.duration*animation.length;
 
@@ -251,13 +255,17 @@ module.exports = function(output) {
 		},
 
 		drive: function(node, name, args) {
-			var amount = args[0] || 1;
+			var amount = 1;
+			if (args[0] !== undefined) {
+				amount = args[0];
+			}
+
 			if (args.length > 1) {
-				throw function(f) { return f('forward') + ' accepts no more than' + f('1') + ' argument'; };
+				throw '<var>forward</var> accepts no more than <var>1</var> argument';
 			} else if (typeof amount !== 'number' || !isFinite(amount)) {
-				throw function(f) { return 'Argument has to be a valid number'; };
+				throw 'Argument has to be a valid number';
 			} else if (Math.round(amount) !== amount && this.mazeObjects > 0) {
-				throw function(f) { return 'Fractional amounts are only allowed when the maze is empty'; };
+				throw 'Fractional amounts are only allowed when the maze is empty';
 			} else if (amount !== 0) {
 				var fromX = this.robotX, fromY = this.robotY;
 
@@ -291,16 +299,19 @@ module.exports = function(output) {
 		},
 
 		turn: function(node, name, args) {
-			var amount = args[0] || 90;
+			var amount = 90;
+			if (args[0] !== undefined) {
+				amount = args[0];
+			}
 			amount = (name === 'turnLeft' ? amount : -amount);
 
 			var amountNormalized = ((amount%360)+360)%360;
 			if (args.length > 1) {
-				throw function(f) { return f(name) + ' accepts no more than' + f('1') + ' argument'; };
+				throw '<var>' + name + '</var> accepts no more than <var>1</var> argument';
 			} else if (typeof amount !== 'number' || !isFinite(amount)) {
-				throw function(f) { return 'Argument has to be a valid number'; };
+				throw 'Argument has to be a valid number';
 			} else if ([0, 90, 180, 270].indexOf(amountNormalized) < 0 && this.mazeObjects > 0) {
-				throw function(f) { return 'Only 90, 180 and 270 degrees are allowed when the maze is not empty'; };
+				throw 'Only <var>90</var>, <var>180</var> and <var>270</var> degrees are allowed when the maze is not empty';
 			} else {
 				if (this.animation !== null) {
 					this.animation.addRotation(this.robotX, this.robotY, this.robotAngle, this.robotAngle + amount);

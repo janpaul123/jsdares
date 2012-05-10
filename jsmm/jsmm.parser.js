@@ -28,9 +28,9 @@ module.exports = function(jsmm) {
 			expected[i] = expected[i].replace(/[']/g, "");
 		}
 		
-		var makeNear = function(text, f, near) {
+		var makeNear = function(text, near) {
 			if (text.replace(/\s*/, '').length > 0) {
-				return (near || ' near ') + f(text);
+				return (near || ' near ') + '<var>' + text + '</var>';
 			} else {
 				return '';
 			}
@@ -38,22 +38,18 @@ module.exports = function(jsmm) {
 		
 		//console.log(hash.text);
 		var suggestionError = function(suggestion) {
-			throw new jsmm.msg.Error(loc, function(f) {
-				return 'Invalid syntax encountered' + makeNear(hash.text, f) + ', perhaps there is a ' + f(suggestion) + ' missing';
-			}, errStr);
+			throw new jsmm.msg.Error(loc, 'Invalid syntax encountered' + makeNear(hash.text) + ', perhaps there is a <var>' + suggestion + '</var> missing', errStr);
 		};
 		
 		if (token === "RESERVED") {
 			// special case: passing on the information that the word is reserved
-			throw new jsmm.msg.Error(loc, function(f) { return 'Unfortunately ' + f(hash.text) + ' is a reserved word, which means you cannot use it as a variable name'; }, errStr);
+			throw new jsmm.msg.Error(loc, 'Unfortunately <var>' + hash.text + '</var> is a reserved word, which means you cannot use it as a variable name', errStr);
 		} else if (hash.token === null) {
 			// lexer error
 			loc = {line: hash.line+1, column: 0};
 			throw new jsmm.msg.Error(loc, 'Invalid syntax encountered', errStr);
 		} else if (expected.length === 1 && expected[0] === 'NEWLINE') {
-			throw new jsmm.msg.Error(loc, function(f) {
-				return 'Invalid syntax encountered, perhaps some code' + makeNear(hash.text, f) + ' should be put on a new line.';
-			}, errStr);
+			throw new jsmm.msg.Error(loc, 'Invalid syntax encountered, perhaps some code' + makeNear(hash.text) + ' should be put on a new line.', errStr);
 		} else if (expected.length === 1) {
 			// if only one thing can be expected, pass it on
 			if (expected[0] === 'NAME') {
@@ -70,7 +66,7 @@ module.exports = function(jsmm) {
 			// ) expected before { or ; is usually forgotten
 			suggestionError(')');
 		} else {
-			throw new jsmm.msg.Error(loc, function(f) { return 'Invalid syntax encountered' + makeNear(hash.text, f); }, errStr);
+			throw new jsmm.msg.Error(loc, 'Invalid syntax encountered' + makeNear(hash.text), errStr);
 		}
 	};
 };

@@ -103,7 +103,7 @@ module.exports = function(output) {
 						return this.size;
 					}, this),
 					set: function() {
-						throw function(f) { return f('width') + ' cannot be set'; };
+						throw '<var>width</var> cannot be set';
 					}
 				},
 				height: {
@@ -114,7 +114,7 @@ module.exports = function(output) {
 						return this.size;
 					}, this),
 					set: function() {
-						throw function(f) { return f('height') + ' cannot be set'; };
+						throw '<var>height</var> cannot be set';
 					}
 				},
 				getContext: {
@@ -123,9 +123,9 @@ module.exports = function(output) {
 					example: 'getContext("2d")',
 					func: $.proxy(function(node, name, args) {
 						if (args.length !== 1) {
-							throw function(f) { return f('getContext') + ' takes exactly ' + f('1') + ' argument'; };
+							throw '<var>getContext</var> takes exactly <var>1</var> argument';
 						} else if (args[0] !== '2d') {
-							throw function(f) { return 'Only the ' + f('2d') + ' context is supported'; };
+							throw 'Only the <var>2d</var> context is supported';
 						}
 						return this.getContextObject();
 					}, this)
@@ -161,9 +161,9 @@ module.exports = function(output) {
 		handleMethod: function(node, name, args) {
 			var min = this.functions[name].argsMin, max = this.functions[name].argsMax;
 			if (args.length < min) {
-				throw function(f) { return f(name) + ' requires at least ' + f('' + min) + ' arguments'; };
+				throw '<var>' + name + '</var> requires at least <var>' + min + '</var> arguments';
 			} else if (args.length > max) {
-				throw function(f) { return f(name) + ' accepts no more than ' + f('' + max) + ' arguments'; };
+				throw '<var>' + name + '</var> accepts no more than <var>' + max + '</var> arguments';
 			}
 			if (this.highlighting) return this.highlight(node, name, args);
 			else return this.context[name].apply(this.context, args);

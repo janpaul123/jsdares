@@ -10,12 +10,9 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.addCommonMessageMethods = function(msg) {
 		msg.initMsg = function(msg) {
-			var message = (typeof msg === 'function') ? msg : function(f) { return msg; };
-			this.message = message(function f(val) { return val; });
-			this.html = message(function f(val) {
-				// we assume that val is already JSON stringified
-				return '<span class="msg-value">' + val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</span>';
-			});
+			this.message = msg.replace(/<var>/g, '').replace(/<\/var>/g, '');
+			this.html = msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+			this.html = this.html.replace(/&lt;var&gt;/g, '<var>').replace(/&lt;\/var&gt;/g, '</var>');
 		};
 		msg.loadLineLoc = function(lineLoc) {
 			if (lineLoc.lineLoc !== undefined) lineLoc = lineLoc.lineLoc;
@@ -59,7 +56,6 @@ module.exports = function(jsmm) {
 			this.type = 'Error';
 			this.loadLineLoc(loc);
 			this.initMsg(msg);
-			console.log(msg, this.line, this.column);
 			this.more = more || '';
 			this.orig = orig || null;
 		}

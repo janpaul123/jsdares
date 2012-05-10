@@ -57,7 +57,7 @@ module.exports = function(jsmm) {
 
 	var setVariable = function(node, variableNode, variable, value) {
 		if (typeof variable !== 'object' || ['variable', 'local'].indexOf(variable.type) < 0) {
-			throw new jsmm.msg.Error(node, 'Cannot assign <var>' + value + '</var> to <var>' + variableNode.getCode() + '</var>');
+			throw new jsmm.msg.Error(node, 'Cannot assign <var>' + jsmm.func.stringify(node, value) + '</var> to <var>' + variableNode.getCode() + '</var>');
 		} else if (variable.type === 'variable') {
 			try {
 				variable.set(node, variable.name, value);
@@ -75,7 +75,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.PostfixStatement.prototype.runFunc = function(context, variable, symbol) {
-		var value = getValue(this.variable, variable);
+		var value = getValue(this.identifier, variable);
 
 		if (typeof value !== 'number') {
 			throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value) + '</var> is not a number');
@@ -85,7 +85,7 @@ module.exports = function(jsmm) {
 			} else {
 				value--;
 			}
-			setVariable(this, this.variable, variable, value);
+			setVariable(this, this.identifier, variable, value);
 		}
 	};
 
@@ -138,7 +138,7 @@ module.exports = function(jsmm) {
 		} else {
 			value = runBinaryExpression(getValue(this.identifier, variable), symbol, getValue(this.expression, expression));
 		}
-		setVariable(this, this.variable, variable, value);
+		setVariable(this, this.identifier, variable, value);
 	};
 	
 	jsmm.nodes.VarItem.prototype.runFunc = function(context, scope, name) {
@@ -206,7 +206,7 @@ module.exports = function(jsmm) {
 		var value = getValue(this.expression, expression);
 		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
 		if (typeof value !== 'boolean') {
-			throw new jsmm.msg.Error(this, '<var>' + type + '</var> is not possible since <var>' + expression.name + '</var> is not a boolean');
+			throw new jsmm.msg.Error(this, '<var>' + type + '</var> is not possible since <var>' + jsmm.func.stringify(expression) + '</var> is not a boolean');
 		} else {
 			return value;
 		}
@@ -234,7 +234,7 @@ module.exports = function(jsmm) {
 			}
 			context.leaveExternalCall(this);
 		} else if (typeof funcValue !== 'function') {
-			throw new jsmm.msg.Error(this, 'Variable <var>' + func.name + '</var> is not a function');
+			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
 		} else {
 			context.enterInternalCall(this);
 			retVal = funcValue.call(null, context, funcArgs);
