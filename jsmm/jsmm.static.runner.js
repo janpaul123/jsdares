@@ -11,7 +11,7 @@ module.exports = function(jsmm) {
 			this.tree = null;
 			this.scope = null;
 			this.error = null;
-			this.lastScope = null;
+			this.context = null;
 			this.stepCount = 0;
 			this.messages = [];
 		},
@@ -27,26 +27,16 @@ module.exports = function(jsmm) {
 
 		run: function() {
 			if (this.tree === null || this.scope === null) return false;
+			if (this.context !== null) return true;
 
-			if (this.stepCount <= 0) {
-				if (!this.runSafe()) return false;
-			} else {
-				if (!this.stepInit()) return false;
-				while(this.stepPos < this.stepCount) {
-					if (!this.stepNext()) return false;
-				}
-			}
+			if (!this.runSafe()) return false;
 			return true;
 		},
 
 		stepForward: function() {
+			if (!this.run()) return false;
 			this.stepCount++;
-			if (!this.run()) {
-				if (this.error !== null) return false;
-				else {
-					this.stepCount = 0;
-				}
-			}
+			if (this.stepCount >= this.context.steps.length) this.stepCount = 0;
 			return true;
 		},
 
@@ -65,19 +55,22 @@ module.exports = function(jsmm) {
 		},
 
 		getMessages: function() {
-			return this.messages;
+			if (this.context === null || this.stepCount === 0) return [];
+			else return this.context.steps[this.stepCount-1] || [];
 		},
 
 		newTree: function(tree) {
 			this.tree = tree;
+			this.context = null;
 		},
 
 		newScope: function(scope) {
 			this.scope = scope;
+			this.context = null;
 		},
 
 		getExamples: function(text) {
-			var scope = this.lastScope === null ? new jsmm.func.Scope(this.scope) : this.lastScope;
+			var scope = this.context === null ? new jsmm.func.Scope(this.scope) : this.context.scope;
 			if (scope === null) return null;
 			else {
 				return jsmm.editor.autocompletion.getExamples(scope, text);
@@ -99,56 +92,8 @@ module.exports = function(jsmm) {
 			this.messages = [];
 
 			try {
-				this.lastScope = this.tree.programNode.getRunFunction(this.scope)();
+				this.context = this.tree.programNode.getRunFunction(this.scope)();
 				return true;
-			} catch (error) {
-				this.handleError(error);
-				return false;
-			}
-		},
-
-		stepInit: function() {
-			this.error = null;
-			try {
-				this.stack = new jsmm.step.Stack(this.tree, this.scope);
-				this.stepPos = 0;
-				this.messages = [];
-				return true;
-			} catch (error) {
-				this.handleError(error);
-				return false;
-			}
-		},
-
-		stepNext: function() {
-			this.error = null;
-
-			var ret = [];
-			try {
-				var cont;
-				do {
-					if (this.stack === null || !this.stack.hasNext()) return false;
-					
-					cont = false;
-					var msgs = this.stack.stepNext();
-					if (msgs.length <= 0) return undefined;
-					
-					for (var i=0; i<msgs.length; i++) {
-						if (msgs[i] instanceof jsmm.msg.Error) {
-							this.error = msgs[i];
-							return undefined;
-						} else if (msgs[i] instanceof jsmm.msg.Continue) {
-							cont = true;
-						} else {
-							// don't push jsmm.msg.Continue
-							ret.push(msgs[i]);
-						}
-					}
-					// TODO: store all messages instead of the last ones
-					this.messages = msgs;
-				} while (cont === true);
-				this.stepPos++;
-				return ret;
 			} catch (error) {
 				this.handleError(error);
 				return false;

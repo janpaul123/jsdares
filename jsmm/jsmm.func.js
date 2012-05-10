@@ -86,6 +86,7 @@ module.exports = function(jsmm) {
 				value--;
 			}
 			setVariable(this, this.identifier, variable, value);
+			context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '</var> = <var>' + jsmm.func.stringify(this, value) + '</var>')]);
 		}
 	};
 
@@ -127,7 +128,6 @@ module.exports = function(jsmm) {
 			case '||': return value1 || value2;
 			case '==': return value1 == value2;
 			case '!=': return value1 != value2;
-			default: return undefined;
 		}
 	};
 	
@@ -139,34 +139,42 @@ module.exports = function(jsmm) {
 			value = runBinaryExpression(getValue(this.identifier, variable), symbol, getValue(this.expression, expression));
 		}
 		setVariable(this, this.identifier, variable, value);
+		context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '</var> = <var>' + jsmm.func.stringify(this, value) + '</var>')]);
 	};
 	
 	jsmm.nodes.VarItem.prototype.runFunc = function(context, scope, name) {
 		scope.vars[name] = {type: 'local', value: undefined};
-		return scope.vars[name];
+		if (this.assignment === null) {
+			context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.name + '</var> = <var>undefined</var>')]);
+		}
 	};
 	
 	jsmm.nodes.BinaryExpression.prototype.runFunc = function(context, expression1, symbol, expression2) {
 		var value1 = getValue(this.expression1, expression1);
 		var value2 = getValue(this.expression2, expression2);
-		return runBinaryExpression(value1, symbol, value2);
+		var result = runBinaryExpression(value1, symbol, value2);
+		context.steps.push([new jsmm.msg.Inline(this, '<var>' + jsmm.func.stringify(this, value1) + '</var> ' + symbol + ' <var>' + jsmm.func.stringify(this, value2) + '</var> = <var>' + jsmm.func.stringify(this, result) + '</var>')]);
+		return result;
 	};
 	
 	jsmm.nodes.UnaryExpression.prototype.runFunc = function(context, symbol, expression) {
 		var value = getValue(this.expression, expression);
+		var result;
 		if (symbol === '!') {
 			if (typeof value !== 'boolean') {
 				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value) + '</var> is not a boolean');
 			} else {
-				return !value;
+				result = !value;
 			}
 		} else {
 			if (typeof value !== 'number') {
 				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value) + '</var> is not a number');
 			} else {
-				return (symbol === '+' ? value : -value);
+				result = (symbol === '+' ? value : -value);
 			}
 		}
+		context.steps.push([new jsmm.msg.Inline(this, '<var>' + symbol + jsmm.func.stringify(this, value) + '</var> = <var>' + jsmm.func.stringify(this, result) + '</var>')]);
+		return result;
 	};
 	
 	jsmm.nodes.NameIdentifier.prototype.runFunc = function(context, scope, name) {
@@ -206,18 +214,22 @@ module.exports = function(jsmm) {
 		var value = getValue(this.expression, expression);
 		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
 		if (typeof value !== 'boolean') {
-			throw new jsmm.msg.Error(this, '<var>' + type + '</var> is not possible since <var>' + jsmm.func.stringify(expression) + '</var> is not a boolean');
+			throw new jsmm.msg.Error(this, '<var>' + type + '</var> is not possible since <var>' + jsmm.func.stringify(this, expression) + '</var> is not a boolean');
 		} else {
 			return value;
 		}
 	};
 	
 	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, func, args) {
-		var funcValue = getValue(this.identifier, func), funcArgs = [], appFunc;
+		var funcValue = getValue(this.identifier, func), funcArgs = [], msgFuncArgs = [], appFunc;
 
 		for (var i=0; i<args.length; i++) {
-			funcArgs.push(getValue(this.expressionArgs[i], args[i]));
+			var value = getValue(this.expressionArgs[i], args[i]);
+			funcArgs.push(value);
+			msgFuncArgs.push(jsmm.func.stringify(this, value));
 		}
+
+		context.steps.push([new jsmm.msg.Inline(this, 'calling <var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
 
 		var retVal;
 		if (typeof funcValue === 'object' && funcValue.type === 'function') {
@@ -241,7 +253,13 @@ module.exports = function(jsmm) {
 			context.leaveInternalCall(this);
 		}
 
-		if (retVal === null) retVal = undefined;
+		if (retVal === null) {
+			retVal = undefined;
+		}
+
+		if (retVal !== undefined) {
+			context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var> = <var>' + jsmm.func.stringify(this, retVal) + '</var>')]);
+		}
 
 		return retVal;
 	};
@@ -256,6 +274,7 @@ module.exports = function(jsmm) {
 			}
 		} else {
 			scope.vars[name] = func;
+			context.steps.push([new jsmm.msg.Inline(this, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
 			return scope.vars[name];
 		}
 	};
@@ -265,7 +284,7 @@ module.exports = function(jsmm) {
 		if (args.length < this.nameArgs.length) {
 			throw new jsmm.msg.Error(this, 'Function expects <var>' + this.nameArgs.length + '</var> arguments, but got only <var>' + args.length + '</var> are given');
 		}
-		var scopeVars = {};
+		var scopeVars = {}, msgFuncArgs = [];
 		for (var i=0; i<this.nameArgs.length; i++) {
 			if (args[i] === undefined) {
 				throw new jsmm.msg.Error(this, 'Variable <var>' + this.nameArgs[i] + '</var> is <var>undefined</var>');
@@ -273,9 +292,11 @@ module.exports = function(jsmm) {
 				throw new jsmm.msg.Error(this, 'Variable <var>' + this.nameArgs[i] + '</var> is <var>null</var>');
 			} else {
 				scopeVars[this.nameArgs[i]] = args[i];
+				msgFuncArgs.push(jsmm.func.stringify(this, args[i]));
 			}
 		}
 		context.enterFunction(this);
+		context.steps.push([new jsmm.msg.Inline(this, 'entering <var>' + this.name + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
 		return new jsmm.func.Scope(scopeVars, context.scope);
 	};
 	
@@ -284,6 +305,7 @@ module.exports = function(jsmm) {
 		var retVal;
 		if (this.expression !== undefined && expression !== undefined) {
 			retVal = getValue(this.expression, expression);
+			context.steps.push([new jsmm.msg.Inline(this, 'returning <var>' + jsmm.func.stringify(this, retVal) + '</var>')]);
 		}
 		context.leaveFunction(this);
 		return retVal;

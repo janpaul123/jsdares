@@ -51,6 +51,7 @@ module.exports = function(jsmm) {
 			this.callStackDepth--;
 		},
 		increaseExecutionCounter: function(node, amount) {
+			this.executionCounter += amount;
 			if (this.executionCounter > jsmm.func.maxExecutionCounter) { // TODO
 				throw new jsmm.msg.Error(node, function(f){ return 'Program takes too long to run'; });
 			}
@@ -75,7 +76,7 @@ module.exports = function(jsmm) {
 		output += 'return function(jsmmContext) {';
 		output += 'return function() {\n';
 		output += 'var jsmmScope;\n';
-		output += this.statementList.getRunCode() + '}; }; }';
+		output += this.statementList.getRunCode() + ' return jsmmContext}; }; }';
 		return output;
 	};
 	

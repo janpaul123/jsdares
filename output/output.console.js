@@ -62,7 +62,6 @@ module.exports = function(output) {
 		},
 
 		log: function(node, name, args) {
-			console.log(node, name, args);
 			var value = args[0];
 			var text = '' + value;
 			if (typeof value === 'object') text = '[object]';
