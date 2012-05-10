@@ -8,8 +8,22 @@ module.exports = function(jsmm) {
 		this.result = '';
 	};
 	
-	jsmm.test.Console.prototype.log = function(str) {
-		this.result += str + '\n';
+	jsmm.test.Console.prototype = {
+		log: function(str) {
+			this.result += str + '\n';
+		},
+		getAugmentedObject: function() {
+			var that = this;
+			return {
+				log: {
+					name: 'log',
+					type: 'function',
+					func: function(context, name, args) {
+						return that.log(args[0]);
+					}
+				}
+			};
+		}
 	};
 	
 	jsmm.test.runAll = function() {
@@ -52,10 +66,10 @@ module.exports = function(jsmm) {
 	jsmm.test.runTest = function(name, code, threeway, succeed) {
 		var consoleRaw = new jsmm.test.Console();
 		var consoleSafe = new jsmm.test.Console();
-		var consoleStep = new jsmm.test.Console();
+		//var consoleStep = new jsmm.test.Console();
 		var errorRaw = null;
 		var errorSafe = null;
-		var errorStep = null;
+		//var errorStep = null;
 		var runner = new jsmm.SimpleRunner(code);
 		
 		if (threeway) {
@@ -65,15 +79,15 @@ module.exports = function(jsmm) {
 			}
 		}
 		
-		runner.setScope({console: consoleSafe});
+		runner.setScope({console: consoleSafe.getAugmentedObject()});
 		if (!runner.runSafe()) {
 			errorSafe = runner.getError();
 		}
 		
-		runner.setScope({console: consoleStep});
-		if (!runner.runStep()) {
-			errorStep = runner.getError();
-		}
+		// runner.setScope({console: consoleStep});
+		// if (!runner.runStep()) {
+			// errorStep = runner.getError();
+		// }
 		
 		// when it should threeway we can compare against the raw result
 		if (threeway && !jsmm.test.compareErrors(errorRaw, errorSafe, succeed)) {
@@ -81,20 +95,20 @@ module.exports = function(jsmm) {
 			return false;
 		}
 		
-		if (!jsmm.test.compareErrors(errorSafe, errorStep, succeed)) {
-			jsmm.test.printError2(name, 'errorSafe', 'errorStep', errorSafe, errorStep, code);
-			return false;
-		}
+		// if (!jsmm.test.compareErrors(errorSafe, errorStep, succeed)) {
+			// jsmm.test.printError2(name, 'errorSafe', 'errorStep', errorSafe, errorStep, code);
+			// return false;
+		// }
 		
 		if (threeway && consoleRaw.result !== consoleSafe.result) {
 			jsmm.test.printError2(name, 'consoleRaw', 'consoleSafe', consoleRaw.result, consoleSafe.result, code);
 			return false;
 		}
 		
-		if (consoleSafe.result !== consoleStep.result) {
-			jsmm.test.printError2(name, 'consoleSafe', 'consoleStep', consoleSafe.result, consoleStep.result, code);
-			return false;
-		}
+		// if (consoleSafe.result !== consoleStep.result) {
+			// jsmm.test.printError2(name, 'consoleSafe', 'consoleStep', consoleSafe.result, consoleStep.result, code);
+			// return false;
+		// }
 
 		if (threeway && succeed !== (errorRaw === null)) {
 			jsmm.test.printError1(name, 'errorRaw', errorRaw, code);

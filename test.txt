@@ -10,10 +10,20 @@
 
 // assignments and arithmetic
 
+function hahaha() {
+	console.log("hah");
+}
+hahaha();
+
+/*
 var a;
 var b=5, c=3*3+5;
 var c;
-a = 0;
+a = 5;
+
+console.log(a);
+
+
 a += "hoi";
 
 var b, c=10;
@@ -57,3 +67,4 @@ for (var i=0; i<10; i++) {
 }
 
 // TODO: better linking of executable pieces with original ids
+*/

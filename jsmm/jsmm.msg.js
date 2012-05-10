@@ -59,6 +59,7 @@ module.exports = function(jsmm) {
 			this.type = 'Error';
 			this.loadLineLoc(loc);
 			this.initMsg(msg);
+			console.log(msg, this.line, this.column);
 			this.more = more || '';
 			this.orig = orig || null;
 		}

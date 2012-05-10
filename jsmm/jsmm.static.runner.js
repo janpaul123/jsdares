@@ -99,7 +99,7 @@ module.exports = function(jsmm) {
 			this.messages = [];
 
 			try {
-				this.lastScope = this.tree.programNode.getSafeFunction(this.scope)();
+				this.lastScope = this.tree.programNode.getRunFunction(this.scope)();
 				return true;
 			} catch (error) {
 				this.handleError(error);

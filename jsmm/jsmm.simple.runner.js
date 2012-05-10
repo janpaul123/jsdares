@@ -148,7 +148,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return undefined;
 			
 			try {
-				return this.tree.programNode.getSafeCode();
+				return this.tree.programNode.getRunCode();
 			} catch (error) {
 				this.handleError(error);
 				return undefined;
@@ -161,7 +161,7 @@ module.exports = function(jsmm) {
 			if (!this.parse()) return false;
 			
 			try {
-				this.safeFunc = this.tree.programNode.getSafeFunction(this.scope);
+				this.safeFunc = this.tree.programNode.getRunFunction(this.scope);
 				return true;
 			} catch (error) {
 				this.handleError(error);

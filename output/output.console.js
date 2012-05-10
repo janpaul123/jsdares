@@ -42,19 +42,19 @@ module.exports = function(output) {
 			return {
 				log: {
 					name: 'log',
-					augmented: 'function',
+					type: 'function',
 					example: 'log("Hello World!")',
 					func: $.proxy(this.log, this)
 				},
 				clear: {
 					name: 'clear',
-					augmented: 'function',
+					type: 'function',
 					example: 'clear()',
 					func: $.proxy(this.clear, this)
 				},
 				setColor: {
 					name: 'setColor',
-					augmented: 'function',
+					type: 'function',
 					example: 'setColor("#a00")',
 					func: $.proxy(this.setColor, this)
 				}

@@ -13,7 +13,7 @@ fs.readFile('test.txt', function(err, data){
 		var func = tree.programNode.getRunFunction({ console: {
 					log: {
 						name: 'log',
-						augmented: 'function',
+						type: 'function',
 						example: 'log("Hi")',
 						func: function(context, name, args) {
 							return console.log(args[0] || '');

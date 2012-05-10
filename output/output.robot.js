@@ -328,31 +328,31 @@ module.exports = function(output) {
 			return {
 				drive: {
 					name: 'drive',
-					augmented: 'function',
+					type: 'function',
 					example: 'drive(3)',
 					func: $.proxy(this.drive, this)
 				},
 				turnLeft: {
 					name: 'turnLeft',
-					augmented: 'function',
+					type: 'function',
 					example: 'turnLeft()',
 					func: $.proxy(this.turn, this)
 				},
 				turnRight: {
 					name: 'turnRight',
-					augmented: 'function',
+					type: 'function',
 					example: 'turnRight()',
 					func: $.proxy(this.turn, this)
 				},
 				detectWall: {
 					name: 'detectWall',
-					augmented: 'function',
+					type: 'function',
 					example: 'detectWall()',
 					func: $.proxy(this.detectWall, this)
 				},
 				detectGoal: {
 					name: 'detectGoal',
-					augmented: 'function',
+					type: 'function',
 					example: 'detectGoal()',
 					func: $.proxy(this.detectGoal, this)
 				}

@@ -97,7 +97,7 @@ module.exports = function(output) {
 			return {
 				width: {
 					name: 'width',
-					augmented: 'variable',
+					type: 'variable',
 					example: 'width',
 					get: $.proxy(function() {
 						return this.size;
@@ -108,7 +108,7 @@ module.exports = function(output) {
 				},
 				height: {
 					name: 'height',
-					augmented: 'variable',
+					type: 'variable',
 					example: 'height',
 					get: $.proxy(function() {
 						return this.size;
@@ -119,7 +119,7 @@ module.exports = function(output) {
 				},
 				getContext: {
 					name: 'getContext',
-					augmented: 'function',
+					type: 'function',
 					example: 'getContext("2d")',
 					func: $.proxy(function(node, name, args) {
 						if (args.length !== 1) {
@@ -140,14 +140,14 @@ module.exports = function(output) {
 				if (func.type === 'method') {
 					obj[name] = {
 						name: name,
-						augmented: 'function',
+						type: 'function',
 						func: $.proxy(this.handleMethod, this),
 						example: func.example
 					};
 				} else if (func.type === 'attribute') {
 					obj[name] = {
 						name: name,
-						augmented: 'variable',
+						type: 'variable',
 						get: $.proxy(this.handleAttributeGet, this),
 						set: $.proxy(this.handleAttributeSet, this),
 						example: func.example

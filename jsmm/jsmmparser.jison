@@ -121,7 +121,7 @@ returnStatement
 
 expression
 	: andExpression
-	| expression "||" andExpression				{ console.log(yytext); $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
+	| expression "||" andExpression				{ console.log($$); $$ = new yy.nodes.BinaryExpression(@$, undefined, $1, $2, $3); }
 ;
 
 andExpression
@@ -157,7 +157,7 @@ primaryExpression
 	| TRUE										{ $$ = new yy.nodes.BooleanLiteral(@$, undefined, true); }
 	| FALSE										{ $$ = new yy.nodes.BooleanLiteral(@$, undefined, false); }
 	| callExpression
-	| "(" expression ")"						{ $$ = $2; }
+	| "(" expression ")"						{ $$ = new yy.nodes.ParenExpression(@$, undefined, $2); }
 ;
 
 identExpression

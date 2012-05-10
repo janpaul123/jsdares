@@ -15,6 +15,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ReturnStatement = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.BinaryExpression = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.UnaryExpression = function() { return this.build.apply(this, arguments); };
+	jsmm.nodes.ParenExpression = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.NumberLiteral = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.StringLiteral = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.BooleanLiteral = function() { return this.build.apply(this, arguments); };
@@ -37,7 +38,7 @@ module.exports = function(jsmm) {
 			//this.code = code;
 			this.nodesByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
 				AssignmentStatement: [], VarStatement: [], VarItem: [], ReturnStatement: [], BinaryExpression: [],
-				UnaryExpression: [], NumberLiteral: [], StringLiteral: [], BooleanLiteral: [], NameIdentifier: [],
+				UnaryExpression: [], ParenExpression: [], NumberLiteral: [], StringLiteral: [], BooleanLiteral: [], NameIdentifier: [],
 				ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], CallStatement: [], IfBlock: [], ElseIfBlock: [],
 				ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 			};
@@ -46,7 +47,7 @@ module.exports = function(jsmm) {
 			this.error = null;
 			jsmm.parser.yy.tree = this;
 			try {
-				this.programNode = jsmm.parser.parse(code + "\n");
+				this.programNode = jsmm.parser.parse(code + '\n');
 			} catch (error) {
 				if (error instanceof jsmm.msg.Error) {
 					this.error = error;
@@ -167,9 +168,9 @@ module.exports = function(jsmm) {
 			statement.parent = this;
 		},
 		getCode: function() {
-			var output = "";
+			var output = '';
 			for (var i=0; i<this.statements.length; i++) {
-				output += this.statements[i].getCode() + "\n";
+				output += this.statements[i].getCode() + '\n';
 			}
 			return output;
 		},
@@ -188,7 +189,7 @@ module.exports = function(jsmm) {
 			//console.log(this);
 		},
 		getCode: function() {
-			return this.statement.getCode() + ";";
+			return this.statement.getCode() + ';';
 		},
 		getChildren: function() {
 			return [this.statement];
@@ -219,7 +220,7 @@ module.exports = function(jsmm) {
 			expression.parent = this;
 		},
 		getCode: function() {
-			return this.identifier.getCode() + " " + this.symbol + " " + this.expression.getCode();
+			return this.identifier.getCode() + ' ' + this.symbol + ' ' + this.expression.getCode();
 		},
 		getChildren: function() {
 			return [this.identifier, this.expression];
@@ -235,9 +236,9 @@ module.exports = function(jsmm) {
 			item.parent = this;
 		},
 		getCode: function() {
-			var output = "var " + this.items[0].getCode();
+			var output = 'var ' + this.items[0].getCode();
 			for (var i=1; i<this.items.length; i++) {
-				output += ", " + this.items[i].getCode();
+				output += ', ' + this.items[i].getCode();
 			}
 			return output;
 		},
@@ -274,9 +275,9 @@ module.exports = function(jsmm) {
 		},
 		getCode: function() {
 			if (this.expression === null) {
-				return "return;";
+				return 'return;';
 			} else {
-				return "return " + this.expression.getCode() + ";";
+				return 'return ' + this.expression.getCode() + ';';
 			}
 		},
 		iterateRunHooksAfter: function(scope) {
@@ -298,7 +299,7 @@ module.exports = function(jsmm) {
 			expression2.parent = this;
 		},
 		getCode: function() {
-			return "(" + this.expression1.getCode() + this.symbol + this.expression2.getCode() + ")";
+			return this.expression1.getCode() + ' ' + this.symbol + ' ' + this.expression2.getCode();
 		}
 	});
 
@@ -309,7 +310,17 @@ module.exports = function(jsmm) {
 			expression.parent = this;
 		},
 		getCode: function() {
-			return "(" + this.symbol + this.expression.getCode() + ")";
+			return this.symbol + this.expression.getCode();
+		}
+	});
+
+	jsmm.nodes.ParenExpression.prototype = jsmm.addCommonNodeMethods('ParenExpression', {
+		init: function(expression) {
+			this.expression = expression;
+			expression.parent = this;
+		},
+		getCode: function() {
+			return '(' + this.expression.getCode() + ')';
 		}
 	});
 
@@ -336,7 +347,7 @@ module.exports = function(jsmm) {
 			this.bool = bool;
 		},
 		getCode: function() {
-			return this.bool ? "true" : "false";
+			return this.bool ? 'true' : 'false';
 		}
 	});
 
@@ -356,7 +367,7 @@ module.exports = function(jsmm) {
 			identifier.parent = this;
 		},
 		getCode: function() {
-			return this.identifier.getCode() + "." + this.prop;
+			return this.identifier.getCode() + '.' + this.prop;
 		}
 	});
 
@@ -368,7 +379,7 @@ module.exports = function(jsmm) {
 			expression.parent = this;
 		},
 		getCode: function() {
-			return this.identifier.getCode() + "[" + this.expression.getCode() + "]";
+			return this.identifier.getCode() + '[' + this.expression.getCode() + ']';
 		}
 	});
 
@@ -382,12 +393,12 @@ module.exports = function(jsmm) {
 			}
 		},
 		getCode: function() {
-			var output = this.identifier.getCode() + "(";
+			var output = this.identifier.getCode() + '(';
 			if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getCode();
 			for (var i=1; i<this.expressionArgs.length; i++) {
 				output += ", " + this.expressionArgs[i].getCode();
 			}
-			return output + ")";
+			return output + ')';
 		}
 	});
 
@@ -414,7 +425,7 @@ module.exports = function(jsmm) {
 			this.hooksAfter = [];
 		},
 		getCode: function() {
-			var output = "if (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
+			var output = 'if (' + this.expression.getCode() + ') {\n' + this.statementList.getCode() + '}';
 			if (this.elseBlock !== null) {
 				output += this.elseBlock.getCode();
 			}
@@ -428,7 +439,7 @@ module.exports = function(jsmm) {
 			ifBlock.parent = this;
 		},
 		getCode: function() {
-			return " else " + this.ifBlock.getCode();
+			return ' else ' + this.ifBlock.getCode();
 		}
 	});
 
@@ -441,7 +452,7 @@ module.exports = function(jsmm) {
 			this.hooksAfter = [];
 		},
 		getCode: function() {
-			return " else {\n" + this.statementList.getCode() + "}";
+			return ' else {\n' + this.statementList.getCode() + '}';
 		}
 	});
 
@@ -456,7 +467,7 @@ module.exports = function(jsmm) {
 			this.hooksAfter = [];
 		},
 		getCode: function() {
-			return "while (" + this.expression.getCode() + ") {\n" + this.statementList.getCode() + "}";
+			return 'while (' + this.expression.getCode() + ') {\n' + this.statementList.getCode() + '}';
 		}
 	});
 
@@ -475,8 +486,8 @@ module.exports = function(jsmm) {
 			this.hooksAfter = [];
 		},
 		getCode: function() {
-			var output = "for (" + this.statement1.getCode() + ";" + this.expression.getCode() + ";";
-			output += this.statement2.getCode() + ") {\n" + this.statementList.getCode() + "}";
+			var output = 'for (' + this.statement1.getCode() + ';' + this.expression.getCode() + ';';
+			output += this.statement2.getCode() + ') {\n' + this.statementList.getCode() + '}';
 			return output;
 		}
 	});
@@ -500,7 +511,7 @@ module.exports = function(jsmm) {
 			return output + ')';
 		},
 		getCode: function() {
-			var output = "function " + this.name + this.getArgList() + "{\n" + this.statementList.getCode() + "}";
+			var output = 'function ' + this.name + this.getArgList() + '{\n' + this.statementList.getCode() + '}';
 			return output;
 		}
 	});
