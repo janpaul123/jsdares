@@ -223,7 +223,7 @@ module.exports = function(jsmm) {
 		if (typeof funcValue === 'object' && funcValue.type === 'function') {
 			context.enterExternalCall(this, funcValue, funcArgs);
 			try {
-				retVal = funcValue.func.call(null, context, funcValue.name, funcArgs);
+				retVal = funcValue.func.call(null, this, funcValue.name, funcArgs);
 			} catch (error) {
 				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
 				if (typeof error === 'string') {
