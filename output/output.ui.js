@@ -138,8 +138,8 @@ module.exports = function(output) {
 			this.removeAll();
 			this.addEditor();
 			this.addConsole();
-			/*
 			this.addCanvas();
+			/*
 			this.addRobot();
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));

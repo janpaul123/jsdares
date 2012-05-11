@@ -31,7 +31,7 @@ module.exports = function(jsmm) {
 		} else if (typeof value === 'number' && !isFinite(value)) {
 			throw new jsmm.msg.Error(node, '<var>' + node.getCode() + '</var> is not a valid number');
 		} else if (typeof value === 'object' && value.type === 'variable') {
-			return value.get(node, value.name);
+			return value.get(value.name);
 		} else {
 			return value;
 		}
@@ -54,12 +54,12 @@ module.exports = function(jsmm) {
 		this.parent = parent || null;
 	};
 
-	var setVariable = function(node, variableNode, variable, value) {
+	var setVariable = function(context, node, variableNode, variable, value) {
 		if (typeof variable !== 'object' || ['variable', 'local'].indexOf(variable.type) < 0) {
 			throw new jsmm.msg.Error(node, 'Cannot assign <var>' + stringify(value) + '</var> to <var>' + variableNode.getCode() + '</var>');
 		} else if (variable.type === 'variable') {
 			try {
-				variable.set(node, variable.name, value);
+				variable.set(context, variable.name, value);
 			} catch (error) {
 				// augmented variables should do their own error handling, so wrap the resulting strings in jsmm messages
 				if (typeof error === 'string') {
@@ -84,7 +84,7 @@ module.exports = function(jsmm) {
 			} else {
 				value--;
 			}
-			setVariable(this, this.identifier, variable, value);
+			setVariable(context, this, this.identifier, variable, value);
 			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 		}
 	};
@@ -136,7 +136,7 @@ module.exports = function(jsmm) {
 		} else {
 			value = runBinaryExpression(getValue(this.identifier, variable), symbol, getValue(this.expression, expression));
 		}
-		setVariable(this, this.identifier, variable, value);
+		setVariable(context, this, this.identifier, variable, value);
 		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 	};
 	

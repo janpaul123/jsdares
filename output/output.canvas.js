@@ -33,8 +33,9 @@ module.exports = function(output) {
 
 			//this.debugToBrowser = true;
 			this.highlighting = false;
-			this.highlightNextShapes = false;
 			this.highlightCallTarget = 0;
+			this.calls = [];
+			this.callNr = Infinity;
 			this.editor = editor;
 			this.editor.addOutput(this);
 
@@ -55,42 +56,42 @@ module.exports = function(output) {
 		},
 
 		functions: {
-			clearRect: {type: 'method', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', draws: true, mirror: true},
-			fillRect: {type: 'method', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', draws: true, mirror: true},
-			strokeRect: {type: 'method', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', draws: true, mirror: true},
-			beginPath: {type: 'method', argsMin: 0, argsMax: 0, example: 'beginPath()', draws: false, mirror: true},
-			closePath: {type: 'method', argsMin: 0, argsMax: 0, example: 'closePath()', draws: false, mirror: true},
-			fill: {type: 'method', argsMin: 0, argsMax: 0, example: 'fill()', draws: true, mirror: true},
-			stroke: {type: 'method', argsMin: 0, argsMax: 0, example: 'stroke()', draws: true, mirror: true},
-			clip: {type: 'method', argsMin: 0, argsMax: 0, example: 'clip()', draws: false, mirror: true},
-			moveTo: {type: 'method', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', draws: false, mirror: true},
-			lineTo: {type: 'method', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', draws: false, mirror: true},
-			quadraticCurveTo: {type: 'method', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', draws: false, mirror: true},
-			bezierCurveTo: {type: 'method', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', draws: false, mirror: true},
-			arcTo: {type: 'method', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', draws: false, mirror: true},
-			arc: {type: 'method', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', draws: false, mirror: true},
-			rect: {type: 'method', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', draws: false, mirror: true},
-			scale: {type: 'method', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', draws: true, mirror: true},
-			rotate: {type: 'method', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', draws: true, mirror: true},
-			translate: {type: 'method', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', draws: true, mirror: true},
-			transform: {type: 'method', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', draws: true, mirror: true},
-			fillText: {type: 'method', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', draws: true, mirror: true},
-			strokeText: {type: 'method', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', draws: true, mirror: true},
-			isPointInPath: {type: 'method', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', draws: false, mirror: true},
-			fillStyle: {type: 'attribute', example: 'fillStyle = "#a00"', draws: false, mirror: false},
-			strokeStyle: {type: 'attribute', example: 'strokeStyle = "#a00"', draws: false, mirror: false},
-			shadowOffsetX: {type: 'attribute', example: 'shadowOffsetX = 10', draws: false, mirror: true},
-			shadowOffsetY: {type: 'attribute', example: 'shadowOffsetY = 10', draws: false, mirror: true},
-			shadowBlur: {type: 'attribute', example: 'shadowBlur = 5', draws: false, mirror: false},
-			shadowColor: {type: 'attribute', example: 'shadowColor = "#3a3"', draws: false, mirror: false},
-			globalAlpha: {type: 'attribute', example: 'globalAlpha = 0.5', draws: false, mirror: false},
-			lineWidth: {type: 'attribute', example: 'lineWidth = 3', draws: false, mirror: false},
-			lineCap: {type: 'attribute', example: 'lineCap = "round"', draws: false, mirror: true},
-			lineJoin: {type: 'attribute', example: 'lineJoin = "bevel"', draws: false, mirror: true},
-			miterLimit: {type: 'attribute', example: 'miterLimit = 3', draws: false, mirror: true},
-			font: {type: 'attribute', example: 'font = "40pt Calibri"', draws: false, mirror: true},
-			textAlign: {type: 'attribute', example: 'textAlign = "center"', draws: false, mirror: true},
-			textBaseline: {type: 'attribute', example: 'textBaseline = "top"', draws: false, mirror: true}
+			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', draws: true, mirror: true},
+			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', draws: true, mirror: true},
+			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', draws: true, mirror: true},
+			beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', draws: false, mirror: true},
+			closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', draws: false, mirror: true},
+			fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', draws: true, mirror: true},
+			stroke: {type: 'function', argsMin: 0, argsMax: 0, example: 'stroke()', draws: true, mirror: true},
+			clip: {type: 'function', argsMin: 0, argsMax: 0, example: 'clip()', draws: false, mirror: true},
+			moveTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', draws: false, mirror: true},
+			lineTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', draws: false, mirror: true},
+			quadraticCurveTo: {type: 'function', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', draws: false, mirror: true},
+			bezierCurveTo: {type: 'function', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', draws: false, mirror: true},
+			arcTo: {type: 'function', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', draws: false, mirror: true},
+			arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', draws: false, mirror: true},
+			rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', draws: false, mirror: true},
+			scale: {type: 'function', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', draws: true, mirror: true},
+			rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', draws: true, mirror: true},
+			translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', draws: true, mirror: true},
+			transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', draws: true, mirror: true},
+			fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', draws: true, mirror: true},
+			strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', draws: true, mirror: true},
+			isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', draws: false, mirror: true},
+			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"', draws: false, mirror: false},
+			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"', draws: false, mirror: false},
+			shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10', draws: false, mirror: true},
+			shadowOffsetY: {type: 'variable', example: 'shadowOffsetY = 10', draws: false, mirror: true},
+			shadowBlur: {type: 'variable', example: 'shadowBlur = 5', draws: false, mirror: false},
+			shadowColor: {type: 'variable', example: 'shadowColor = "#3a3"', draws: false, mirror: false},
+			globalAlpha: {type: 'variable', example: 'globalAlpha = 0.5', draws: false, mirror: false},
+			lineWidth: {type: 'variable', example: 'lineWidth = 3', draws: false, mirror: false},
+			lineCap: {type: 'variable', example: 'lineCap = "round"', draws: false, mirror: true},
+			lineJoin: {type: 'variable', example: 'lineJoin = "bevel"', draws: false, mirror: true},
+			miterLimit: {type: 'variable', example: 'miterLimit = 3', draws: false, mirror: true},
+			font: {type: 'variable', example: 'font = "40pt Calibri"', draws: false, mirror: true},
+			textAlign: {type: 'variable', example: 'textAlign = "center"', draws: false, mirror: true},
+			textBaseline: {type: 'variable', example: 'textBaseline = "top"', draws: false, mirror: true}
 		},
 
 		getAugmentedObject: function() {
@@ -137,14 +138,14 @@ module.exports = function(output) {
 			var obj = {};
 			for (var name in this.functions) {
 				var func = this.functions[name];
-				if (func.type === 'method') {
+				if (func.type === 'function') {
 					obj[name] = {
 						name: name,
 						type: 'function',
 						func: $.proxy(this.handleMethod, this),
 						example: func.example
 					};
-				} else if (func.type === 'attribute') {
+				} else if (func.type === 'variable') {
 					obj[name] = {
 						name: name,
 						type: 'variable',
@@ -158,49 +159,59 @@ module.exports = function(output) {
 			return obj;
 		},
 
-		handleMethod: function(node, name, args) {
+		handleMethod: function(context, name, args) {
 			var min = this.functions[name].argsMin, max = this.functions[name].argsMax;
 			if (args.length < min) {
 				throw '<var>' + name + '</var> requires at least <var>' + min + '</var> arguments';
 			} else if (args.length > max) {
 				throw '<var>' + name + '</var> accepts no more than <var>' + max + '</var> arguments';
 			}
-			if (this.highlighting) return this.highlight(node, name, args);
-			else return this.context[name].apply(this.context, args);
+			this.calls.push({type: 'function', name: name, args: args, callNr: context.getCallNr(), node: context.getCallNode()});
+			return this.context[name].apply(this.context, args);
 		},
 
-		handleAttributeGet: function(node, name) {
+		handleAttributeGet: function(name) {
 			return this.context[name];
 		},
 
-		handleAttributeSet: function(node, name, value) {
+		handleAttributeSet: function(context, name, value) {
+			this.calls.push({type: 'variable', name: name, value: value, callNr: context.getCallNr(), node: context.getCallNode()});
 			this.context[name] = value;
-			if (this.highlighting) {
-				if (this.functions[name].mirror) this.mirrorContext[name] = value;
+		},
 
-				if (name === 'strokeStyle') {
-					this.actualStrokeStyle = this.context.strokeStyle;
-				} else if (name === 'fillStyle') {
-					this.actualFillStyle = this.context.fillStyle;
-				} else if (name === 'shadowColor') {
-					this.actualShadowColor = this.context.shadowColor;
+		render: function(highlightCallNrs) {
+			console.log('render!');
+			highlightCallNrs = highlightCallNrs || [];
+			this.clear();
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (call.callNr > this.callNr) break;
+
+				if (call.type === 'function') {
+					if (this.highlighting) this.highlight(call.node, call.name, call.args, highlightCallNrs.indexOf(call.callNr) >= 0);
+					else this.context[call.name].apply(this.context, call.args);
+				} else {
+					this.context[call.name] = call.value;
+					if (this.highlighting) {
+						if (this.functions[call.name].mirror) this.mirrorContext[call.name] = call.value;
+
+						if (call.name === 'strokeStyle') {
+							this.actualStrokeStyle = this.context.strokeStyle;
+						} else if (call.name === 'fillStyle') {
+							this.actualFillStyle = this.context.fillStyle;
+						} else if (call.name === 'shadowColor') {
+							this.actualShadowColor = this.context.shadowColor;
+						}
+					}
 				}
 			}
-		},
-
-		startHighlighting: function() {
-			this.highlightNextShapes = true;
-		},
-
-		stopHighlighting: function() {
-			this.highlightNextShapes = false;
 		},
 
 		enableHighlighting: function() {
 			this.highlighting = true;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
-			this.editor.outputRequestsRerun();
+			this.render();
 		},
 
 		disableHighlighting: function() {
@@ -208,21 +219,19 @@ module.exports = function(output) {
 			this.highlightCallTarget = 0;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
-			this.editor.outputRequestsRerun();
+			this.render();
 		},
 
 		startRun: function() {
-			this.stopHighlighting();
 			this.clear();
 			this.$container.removeClass('canvas-error');
+			this.calls = [];
 		},
 
 		endRun: function() {
-
-		},
-
-		endRunStepping: function() {
-
+			if (this.highlighting) {
+				this.render();
+			}
 		},
 
 		hasError: function() {
@@ -267,8 +276,17 @@ module.exports = function(output) {
 
 		},
 
+		setCallNr: function(callNr) {
+			callNr = callNr < 0 ? Infinity : callNr;
+			if (callNr !== this.callNr) this.render();
+		},
+
+		highlightCalls: function(calls) {
+			this.render(calls);
+		},
+
 		/// INTERNAL FUNCTIONS ///
-		highlight: function(node, name, args) {
+		highlight: function(node, name, args, showHighlight) {
 			if (this.functions[name].draws) {
 				if (this.functions[name].mirror && this.context.globalAlpha > 0) {
 					// some spread is needed between the numbers as borders are blurred, and colour information is thus not 100% reliable
@@ -285,7 +303,7 @@ module.exports = function(output) {
 					this.mirrorContext[name].apply(this.mirrorContext, args);
 				}
 
-				if (this.highlightNextShapes || this.highlightCallCounter === this.highlightCallTarget) {
+				if (showHighlight || this.highlightCallCounter === this.highlightCallTarget) {
 					this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
 					this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
 					this.context.shadowColor = 'rgba(5, 195, 5, 0.85)';
@@ -313,9 +331,7 @@ module.exports = function(output) {
 
 				if (this.highlightCallTarget !== target) {
 					this.highlightCallTarget = target;
-					if (!this.editor.outputRequestsRerun()) {
-						this.highlightCallTarget = 0;
-					}
+					this.render();
 					if (this.highlightCallTarget <= 0) {
 						this.editor.highlightNode(null);
 					}
