@@ -80,35 +80,21 @@ module.exports = function(output) {
 			this.animationString = '';
 		},
 
-		addMovement: function(x1, y1, x2, y2, angle) {
-			var dx = (x2-x1)*blockSize, dy = (y2-y1)*blockSize;
-			var length = Math.sqrt(dx*dx + dy*dy);
-			if (length > 0) {
-				this.animationQueue.push({
-					type: 'movement', x: x1, y: y1, x2: x2, y2: y2, angle: angle, length: length
-				});
-				this.animationLength += length;
-				this.animationString += 'm' + x1 + ',' + y1 + ',' + x2 + ',' + y2 + ',' + angle;
+		add: function(anim) {
+			if (anim.type === 'movement') {
+				var dx = (anim.x2-anim.x)*blockSize, dy = (anim.y2-anim.y)*blockSize;
+				anim.length = Math.sqrt(dx*dx + dy*dy);
+				if (anim.length <= 0) return;
+				this.animationLength += anim.length;
+			} else if (anim.type === 'rotation') {
+				anim.length = Math.abs(anim.angle2-anim.angle);
+				if (anim.length <= 0) return;
+				this.animationLength += anim.length*this.rotationFactor;
+			} else { // anim.type === 'wall'
+				this.animationLength += this.detectWallLength;
 			}
-		},
-
-		addRotation: function(x, y, angle1, angle2) {
-			var length = Math.abs(angle2-angle1);
-			if (length > 0) {
-				this.animationQueue.push({
-					type: 'rotation', x: x, y: y, angle: angle1, angle2: angle2, length: length
-				});
-				this.animationLength += length*this.rotationFactor;
-				this.animationString += 'r' + x + ',' + y + ',' + angle1 + ',' + angle2;
-			}
-		},
-
-		addDetectWall: function(x, y, angle, wall) {
-			this.animationQueue.push({
-				type: 'wall', x: x, y: y, angle: angle, wall: wall
-			});
-			this.animationLength += this.detectWallLength;
-			this.animationString += 'w' + x + ',' + y + ',' + angle + ',' + wall;
+			this.animationQueue.push(anim);
+			this.animationString += anim.type + ',' + anim.x + ',' + anim.y + ',' + anim.x2 + ',' + anim.y2 + ',' + anim.angle + ',' + anim.angle2 + ',';
 		},
 
 		playAnimation: function(number) {
@@ -231,6 +217,8 @@ module.exports = function(output) {
 			this.highlightNext = false;
 			this.animation = null;
 			this.stateChangedCallback = null;
+			this.calls = [];
+			this.callNr = Infinity;
 			this.animationManager = new output.RobotAnimationManager(this.$robot);
 
 			this.initialState(columns, rows);
@@ -254,7 +242,7 @@ module.exports = function(output) {
 			this.editor.removeOutput(this);
 		},
 
-		drive: function(node, name, args) {
+		drive: function(context, name, args) {
 			var amount = 1;
 			if (args[0] !== undefined) {
 				amount = args[0];
@@ -267,14 +255,15 @@ module.exports = function(output) {
 			} else if (Math.round(amount) !== amount && this.mazeObjects > 0) {
 				throw 'Fractional amounts are only allowed when the maze is empty';
 			} else if (amount !== 0) {
-				var fromX = this.robotX, fromY = this.robotY;
+				var fromX = this.robotX, fromY = this.robotY, $element, anim;
 
 				if (this.mazeObjects > 0) {
 					var positive = amount > 0;
 					for (var i=0; i<Math.abs(amount); i++) {
 						if (this.isWall(this.robotX, this.robotY, positive ? this.robotAngle : (this.robotAngle + 180)%360)) {
-							this.animation.addMovement(fromX, fromY, this.robotX, this.robotY, this.robotAngle);
-							this.insertLine(node, fromX, fromY, this.robotX, this.robotY);
+							anim = {type: 'movement', x: fromX, y: fromY, x2: this.robotX, y2: this.robotY, angle: this.robotAngle};
+							$element = this.insertLine(this.calls.length, fromX, fromY, this.robotX, this.robotY);
+							this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), $element: $element, anim: anim});
 							throw 'Robot ran into a wall';
 						}
 						if (this.robotAngle === 0) {
@@ -291,14 +280,13 @@ module.exports = function(output) {
 					this.robotX += Math.cos(this.robotAngle / 180 * Math.PI)*amount;
 					this.robotY -= Math.sin(this.robotAngle / 180 * Math.PI)*amount;
 				}
-				this.insertLine(node, fromX, fromY, this.robotX, this.robotY);
-				if (this.animation !== null) {
-					this.animation.addMovement(fromX, fromY, this.robotX, this.robotY, this.robotAngle);
-				}
+				$element = this.insertLine(this.calls.length, fromX, fromY, this.robotX, this.robotY);
+				anim = {type: 'movement', x: fromX, y: fromY, x2: this.robotX, y2: this.robotY, angle: this.robotAngle};
+				this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), $element: $element, anim: anim});
 			}
 		},
 
-		turn: function(node, name, args) {
+		turn: function(context, name, args) {
 			var amount = 90;
 			if (args[0] !== undefined) {
 				amount = args[0];
@@ -313,20 +301,18 @@ module.exports = function(output) {
 			} else if ([0, 90, 180, 270].indexOf(amountNormalized) < 0 && this.mazeObjects > 0) {
 				throw 'Only <var>90</var>, <var>180</var> and <var>270</var> degrees are allowed when the maze is not empty';
 			} else {
-				if (this.animation !== null) {
-					this.animation.addRotation(this.robotX, this.robotY, this.robotAngle, this.robotAngle + amount);
-				}
+				var anim = {type: 'rotation', x: this.robotX, y: this.robotY, angle: this.robotAngle, angle2: this.robotAngle+amount};
 				this.robotAngle += amount;
 				this.robotAngle = ((this.robotAngle%360)+360)%360;
-				this.insertPoint(node, this.robotX, this.robotY, this.robotAngle);
+				var $element = this.insertPoint(this.calls.length, this.robotX, this.robotY, this.robotAngle);
+				this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), $element: $element, anim: anim});
 			}
 		},
 
-		detectWall: function(node, name, args) {
+		detectWall: function(context, name, args) {
 			var wall = this.isWall(this.robotX, this.robotY, this.robotAngle);
-			if (this.animation !== null) {
-				this.animation.addDetectWall(this.robotX, this.robotY, this.robotAngle, wall);
-			}
+			var anim = {type: 'wall', x: this.robotX, y: this.robotY, angle: this.robotAngle, wall: wall};
+			this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), anim: anim});
 			return wall;
 		},
 
@@ -370,13 +356,13 @@ module.exports = function(output) {
 			};
 		},
 
-		startHighlighting: function() {
-			this.highlightNext = true;
-		},
+		// startHighlighting: function() {
+		// 	this.highlightNext = true;
+		// },
 
-		stopHighlighting: function() {
-			this.highlightNext = false;
-		},
+		// stopHighlighting: function() {
+		// 	this.highlightNext = false;
+		// },
 
 		enableHighlighting: function() {
 			this.highlighting = true;
@@ -388,6 +374,7 @@ module.exports = function(output) {
 			this.highlighting = false;
 			this.$container.removeClass('robot-highlighting');
 			this.$container.addClass('robot-not-highlighting');
+			this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
 			/*
 			if (this.animation !== null) {
 				this.animation.remove();
@@ -398,16 +385,11 @@ module.exports = function(output) {
 
 		startRun: function() {
 			this.clear();
+			this.calls = [];
 			this.$container.removeClass('robot-error');
-			this.animation = this.animationManager.newAnimation();
 		},
 
 		endRun: function() {
-			this.animationManager.playAll();
-		},
-
-		endRunStepping: function() {
-			this.animationManager.playLast();
 		},
 
 		hasError: function() {
@@ -498,7 +480,26 @@ module.exports = function(output) {
 		},
 
 		setFocus: function() {
+			console.log(this.animation);
 			this.animation.playAll();
+		},
+
+		setCallNr: function(callNr) {
+			callNr = callNr < 0 ? Infinity : callNr;
+			if (callNr !== this.callNr) {
+				this.callNr = callNr;
+			}
+			this.update();
+		},
+
+		highlightCalls: function(calls) {
+			this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (calls.indexOf(call.callNr) >= 0) {
+					call.$element.addClass('robot-path-highlight');
+				}
+			}
 		},
 
 		/// INTERNAL FUNCTIONS ///
@@ -569,6 +570,20 @@ module.exports = function(output) {
 			this.drawInitial();
 		},
 
+		update: function() {
+			console.log('update!');
+			this.$path.children('.robot-path-line, .robot-path-point').hide();
+			this.animation = this.animationManager.newAnimation();
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (call.callNr > this.callNr) break;
+				if (call.$element !== undefined) call.$element.show();
+				if (call.anim !== undefined) this.animation.add(call.anim);
+			}
+			if (this.callNr === Infinity) this.animationManager.playAll();
+			else this.animationManager.playLast();
+		},
+
 		drawInitial: function() {
 			this.$initial.css('left', this.initialX * blockSize);
 			this.$initial.css('top', this.initialY * blockSize);
@@ -585,7 +600,6 @@ module.exports = function(output) {
 				this.mazeObjects--;
 				$target.removeClass('robot-maze-line-active');
 			}
-			this.editor.outputRequestsRerun();
 			this.stateChanged();
 		},
 
@@ -600,7 +614,6 @@ module.exports = function(output) {
 				this.mazeObjects--;
 				$target.removeClass('robot-maze-line-active');
 			}
-			this.editor.outputRequestsRerun();
 			this.stateChanged();
 		},
 		
@@ -629,7 +642,7 @@ module.exports = function(output) {
 			}
 		},
 
-		insertLine: function(node, fromX, fromY, toX, toY) {
+		insertLine: function(index, fromX, fromY, toX, toY) {
 			var dy = (toY-fromY)*blockSize, dx = (toX-fromX)*blockSize;
 			var angleRad = Math.atan2(dy, dx);
 			var length = Math.sqrt(dx*dx+dy*dy);
@@ -639,15 +652,16 @@ module.exports = function(output) {
 			setCss3($line, 'transform', 'rotate(' + (angleRad*180/Math.PI) + 'deg)');
 			$line.css('left', fromX*blockSize + blockSize/2 + dx/2 - length/2);
 			$line.css('top', fromY*blockSize + blockSize/2 + dy/2);
-			if (this.highlightNext) {
-				$line.addClass('robot-path-highlight');
-			}
+			// if (this.highlightNext) {
+			// 	$line.addClass('robot-path-highlight');
+			// }
 			$line.on('mousemove', $.proxy(this.pathMouseMove, this));
 			$line.on('mouseleave', $.proxy(this.pathMouseLeave, this));
-			$line.data('node', node);
+			$line.data('index', index);
+			return $line;
 		},
 
-		insertPoint: function(node, x, y, angle) {
+		insertPoint: function(index, x, y, angle) {
 			var $point = $('<div class="robot-path-point"><div class="robot-path-point-inside"><div class="robot-path-point-arrow"></div></div></div>');
 			this.$path.append($point);
 			var angleRad = angle/180*Math.PI;
@@ -655,21 +669,27 @@ module.exports = function(output) {
 			$point.css('left', x*blockSize + blockSize/2 + 5*Math.cos(angleRad));
 			$point.css('top', y*blockSize + blockSize/2 - 5*Math.sin(angleRad));
 			setCss3($point, 'transform', 'rotate(' + (-angle) + 'deg)');
-			if (this.highlightNext) {
-				$point.addClass('robot-path-highlight');
-			}
+			// if (this.highlightNext) {
+			// 	$point.addClass('robot-path-highlight');
+			// }
 			$point.on('mousemove', $.proxy(this.pathMouseMove, this));
 			$point.on('mouseleave', $.proxy(this.pathMouseLeave, this));
-			$point.data('node', node);
+			$point.data('index', index);
+			return $point;
 		},
 
 		pathMouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.delegateTarget);
-				if ($target.data('node') !== undefined && !$target.hasClass('robot-path-highlight')) {
+				if (this.calls[$target.data('index')] !== undefined) {
+					if (!$target.hasClass('robot-path-highlight')) {
+						this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
+						$target.addClass('robot-path-highlight');
+						this.editor.highlightNode(this.calls[$target.data('index')].node);
+					}
+				} else {
 					this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
-					$target.addClass('robot-path-highlight');
-					this.editor.highlightNode($target.data('node'));
+					this.editor.highlightNode(null);
 				}
 			}
 		},
@@ -712,7 +732,6 @@ module.exports = function(output) {
 				this.initialX = $target.data('x');
 				this.initialY = $target.data('y');
 				this.drawInitial();
-				this.editor.outputRequestsRerun();
 				this.stateChanged();
 			}
 		},
@@ -728,11 +747,11 @@ module.exports = function(output) {
 				this.mazeObjects--;
 				$target.removeClass('robot-maze-block-goal');
 			}
-			this.editor.outputRequestsRerun();
 			this.stateChanged();
 		},
 
 		stateChanged: function() {
+			this.editor.outputRequestsRerun();
 			if (this.stateChangedCallback !== null) {
 				this.stateChangedCallback(this.getState());
 			}

@@ -278,7 +278,10 @@ module.exports = function(output) {
 
 		setCallNr: function(callNr) {
 			callNr = callNr < 0 ? Infinity : callNr;
-			if (callNr !== this.callNr) this.render();
+			if (callNr !== this.callNr) {
+				this.callNr = callNr;
+				this.render();
+			}
 		},
 
 		highlightCalls: function(calls) {
