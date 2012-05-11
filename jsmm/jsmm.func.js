@@ -258,8 +258,6 @@ module.exports = function(jsmm) {
 			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var> = <var>' + stringify(retVal) + '</var>')]);
 		}
 
-
-
 		return retVal;
 	};
 	
@@ -273,7 +271,7 @@ module.exports = function(jsmm) {
 			}
 		} else {
 			scope.vars[name] = func;
-			context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this.blockLoc, context.callCounter, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
 			return scope.vars[name];
 		}
 	};

@@ -54,12 +54,14 @@ module.exports = function(editor) {
 			this.box.$element.on('click', $.proxy(this.toggleMesssage, this));
 			this.visible = false;
 			this.messageOpen = false;
-			this.message = null;
+			this.location = null;
+			this.html = '';
 		},
-		showAtLocation: function(msg) {
-			this.$marginIcon.css('top', this.surface.lineToY(msg.line));
+		showAtLocation: function(location, html) {
+			this.$marginIcon.css('top', this.surface.lineToY(location.line));
 			this.$marginIcon.fadeIn(150);
-			this.message = msg;
+			this.location = location;
+			this.html = html;
 			this.visible = true;
 			this.updateMessage();
 		},
@@ -87,11 +89,11 @@ module.exports = function(editor) {
 			this.updateMessage();
 		},
 		updateMessage: function() {
-			if (this.visible && this.messageOpen && this.message !== null) {
+			if (this.visible && this.messageOpen && this.location !== null) {
 				this.$marking.fadeIn(150);
 				this.box.$element.fadeIn(150);
-				this.surface.setElementLocationRange(this.$marking, this.message.loc.line, this.message.loc.column, this.message.loc.line+1, this.message.loc.column2);
-				this.box.html(this.message.getHTML());
+				this.surface.setElementLocationRange(this.$marking, this.location.line, this.location.column, this.location.line2, this.location.column2);
+				this.box.html(this.html);
 			} else {
 				this.$marking.fadeOut(150);
 				this.box.$element.fadeOut(150);
@@ -299,8 +301,8 @@ module.exports = function(editor) {
 			this.$div.off('mousemove mouseleave');
 		},
 
-		showErrorMessage: function(message) {
-			this.errorMessage.showAtLocation(message);
+		showErrorMessage: function(location, html) {
+			this.errorMessage.showAtLocation(location, html);
 			this.$textarea.addClass('editor-error');
 		},
 
@@ -314,9 +316,9 @@ module.exports = function(editor) {
 			this.stepMessage.openMessage();
 		},
 
-		showStepMessage: function(message) {
+		showStepMessage: function(location, html) {
 			this.$textarea.addClass('editor-step');
-			this.stepMessage.showAtLocation(message);
+			this.stepMessage.showAtLocation(location, html);
 		},
 
 		hideStepMessage: function() {

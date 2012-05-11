@@ -161,10 +161,26 @@ module.exports = function(editor) {
 			}
 		},
 
+		makeMessageLoc: function(message) {
+			var loc = {};
+			if (message.loc.line2 !== undefined) {
+				loc.line = message.loc.line;
+				loc.line2 = message.loc.line2+1;
+				loc.column = this.code.blockToLeftColumn(message.loc.line, message.loc.line2);
+				loc.column2 = this.code.blockToRightColumn(message.loc.line, message.loc.line2);
+			} else {
+				loc.line = message.loc.line;
+				loc.line2 = message.loc.line+1;
+				loc.column = message.loc.column;
+				loc.column2 = message.loc.column2 || message.loc.column;
+			}
+			return loc;
+		},
+
 		handleError: function(error) {
 			this.surface.hideStepMessage();
 			this.surface.hideAutoCompleteBox();
-			this.surface.showErrorMessage(error);
+			this.surface.showErrorMessage(this.makeMessageLoc(error), error.getHTML());
 			this.callOutputs('hasError');
 		},
 
@@ -173,7 +189,7 @@ module.exports = function(editor) {
 			var shown = false;
 			for (var i=0; i<messages.length; i++) {
 				if (messages[i].type === 'Inline') {
-					this.surface.showStepMessage(messages[i]);
+					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
 					shown = true;
 					this.callOutputs('setCallNr', messages[i].callNr);
 				}
