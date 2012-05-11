@@ -11,56 +11,71 @@ module.exports = function(jsmm) {
 			this.tree = null;
 			this.scope = null;
 			this.error = null;
+			this.runFunc = null;
 			this.context = null;
-			this.stepCount = 0;
-			this.messages = [];
+			this.step = -1;
 		},
 
 		restart: function() {
 			// set a running state
-			this.stepCount = 0;
+			this.step = -1;
 		},
 
 		hasError: function() {
 			return this.error !== null;
 		},
 
-		run: function() {
-			if (this.tree === null || this.scope === null) return false;
-			if (this.context !== null) return true;
-
-			if (!this.runSafe()) return false;
-			return true;
-		},
-
 		stepForward: function() {
-			if (!this.run()) return false;
-			this.stepCount++;
-			if (this.stepCount >= this.context.steps.length) this.stepCount = 0;
+			if (this.context === null) return false;
+			this.step++;
+			if (this.step >= this.context.steps.length) this.step = 0;
 			return true;
 		},
 
 		stepBackward: function() {
-			this.stepCount--;
-			if (this.stepCount < 0) this.stepCount = 0;
-			return this.run();
+			if (this.context === null) return false;
+			this.step--;
+			if (this.step < -1) this.step = -1;
+			return true;
 		},
 
 		isStepping: function() {
-			return this.stepCount > 0;
+			return this.step >= 0;
 		},
 
 		getError: function() {
 			return this.error;
 		},
 
+		run: function() {
+			if (this.tree === null || this.scope === null) return false;
+			this.error = null;
+
+			try {
+				if (this.runFunc === null) {
+					this.runFunc = this.tree.programNode.getRunFunction();
+				}
+
+				this.context = new jsmm.RunContext(this.tree, this.scope);
+				this.runFunc(this.context);
+
+				if (this.step >= this.context.steps.length) this.step = this.context.steps.length-1;
+
+				return true;
+			} catch (error) {
+				this.handleError(error);
+				return false;
+			}
+		},
+
 		getMessages: function() {
-			if (this.context === null || this.stepCount === 0) return [];
-			else return this.context.steps[this.stepCount-1] || [];
+			if (this.context === null || this.step < 0) return [];
+			else return this.context.steps[this.step] || [];
 		},
 
 		newTree: function(tree) {
 			this.tree = tree;
+			this.runFunc = null;
 			this.context = null;
 		},
 
@@ -77,6 +92,10 @@ module.exports = function(jsmm) {
 			}
 		},
 
+		getCallsByRange: function(lineStart, lineEnd) {
+			return this.context.getCallsByRange(lineStart, lineEnd);
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		handleError: function(error) {
 			if (error instanceof jsmm.msg.Error) {
@@ -84,19 +103,6 @@ module.exports = function(jsmm) {
 			} else {
 				throw error;
 				this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
-			}
-		},
-
-		runSafe: function() {
-			this.error = null;
-			this.messages = [];
-
-			try {
-				this.context = this.tree.programNode.getRunFunction(this.scope)();
-				return true;
-			} catch (error) {
-				this.handleError(error);
-				return false;
 			}
 		}
 	};

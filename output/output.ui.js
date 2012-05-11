@@ -138,6 +138,7 @@ module.exports = function(output) {
 			this.removeAll();
 			this.addEditor();
 			this.addConsole();
+			/*
 			this.addCanvas();
 			this.addRobot();
 			if (window.localStorage.getItem('initial-robot') !== null) {
@@ -146,6 +147,7 @@ module.exports = function(output) {
 			this.robot.setStateChangedCallback(function(state) {
 				window.localStorage.setItem('initial-robot', state);
 			});
+			*/
 			this.editor.setText(window.localStorage.getItem('initial-code') || '');
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem('initial-code', text);

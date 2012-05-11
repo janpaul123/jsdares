@@ -208,7 +208,7 @@ module.exports = function(dares) {
 			if (line === 0) {
 				this.animatedPoints.setChanging('numLines');
 			}
-			this.editor.highlightSingleLine(this.contentLines[line]);
+			this.editor.highlightContentLine(this.contentLines[line]);
 			this.animatedPoints.setValue('numLines', line+1);
 		};
 

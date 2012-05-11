@@ -20,8 +20,6 @@ module.exports = function(editor) {
 			this.editablesEnabled = false;
 
 			this.highlightingEnabled = false;
-			this.highlightLine = 0;
-			this.currentHighlightNode = null;
 
 			this.autoCompletionEnabled = false;
 
@@ -51,12 +49,12 @@ module.exports = function(editor) {
 
 		setScope: function(scope) {
 			this.runner.newScope(scope);
-			this.update();
+			this.run();
 		},
 
 		addOutput: function(output) {
 			this.outputs.push(output);
-			this.update();
+			this.run();
 		},
 
 		setTextChangeCallback: function(callback) {
@@ -72,7 +70,7 @@ module.exports = function(editor) {
 
 		callOutputs: function(funcName) {
 			for (var i=0; i<this.outputs.length; i++) {
-				this.outputs[i][funcName]();
+				this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
 			}
 		},
 
@@ -116,14 +114,14 @@ module.exports = function(editor) {
 			this.callOutputs('startRun');
 			this.runner.newTree(this.tree);
 			this.runner.run();
-			//this.callOutputs('endRun');
-			this.handleRunnerOutput();
+			this.callOutputs('endRun');
+			this.refreshRunnerOutput();
 		},
 
 		restart: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.runner.restart();
-				this.run();
+				this.refreshRunnerOutput();
 			}
 		},
 
@@ -132,23 +130,19 @@ module.exports = function(editor) {
 				if (!this.runner.isStepping()) {
 					this.surface.openStepMessage();
 				}
-				this.callOutputs('startRun');
 				this.runner.stepForward();
-				//this.callOutputs('endRun');
-				this.handleRunnerOutput();
+				this.refreshRunnerOutput();
 			}
 		},
 
 		stepBackward: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				this.callOutputs('startRun');
 				this.runner.stepBackward();
-				//this.callOutputs('endRun');
-				this.handleRunnerOutput();
+				this.refreshRunnerOutput();
 			}
 		},
 
-		handleRunnerOutput: function() {
+		refreshRunnerOutput: function() {
 			this.surface.hideAutoCompleteBox();
 			if (this.runner.hasError()) {
 				this.handleError(this.runner.getError());
@@ -157,15 +151,12 @@ module.exports = function(editor) {
 				} else {
 					this.toolbar.runningWithError();
 				}
-				this.callOutputs('endRun');
 			} else {
 				this.handleMessages(this.runner.getMessages());
 				if (this.runner.isStepping()) {
 					this.toolbar.steppingWithoutError();
-					this.callOutputs('endRunStepping');
 				} else {
 					this.toolbar.runningWithoutError();
-					this.callOutputs('endRun');
 				}
 			}
 		},
@@ -184,10 +175,12 @@ module.exports = function(editor) {
 				if (messages[i].type === 'Inline') {
 					this.surface.showStepMessage(messages[i]);
 					shown = true;
+					this.callOutputs('setCallNr', messages[i].callNr);
 				}
 			}
 			if (!shown) {
 				this.surface.hideStepMessage();
+				this.callOutputs('setCallNr', -1);
 			}
 		},
 
@@ -284,8 +277,8 @@ module.exports = function(editor) {
 
 		disableHighlighting: function() {
 			this.tree.clearHooks();
-			this.highlightLine = 0;
 			this.currentHighlightNode = null;
+			this.currentHighlightLine = 0;
 			this.surface.disableMouse();
 			this.surface.disableHighlighting();
 			this.highlightingEnabled = false;
@@ -302,7 +295,7 @@ module.exports = function(editor) {
 			}
 		},
 
-		highlightSingleLine: function(line) {
+		highlightContentLine: function(line) { // used for dare line count
 			if (line === null) {
 				this.highlightNode(null);
 			} else {
@@ -310,51 +303,35 @@ module.exports = function(editor) {
 			}
 		},
 
-		// internal method; return whether or not a rerun is required
+		// internal method
 		refreshHighlights: function() {
-			var node = this.tree.getNodeByLine(this.highlightLine);
-
+			var node = this.tree.getNodeByLine(this.currentHighlightLine);
+			
 			if (node !== this.currentHighlightNode) {
 				this.currentHighlightNode = node;
-				this.tree.clearHooks();
 				if (node !== null) {
-					this.tree.addHookBeforeNode(node, $.proxy(this.startHighlighting, this));
-					this.tree.addHookAfterNode(node, $.proxy(this.stopHighlighting, this));
 					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
 					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
+					this.callOutputs('highlightCalls', this.runner.getCallsByRange(line1, line2));
 				} else {
 					this.surface.hideHighlight();
+					this.callOutputs('highlightCalls', []);
 				}
-				return true;
-			} else {
-				return false;
 			}
 		},
 
 		mouseMove: function(event, line, column) { // callback
-			if (this.highlightingEnabled) {
-				this.highlightLine = line;
-				if (this.refreshHighlights()) {
-					this.delayedRun();
-				}
+			if (this.highlightingEnabled && this.currentHighlightLine !== line) {
+				this.currentHighlightLine = line;
+				this.refreshHighlights();
 			}
 		},
 
 		mouseLeave: function(event) { //callback
 			if (this.highlightingEnabled) {
-				this.highlightLine = 0;
-				if (this.refreshHighlights()) {
-					this.delayedRun();
-				}
+				this.currentHighlightLine = 0;
+				this.refreshHighlights();
 			}
-		},
-
-		startHighlighting: function(node, scope) { // callback
-			this.callOutputs('startHighlighting');
-		},
-
-		stopHighlighting: function(node, scope) { // callback
-			this.callOutputs('stopHighlighting');
 		},
 
 		/// KEYBOARD CALLBACKS ///

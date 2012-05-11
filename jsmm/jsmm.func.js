@@ -36,6 +36,15 @@ module.exports = function(jsmm) {
 			return value;
 		}
 	};
+
+	var stringify = function(value) {
+		if (typeof value === 'function') return '[function]';
+		else if (typeof value === 'object' && value.type === 'function') return '[function]';
+		else if (Object.prototype.toString.call(value) === '[object Array]') return '[array]';
+		else if (typeof value === 'object') return '[object]';
+		else if (value === undefined) return 'undefined';
+		else return JSON.stringify(value);
+	};
 	
 	jsmm.func.Scope = function(vars, parent) {
 		this.vars = {};
@@ -45,19 +54,9 @@ module.exports = function(jsmm) {
 		this.parent = parent || null;
 	};
 
-	jsmm.func.stringify = function(node, value) {
-		if (typeof value === 'function') return '[function]';
-		else if (typeof value === 'object' && value.type === 'function') return '[function]';
-		else if (typeof value === 'object' && value.type === 'variable') return JSON.stringify(value.get(node, value.name));
-		else if (Object.prototype.toString.call(value) === '[object Array]') return '[array]';
-		else if (typeof value === 'object') return '[object]';
-		else if (value === undefined) return 'undefined';
-		else return JSON.stringify(value);
-	};
-
 	var setVariable = function(node, variableNode, variable, value) {
 		if (typeof variable !== 'object' || ['variable', 'local'].indexOf(variable.type) < 0) {
-			throw new jsmm.msg.Error(node, 'Cannot assign <var>' + jsmm.func.stringify(node, value) + '</var> to <var>' + variableNode.getCode() + '</var>');
+			throw new jsmm.msg.Error(node, 'Cannot assign <var>' + stringify(value) + '</var> to <var>' + variableNode.getCode() + '</var>');
 		} else if (variable.type === 'variable') {
 			try {
 				variable.set(node, variable.name, value);
@@ -78,7 +77,7 @@ module.exports = function(jsmm) {
 		var value = getValue(this.identifier, variable);
 
 		if (typeof value !== 'number') {
-			throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value) + '</var> is not a number');
+			throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value) + '</var> is not a number');
 		} else {
 			if (symbol === '++') {
 				value++;
@@ -86,34 +85,33 @@ module.exports = function(jsmm) {
 				value--;
 			}
 			setVariable(this, this.identifier, variable, value);
-			context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '</var> = <var>' + jsmm.func.stringify(this, value) + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 		}
 	};
 
 	var runBinaryExpression = function(value1, symbol, value2) {
 		if (['-', '*', '/', '%', '-=', '*=', '/=', '%=', '>', '>=', '<', '<='].indexOf(symbol) >= 0) {
 			if (typeof value1 !== 'number' || !isFinite(value1)) {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value1) + '</var> is not a number');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value1) + '</var> is not a number');
 			} else if (typeof value2 !== 'number' || !isFinite(value2)) {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value2) + '</var> is not a number');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value2) + '</var> is not a number');
 			} else if (['/', '/=', '%', '%='].indexOf(symbol) >= 0 && value2 === 0) {
 				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since it is a division by zero');
 			}
 		} else if (['+', '+='].indexOf(symbol) >= 0) {
 			if (['number', 'string'].indexOf(typeof value1) < 0) {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value1) + '</var> is not a number or string');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value1) + '</var> is not a number or string');
 			} else if (['number', 'string'].indexOf(typeof value2) < 0) {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value2) + '</var> is not a number or string');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value2) + '</var> is not a number or string');
 			}
 		} else if (['&&', '||'].indexOf(symbol) >= 0) {
 			if (typeof value1 !== 'boolean') {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value1) + '</var> is not a boolean');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value1) + '</var> is not a boolean');
 			} else if (typeof value2 !== 'boolean') {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value2) + '</var> is not a boolean');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value2) + '</var> is not a boolean');
 			}
 		}
 		
-		/*jshint eqeqeq:false*/
 		switch(symbol) {
 			case '+': case '+=': return value1 + value2;
 			case '-': case '-=': return value1 - value2;
@@ -139,13 +137,13 @@ module.exports = function(jsmm) {
 			value = runBinaryExpression(getValue(this.identifier, variable), symbol, getValue(this.expression, expression));
 		}
 		setVariable(this, this.identifier, variable, value);
-		context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '</var> = <var>' + jsmm.func.stringify(this, value) + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 	};
 	
 	jsmm.nodes.VarItem.prototype.runFunc = function(context, scope, name) {
 		scope.vars[name] = {type: 'local', value: undefined};
 		if (this.assignment === null) {
-			context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.name + '</var> = <var>undefined</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.name + '</var> = <var>undefined</var>')]);
 		}
 	};
 	
@@ -153,7 +151,7 @@ module.exports = function(jsmm) {
 		var value1 = getValue(this.expression1, expression1);
 		var value2 = getValue(this.expression2, expression2);
 		var result = runBinaryExpression(value1, symbol, value2);
-		context.steps.push([new jsmm.msg.Inline(this, '<var>' + jsmm.func.stringify(this, value1) + '</var> ' + symbol + ' <var>' + jsmm.func.stringify(this, value2) + '</var> = <var>' + jsmm.func.stringify(this, result) + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + stringify(value1) + '</var> ' + symbol + ' <var>' + stringify(value2) + '</var> = <var>' + stringify(result) + '</var>')]);
 		return result;
 	};
 	
@@ -162,18 +160,18 @@ module.exports = function(jsmm) {
 		var result;
 		if (symbol === '!') {
 			if (typeof value !== 'boolean') {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value) + '</var> is not a boolean');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value) + '</var> is not a boolean');
 			} else {
 				result = !value;
 			}
 		} else {
 			if (typeof value !== 'number') {
-				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + jsmm.func.stringify(this, value) + '</var> is not a number');
+				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value) + '</var> is not a number');
 			} else {
 				result = (symbol === '+' ? value : -value);
 			}
 		}
-		context.steps.push([new jsmm.msg.Inline(this, '<var>' + symbol + jsmm.func.stringify(this, value) + '</var> = <var>' + jsmm.func.stringify(this, result) + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + symbol + stringify(value) + '</var> = <var>' + stringify(result) + '</var>')]);
 		return result;
 	};
 	
@@ -203,7 +201,7 @@ module.exports = function(jsmm) {
 		} else if (Object.prototype.toString.call(identifierValue) !== '[object Array]') {
 			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not an array');
 		} else if (identifierValue[expressionValue] === undefined) {
-			throw new jsmm.msg.Error(this, 'Array <var>' + this.identifier.getCode() + '</var> has no index <var>' + jsmm.func.stringify(this, expression) + '</var>');
+			throw new jsmm.msg.Error(this, 'Array <var>' + this.identifier.getCode() + '</var> has no index <var>' + stringify(expressionValue) + '</var>');
 		} else {
 			return identifierValue[expressionValue];
 		}
@@ -214,7 +212,7 @@ module.exports = function(jsmm) {
 		var value = getValue(this.expression, expression);
 		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
 		if (typeof value !== 'boolean') {
-			throw new jsmm.msg.Error(this, '<var>' + type + '</var> is not possible since <var>' + jsmm.func.stringify(this, expression) + '</var> is not a boolean');
+			throw new jsmm.msg.Error(this, '<var>' + type + '</var> is not possible since <var>' + stringify(value) + '</var> is not a boolean');
 		} else {
 			return value;
 		}
@@ -226,16 +224,17 @@ module.exports = function(jsmm) {
 		for (var i=0; i<args.length; i++) {
 			var value = getValue(this.expressionArgs[i], args[i]);
 			funcArgs.push(value);
-			msgFuncArgs.push(jsmm.func.stringify(this, value));
+			msgFuncArgs.push(stringify(value));
 		}
 
-		context.steps.push([new jsmm.msg.Inline(this, 'calling <var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'calling <var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
 
 		var retVal;
+		context.enterCall(this);
 		if (typeof funcValue === 'object' && funcValue.type === 'function') {
-			context.enterExternalCall(this, funcValue, funcArgs);
+			context.newCall(this);
 			try {
-				retVal = funcValue.func.call(null, this, funcValue.name, funcArgs);
+				retVal = funcValue.func.call(null, context, funcValue.name, funcArgs);
 			} catch (error) {
 				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
 				if (typeof error === 'string') {
@@ -244,22 +243,22 @@ module.exports = function(jsmm) {
 					throw error;
 				}
 			}
-			context.leaveExternalCall(this);
 		} else if (typeof funcValue !== 'function') {
 			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
 		} else {
-			context.enterInternalCall(this);
 			retVal = funcValue.call(null, context, funcArgs);
-			context.leaveInternalCall(this);
 		}
+		context.leaveCall(this);
 
 		if (retVal === null) {
 			retVal = undefined;
 		}
 
 		if (retVal !== undefined) {
-			context.steps.push([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var> = <var>' + jsmm.func.stringify(this, retVal) + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var> = <var>' + stringify(retVal) + '</var>')]);
 		}
+
+
 
 		return retVal;
 	};
@@ -274,7 +273,7 @@ module.exports = function(jsmm) {
 			}
 		} else {
 			scope.vars[name] = func;
-			context.steps.push([new jsmm.msg.Inline(this, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
 			return scope.vars[name];
 		}
 	};
@@ -292,11 +291,10 @@ module.exports = function(jsmm) {
 				throw new jsmm.msg.Error(this, 'Variable <var>' + this.nameArgs[i] + '</var> is <var>null</var>');
 			} else {
 				scopeVars[this.nameArgs[i]] = args[i];
-				msgFuncArgs.push(jsmm.func.stringify(this, args[i]));
+				msgFuncArgs.push(stringify(args[i]));
 			}
 		}
-		context.enterFunction(this);
-		context.steps.push([new jsmm.msg.Inline(this, 'entering <var>' + this.name + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'entering <var>' + this.name + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
 		return new jsmm.func.Scope(scopeVars, context.scope);
 	};
 	
@@ -305,9 +303,8 @@ module.exports = function(jsmm) {
 		var retVal;
 		if (this.expression !== undefined && expression !== undefined) {
 			retVal = getValue(this.expression, expression);
-			context.steps.push([new jsmm.msg.Inline(this, 'returning <var>' + jsmm.func.stringify(this, retVal) + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'returning <var>' + stringify(retVal) + '</var>')]);
 		}
-		context.leaveFunction(this);
 		return retVal;
 	};
 };

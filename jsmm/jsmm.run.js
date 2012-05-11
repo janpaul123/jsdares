@@ -34,55 +34,82 @@ module.exports = function(jsmm) {
 			this.tree = tree;
 			this.scope = new jsmm.func.Scope(scope);
 			this.executionCounter = 0;
-			this.callStackDepth = 0;
 			this.steps = [];
-			this.calls = [];
+			this.callCounter = 0;
+			this.callsByLine = {};
 			this.callStack = [];
+			this.callNode = null;
 			this.temp = undefined;
 		},
-		enterFunction: function(node) {
-			this.callStackDepth++;
+		enterCall: function(node) {
+			// copy callstack
+			this.callStack = this.callStack.slice(0);
+			this.callStack.push(node);
 
-			if (this.callStackDepth > jsmm.func.maxCallStackDepth) { // TODO
-				throw new jsmm.msg.Error(node, function(f){ return 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere'; });
+			if (this.callStack.length > jsmm.func.maxCallStackDepth) { // TODO
+				throw new jsmm.msg.Error(node, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
 			}
 		},
-		leaveFunction: function(node) {
-			this.callStackDepth--;
+		leaveCall: function() {
+			// copy callstack
+			this.callStack = this.callStack.slice(0);
+			this.callStack.pop();
 		},
 		increaseExecutionCounter: function(node, amount) {
 			this.executionCounter += amount;
 			if (this.executionCounter > jsmm.func.maxExecutionCounter) { // TODO
-				throw new jsmm.msg.Error(node, function(f){ return 'Program takes too long to run'; });
+				throw new jsmm.msg.Error(node, 'Program takes too long to run');
 			}
 		},
-		enterInternalCall: function(node) {
-			this.callStack.push(node);
+		newStep: function(array) {
+			this.steps.push(array || []);
 		},
-		leaveInternalCall: function(node) {
-			this.callStack.pop();
+		addToStep: function(msg) {
+			this.steps[this.steps.length-1].push(msg);
 		},
-		enterExternalCall: function(node, funcValue, args) {
-			this.calls.push({node: node, funcValue: funcValue, args: args});
+		newCall: function(node) {
+			this.callCounter++;
+			this.callNode = node;
+			for (var i=0; i<this.callStack.length; i++) {
+				var line = this.callStack[i].lineLoc.line;
+				if (this.callsByLine[line] === undefined) {
+					this.callsByLine[line] = [];
+				}
+				this.callsByLine[line].push(this.callCounter);
+			}
+			return this.callCounter;
 		},
-		leaveExternalCall: function(node) {
-
+		getCallNode: function() {
+			return this.callNode;
+		},
+		getCallNr: function() {
+			return this.callCounter;
+		},
+		getCallsByRange: function(lineStart, lineEnd) {
+			var output = [];
+			for (var i=lineStart; i<= lineEnd; i++) {
+				if (this.callsByLine[i] !== undefined) {
+					output = output.concat(this.callsByLine[i]);
+				}
+			}
+			return output;
 		}
+		/// INTERNAL FUNCTIONS ///
+		
 	};
 	
 	/* statementList */
 	jsmm.nodes.Program.prototype.getRunCode = function() {
 		var output = 'new function() {';
 		output += 'return function(jsmmContext) {';
-		output += 'return function() {\n';
 		output += 'var jsmmScope;\n';
-		output += this.statementList.getRunCode() + ' return jsmmContext}; }; }';
+		output += this.statementList.getRunCode() + '}; }';
 		return output;
 	};
 	
-	jsmm.nodes.Program.prototype.getRunFunction = function(scope) {
+	jsmm.nodes.Program.prototype.getRunFunction = function() {
 		/*jshint evil:true*/
-		return eval(this.getRunCode())(new jsmm.RunContext(this.tree, scope));
+		return eval(this.getRunCode());
 	};
 	
 	/* statements */

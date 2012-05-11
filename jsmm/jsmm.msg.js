@@ -5,7 +5,7 @@ module.exports = function(jsmm) {
 	jsmm.msg = {};
 	jsmm.msg.Inline = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Line = function() { return this.init.apply(this, arguments); };
-	jsmm.msg.Continue = function() { return this.init.apply(this, arguments); };
+	jsmm.msg.Call = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Error = function() { return this.init.apply(this, arguments); };
 	
 	jsmm.msg.addCommonMessageMethods = function(msg) {
@@ -28,8 +28,9 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(loc, msg) {
+		init: function(loc, callNr, msg) {
 			this.type = 'Inline';
+			this.callNr = callNr;
 			this.loadLineLoc(loc);
 			this.initMsg(msg);
 		}
@@ -44,10 +45,10 @@ module.exports = function(jsmm) {
 		}
 	});
 	
-	jsmm.msg.Continue.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(loc) {
-			this.type = 'Continue';
-			this.loadLineLoc(loc);
+	jsmm.msg.Call.prototype = jsmm.msg.addCommonMessageMethods({
+		init: function(nr) {
+			this.type = 'Call';
+			this.nr = nr;
 		}
 	});
 	

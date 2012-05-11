@@ -10,7 +10,8 @@ fs.readFile('test.txt', function(err, data){
 		console.log(tree.getError());
 	} else {
 		console.log(tree.programNode.getRunCode());
-		var func = tree.programNode.getRunFunction({ console: {
+		var func = tree.programNode.getRunFunction();
+		func(new jsmm.RunContext(tree, { console: {
 					log: {
 						name: 'log',
 						type: 'function',
@@ -19,8 +20,7 @@ fs.readFile('test.txt', function(err, data){
 							return console.log(args[0] || '');
 						}
 					}
-				}});
-		func();
+				}}));
 	}
 	/*
 	var browser = new jsmm.Browser();
