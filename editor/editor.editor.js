@@ -118,6 +118,29 @@ module.exports = function(editor) {
 			this.refreshRunnerOutput();
 		},
 
+		runTemp: function(text) {
+			this.tree = new this.language.Tree(text);
+			if (!this.tree.hasError()) {
+				this.callOutputs('startRun');
+				this.runner.newTree(this.tree);
+				this.runner.run();
+				this.callOutputs('endRun');
+				this.callOutputs('setCallNr', -1);
+				/*
+				var messages = this.runner.getMessages(), shown=false;
+				for (var i=0; i<messages.length; i++) {
+					if (messages[i].type === 'Inline') {
+						shown = true;
+						this.callOutputs('setCallNr', messages[i].callNr);
+					}
+				}
+				if (!shown) {
+					this.callOutputs('setCallNr', -1);
+				}
+				*/
+			}
+		},
+
 		restart: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
 				this.runner.restart();
@@ -459,7 +482,8 @@ module.exports = function(editor) {
 			}
 
 			var text = this.surface.getText();
-			this.tree = new this.language.Tree(text.substring(0, offset1) + example + text.substring(offset2));
+			this.runTemp(text.substring(0, offset1) + example + text.substring(offset2));
+			/*
 			if (!this.tree.hasError()) {
 				this.runner.restart();
 				this.callOutputs('startRun');
@@ -467,6 +491,7 @@ module.exports = function(editor) {
 				this.runner.run();
 				this.callOutputs('endRun');
 			}
+			*/
 			
 			this.toolbar.previewing();
 		},

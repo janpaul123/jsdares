@@ -8,16 +8,6 @@ module.exports = function(jsmm) {
 	jsmm.func.maxCallStackDepth = 100;
 	jsmm.func.maxExecutionCounter = 4000;
 	
-	var findVar = function(scope, name) {
-		do {
-			if (scope.vars[name] !== undefined) {
-				return scope.vars[name];
-			}
-			scope = scope.parent;
-		} while(scope !== null);
-		return undefined;
-	};
-
 	var getValue = function(node, expression) {
 		var value = expression;
 		if (typeof value === 'object' && value.type === 'local') {
@@ -46,12 +36,26 @@ module.exports = function(jsmm) {
 		else return JSON.stringify(value);
 	};
 	
-	jsmm.func.Scope = function(vars, parent) {
-		this.vars = {};
-		for (var name in vars) {
-			this.vars[name] = {type: 'local', value: vars[name]};
+	jsmm.func.Scope = function() { return this.init.apply(this, arguments); };
+
+	jsmm.func.Scope.prototype = {
+		init: function(vars, parent) {
+			this.vars = {};
+			for (var name in vars) {
+				this.vars[name] = {type: 'local', value: vars[name]};
+			}
+			this.parent = parent || null;
+		},
+		find: function(name) {
+			var scope = this;
+			do {
+				if (scope.vars[name] !== undefined) {
+					return scope.vars[name];
+				}
+				scope = scope.parent;
+			} while(scope !== null);
+			return undefined;
 		}
-		this.parent = parent || null;
 	};
 
 	var setVariable = function(context, node, variableNode, variable, value) {
@@ -176,7 +180,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.NameIdentifier.prototype.runFunc = function(context, scope, name) {
-		var val = findVar(scope, name);
+		var val = scope.find(name);
 		if (val === undefined) {
 			throw new jsmm.msg.Error(this, 'Variable <var>' + name + '</var> could not be found');
 		} else {

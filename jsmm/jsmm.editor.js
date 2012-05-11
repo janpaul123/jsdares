@@ -9,15 +9,10 @@ module.exports = function(jsmm) {
 		getExamples: function(scope, text) {
 			var split = text.split('.');
 
-			var obj;
-			try {
-				obj = jsmm.func.name(null, scope, split[0]);
-				for (var i=1; i<split.length-1; i++) {
-					obj = jsmm.func.object(null, obj, split[i]);
-				}
-				obj = obj.value;
-			} catch (error) {
-				return null;
+			var obj = scope.find(split[0]).value;
+			for (var i=1; i<split.length-1; i++) {
+				obj = obj[split[i]];
+				if (obj === undefined) return null;
 			}
 
 			var examples = [];
