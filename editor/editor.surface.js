@@ -90,8 +90,8 @@ module.exports = function(editor) {
 			if (this.visible && this.messageOpen && this.message !== null) {
 				this.$marking.fadeIn(150);
 				this.box.$element.fadeIn(150);
-				this.surface.setElementLocationRange(this.$marking, this.message.line, this.message.column, this.message.line+1, this.message.column2);
-				this.box.html(this.message.html);
+				this.surface.setElementLocationRange(this.$marking, this.message.loc.line, this.message.loc.column, this.message.loc.line+1, this.message.loc.column2);
+				this.box.html(this.message.getHTML());
 			} else {
 				this.$marking.fadeOut(150);
 				this.box.$element.fadeOut(150);

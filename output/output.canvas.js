@@ -180,7 +180,6 @@ module.exports = function(output) {
 		},
 
 		render: function(highlightCallNrs) {
-			console.log('render!');
 			highlightCallNrs = highlightCallNrs || [];
 			this.clear();
 			for (var i=0; i<this.calls.length; i++) {

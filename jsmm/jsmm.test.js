@@ -134,7 +134,7 @@ module.exports = function(jsmm) {
 		} else if (error1.orig !== null || error2.orig !== null) {
 			return false;
 		} else {
-			return error1.html === error2.html;
+			return error1.getHTML() === error2.getHTML();
 		}
 	};
 	

@@ -91,7 +91,7 @@ module.exports = function(output) {
 			var $last = this.$content.children('.console-highlight-line').last();
 			if ($last.length > 0) {
 				// the offset is weird since .position().top changes when scrolling
-				this.scrollToY($last.position().top + this.$div.scrollTop(), true);
+				this.scrollToY($last.position().top, true);
 			}
 		},
 

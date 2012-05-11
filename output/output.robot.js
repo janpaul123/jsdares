@@ -480,7 +480,6 @@ module.exports = function(output) {
 		},
 
 		setFocus: function() {
-			console.log(this.animation);
 			this.animation.playAll();
 		},
 
@@ -571,7 +570,6 @@ module.exports = function(output) {
 		},
 
 		update: function() {
-			console.log('update!');
 			this.$path.children('.robot-path-line, .robot-path-point').hide();
 			this.animation = this.animationManager.newAnimation();
 			for (var i=0; i<this.calls.length; i++) {
