@@ -112,11 +112,13 @@ module.exports = function(editor) {
 			
 			var $stepGroup = $('<div class="btn-group editor-toolbar-step-group"></div>');
 			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
-			this.$stepBackward.click($.proxy(this.editor.stepBackward, this.editor));
+			this.$stepBackward.on('mousedown', $.proxy(this.stepBackwardDown, this));
+			this.$stepBackward.on('mouseup', $.proxy(this.stepBackwardUp, this));
 			$stepGroup.append(this.$stepBackward);
 
 			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon-arrow-right icon-white"></i> Step</button>');
-			this.$stepForward.click($.proxy(this.editor.stepForward, this.editor));
+			this.$stepForward.on('mousedown', $.proxy(this.stepForwardDown, this));
+			this.$stepForward.on('mouseup', $.proxy(this.stepForwardUp, this));
 			$stepGroup.append(this.$stepForward);
 
 			this.$restart = $('<button class="btn btn-success editor-toolbar-restart"><i class="icon-repeat icon-white"></i></button>');
@@ -187,7 +189,7 @@ module.exports = function(editor) {
 			this.$restart.addClass('disabled');
 			this.$edit.addClass('disabled');
 			this.$highlight.addClass('disabled');
-			this.bubbleValue.disable();
+			this.clearStepping();
 		},
 
 		criticalError: function() {
@@ -196,7 +198,7 @@ module.exports = function(editor) {
 			this.$restart.addClass('disabled');
 			this.$edit.addClass('disabled');
 			this.$highlight.addClass('disabled');
-			this.bubbleValue.disable();
+			this.clearStepping();
 		},
 
 		runningWithoutError: function() {
@@ -205,7 +207,7 @@ module.exports = function(editor) {
 			this.$restart.addClass('disabled');
 			this.$edit.removeClass('disabled');
 			this.$highlight.removeClass('disabled');
-			this.bubbleValue.disable();
+			this.clearStepping();
 		},
 
 		runningWithError: function() {
@@ -214,7 +216,7 @@ module.exports = function(editor) {
 			this.$restart.addClass('disabled');
 			this.$edit.removeClass('disabled');
 			this.$highlight.removeClass('disabled');
-			this.bubbleValue.disable();
+			this.clearStepping();
 		},
 
 		steppingWithoutError: function(stepValue, stepTotal) {
@@ -240,6 +242,40 @@ module.exports = function(editor) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
+		stepForwardDown: function() {
+			this.editor.stepForward();
+			this.stepForwardDelay = Math.max((this.stepForwardDelay || 200) - 10, 70);
+			this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
+		},
+
+		stepForwardUp: function() {
+			this.stepForwardDelay = 200;
+			clearTimeout(this.stepForwardTimeout);
+			this.stepForwardTimeout = null;
+		},
+
+		stepBackwardDown: function() {
+			this.editor.stepBackward();
+			this.stepBackwardDelay = Math.max((this.stepBackwardDelay || 200) - 10, 70);
+			this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
+		},
+
+		stepBackwardUp: function() {
+			this.stepBackwardDelay = 200;
+			clearTimeout(this.stepBackwardTimeout);
+			this.stepBackwardTimeout = null;
+		},
+
+		clearStepping: function() {
+			if (this.stepForwardTimeout === null) {
+				this.stepForwardUp();
+			}
+			if (this.stepBackwardTimeout === null) {
+				this.stepBackwardUp();
+			}
+			this.bubbleValue.disable();
+		},
+
 		refreshCheckKeys: function() {
 			if (this.highlightingKey || this.editablesKey) {
 				$(document).on('mousemove', this.$checkKeys);
