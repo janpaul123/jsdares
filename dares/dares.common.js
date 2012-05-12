@@ -216,7 +216,7 @@ module.exports = function(dares) {
 			if (this.animation !== null) {
 				this.animation.remove();
 				this.animatedPoints.setChanging(null);
-				this.editor.highlightSingleLine(null);
+				this.editor.highlightContentLine(null);
 				this.drawScore();
 			}
 		};

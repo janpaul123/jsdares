@@ -49,12 +49,13 @@ module.exports = function(editor) {
 
 		setScope: function(scope) {
 			this.runner.newScope(scope);
-			this.run();
+			if (!this.tree.hasError()) {
+				this.run();
+			}
 		},
 
 		addOutput: function(output) {
 			this.outputs.push(output);
-			this.run();
 		},
 
 		setTextChangeCallback: function(callback) {
