@@ -28,7 +28,7 @@ module.exports = function(jsmm) {
 		stepForward: function() {
 			if (this.context === null) return false;
 			this.step++;
-			if (this.step >= this.context.steps.length) this.step = 0;
+			if (this.step >= this.context.steps.length) this.step = -1;
 			return true;
 		},
 
@@ -41,6 +41,20 @@ module.exports = function(jsmm) {
 
 		isStepping: function() {
 			return this.step >= 0;
+		},
+
+		getStepValue: function() {
+			return this.step;
+		},
+
+		getStepTotal: function() {
+			return this.context.steps.length-1;
+		},
+
+		setStepValue: function(value) {
+			if (value >= 0 && value < this.context.steps.length) {
+				this.step = value;
+			}
 		},
 
 		getError: function() {

@@ -432,6 +432,10 @@ module.exports = function(editor) {
 			}
 		},
 
+		getTextArea: function() { // only for editables to add classes
+			return this.$textarea;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		initOffsets: function() {
 			// setting up mirror

@@ -170,14 +170,14 @@ module.exports = function(editor) {
 			if (this.runner.hasError()) {
 				this.handleError(this.runner.getError());
 				if (this.runner.isStepping()) {
-					this.toolbar.steppingWithError();
+					this.toolbar.steppingWithError(this.runner.getStepValue(), this.runner.getStepTotal());
 				} else {
 					this.toolbar.runningWithError();
 				}
 			} else {
 				this.handleMessages(this.runner.getMessages());
 				if (this.runner.isStepping()) {
-					this.toolbar.steppingWithoutError();
+					this.toolbar.steppingWithoutError(this.runner.getStepValue(), this.runner.getStepTotal());
 				} else {
 					this.toolbar.runningWithoutError();
 				}
@@ -220,6 +220,13 @@ module.exports = function(editor) {
 			if (!shown) {
 				this.surface.hideStepMessage();
 				this.callOutputs('setCallNr', -1);
+			}
+		},
+
+		setStepValue: function(value) { // callback
+			if (!this.tree.hasError() && this.runner.isStepping()) {
+				this.runner.setStepValue(value);
+				this.refreshRunnerOutput();
 			}
 		},
 

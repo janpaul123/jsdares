@@ -71,6 +71,7 @@ module.exports = function(editor) {
 
 	editor.editables.NumberEditable.prototype = addCommonMethods('number', {
 		init: function() {
+			this.$body = $('body');
 			this.hasTooltip = false;
 			this.touchable = new clayer.Touchable(this.$marking, this);
 		},
@@ -100,6 +101,9 @@ module.exports = function(editor) {
 		},
 
 		touchDown: function(touch) {
+			this.$marking.addClass('active');
+			this.$body.addClass('editor-number-editable-dragging');
+			this.surface.getTextArea().addClass('editor-number-editable-dragging');
 			this.hideTooltip();
 		},
 
@@ -109,6 +113,9 @@ module.exports = function(editor) {
 		},
 
 		touchUp: function(touch) {
+			this.$marking.removeClass('active');
+			this.$body.removeClass('editor-number-editable-dragging');
+			this.surface.getTextArea().removeClass('editor-number-editable-dragging');
 			this.valid = this.parseValue(this.text);
 			if (touch.wasTap) {
 				this.showTooltip();
@@ -144,8 +151,10 @@ module.exports = function(editor) {
 		click: function(event) {
 			this.valid = this.parseValue(this.text);
 			if (this.box.$element.is(':visible')) {
+				this.$marking.removeClass('active');
 				this.box.$element.fadeOut(150);
 			} else {
+				this.$marking.addClass('active');
 				this.box.$element.fadeIn(150);
 				this.box.updatePosition();
 			}
