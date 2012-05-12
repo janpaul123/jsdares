@@ -9,10 +9,10 @@ module.exports = function(output) {
 	output.UI = function() { return this.init.apply(this, arguments); };
 
 	output.UI.prototype = {
-		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
+		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
 
 		init: function() {
-			this.editor = this.console = this.canvas = this.robot = this.dare = null;
+			this.editor = this.console = this.canvas = this.robot = this.info = this.dare = null;
 			this.$main = $('#main');
 			this.initTabs();
 			this.loadInitial();
@@ -49,6 +49,10 @@ module.exports = function(output) {
 			if (this.robot !== null) {
 				this.robot.remove();
 				this.robot = null;
+			}
+			if (this.info !== null) {
+				this.info.remove();
+				this.info = null;
 			}
 			if (this.dare !== null) {
 				this.dare.remove();
@@ -114,6 +118,12 @@ module.exports = function(output) {
 			return this.robot;
 		},
 
+		addInfo: function() {
+			this.addTab('info');
+			this.info = new output.Info($('#info'), this.editor);
+			return this.robot;
+		},
+
 		addDare: function(dare) {
 			this.addTab('dare');
 			this.dare = dare;
@@ -140,6 +150,7 @@ module.exports = function(output) {
 			this.addConsole();
 			this.addCanvas();
 			this.addRobot();
+			this.addInfo();
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
 			}

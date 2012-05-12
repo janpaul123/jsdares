@@ -3,6 +3,8 @@
 
 var output = {};
 
+require('./output.console.info')(output);
+require('./output.info')(output);
 require('./output.console')(output);
 require('./output.canvas')(output);
 require('./output.robot')(output);

@@ -37,6 +37,7 @@ module.exports = function(jsmm) {
 			this.steps = [];
 			this.callCounter = 0;
 			this.callsByLine = {};
+			this.infoByLine = {};
 			this.callStack = [];
 			this.callNode = null;
 			this.temp = undefined;
@@ -66,6 +67,10 @@ module.exports = function(jsmm) {
 		},
 		addToStep: function(msg) {
 			this.steps[this.steps.length-1].push(msg);
+		},
+		addInfo: function(node, info) {
+			this.infoByLine[node.lineLoc.line] = this.infoByLine[node.lineLoc.line] || [];
+			this.infoByLine[node.lineLoc.line].push(info);
 		},
 		newCall: function(node) {
 			this.callCounter++;
