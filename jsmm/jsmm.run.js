@@ -39,6 +39,7 @@ module.exports = function(jsmm) {
 			this.callsByLine = {};
 			this.infoByLine = {};
 			this.callStack = [];
+			this.scopeCallback = null;
 			this.callNode = null;
 			this.temp = undefined;
 		},
@@ -68,9 +69,15 @@ module.exports = function(jsmm) {
 		addToStep: function(msg) {
 			this.steps[this.steps.length-1].push(msg);
 		},
-		addInfo: function(node, info) {
+		addInfo: function(node, command) {
 			this.infoByLine[node.lineLoc.line] = this.infoByLine[node.lineLoc.line] || [];
-			this.infoByLine[node.lineLoc.line].push(info);
+			this.infoByLine[node.lineLoc.line].push(command);
+		},
+		callScope: function(node, data) {
+			if (this.scopeCallback !== null) {
+				this.newCall(node);
+				this.scopeCallback(this, data);
+			}
 		},
 		newCall: function(node) {
 			this.callCounter++;
@@ -98,6 +105,12 @@ module.exports = function(jsmm) {
 				}
 			}
 			return output;
+		},
+		getInfoByLine: function(line) {
+			return this.infoByLine[line] || [];
+		},
+		setScopeCallback: function(callback) {
+			this.scopeCallback = callback;
 		}
 		/// INTERNAL FUNCTIONS ///
 		
@@ -139,12 +152,12 @@ module.exports = function(jsmm) {
 	
 	/* identifier, symbol */
 	jsmm.nodes.PostfixStatement.prototype.getRunCode = function() {
-		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.symbol + '")';
+		return getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', ' + this.identifier.getRunCode() + ', "' + this.symbol + '")';
 	};
 	
 	/* identifier, symbol, expression */
 	jsmm.nodes.AssignmentStatement.prototype.getRunCode = function() {
-		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.symbol + '", ' + this.expression.getRunCode() + ')';
+		return getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', ' + this.identifier.getRunCode() + ', "' + this.symbol + '", ' + this.expression.getRunCode() + ')';
 	};
 	
 	/* items */
@@ -227,7 +240,7 @@ module.exports = function(jsmm) {
 	
 	/* identifier, expressionArgs */
 	jsmm.nodes.FunctionCall.prototype.getRunCode = function() {
-		var output = getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', [';
+		var output = getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', ' + this.identifier.getRunCode() + ', [';
 		if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getRunCode();
 		for (var i=1; i<this.expressionArgs.length; i++) {
 			output += ", " + this.expressionArgs[i].getRunCode();

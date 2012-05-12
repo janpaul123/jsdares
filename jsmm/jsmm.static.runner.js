@@ -110,6 +110,10 @@ module.exports = function(jsmm) {
 			return this.context.getCallsByRange(lineStart, lineEnd);
 		},
 
+		getInfoByLine: function(line) {
+			return this.context.getInfoByLine(line);
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		handleError: function(error) {
 			if (error instanceof jsmm.msg.Error) {

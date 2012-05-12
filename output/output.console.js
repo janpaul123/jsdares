@@ -44,18 +44,21 @@ module.exports = function(output) {
 			return {
 				log: {
 					name: 'log',
+					info: 'console.log',
 					type: 'function',
 					example: 'log("Hello World!")',
 					func: $.proxy(this.log, this)
 				},
 				clear: {
 					name: 'clear',
+					info: 'console.clear',
 					type: 'function',
 					example: 'clear()',
 					func: $.proxy(this.clear, this)
 				},
 				setColor: {
 					name: 'setColor',
+					info: 'console.setColor',
 					type: 'function',
 					example: 'setColor("#a00")',
 					func: $.proxy(this.setColor, this)

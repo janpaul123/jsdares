@@ -45,6 +45,11 @@ module.exports = function(jsmm) {
 				this.vars[name] = {type: 'local', value: vars[name]};
 			}
 			this.parent = parent || null;
+			if (this.parent === null) {
+				this.level = 0;
+			} else {
+				this.level = this.parent.level + 1;
+			}
 		},
 		find: function(name) {
 			var scope = this;
@@ -77,7 +82,7 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.nodes.PostfixStatement.prototype.runFunc = function(context, variable, symbol) {
+	jsmm.nodes.PostfixStatement.prototype.runFunc = function(context, scope, variable, symbol) {
 		context.addInfo(this, '++');
 		var value = getValue(this.identifier, variable);
 
@@ -91,6 +96,7 @@ module.exports = function(jsmm) {
 			}
 			setVariable(context, this, this.identifier, variable, value);
 			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
+			context.callScope(this, {type: 'assignment', scope: scope, name: this.identifier.getCode()});
 		}
 	};
 
@@ -148,7 +154,7 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.nodes.AssignmentStatement.prototype.runFunc = function(context, variable, symbol, expression) {
+	jsmm.nodes.AssignmentStatement.prototype.runFunc = function(context, scope, variable, symbol, expression) {
 		var value;
 		if (symbol === '=') {
 			context.addInfo(this, '=');
@@ -157,6 +163,7 @@ module.exports = function(jsmm) {
 			value = runBinaryExpression(context, this, getValue(this.identifier, variable), symbol, getValue(this.expression, expression));
 		}
 		setVariable(context, this, this.identifier, variable, value);
+		context.callScope(this, {type: 'assignment', scope: scope, name: this.identifier.getCode()});
 		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 	};
 	
@@ -164,6 +171,7 @@ module.exports = function(jsmm) {
 		context.addInfo(this, 'var');
 		scope.vars[name] = {type: 'local', value: undefined};
 		if (this.assignment === null) {
+			context.callScope(this, {type: 'declaration', scope: scope, name: name});
 			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.name + '</var> = <var>undefined</var>')]);
 		}
 	};
@@ -242,7 +250,7 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, func, args) {
+	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, scope, func, args) {
 		var funcValue = getValue(this.identifier, func), funcArgs = [], msgFuncArgs = [], appFunc;
 
 		for (var i=0; i<args.length; i++) {
@@ -272,6 +280,7 @@ module.exports = function(jsmm) {
 			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
 		} else {
 			retVal = funcValue.call(null, context, funcArgs);
+			context.callScope(this, {type: 'return', scope: scope});
 		}
 		context.leaveCall(this);
 
@@ -318,8 +327,10 @@ module.exports = function(jsmm) {
 				msgFuncArgs.push(stringify(args[i]));
 			}
 		}
+		var scope = new jsmm.func.Scope(scopeVars, context.scope);
+		context.callScope(this, {type: 'enter', scope: scope});
 		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'entering <var>' + this.name + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
-		return new jsmm.func.Scope(scopeVars, context.scope);
+		return scope;
 	};
 	
 	jsmm.nodes.ReturnStatement.prototype.runFunc =

@@ -13,6 +13,7 @@ module.exports = function(editor) {
 			this.surface = new editor.Surface($div, this);
 			this.toolbar = new editor.Toolbar($toolbar, this);
 			this.outputs = [];
+			this.info = null;
 			this.runner = new language.StaticRunner();
 
 			this.editables = [];
@@ -58,6 +59,10 @@ module.exports = function(editor) {
 			this.outputs.push(output);
 		},
 
+		setInfo: function(info) {
+			this.info = info;
+		},
+
 		setTextChangeCallback: function(callback) {
 			this.textChangeCallback = callback;
 		},
@@ -71,7 +76,9 @@ module.exports = function(editor) {
 
 		callOutputs: function(funcName) {
 			for (var i=0; i<this.outputs.length; i++) {
-				this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
+				if (this.outputs[i][funcName] !== undefined) {
+					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
+				}
 			}
 		},
 
@@ -360,9 +367,11 @@ module.exports = function(editor) {
 					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
 					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
 					this.callOutputs('highlightCalls', this.runner.getCallsByRange(line1, line2));
+					if (this.info !== null) this.info.highlightCommands(this.runner.getInfoByLine(node.lineLoc.line));
 				} else {
 					this.surface.hideHighlight();
 					this.callOutputs('highlightCalls', []);
+					if (this.info !== null) this.info.highlightCommands([]);
 				}
 			}
 		},
