@@ -160,9 +160,8 @@ module.exports = function(output) {
 			this.$content.css('min-height', this.$targetConsole.height());
 		},
 
-		setCallNr: function(callNr) {
+		setCallNr: function(context, callNr) {
 			this.$content.children('.console-line').hide();
-			if (callNr < 0) callNr = Infinity;
 			for (var i=0; i<this.$elements.length; i++) {
 				var call = this.calls[i];
 				if (call !== undefined && call.callNr <= callNr) {

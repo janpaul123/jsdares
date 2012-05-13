@@ -28,6 +28,92 @@ module.exports = function(jsmm) {
 		}
 	};
 
+	jsmm.ScopeTracker = function() { return this.init.apply(this, arguments); };
+	jsmm.ScopeTracker.prototype = {
+		init: function() {
+			this.scopes = [{}];
+			this.nodes = [];
+			this.calls = [];
+		},
+
+		logScope: function(context, data) {
+			var callNr = context.getCallNr();
+			var node = context.getCallNode();
+			var name;
+
+			if (data.type === 'assignment') {
+				name = data.name.split('.')[0];
+				var obj = data.scope.find(name);
+				if (obj !== undefined) {
+					if (data.scope.level === 0 || data.scope.vars[name] === undefined) {
+						this.addAssignment(node, callNr, 0, name, obj.value);
+					} else {
+						this.addAssignment(node, callNr, this.scopes.length-1, name, obj.value);
+					}
+				}
+			} else if (data.type === 'return') {
+				this.calls.push({type: 'return', node: node, callNr: callNr});
+			} else { // data.type === 'enter'
+				this.scopes.push({});
+				this.calls.push({type: 'enter', node: node, callNr: callNr, position: this.scopes.length-1});
+
+				this.nodes[node.id] = this.nodes[node.id] || [];
+				this.nodes[node.id].push('' + this.scopes.length-1);
+
+				for (name in data.scope.vars) {
+					this.addAssignment(node, callNr, this.scopes.length-1, name, data.scope.vars[name].value);
+				}
+			}
+		},
+
+		getState: function(callNr) {
+			var stack = [{id: '0', names: [], scope: {}}];
+
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (call.callNr > callNr) break;
+
+				if (call.type === 'assignment') {
+					var level = stack[call.position === 0 ? 0 : stack.length-1];
+					var scope = level.scope;
+					if (scope[call.name] === undefined) {
+						scope[call.name] = {id: call.position + '-' + call.name, name: call.name, value: call.value};
+						level.names.push(call.name);
+					}
+					scope[call.name].value = call.value;
+				} else if (call.type === 'return') {
+					stack.pop();
+				} else { // call.type === 'enter'
+					stack.push({id: '' + call.position, names: [], scope: {}});
+				}
+			}
+			return stack;
+		},
+
+		getHighlightNodesById: function(id) {
+			var split = id.split('-');
+			if (split.length < 2) return [];
+			var scope = this.scopes[split[0]];
+			if (scope === undefined) return [];
+			return scope[split[1]] || [];
+		},
+
+		getHighlightIdsByNode: function(node) {
+			return this.nodes[node.id] || [];
+		},
+
+		/// INTERNAL FUNCTIONS ///
+		addAssignment: function(node, callNr, position, name, value) {
+			this.scopes[position][name] = this.scopes[position][name] || [];
+			if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
+
+			this.nodes[node.id] = this.nodes[node.id] || [];
+			this.nodes[node.id].push(position + '-' + name);
+
+			this.calls.push({type: 'assignment', node: node, callNr: callNr, position: position, name: name, value: '' + value});
+		}
+	};
+
 	jsmm.RunContext = function() { return this.init.apply(this, arguments); };
 	jsmm.RunContext.prototype = {
 		init: function(tree, scope) {
@@ -39,7 +125,7 @@ module.exports = function(jsmm) {
 			this.callsByLine = {};
 			this.infoByLine = {};
 			this.callStack = [];
-			this.scopeCallback = null;
+			this.scopeTracker = new jsmm.ScopeTracker();
 			this.callNode = null;
 			this.temp = undefined;
 		},
@@ -74,10 +160,8 @@ module.exports = function(jsmm) {
 			this.infoByLine[node.lineLoc.line].push(command);
 		},
 		callScope: function(node, data) {
-			if (this.scopeCallback !== null) {
-				this.newCall(node);
-				this.scopeCallback(this, data);
-			}
+			this.newCall(node);
+			this.scopeTracker.logScope(this, data);
 		},
 		newCall: function(node) {
 			this.callCounter++;
@@ -109,8 +193,8 @@ module.exports = function(jsmm) {
 		getInfoByLine: function(line) {
 			return this.infoByLine[line] || [];
 		},
-		setScopeCallback: function(callback) {
-			this.scopeCallback = callback;
+		getScopeTracker: function() {
+			return this.scopeTracker;
 		}
 		/// INTERNAL FUNCTIONS ///
 		

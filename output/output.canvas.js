@@ -275,8 +275,7 @@ module.exports = function(output) {
 
 		},
 
-		setCallNr: function(callNr) {
-			callNr = callNr < 0 ? Infinity : callNr;
+		setCallNr: function(context, callNr) {
 			if (callNr !== this.callNr) {
 				this.callNr = callNr;
 				this.render();

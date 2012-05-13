@@ -95,8 +95,8 @@ module.exports = function(jsmm) {
 				value--;
 			}
 			setVariable(context, this, this.identifier, variable, value);
-			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 			context.callScope(this, {type: 'assignment', scope: scope, name: this.identifier.getCode()});
+			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 		}
 	};
 

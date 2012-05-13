@@ -389,9 +389,6 @@ module.exports = function(output) {
 			this.$container.removeClass('robot-error');
 		},
 
-		endRun: function() {
-		},
-
 		hasError: function() {
 			this.$container.addClass('robot-error');
 		},
@@ -483,8 +480,7 @@ module.exports = function(output) {
 			this.animation.playAll();
 		},
 
-		setCallNr: function(callNr) {
-			callNr = callNr < 0 ? Infinity : callNr;
+		setCallNr: function(context, callNr) {
 			if (callNr !== this.callNr) {
 				this.callNr = callNr;
 			}

@@ -1,0 +1,69 @@
+.icfo {
+	
+}
+
+.info-table-item {
+	border-top: 1px solid #555;
+	padding: 5px 5px 2px 5px;
+	cursor: pointer;
+	overflow: hidden;
+
+	.info-table-cell {
+		> span {
+			display: inline-block;
+			.ie7-inline-block();
+			font-size: 14px;
+		}
+
+		.info-table-cell-name {
+			width: 650-110-90-20px;
+			font-weight: bold;
+		}
+
+		.info-table-output {
+			font-weight: normal;
+			background-color: black;
+			.border-radius(10px);
+			font-size: 12px;
+			vertical-align: text-top;
+			line-height: 16px;
+			background-color: #111;
+			padding: 3px 5px;
+			margin-left: 3px;
+		}
+	}
+
+	.info-table-content {
+		margin-left: 0px;
+		overflow: auto;
+		padding-bottom: 2px;
+		z-index: 10;
+	}
+
+	&:hover {
+		z-index: 11;
+		background-color: #555;
+		.box-shadow(0px 0px 2px #2a2a2a);
+	}
+
+	&.info-table-item-active {
+		z-index: 12;
+		background-color: #555;
+		.box-shadow(0px 0px 5px #2a2a2a);
+		&:hover {
+			background-color: #666;
+		}
+	}
+
+	&.info-table-item-highlight {
+		background-color: @highlight-color;
+	}
+}
+
+.info-scope {
+	.code-well();
+
+	.info-scope-cell {
+		padding: 5px;
+	}
+}

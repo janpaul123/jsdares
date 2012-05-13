@@ -122,7 +122,7 @@ module.exports = function(editor) {
 			this.callOutputs('startRun');
 			this.runner.newTree(this.tree);
 			this.runner.run();
-			this.callOutputs('endRun');
+			this.callOutputs('endRun', this.runner.getContext());
 			this.refreshRunnerOutput();
 		},
 
@@ -133,7 +133,7 @@ module.exports = function(editor) {
 				this.runner.newTree(this.tree);
 				this.runner.run();
 				this.callOutputs('endRun');
-				this.callOutputs('setCallNr', -1);
+				this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
 				/*
 				var messages = this.runner.getMessages(), shown=false;
 				for (var i=0; i<messages.length; i++) {
@@ -222,12 +222,12 @@ module.exports = function(editor) {
 				if (messages[i].type === 'Inline') {
 					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
 					shown = true;
-					this.callOutputs('setCallNr', messages[i].callNr);
+					this.callOutputs('setCallNr', this.runner.getContext(), messages[i].callNr);
 				}
 			}
 			if (!shown) {
 				this.surface.hideStepMessage();
-				this.callOutputs('setCallNr', -1);
+				this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
 			}
 		},
 
@@ -366,8 +366,8 @@ module.exports = function(editor) {
 				if (node !== null) {
 					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
 					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
-					this.callOutputs('highlightCalls', this.runner.getCallsByRange(line1, line2));
-					if (this.info !== null) this.info.highlightCommands(this.runner.getInfoByLine(node.lineLoc.line));
+					this.callOutputs('highlightCalls', this.runner.getContext().getCallsByRange(line1, line2));
+					if (this.info !== null) this.info.highlightCommands(this.runner.getContext().getInfoByLine(node.lineLoc.line));
 				} else {
 					this.surface.hideHighlight();
 					this.callOutputs('highlightCalls', []);

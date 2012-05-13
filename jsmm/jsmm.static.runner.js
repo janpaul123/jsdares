@@ -13,12 +13,12 @@ module.exports = function(jsmm) {
 			this.error = null;
 			this.runFunc = null;
 			this.context = null;
-			this.step = -1;
+			this.step = Infinity;
 		},
 
 		restart: function() {
 			// set a running state
-			this.step = -1;
+			this.step = Infinity;
 		},
 
 		hasError: function() {
@@ -27,20 +27,23 @@ module.exports = function(jsmm) {
 
 		stepForward: function() {
 			if (this.context === null) return false;
-			this.step++;
-			if (this.step >= this.context.steps.length) this.step = -1;
+			
+			if (this.step === Infinity) this.step = 0;
+			else this.step++;
+
+			if (this.step >= this.context.steps.length) this.step = Infinity;
 			return true;
 		},
 
 		stepBackward: function() {
 			if (this.context === null) return false;
 			this.step--;
-			if (this.step < -1) this.step = -1;
+			if (this.step < 0) this.step = Infinity;
 			return true;
 		},
 
 		isStepping: function() {
-			return this.step >= 0;
+			return this.step < Infinity;
 		},
 
 		getStepValue: function() {
@@ -73,7 +76,7 @@ module.exports = function(jsmm) {
 				this.context = new jsmm.RunContext(this.tree, this.scope);
 				this.runFunc(this.context);
 
-				if (this.step >= this.context.steps.length) this.step = this.context.steps.length-1;
+				if (this.step >= this.context.steps.length && this.step !== Infinity) this.step = this.context.steps.length-1;
 
 				return true;
 			} catch (error) {
@@ -83,7 +86,7 @@ module.exports = function(jsmm) {
 		},
 
 		getMessages: function() {
-			if (this.context === null || this.step < 0) return [];
+			if (this.context === null || this.step === Infinity) return [];
 			else return this.context.steps[this.step] || [];
 		},
 
@@ -106,12 +109,8 @@ module.exports = function(jsmm) {
 			}
 		},
 
-		getCallsByRange: function(lineStart, lineEnd) {
-			return this.context.getCallsByRange(lineStart, lineEnd);
-		},
-
-		getInfoByLine: function(line) {
-			return this.context.getInfoByLine(line);
+		getContext: function() {
+			return this.context;
 		},
 
 		/// INTERNAL FUNCTIONS ///
