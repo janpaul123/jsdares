@@ -37,6 +37,30 @@ module.exports = function(jsmm) {
 		else return JSON.stringify(value);
 	};
 
+	jsmm.CommandTracker = function() { return this.init.apply(this, arguments); };
+	jsmm.CommandTracker.prototype = {
+		init: function() {
+			this.idsByLine = {};
+			this.nodesById = {};
+		},
+
+		addCommand: function(node, id) {
+			this.idsByLine[node.lineLoc.line] = this.idsByLine[node.lineLoc.line] || [];
+			this.idsByLine[node.lineLoc.line].push(id);
+
+			this.nodesById[id] = this.nodesById[id] || [];
+			if (this.nodesById[id].indexOf(node) < 0) this.nodesById[id].push(node);
+		},
+
+		getHighlightIdsByLine: function(line) {
+			return this.idsByLine[line] || [];
+		},
+
+		getHighlightNodesById: function(id) {
+			return this.nodesById[id] || [];
+		}
+	};
+
 	jsmm.ScopeTracker = function() { return this.init.apply(this, arguments); };
 	jsmm.ScopeTracker.prototype = {
 		init: function() {
@@ -45,26 +69,26 @@ module.exports = function(jsmm) {
 			this.calls = [];
 		},
 
-		logScope: function(node, data) {
+		logScope: function(callNr, node, data) {
 			var name;
 			if (data.type === 'assignment') {
 				name = data.name.split('.')[0];
 				var obj = data.scope.find(name);
 				if (obj !== undefined) {
 					if (data.scope.level === 0 || data.scope.vars[name] === undefined) {
-						this.addAssignment(node, 0, name, obj.value);
+						this.addAssignment(callNr, node, 0, name, obj.value);
 					} else {
-						this.addAssignment(node, this.scopes.length-1, name, obj.value);
+						this.addAssignment(callNr, node, this.scopes.length-1, name, obj.value);
 					}
 				}
 			} else if (data.type === 'return') {
-				this.calls.push({type: 'return', node: node});
+				this.calls.push({type: 'return', callNr: callNr, node: node});
 			} else { // data.type === 'enter'
 				this.scopes.push({});
-				this.calls.push({type: 'enter', node: node, name: data.name, position: this.scopes.length-1});
+				this.calls.push({type: 'enter', callNr: callNr, node: node, name: data.name, position: this.scopes.length-1});
 
 				for (name in data.scope.vars) {
-					this.addAssignment(node, this.scopes.length-1, name, data.scope.vars[name].value);
+					this.addAssignment(callNr, node, this.scopes.length-1, name, data.scope.vars[name].value);
 				}
 			}
 		},
@@ -106,14 +130,14 @@ module.exports = function(jsmm) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addAssignment: function(node, position, name, value) {
+		addAssignment: function(callNr, node, position, name, value) {
 			this.scopes[position][name] = this.scopes[position][name] || [];
 			if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
 
 			this.lines[node.lineLoc.line] = this.lines[node.lineLoc.line] || [];
 			this.lines[node.lineLoc.line].push(position + '-' + name);
 
-			this.calls.push({type: 'assignment', node: node, position: position, name: name, value: stringify(value)});
+			this.calls.push({type: 'assignment', callNr: callNr, node: node, position: position, name: name, value: stringify(value)});
 		}
 	};
 
@@ -126,8 +150,8 @@ module.exports = function(jsmm) {
 			this.steps = [];
 			this.callCounter = 0;
 			this.callsByLine = {};
-			this.commandsByLine = {};
 			this.callStack = [];
+			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
 			this.callNode = null;
 			this.temp = undefined;
@@ -159,11 +183,11 @@ module.exports = function(jsmm) {
 			this.steps[this.steps.length-1].push(msg);
 		},
 		addCommand: function(node, command) {
-			this.commandsByLine[node.lineLoc.line] = this.commandsByLine[node.lineLoc.line] || [];
-			this.commandsByLine[node.lineLoc.line].push(command);
+			this.commandTracker.addCommand(node, command);
 		},
 		callScope: function(node, data) {
-			this.scopeTracker.logScope(node, data);
+			this.newCall(node);
+			this.scopeTracker.logScope(this.callCounter, node, data);
 		},
 		newCall: function(node) {
 			this.callCounter++;
@@ -192,8 +216,8 @@ module.exports = function(jsmm) {
 			}
 			return output;
 		},
-		getCommandsByLine: function(line) {
-			return this.commandsByLine[line] || [];
+		getCommandTracker: function() {
+			return this.commandTracker;
 		},
 		getScopeTracker: function() {
 			return this.scopeTracker;

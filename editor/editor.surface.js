@@ -238,9 +238,9 @@ module.exports = function(editor) {
 			this.stepMessage = new editor.Message('step', this);
 
 			// highlights
-			this.$highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
-			this.addElement(this.$highlightMarking);
-			this.$highlightMarking.hide();
+			//this.$highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
+			//this.addElement(this.$highlightMarking);
+			//this.$highlightMarking.hide();
 
 			this.initOffsets();
 
@@ -251,7 +251,7 @@ module.exports = function(editor) {
 
 		remove: function() {
 			this.hideAutoCompleteBox();
-			this.$highlightMarking.remove();
+			//this.$highlightMarking.remove();
 			this.errorMessage.remove();
 			this.stepMessage.remove();
 			this.$margin.remove();
@@ -332,16 +332,28 @@ module.exports = function(editor) {
 
 		disableHighlighting: function() {
 			this.$textarea.removeClass('editor-highlighting');
-			this.hideHighlight();
+			this.removeHighlights();
+		},
+
+		addHighlight: function(line, column, line2, column2) {
+			//this.$highlightMarking.show();
+			var $highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
+			this.addElement($highlightMarking);
+			this.setElementLocationRange($highlightMarking, line, column, line2, column2);
 		},
 
 		showHighlight: function(line, column, line2, column2) {
-			this.$highlightMarking.show();
-			this.setElementLocationRange(this.$highlightMarking, line, column, line2, column2);
+			this.removeHighlights();
+			this.addHighlight(line, column, line2, column2);
+		},
+
+		removeHighlights: function() {
+			//this.$highlightMarking.hide();
+			this.$surface.children('.editor-highlight').remove();
 		},
 
 		hideHighlight: function() {
-			this.$highlightMarking.hide();
+			this.removeHighlights();
 		},
 
 		scrollToLine: function(line) {

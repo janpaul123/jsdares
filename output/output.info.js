@@ -2,16 +2,107 @@
 "use strict";
 
 module.exports = function(output) {
-	output.InfoTable = function() { return this.init.apply(this, arguments); };
 	output.InfoScope = function() { return this.init.apply(this, arguments); };
+	output.InfoTable = function() { return this.init.apply(this, arguments); };
 	output.Info = function() { return this.init.apply(this, arguments); };
+
+	output.InfoScope.prototype = {
+		init: function($div, info) {
+			this.info = info;
+			this.$scope = $('<div class="info-scope"></div>');
+			$div.append(this.$scope);
+		},
+
+		remove: function() {
+			this.clear();
+			this.$scope.remove();
+		},
+
+		update: function(scopeTracker, callNr) {
+			this.scopeTracker = scopeTracker;
+			var state = this.scopeTracker.getState(callNr);
+			this.clear();
+			var enabled = true;
+			for (var i=state.length-1; i>0; i--) {
+				this.makeCell(state[i], enabled);
+				enabled = false;
+			}
+			this.makeCell(state[0], true);
+		},
+
+		enableHighlighting: function() {
+			this.$scope.on('mousemove', $.proxy(this.mouseMove, this));
+			this.$scope.on('mouseleave', $.proxy(this.mouseLeave, this));
+		},
+
+		disableHighlighting: function() {
+			this.$scope.off('mousemove mouseleave');
+			this.removeHighlights();
+		},
+
+		highlightLine: function(line) {
+			this.removeHighlights();
+			var ids = this.scopeTracker.getHighlightIdsByLine(line);
+			for (var i=0; i<ids.length; i++) {
+				if (this.$variables[ids[i]] !== undefined) {
+					this.$variables[ids[i]].addClass('info-scope-variable-highlight');
+				}
+			}
+		},
+
+		/// INTERNAL FUNCTIONS ///
+		clear: function() {
+			this.$scope.find('.info-scope-variable').remove(); // to prevent $.data leaks
+			this.$scope.children('.info-scope-cell').remove(); // to prevent $.data leaks
+			this.$variables = {};
+		},
+
+		makeCell: function(level, enabled) {
+			var $cell = $('<div class="info-scope-cell"><div class="info-scope-name">' + level.name + ':</div></div>');
+			$cell.data('id', level.id);
+			if (!enabled) $cell.addClass('disabled');
+			this.$scope.append($cell);
+
+			for (var i=0; i<level.names.length; i++) {
+				var name = level.names[i];
+				var variable = level.scope[name];
+				var $variable = $('<div class="info-scope-variable">' + variable.name + ' = ' + variable.value + '</div>');
+				$variable.data('id', variable.id);
+				$cell.append($variable);
+				this.$variables[variable.id] = $variable;
+			}
+		},
+
+		removeHighlights: function() {
+			this.$scope.find('.info-scope-variable-highlight').removeClass('info-scope-variable-highlight');
+		},
+
+		mouseMove: function(event) {
+			this.removeHighlights();
+			var $target = $(event.target);
+			if ($target.data('id') !== undefined) {
+				$target.addClass('info-scope-variable-highlight');
+				this.info.editor.highlightNodes(this.scopeTracker.getHighlightNodesById($target.data('id')));
+			} else {
+				this.info.editor.highlightNode(null);
+			}
+		},
+
+		mouseLeave: function(event) {
+			this.removeHighlights();
+			this.info.editor.highlightNode(null);
+		}
+	};
 
 	output.InfoTable.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
-		init: function($div, commands) {
+		init: function($div, info, commands) {
+			this.info = info;
 			this.$table = $('<div class="info-table">');
+			this.$table.on('mouseleave', $.proxy(this.mouseLeave, this));
 			this.commands = {};
+			this.highlighting = false;
 
 			for (var i=0; i<commands.length; i++) {
 				var command = commands[i];
@@ -24,6 +115,7 @@ module.exports = function(output) {
 
 				$item.data('command', command);
 				$item.on('click', $.proxy(this.itemClick, this));
+				$item.on('mousemove', $.proxy(this.mouseMove, this));
 
 				this.$table.append($item);
 				this.commands[command.id] = {command: command, $item: $item};
@@ -37,6 +129,32 @@ module.exports = function(output) {
 			this.$table.remove();
 		},
 
+		update: function(commandTracker) {
+			this.commandTracker = commandTracker;
+		},
+
+		highlightLine: function(line) {
+			var ids = this.commandTracker.getHighlightIdsByLine(line);
+			this.removeHighlights();
+			for (var i=0; i<ids.length; i++) {
+				var id = ids[i];
+				if (this.commands[id] !== undefined) {
+					//this.commands[id].$item.click();
+					this.commands[id].$item.addClass('info-table-item-highlight');
+				}
+			}
+		},
+
+		enableHighlighting: function() {
+			this.highlighting = true;
+		},
+
+		disableHighlighting: function() {
+			this.highlighting = false;
+			this.removeHighlights();
+		},
+
+		/// INTERNAL FUNCTIONS ///
 		makeCell: function(command, $cell) {
 			var $name = $('<span class="info-table-cell-name">' + command.name + ' </span>');
 			for (var j=0; j<command.outputs.length; j++) {
@@ -62,72 +180,27 @@ module.exports = function(output) {
 			}
 		},
 
-		highlightCommands: function(ids) {
+		removeHighlights: function() {
 			this.$table.children('.info-table-item-highlight').removeClass('info-table-item-highlight');
-			for (var i=0; i<ids.length; i++) {
-				var id = ids[i];
-				if (this.commands[id] !== undefined) {
-					//this.commands[id].$item.click();
-					this.commands[id].$item.addClass('info-table-item-highlight');
+		},
+
+		mouseMove: function(event) {
+			if (this.highlighting) {
+				this.removeHighlights();
+				var $target = $(event.delegateTarget);
+				if ($target.data('command') !== undefined) {
+					$target.addClass('info-table-item-highlight');
+					this.info.editor.highlightNodes(this.commandTracker.getHighlightNodesById($target.data('command').id));
+				} else {
+					this.info.editor.highlightNode(null);
 				}
 			}
-		}
-	};
-
-	output.InfoScope.prototype = {
-		init: function($div) {
-			this.$scope = $('<div class="info-scope"></div>');
-			$div.append(this.$scope);
 		},
 
-		remove: function() {
-			this.clear();
-			this.$scope.remove();
-		},
-
-		update: function(scopeTracker, callNr) {
-			this.scopeTracker = scopeTracker;
-			var state = this.scopeTracker.getState(callNr);
-			this.clear();
-			var enabled = true;
-			for (var i=state.length-1; i>0; i--) {
-				this.makeCell(state[i], enabled);
-				enabled = false;
-			}
-			this.makeCell(state[0], true);
-		},
-
-		/// INTERNAL FUNCTIONS ///
-		clear: function() {
-			this.$scope.find('.info-scope-variable').remove(); // to prevent $.data leaks
-			this.$scope.children('.info-scope-cell').remove(); // to prevent $.data leaks
-			this.$variables = {};
-		},
-
-		makeCell: function(level, enabled) {
-			console.log(level);
-			var $cell = $('<div class="info-scope-cell"><div class="info-scope-name">' + level.name + ':</div></div>');
-			$cell.data('id', level.id);
-			if (!enabled) $cell.addClass('disabled');
-			this.$scope.append($cell);
-
-			for (var i=0; i<level.names.length; i++) {
-				var name = level.names[i];
-				var variable = level.scope[name];
-				var $variable = $('<div class="info-scope-variable">' + variable.name + ' = ' + variable.value + '</div>');
-				$variable.data('id', variable.id);
-				$cell.append($variable);
-				this.$variables[variable.id] = $variable;
-			}
-		},
-
-		highlightLine: function(line) {
-			this.$scope.find('.info-scope-variable-highlight').removeClass('info-scope-variable-highlight');
-			var ids = this.scopeTracker.getHighlightIdsByLine(line);
-			for (var i=0; i<ids.length; i++) {
-				if (this.$variables[ids[i]] !== undefined) {
-					this.$variables[ids[i]].addClass('info-scope-variable-highlight');
-				}
+		mouseLeave: function(event) {
+			if (this.highlighting) {
+				this.removeHighlights();
+				this.info.editor.highlightNode(null);
 			}
 		}
 	};
@@ -138,28 +211,35 @@ module.exports = function(output) {
 			this.$div.addClass('output info');
 			this.editor = editor;
 			this.editor.addOutput(this);
-			this.editor.setInfo(this);
 
-			this.scope = new output.InfoScope(this.$div);
-			this.table = new output.InfoTable(this.$div, output.getConsoleInfo());
+			this.scope = new output.InfoScope(this.$div, this);
+			this.table = new output.InfoTable(this.$div, this, output.getConsoleInfo());
 		},
 
 		remove: function() {
 			this.$div.removeClass('output info');
 		},
 
-		highlightInfo: function(line, ids) {
+		highlightCodeLine: function(line) {
 			this.scope.highlightLine(line);
-			this.table.highlightCommands(ids);
+			this.table.highlightLine(line);
+		},
+
+		enableHighlighting: function() {
+			this.$div.addClass('info-highlighting');
+			this.scope.enableHighlighting();
+			this.table.enableHighlighting();
 		},
 
 		disableHighlighting: function() {
-			this.scope.highlightLine(0);
-			this.table.highlightCommands([]);
+			this.$div.removeClass('info-highlighting');
+			this.scope.disableHighlighting();
+			this.table.disableHighlighting();
 		},
 
 		setCallNr: function(context, callNr) {
 			this.scope.update(context.getScopeTracker(), callNr);
+			this.table.update(context.getCommandTracker());
 		}
 	};
 };

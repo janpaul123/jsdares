@@ -1,5 +1,22 @@
-.icfo {
+.info {
 	
+}
+
+.info-highlighting, .info-highlighting .info-table-item {
+	cursor: crosshair;
+}
+
+.info-scope {
+	.code-well();
+	margin-bottom: 15px;
+
+	.info-scope-cell {
+		padding: 5px;
+
+		.info-scope-variable-highlight {
+			background-color: @highlight-color;
+		}
+	}
 }
 
 .info-table-item {
@@ -56,18 +73,6 @@
 	}
 
 	&.info-table-item-highlight {
-		background-color: @highlight-color;
-	}
-}
-
-.info-scope {
-	.code-well();
-
-	.info-scope-cell {
-		padding: 5px;
-
-		.info-scope-variable-highlight {
-			background-color: @highlight-color;
-		}
+		background-color: @highlight-color !important;
 	}
 }

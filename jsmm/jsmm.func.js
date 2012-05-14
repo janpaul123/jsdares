@@ -175,7 +175,8 @@ module.exports = function(jsmm) {
 		context.addCommand(this, 'var');
 		scope.vars[name] = {type: 'local', value: undefined};
 		if (this.assignment === null) {
-			context.callScope(this, {type: 'declaration', scope: scope, name: name});
+			context.callScope(this, {type: 'assignment', scope: scope, name: name});
+			//context.callScope(this, {type: 'declaration', scope: scope, name: name});
 			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.name + '</var> = <var>undefined</var>')]);
 		}
 	};
