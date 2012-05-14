@@ -81,6 +81,10 @@ module.exports = function(jsmm) {
 			variable.value = value;
 		}
 	};
+
+	jsmm.nodes.Program.prototype.runFunc = function(context, scope, variable, symbol) {
+		context.callScope(this, {type: 'enter', scope: scope, name: 'global'});
+	};
 	
 	jsmm.nodes.PostfixStatement.prototype.runFunc = function(context, scope, variable, symbol) {
 		context.addInfo(this, '++');
@@ -305,7 +309,8 @@ module.exports = function(jsmm) {
 				throw new jsmm.msg.Error(this, 'Function <var>' + name + '</var> cannot be declared since there already is a variable with that name');
 			}
 		} else {
-			scope.vars[name] = func;
+			scope.vars[name] = {type: 'local', value: func};
+			context.callScope(this, {type: 'assignment', scope: scope, name: name});
 			context.newStep([new jsmm.msg.Inline(this.blockLoc, context.callCounter, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
 			return scope.vars[name];
 		}
@@ -328,8 +333,9 @@ module.exports = function(jsmm) {
 			}
 		}
 		var scope = new jsmm.func.Scope(scopeVars, context.scope);
-		context.callScope(this, {type: 'enter', scope: scope});
-		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'entering <var>' + this.name + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
+		var fullName = this.name + '(' + msgFuncArgs.join(', ') + ')';
+		context.callScope(this, {type: 'enter', scope: scope, name: fullName});
+		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'entering <var>' + fullName + '</var>')]);
 		return scope;
 	};
 	

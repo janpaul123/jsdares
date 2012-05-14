@@ -28,19 +28,25 @@ module.exports = function(jsmm) {
 		}
 	};
 
+	var stringify = function(value) { // TODO: remove double functionality
+		if (typeof value === 'function') return '[function]';
+		else if (typeof value === 'object' && value.type === 'function') return '[function]';
+		else if (Object.prototype.toString.call(value) === '[object Array]') return '[array]';
+		else if (typeof value === 'object') return '[object]';
+		else if (value === undefined) return 'undefined';
+		else return JSON.stringify(value);
+	};
+
 	jsmm.ScopeTracker = function() { return this.init.apply(this, arguments); };
 	jsmm.ScopeTracker.prototype = {
 		init: function() {
-			this.scopes = [{}];
+			this.scopes = [];
 			this.nodes = [];
 			this.calls = [];
 		},
 
-		logScope: function(context, data) {
-			var callNr = context.getCallNr();
-			var node = context.getCallNode();
+		logScope: function(callNr, node, data) {
 			var name;
-
 			if (data.type === 'assignment') {
 				name = data.name.split('.')[0];
 				var obj = data.scope.find(name);
@@ -55,7 +61,7 @@ module.exports = function(jsmm) {
 				this.calls.push({type: 'return', node: node, callNr: callNr});
 			} else { // data.type === 'enter'
 				this.scopes.push({});
-				this.calls.push({type: 'enter', node: node, callNr: callNr, position: this.scopes.length-1});
+				this.calls.push({type: 'enter', node: node, name: data.name, callNr: callNr, position: this.scopes.length-1});
 
 				this.nodes[node.id] = this.nodes[node.id] || [];
 				this.nodes[node.id].push('' + this.scopes.length-1);
@@ -67,7 +73,7 @@ module.exports = function(jsmm) {
 		},
 
 		getState: function(callNr) {
-			var stack = [{id: '0', names: [], scope: {}}];
+			var stack = [];
 
 			for (var i=0; i<this.calls.length; i++) {
 				var call = this.calls[i];
@@ -84,7 +90,7 @@ module.exports = function(jsmm) {
 				} else if (call.type === 'return') {
 					stack.pop();
 				} else { // call.type === 'enter'
-					stack.push({id: '' + call.position, names: [], scope: {}});
+					stack.push({id: '' + call.position, name: call.name, names: [], scope: {}});
 				}
 			}
 			return stack;
@@ -110,7 +116,7 @@ module.exports = function(jsmm) {
 			this.nodes[node.id] = this.nodes[node.id] || [];
 			this.nodes[node.id].push(position + '-' + name);
 
-			this.calls.push({type: 'assignment', node: node, callNr: callNr, position: position, name: name, value: '' + value});
+			this.calls.push({type: 'assignment', node: node, callNr: callNr, position: position, name: name, value: stringify(value)});
 		}
 	};
 
@@ -161,7 +167,7 @@ module.exports = function(jsmm) {
 		},
 		callScope: function(node, data) {
 			this.newCall(node);
-			this.scopeTracker.logScope(this, data);
+			this.scopeTracker.logScope(this.callCounter, node, data);
 		},
 		newCall: function(node) {
 			this.callCounter++;
@@ -205,6 +211,7 @@ module.exports = function(jsmm) {
 		var output = 'new function() {';
 		output += 'return function(jsmmContext) {';
 		output += 'var jsmmScope;\n';
+		output += getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ');';
 		output += this.statementList.getRunCode() + '}; }';
 		return output;
 	};

@@ -103,7 +103,7 @@ module.exports = function(output) {
 
 		makeCell: function(level, enabled) {
 			console.log(level);
-			var $cell = $('<div class="info-scope-cell"></div>');
+			var $cell = $('<div class="info-scope-cell"><div class="info-scope-name">' + level.name + ':</div></div>');
 			$cell.data('id', level.id);
 			if (!enabled) $cell.addClass('disabled');
 			this.$scope.append($cell);
