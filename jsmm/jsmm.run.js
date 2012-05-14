@@ -41,33 +41,30 @@ module.exports = function(jsmm) {
 	jsmm.ScopeTracker.prototype = {
 		init: function() {
 			this.scopes = [];
-			this.nodes = [];
+			this.lines = {};
 			this.calls = [];
 		},
 
-		logScope: function(callNr, node, data) {
+		logScope: function(node, data) {
 			var name;
 			if (data.type === 'assignment') {
 				name = data.name.split('.')[0];
 				var obj = data.scope.find(name);
 				if (obj !== undefined) {
 					if (data.scope.level === 0 || data.scope.vars[name] === undefined) {
-						this.addAssignment(node, callNr, 0, name, obj.value);
+						this.addAssignment(node, 0, name, obj.value);
 					} else {
-						this.addAssignment(node, callNr, this.scopes.length-1, name, obj.value);
+						this.addAssignment(node, this.scopes.length-1, name, obj.value);
 					}
 				}
 			} else if (data.type === 'return') {
-				this.calls.push({type: 'return', node: node, callNr: callNr});
+				this.calls.push({type: 'return', node: node});
 			} else { // data.type === 'enter'
 				this.scopes.push({});
-				this.calls.push({type: 'enter', node: node, name: data.name, callNr: callNr, position: this.scopes.length-1});
-
-				this.nodes[node.id] = this.nodes[node.id] || [];
-				this.nodes[node.id].push('' + this.scopes.length-1);
+				this.calls.push({type: 'enter', node: node, name: data.name, position: this.scopes.length-1});
 
 				for (name in data.scope.vars) {
-					this.addAssignment(node, callNr, this.scopes.length-1, name, data.scope.vars[name].value);
+					this.addAssignment(node, this.scopes.length-1, name, data.scope.vars[name].value);
 				}
 			}
 		},
@@ -104,19 +101,19 @@ module.exports = function(jsmm) {
 			return scope[split[1]] || [];
 		},
 
-		getHighlightIdsByNode: function(node) {
-			return this.nodes[node.id] || [];
+		getHighlightIdsByLine: function(line) {
+			return this.lines[line] || [];
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addAssignment: function(node, callNr, position, name, value) {
+		addAssignment: function(node, position, name, value) {
 			this.scopes[position][name] = this.scopes[position][name] || [];
 			if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
 
-			this.nodes[node.id] = this.nodes[node.id] || [];
-			this.nodes[node.id].push(position + '-' + name);
+			this.lines[node.lineLoc.line] = this.lines[node.lineLoc.line] || [];
+			this.lines[node.lineLoc.line].push(position + '-' + name);
 
-			this.calls.push({type: 'assignment', node: node, callNr: callNr, position: position, name: name, value: stringify(value)});
+			this.calls.push({type: 'assignment', node: node, position: position, name: name, value: stringify(value)});
 		}
 	};
 
@@ -129,7 +126,7 @@ module.exports = function(jsmm) {
 			this.steps = [];
 			this.callCounter = 0;
 			this.callsByLine = {};
-			this.infoByLine = {};
+			this.commandsByLine = {};
 			this.callStack = [];
 			this.scopeTracker = new jsmm.ScopeTracker();
 			this.callNode = null;
@@ -161,13 +158,12 @@ module.exports = function(jsmm) {
 		addToStep: function(msg) {
 			this.steps[this.steps.length-1].push(msg);
 		},
-		addInfo: function(node, command) {
-			this.infoByLine[node.lineLoc.line] = this.infoByLine[node.lineLoc.line] || [];
-			this.infoByLine[node.lineLoc.line].push(command);
+		addCommand: function(node, command) {
+			this.commandsByLine[node.lineLoc.line] = this.commandsByLine[node.lineLoc.line] || [];
+			this.commandsByLine[node.lineLoc.line].push(command);
 		},
 		callScope: function(node, data) {
-			this.newCall(node);
-			this.scopeTracker.logScope(this.callCounter, node, data);
+			this.scopeTracker.logScope(node, data);
 		},
 		newCall: function(node) {
 			this.callCounter++;
@@ -196,8 +192,8 @@ module.exports = function(jsmm) {
 			}
 			return output;
 		},
-		getInfoByLine: function(line) {
-			return this.infoByLine[line] || [];
+		getCommandsByLine: function(line) {
+			return this.commandsByLine[line] || [];
 		},
 		getScopeTracker: function() {
 			return this.scopeTracker;

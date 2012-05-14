@@ -367,11 +367,11 @@ module.exports = function(editor) {
 					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
 					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
 					this.callOutputs('highlightCalls', this.runner.getContext().getCallsByRange(line1, line2));
-					if (this.info !== null) this.info.highlightCommands(this.runner.getContext().getInfoByLine(node.lineLoc.line));
+					if (this.info !== null) this.info.highlightInfo(node.lineLoc.line, this.runner.getContext().getCommandsByLine(node.lineLoc.line));
 				} else {
 					this.surface.hideHighlight();
 					this.callOutputs('highlightCalls', []);
-					if (this.info !== null) this.info.highlightCommands([]);
+					if (this.info !== null) this.info.highlightInfo(0, []);
 				}
 			}
 		},

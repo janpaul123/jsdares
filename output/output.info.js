@@ -85,7 +85,9 @@ module.exports = function(output) {
 			this.$scope.remove();
 		},
 
-		update: function(state) {
+		update: function(scopeTracker, callNr) {
+			this.scopeTracker = scopeTracker;
+			var state = this.scopeTracker.getState(callNr);
 			this.clear();
 			var enabled = true;
 			for (var i=state.length-1; i>0; i--) {
@@ -99,6 +101,7 @@ module.exports = function(output) {
 		clear: function() {
 			this.$scope.find('.info-scope-variable').remove(); // to prevent $.data leaks
 			this.$scope.children('.info-scope-cell').remove(); // to prevent $.data leaks
+			this.$variables = {};
 		},
 
 		makeCell: function(level, enabled) {
@@ -114,6 +117,17 @@ module.exports = function(output) {
 				var $variable = $('<div class="info-scope-variable">' + variable.name + ' = ' + variable.value + '</div>');
 				$variable.data('id', variable.id);
 				$cell.append($variable);
+				this.$variables[variable.id] = $variable;
+			}
+		},
+
+		highlightLine: function(line) {
+			this.$scope.find('.info-scope-variable-highlight').removeClass('info-scope-variable-highlight');
+			var ids = this.scopeTracker.getHighlightIdsByLine(line);
+			for (var i=0; i<ids.length; i++) {
+				if (this.$variables[ids[i]] !== undefined) {
+					this.$variables[ids[i]].addClass('info-scope-variable-highlight');
+				}
 			}
 		}
 	};
@@ -134,16 +148,18 @@ module.exports = function(output) {
 			this.$div.removeClass('output info');
 		},
 
-		highlightCommands: function(ids) {
+		highlightInfo: function(line, ids) {
+			this.scope.highlightLine(line);
 			this.table.highlightCommands(ids);
 		},
 
 		disableHighlighting: function() {
+			this.scope.highlightLine(0);
 			this.table.highlightCommands([]);
 		},
 
 		setCallNr: function(context, callNr) {
-			this.scope.update(context.getScopeTracker().getState(callNr));
+			this.scope.update(context.getScopeTracker(), callNr);
 		}
 	};
 };
