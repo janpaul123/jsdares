@@ -2,19 +2,65 @@
 	
 }
 
-.info-highlighting, .info-highlighting .info-table-item {
-	cursor: crosshair;
-}
-
 .info-scope {
 	.code-well();
 	margin-bottom: 15px;
 
-	.info-scope-cell {
+	.info-scope-item {
 		padding: 5px;
+		cursor: pointer;
+		overflow: hidden;
 
-		.info-scope-variable-highlight {
-			background-color: @highlight-color;
+		.info-scope-cell {
+			> span {
+				display: inline-block;
+				.ie7-inline-block();
+				font-size: 14px;
+			}
+
+			.info-scope-cell-arrow {
+				#popoverArrow > .left(4px, @code-color);
+				.rotate(0deg);
+				.transition(all 0.2s linear);
+				margin-right: 8px;
+			}
+		}
+
+		.info-scope-content {
+			border-left: 1px dotted @code-color;
+			margin-left: 1px;
+			padding-left: 10px;
+
+			.info-scope-variable {
+				padding-left: 5px;
+			}
+
+			.info-scope-variable-highlight {
+				background-color: @highlight-color;
+			}
+		}
+
+		&:hover {
+			background-color: #222;
+		}
+
+		&.info-scope-item-active {
+			.info-scope-cell-arrow {
+				.rotate(90deg);
+			}
+		}
+
+		&.info-scope-item-disabled {
+			@info-scope-item-disabled-color: darken(@code-color, 20%);
+			color: @info-scope-item-disabled-color;
+
+			.info-scope-content {
+				border-left-color: @info-scope-item-disabled-color;
+			}
+
+			.info-scope-cell-arrow {
+				#popoverArrow > .left(4px, @info-scope-item-disabled-color);
+			}
 		}
 	}
 }
@@ -35,7 +81,7 @@
 		.info-table-cell-arrow {
 			#popoverArrow > .left(4px, white);
 			.rotate(0deg);
-			.transition(all 0.15s linear);
+			.transition(all 0.2s linear);
 			margin-right: 8px;
 		}
 
@@ -85,4 +131,8 @@
 	&.info-table-item-highlight {
 		background-color: @highlight-color !important;
 	}
+}
+
+.info-highlighting, .info-highlighting .info-table-item, .info-highlighting .info-scope-item {
+	cursor: crosshair;
 }

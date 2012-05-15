@@ -11,6 +11,7 @@ module.exports = function(output) {
 			this.info = info;
 			this.$scope = $('<div class="info-scope"></div>');
 			$div.append(this.$scope);
+			this.highlighting = false;
 		},
 
 		remove: function() {
@@ -24,19 +25,20 @@ module.exports = function(output) {
 			this.clear();
 			var enabled = true;
 			for (var i=state.length-1; i>0; i--) {
-				this.makeCell(state[i], enabled);
+				this.makeItem(state[i], enabled);
 				enabled = false;
 			}
-			this.makeCell(state[0], true);
+			this.makeItem(state[0], true);
 		},
 
 		enableHighlighting: function() {
-			this.$scope.on('mousemove', $.proxy(this.mouseMove, this));
+			this.highlighting = true;
 			this.$scope.on('mouseleave', $.proxy(this.mouseLeave, this));
 		},
 
 		disableHighlighting: function() {
-			this.$scope.off('mousemove mouseleave');
+			this.highlighting = false;
+			this.$scope.off('mouseleave');
 			this.removeHighlights();
 		},
 
@@ -53,23 +55,54 @@ module.exports = function(output) {
 		/// INTERNAL FUNCTIONS ///
 		clear: function() {
 			this.$scope.find('.info-scope-variable').remove(); // to prevent $.data leaks
-			this.$scope.children('.info-scope-cell').remove(); // to prevent $.data leaks
+			this.$scope.children('.info-scope-item').remove(); // to prevent $.data leaks
 			this.$variables = {};
 		},
 
-		makeCell: function(level, enabled) {
-			var $cell = $('<div class="info-scope-cell"><div class="info-scope-name">' + level.name + ':</div></div>');
-			$cell.data('id', level.id);
-			if (!enabled) $cell.addClass('disabled');
-			this.$scope.append($cell);
+		makeItem: function(level, enabled) {
+			var $item = $('<div class="info-scope-item"></div>');
+			$item.data('id', level.id);
+			$item.on('click', $.proxy(this.itemClick, this));
+			this.$scope.append($item);
+
+			var $cell = $('<div class="info-scope-cell"></div>');
+			$item.append($cell);
+
+			var $arrow = $('<span class="info-scope-cell-arrow"></span>');
+			$cell.append($arrow);
+			var $name = $('<span class="info-scope-cell-name">' + level.name + ':</span>');
+			$cell.append($name);
+			var $content = $('<div class="info-scope-content"></div>');
+			$item.append($content);
 
 			for (var i=0; i<level.names.length; i++) {
 				var name = level.names[i];
 				var variable = level.scope[name];
 				var $variable = $('<div class="info-scope-variable">' + variable.name + ' = ' + variable.value + '</div>');
+				$variable.on('mousemove', $.proxy(this.mouseMove, this));
 				$variable.data('id', variable.id);
-				$cell.append($variable);
+				$content.append($variable);
 				this.$variables[variable.id] = $variable;
+			}
+
+			if (!enabled) {
+				$item.addClass('info-scope-item-disabled');
+				$content.hide();
+			} else {
+				$item.addClass('info-scope-item-active');
+				$content.show();
+			}
+		},
+
+		itemClick: function(event) {
+			var $target = $(event.delegateTarget);
+			var $content = $target.children('.info-scope-content');
+			if ($target.hasClass('info-scope-item-active')) {
+				$target.removeClass('info-scope-item-active');
+				$content.slideUp(200);
+			} else {
+				$target.addClass('info-scope-item-active');
+				$content.slideDown(200);
 			}
 		},
 
@@ -78,13 +111,16 @@ module.exports = function(output) {
 		},
 
 		mouseMove: function(event) {
-			this.removeHighlights();
-			var $target = $(event.target);
-			if ($target.data('id') !== undefined) {
-				$target.addClass('info-scope-variable-highlight');
-				this.info.editor.highlightNodes(this.scopeTracker.getHighlightNodesById($target.data('id')));
-			} else {
-				this.info.editor.highlightNode(null);
+			event.stopPropagation();
+			if (this.highlighting) {
+				this.removeHighlights();
+				var $target = $(event.delegateTarget);
+				if ($target.data('id') !== undefined) {
+					$target.addClass('info-scope-variable-highlight');
+					this.info.editor.highlightNodes(this.scopeTracker.getHighlightNodesById($target.data('id')));
+				} else {
+					this.info.editor.highlightNode(null);
+				}
 			}
 		},
 
