@@ -48,8 +48,15 @@
 				font-size: 14px;
 			}
 
+			.dares-table-cell-arrow {
+				#popoverArrow > .left(4px, white);
+				.rotate(0deg);
+				.transition(all 0.15s linear);
+				margin-right: 8px;
+			}
+
 			.dares-table-cell-name {
-				width: 650-110-90-20px;
+				width: 650-110-90-20-15px;
 				font-weight: bold;
 			}
 
@@ -109,6 +116,9 @@
 			.box-shadow(0px 0px 5px #2a2a2a);
 			&:hover {
 				background-color: #666;
+			}
+			.dares-table-cell-arrow {
+				.rotate(90deg);
 			}
 		}
 	}

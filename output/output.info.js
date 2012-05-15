@@ -156,6 +156,8 @@ module.exports = function(output) {
 
 		/// INTERNAL FUNCTIONS ///
 		makeCell: function(command, $cell) {
+			var $arrow = $('<span class="info-table-cell-arrow"></span>');
+			$cell.append($arrow);
 			var $name = $('<span class="info-table-cell-name">' + command.name + ' </span>');
 			for (var j=0; j<command.outputs.length; j++) {
 				var output = command.outputs[j];

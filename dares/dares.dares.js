@@ -54,6 +54,9 @@ module.exports = function(dares) {
 				$cell.html('');
 				var dare = $item.data('dare');
 
+				var $arrow = $('<span class="dares-table-cell-arrow"></span>');
+				$cell.append($arrow);
+
 				var $name = $('<span class="dares-table-cell-name">' + dare.name + ' </span>');
 				for (var j=0; j<dare.outputs.length; j++) {
 					var output = dare.outputs[j];
