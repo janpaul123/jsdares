@@ -70,15 +70,13 @@ module.exports = function(jsmm) {
 		},
 
 		logScope: function(callNr, node, data) {
-			var name;
 			if (data.type === 'assignment') {
-				name = data.name.split('.')[0];
-				var obj = data.scope.find(name);
+				var obj = data.scope.find(data.name);
 				if (obj !== undefined) {
-					if (data.scope.level === 0 || data.scope.vars[name] === undefined) {
-						this.addAssignment(callNr, node, 0, name, obj.value);
+					if (data.scope.level === 0 || data.scope.vars[data.name] === undefined) {
+						this.addAssignment(callNr, node, 0, data.name, obj.value);
 					} else {
-						this.addAssignment(callNr, node, this.scopes.length-1, name, obj.value);
+						this.addAssignment(callNr, node, this.scopes.length-1, data.name, obj.value);
 					}
 				}
 			} else if (data.type === 'return') {
@@ -87,7 +85,7 @@ module.exports = function(jsmm) {
 				this.scopes.push({});
 				this.calls.push({type: 'enter', callNr: callNr, node: node, name: data.name, position: this.scopes.length-1});
 
-				for (name in data.scope.vars) {
+				for (var name in data.scope.vars) {
 					this.addAssignment(callNr, node, this.scopes.length-1, name, data.scope.vars[name].value);
 				}
 			}
