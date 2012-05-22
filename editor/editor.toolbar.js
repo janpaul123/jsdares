@@ -244,24 +244,24 @@ module.exports = function(editor) {
 		/// INTERNAL FUNCTIONS ///
 		stepForwardDown: function() {
 			this.editor.stepForward();
-			this.stepForwardDelay = Math.max((this.stepForwardDelay || 200) - 10, 70);
+			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
 			this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
 		},
 
 		stepForwardUp: function() {
-			this.stepForwardDelay = 200;
+			this.stepForwardDelay = undefined;
 			clearTimeout(this.stepForwardTimeout);
 			this.stepForwardTimeout = null;
 		},
 
 		stepBackwardDown: function() {
 			this.editor.stepBackward();
-			this.stepBackwardDelay = Math.max((this.stepBackwardDelay || 200) - 10, 70);
+			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
 			this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
 		},
 
 		stepBackwardUp: function() {
-			this.stepBackwardDelay = 200;
+			this.stepBackwardDelay = undefined;
 			clearTimeout(this.stepBackwardTimeout);
 			this.stepBackwardTimeout = null;
 		},

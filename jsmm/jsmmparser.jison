@@ -152,12 +152,16 @@ unaryExpression
 
 primaryExpression
 	: identExpression
-	| NUMBER									{ $$ = new yy.nodes.NumberLiteral(@$, undefined, $1); }
+	| literal
+	| callExpression
+	| "(" expression ")"						{ $$ = new yy.nodes.ParenExpression(@$, undefined, $2); }
+;
+
+literal
+	: NUMBER									{ $$ = new yy.nodes.NumberLiteral(@$, undefined, $1); }
 	| STRING									{ $$ = new yy.nodes.StringLiteral(@$, undefined, $1); }
 	| TRUE										{ $$ = new yy.nodes.BooleanLiteral(@$, undefined, true); }
 	| FALSE										{ $$ = new yy.nodes.BooleanLiteral(@$, undefined, false); }
-	| callExpression
-	| "(" expression ")"						{ $$ = new yy.nodes.ParenExpression(@$, undefined, $2); }
 ;
 
 identExpression
