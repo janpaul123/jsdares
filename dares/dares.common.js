@@ -139,6 +139,7 @@ module.exports = function(dares) {
 			this.threshold = options.threshold || 1000;
 			this.linePenalty = options.linePenalty || 1;
 			this.speed = options.speed || 50;
+			this.error = false;
 
 			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;
 			this.completed = JSON.parse(window.localStorage.getItem('dare-completed-' + this.name)) || false;
@@ -165,6 +166,20 @@ module.exports = function(dares) {
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem(codeName, text);
 			});
+		};
+
+		dare.hasError = function() {
+			this.error = true;
+			this.$submit.addClass('disabled');
+			this.animationFinish();
+			this.animatedPoints.show();
+		};
+
+		dare.setCallNr = function() {
+			this.error = false;
+			this.$submit.removeClass('disabled');
+			this.animationFinish();
+			this.animatedPoints.show();
 		};
 
 		dare.updateScore = function(points) {

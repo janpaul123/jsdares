@@ -36,6 +36,8 @@ module.exports = function(output) {
 				anim.length = Math.abs(anim.angle2-anim.angle);
 				if (anim.length <= 0) return;
 				this.animationLength += anim.length*this.rotationFactor;
+			} else if (anim.type === 'delay') {
+				this.animationLength += anim.length;
 			} else { // anim.type === 'wall'
 				this.animationLength += this.detectWallLength;
 			}
@@ -61,6 +63,8 @@ module.exports = function(output) {
 			if (animation.type === 'wall') {
 				this.setLight(animation.wall ? 'red' : 'green');
 				this.animateTimeout = setTimeout($.proxy(this.animationEnd, this), this.duration*this.detectWallLength);
+			} else if (animation.type === 'delay') {
+				this.animateTimeout = setTimeout($.proxy(this.animationEnd, this), this.duration*animation.length);
 			} else {
 				this.animateTimeout = setTimeout($.proxy(this.animationStart, this), 0);
 			}

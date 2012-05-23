@@ -143,11 +143,14 @@ module.exports = function(dares) {
 			this.$div.append(this.$score);
 			this.drawScore();
 
+			this.editor.addOutput(this);
+			this.editor.outputRequestsRerun();
 			this.animateConsole();
 		},
 
 		remove: function() {
 			this.animationFinish();
+			this.editor.removeOutput(this);
 			this.$submit.remove();
 			this.$originalConsoleContainer.remove();
 			this.$div.html('');
@@ -165,6 +168,7 @@ module.exports = function(dares) {
 		},
 
 		submit: function() {
+			if (this.error) return;
 			this.animationFinish();
 			this.animatedPoints.show();
 

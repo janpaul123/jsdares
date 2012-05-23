@@ -112,7 +112,7 @@ module.exports = function(output) {
 
 		addRobot: function(width, height) {
 			this.addTab('robot');
-			this.robot = new output.Robot($('#robot'), this.editor, width || 8, height || 8);
+			this.robot = new output.Robot($('#robot'), this.editor, 64, width || 8, height || 8);
 			this.scope.robot = this.robot.getAugmentedObject();
 			this.editor.setScope(this.scope);
 			return this.robot;

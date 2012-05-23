@@ -9,9 +9,6 @@ module.exports = function(output) {
 	output.Robot = function() { return this.init.apply(this, arguments); };
 	output.Robot.prototype = {
 		init: function($div, editor, columns, rows) {
-			this.columns = columns || 8;
-			this.rows = rows || 8;
-
 			this.$div = $div;
 			this.$div.addClass('output robot');
 
@@ -19,21 +16,20 @@ module.exports = function(output) {
 			this.$container.on('mouseup', $.proxy(this.containerMouseUp, this));
 			this.$container.on('mouseleave', $.proxy(this.containerMouseLeave, this));
 			this.$div.append(this.$container);
-			this.robot = new robot.Robot(this.$container, columns, rows, blockSize);
+			this.robot = new robot.Robot(this.$container, columns || 8, rows || 8, blockSize);
 
 			this.$initial = $('<div class="robot-robot robot-initial"></div>');
 			this.$initial.on('mousedown', $.proxy(this.initialMouseDown, this));
 			this.$initial.on('mouseup', $.proxy(this.initialMouseUp, this));
 			this.$container.append(this.$initial);
 
+			this.callNr = Infinity
 			this.highlighting = false;
 			this.animation = null;
 			this.stateChangedCallback = null;
 			this.calls = [];
-			this.callNr = Infinity;
 
 			this.updateInterface();
-			this.clear();
 			this.editor = editor;
 			this.editor.addOutput(this);
 		},
@@ -75,6 +71,9 @@ module.exports = function(output) {
 						} else if (this.robot.robotAngle === 270) {
 							y += (positive ? 1 : -1);
 						}
+						if (this.robot.blockGoal[x][y] && this.visitedGoals.indexOf(x+y*this.robot.columns) < 0) {
+							this.visitedGoals.push(x+y*this.robot.columns);
+						}
 					}
 				} else {
 					x += Math.cos(this.robot.robotAngle / 180 * Math.PI)*amount;
@@ -82,18 +81,6 @@ module.exports = function(output) {
 				}
 				this.addCall(context, this.robot.insertLine(x, y));
 			}
-		},
-
-		addCall: function(context, info) {
-			if (this.calls.length > 300) {
-				throw 'Program takes too long to run';
-			}
-			if (info.$element !== undefined) {
-				info.$element.data('index', this.calls.length);
-				info.$element.on('mousemove', $.proxy(this.pathMouseMove, this));
-				info.$element.on('mouseleave', $.proxy(this.pathMouseLeave, this));
-			}
-			this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), info: info});
 		},
 
 		turn: function(context, name, args) {
@@ -174,17 +161,15 @@ module.exports = function(output) {
 		},
 
 		startRun: function() {
-			this.clear();
+			this.robot.clear();
+			this.visitedGoals = [];
 			this.calls = [];
 			this.$container.removeClass('robot-error');
 		},
 
 		hasError: function() {
 			this.$container.addClass('robot-error');
-		},
-
-		clear: function() {
-			this.robot.clear();
+			this.robot.stop();
 		},
 
 		setState: function(state) {
@@ -201,10 +186,20 @@ module.exports = function(output) {
 		},
 
 		setCallNr: function(context, callNr) {
-			if (callNr !== this.callNr) {
+			if (callNr !== Infinity || this.callNr !== callNr) {
 				this.callNr = callNr;
+				this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
+				this.robot.animation = this.robot.animationManager.newAnimation();
+				for (var i=0; i<this.calls.length; i++) {
+					var call = this.calls[i];
+					if (call.callNr > this.callNr) break;
+					if (call.info.$element !== undefined) call.info.$element.show();
+					if (call.info.anim !== undefined) this.robot.animation.add(call.info.anim);
+				}
+				this.robot.playLast();
+			} else {
+				this.robot.playAll();
 			}
-			this.update();
 		},
 
 		highlightCalls: function(calls) {
@@ -217,7 +212,23 @@ module.exports = function(output) {
 			}
 		},
 
+		getNumberOfVisitedGoals: function() {
+			return this.visitedGoals.length;
+		},
+
 		/// INTERNAL FUNCTIONS ///
+		addCall: function(context, info) {
+			if (this.calls.length > 300) {
+				throw 'Program takes too long to run';
+			}
+			if (info.$element !== undefined) {
+				info.$element.data('index', this.calls.length);
+				info.$element.on('mousemove', $.proxy(this.pathMouseMove, this));
+				info.$element.on('mouseleave', $.proxy(this.pathMouseLeave, this));
+			}
+			this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), info: info});
+		},
+
 		updateInterface: function() {
 			$('.robot-maze-block').click($.proxy(this.clickBlock, this));
 			$('.robot-maze-line-vertical').click($.proxy(this.clickVerticalLine, this));
@@ -228,19 +239,6 @@ module.exports = function(output) {
 		drawInitial: function() {
 			this.$initial.css('left', this.robot.initialX * blockSize + blockSize/2);
 			this.$initial.css('top', this.robot.initialY * blockSize + blockSize/2);
-		},
-
-		update: function() {
-			this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
-			this.robot.animation = this.robot.animationManager.newAnimation();
-			for (var i=0; i<this.calls.length; i++) {
-				var call = this.calls[i];
-				if (call.callNr > this.callNr) break;
-				if (call.info.$element !== undefined) call.info.$element.show();
-				if (call.info.anim !== undefined) this.robot.animation.add(call.info.anim);
-			}
-			if (this.callNr === Infinity) this.robot.playAll();
-			else this.robot.playLast();
 		},
 
 		clickVerticalLine: function(event) {
@@ -276,7 +274,7 @@ module.exports = function(output) {
 				return false;
 			} else {
 				if (angle === 0) {
-					if (x >= this.columns-1 || this.robot.verticalActive[x+1][y]) {
+					if (x >= this.robot.columns-1 || this.robot.verticalActive[x+1][y]) {
 						return true;
 					}
 				} else if (angle === 90) {
@@ -288,7 +286,7 @@ module.exports = function(output) {
 						return true;
 					}
 				} else if (angle === 270) {
-					if (y >= this.rows-1 || this.robot.horizontalActive[x][y+1]) {
+					if (y >= this.robot.rows-1 || this.robot.horizontalActive[x][y+1]) {
 						return true;
 					}
 				}

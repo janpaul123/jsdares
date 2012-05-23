@@ -1,0 +1,34 @@
+#dares-popup .dares-robotgoal-robot {
+	float: right;
+	margin: 0px 8px 5px 15px;
+}
+
+.dare-robotgoal {
+	.dare-robotgoal-original-container {
+		float: right;
+		position: relative;
+		margin: 0px 1px 5px 15px;
+		cursor: pointer;
+		margin-top: 10px;
+		overflow: hidden;
+		
+		.dare-robotgoal-original-refresh {
+			display: none;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: -(14+3)/2px;
+			margin-top: -(20+1)/2px;
+			line-height: 24px;
+			background-color: rgba(0, 0, 0, 0.7);
+			width: 14px;
+			height: 20px;
+			padding: 1px 3px;
+			.border-radius(3px);
+		}
+
+		&:hover .dare-robotgoal-original-refresh {
+			display: block;
+		}
+	}
+}

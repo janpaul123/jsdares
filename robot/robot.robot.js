@@ -6,7 +6,7 @@ module.exports = function(output) {
 
 	output.Robot = function() { return this.init.apply(this, arguments); };
 	output.Robot.prototype = {
-		init: function($container, columns, rows, blockSize) {
+		init: function($container, blockSize, columns, rows) {
 			this.columns = columns || 8;
 			this.rows = rows || 8;
 			this.blockSize = blockSize;
@@ -25,6 +25,7 @@ module.exports = function(output) {
 			this.$robot.hide();
 
 			this.animationManager = new output.RobotAnimationManager(this.$robot, this.blockSize);
+			this.animation = null;
 
 			this.initialState(columns, rows);
 			this.clear();
@@ -45,6 +46,7 @@ module.exports = function(output) {
 			this.robotY = this.initialY;
 			this.robotAngle = this.initialAngle;
 			this.$path.children('.robot-path-line, .robot-path-point').remove();
+			this.animation = this.animationManager.newAnimation();
 		},
 
 		insertLine: function(toX, toY) {
@@ -62,9 +64,12 @@ module.exports = function(output) {
 			this.robotX = toX;
 			this.robotY = toY;
 
+			var anim = {type: 'movement', x: fromX, y: fromY, x2: toX, y2: toY, angle: this.robotAngle};
+			this.animation.add(anim);
+
 			return {
 				$element: $line,
-				anim: {type: 'movement', x: fromX, y: fromY, x2: toX, y2: toY, angle: this.robotAngle}
+				anim: anim
 			};
 		},
 
@@ -82,16 +87,25 @@ module.exports = function(output) {
 
 			this.robotAngle = (toAngle%360+360)%360;
 
+			var anim = {type: 'rotation', x: this.robotX, y: this.robotY, angle: fromAngle, angle2: toAngle};
+			this.animation.add(anim);
+
 			return {
 				$element: $point,
-				anim: {type: 'rotation', x: this.robotX, y: this.robotY, angle: fromAngle, angle2: toAngle}
+				anim: anim
 			};
 		},
 
 		insertDetectWall: function(wall) {
-			return {
-				anim: {type: 'wall', x: this.robotX, y: this.robotY, angle: this.robotAngle, wall: wall}
-			};
+			var anim = {type: 'wall', x: this.robotX, y: this.robotY, angle: this.robotAngle, wall: wall};
+			this.animation.add(anim);
+			return {anim: anim};
+		},
+
+		insertDelay: function(delay) {
+			var anim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
+			this.animation.add(anim);
+			return {anim: anim};
 		},
 
 		removeHighlights: function() {
@@ -99,7 +113,7 @@ module.exports = function(output) {
 		},
 
 		getState: function() {
-			var verticalActive = [], horizontalActive = [], blockGoal = [];
+			var verticalActive = [], horizontalActive = [], blockGoal = [], numGoals = 0;
 			for (var x=0; x<this.columns; x++) {
 				verticalActive[x] = [];
 				horizontalActive[x] = [];
@@ -108,6 +122,7 @@ module.exports = function(output) {
 					verticalActive[x][y] = this.verticalActive[x][y];
 					horizontalActive[x][y] = this.horizontalActive[x][y];
 					blockGoal[x][y] = this.blockGoal[x][y];
+					if (blockGoal[x][y]) numGoals++;
 				}
 			}
 			return JSON.stringify({
@@ -119,7 +134,8 @@ module.exports = function(output) {
 				mazeObjects: this.mazeObjects,
 				verticalActive: verticalActive,
 				horizontalActive: horizontalActive,
-				blockGoal: blockGoal
+				blockGoal: blockGoal,
+				numGoals: numGoals
 			});
 		},
 
@@ -242,6 +258,10 @@ module.exports = function(output) {
 
 		playLast: function() {
 			this.animationManager.playLast();
+		},
+
+		stop: function() {
+			this.animationManager.remove();
 		}
 	};
 };

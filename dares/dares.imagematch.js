@@ -126,11 +126,15 @@ module.exports = function(dares) {
 			this.$div.append(this.$score);
 			this.drawScore();
 
+			this.editor.addOutput(this);
+			this.editor.outputRequestsRerun();
+
 			this.animateImage();
 		},
 
 		remove: function() {
 			this.animationFinish();
+			this.editor.removeOutput(this);
 			this.$submit.remove();
 			this.$originalCanvasContainer.remove();
 			this.$div.html('');

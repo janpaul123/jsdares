@@ -52,6 +52,7 @@ module.exports = function(editor) {
 			if (!this.tree.hasError()) {
 				this.run();
 			}
+			this.refreshRunnerOutput();
 		},
 
 		addOutput: function(output) {
@@ -246,6 +247,7 @@ module.exports = function(editor) {
 				this.delayedRun();
 				return true;
 			} else {
+				this.handleError(this.tree.getError());
 				return false;
 			}
 		},

@@ -7,6 +7,21 @@ module.exports = function(dares) {
 			tables: [{
 				title: 'I',
 				dares: [
+					new dares.RobotGoalDare({
+						name: 'Horse Jump',
+						description: '',
+						speed: 100,
+						maxLines: 5,
+						linePenalty: 5,
+						goalReward: 50,
+						numGoals: 1,
+						state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
+						original: function(robot) {
+							robot.insertLine(2, 0);
+							robot.insertPoint(90);
+							robot.insertLine(1, 0);
+						}
+					}, ui),
 					new dares.ConsoleMatchDare({
 						name: 'Hello World',
 						description: 'A classic exercise is the "Hello World" program, which simply requires you to write "Hello World" to the console.',

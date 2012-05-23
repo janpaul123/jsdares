@@ -28,18 +28,22 @@ module.exports = function(output) {
 		remove: function() {
 			if (this.runningAnimation !== null) {
 				this.runningAnimation.remove();
+				this.runningAnimation = null;
 			}
 			if (this.insertingAnimation !== null) {
 				this.insertingAnimation.remove();
+				this.insertingAnimation = null;
 			}
 		},
 
 		/// INTERNAL FUNCTIONS ///
 		execFunc: function(name) {
-			if (this.runningAnimation === null) {
+			if (this.runningAnimation === null && this.insertingAnimation === null) {
+				// nothing
+			} else if (this.runningAnimation === null && this.insertingAnimation !== null) {
 				this.runningAnimation = this.insertingAnimation;
 				this.runningAnimation[name]();
-			} else if (this.insertingAnimation === null) {
+			} else if (this.runningAnimation !== null && this.insertingAnimation === null) {
 				this.runningAnimation[name]();
 			} else if (this.insertingAnimation.animationString !== this.runningAnimation.animationString) {
 				this.runningAnimation.remove();
