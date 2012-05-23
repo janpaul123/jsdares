@@ -9,6 +9,11 @@ module.exports = function(output) {
 		init: function($robot, blockSize) {
 			this.$robot = $robot;
 			this.blockSize = blockSize;
+
+			this.scale = blockSize/64;
+			if (this.scale !== 1) {
+				clayer.setCss3(this.$robot, 'transform', 'scale(' + this.scale + ')');
+			}
 			
 			this.rotationFactor = 0.6;
 			this.detectWallLength = 40000;
@@ -108,12 +113,12 @@ module.exports = function(output) {
 		},
 
 		setPosition: function(x, y) {
-			this.$robot.css('left', x*this.blockSize);
-			this.$robot.css('top', y*this.blockSize);
+			this.$robot.css('left', x*this.blockSize + this.blockSize/2);
+			this.$robot.css('top', y*this.blockSize + this.blockSize/2);
 		},
 
 		setOrientation: function(angle) {
-			clayer.setCss3(this.$robot, 'transform', 'rotate(' + (90-angle) + 'deg)');
+			clayer.setCss3(this.$robot, 'transform', 'rotate(' + (90-angle) + 'deg)' + (this.scale !== 1 ? ' scale(' + this.scale + ')' : ''));
 		},
 
 		setLight: function(state) {

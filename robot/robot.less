@@ -2,7 +2,6 @@
 	cursor: crosshair;
 }
 
-@block-size: 64px; // edit this in JS as well
 @hover-size: 20px;
 @thin-size: 2px;
 @fat-size: 6px;
@@ -24,8 +23,6 @@
 
 	.robot-maze-block {
 		position: absolute;
-		height: @block-size;
-		width: @block-size;
 		cursor: hand;
 
 		&.robot-maze-block-goal {
@@ -35,7 +32,6 @@
 
 	.robot-maze-line-vertical {
 		position: absolute;
-		height: @block-size;
 		width: @hover-size;
 		margin-left: -@hover-size/2;
 		cursor: hand;
@@ -45,7 +41,7 @@
 			left: @hover-size/2 - @thin-size/2;
 			top: 0px;
 			width: @thin-size;
-			height: @block-size;
+			height: 100%;
 			z-index: 5;
 		}
 
@@ -53,7 +49,8 @@
 			left: @hover-size/2 - @fat-size/2;
 			width: @fat-size;
 			top: -@fat-size/2;
-			height: @block-size + @fat-size;
+			height: 100%;
+			padding-bottom: @fat-size;
 			background-color: #333 !important;
 			.border-radius(@fat-size/2);
 			z-index: 10;
@@ -63,7 +60,6 @@
 	.robot-maze-line-horizontal {
 		position: absolute;
 		height: @hover-size;
-		width: @block-size;
 		margin-top: -@hover-size/2;
 		cursor: hand;
 
@@ -71,7 +67,7 @@
 			position: absolute;
 			top: @hover-size/2 - @thin-size/2;
 			left: 0px;
-			width: @block-size;
+			width: 100%;
 			height: @thin-size;
 			z-index: 5;
 		}
@@ -80,7 +76,8 @@
 			left: -@fat-size/2;
 			height: @fat-size;
 			top: @hover-size/2 - @fat-size/2;
-			width: @block-size + @fat-size;
+			width: 100%;
+			padding-right: @fat-size;
 			background-color: #333 !important;
 			.border-radius(@fat-size/2);
 			z-index: 10;
@@ -121,9 +118,9 @@
 	top: 150px;
 	left: 150px;
 	width: 38px;
-	margin-left: -38px/2 + @block-size/2;
+	margin-left: -38px/2;
 	height: 44px;
-	margin-top: -44px/2 + @block-size/2;
+	margin-top: -44px/2;
 	overflow: hidden;
 	background-image: url(../img/robot.png);
 	background-position-x: 0px;
@@ -140,6 +137,7 @@
 	&.robot-initial {
 		opacity: 0.4;
 		cursor: pointer;
+		z-index: 19;
 
 		&:hover {
 			opacity: 0.6;

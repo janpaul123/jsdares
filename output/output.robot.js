@@ -3,6 +3,7 @@
 
 module.exports = function(output) {
 	var robot = require('../robot');
+	var clayer = require('../clayer');
 	var blockSize = 64;
 
 	output.Robot = function() { return this.init.apply(this, arguments); };
@@ -225,8 +226,8 @@ module.exports = function(output) {
 		},
 
 		drawInitial: function() {
-			this.$initial.css('left', this.robot.initialX * blockSize);
-			this.$initial.css('top', this.robot.initialY * blockSize);
+			this.$initial.css('left', this.robot.initialX * blockSize + blockSize/2);
+			this.$initial.css('top', this.robot.initialY * blockSize + blockSize/2);
 		},
 
 		update: function() {
@@ -322,8 +323,8 @@ module.exports = function(output) {
 			var offset = this.$container.offset();
 			if (!this.draggingInitial) {
 				this.draggingInitial = true;
-				this.dragX = (event.pageX - offset.left)%blockSize;
-				this.dragY = (event.pageY - offset.top)%blockSize;
+				this.dragX = (event.pageX - offset.left)%blockSize - blockSize/2;
+				this.dragY = (event.pageY - offset.top)%blockSize - blockSize/2;
 				this.$container.on('mousemove', $.proxy(this.containerMouseMove, this));
 				this.$initial.addClass('robot-initial-dragging');
 				event.preventDefault();

@@ -195,6 +195,8 @@ module.exports = function(output) {
 					$block = $('<div class="robot-maze-block"></div>');
 					$block.css('left', x*this.blockSize);
 					$block.css('top', y*this.blockSize);
+					$block.width(this.blockSize);
+					$block.height(this.blockSize);
 					$block.data('x', x);
 					$block.data('y', y);
 					if (this.blockGoal[x][y]) $block.addClass('robot-maze-block-goal');
@@ -209,6 +211,7 @@ module.exports = function(output) {
 					$line = $('<div class="robot-maze-line-vertical"><div class="robot-maze-line-inside"></div></div>');
 					$line.css('left', x*this.blockSize);
 					$line.css('top', y*this.blockSize);
+					$line.height(this.blockSize);
 					$line.data('x', x);
 					$line.data('y', y);
 					if (this.verticalActive[x][y]) $line.addClass('robot-maze-line-active');
@@ -223,6 +226,7 @@ module.exports = function(output) {
 					$line = $('<div class="robot-maze-line-horizontal"><div class="robot-maze-line-inside"></div></div>');
 					$line.css('left', x*this.blockSize);
 					$line.css('top', y*this.blockSize);
+					$line.width(this.blockSize);
 					$line.data('x', x);
 					$line.data('y', y);
 					if (this.horizontalActive[x][y]) $line.addClass('robot-maze-line-active');

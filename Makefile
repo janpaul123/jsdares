@@ -11,7 +11,7 @@ browser.js: cli-widget.js */*.js jsmm/jsmmparser.js
 	$(MAKE) test
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
-style.css: cli-widget.less global.less editor/*.less output/*.less bootstrap/less/*.less colorpicker/*.less dares/*.less
+style.css: cli-widget.less global.less */*.less bootstrap/less/*.less
 	node_modules/.bin/lessc cli-widget.less > style.css
 
 # color picker
