@@ -7,6 +7,15 @@ var clayer = {};
 clayer.Touchable = function() { return this.init.apply(this, arguments); };
 clayer.Touch = function() { return this.init.apply(this, arguments); };
 
+clayer.setCss3 = function($element, name, value, addBrowserToValue) {
+	addBrowserToValue = addBrowserToValue || false;
+	var browsers = ['', '-ms-', '-moz-', '-webkit-', '-o-'];
+	for (var i=0; i<browsers.length; i++) {
+		var cssName = browsers[i] + name;
+		var cssValue = (addBrowserToValue ? browsers[i] : '') + value;
+		$element.css(cssName, cssValue);
+	}
+};
 
 /*
 clayer.properties = {};

@@ -7,7 +7,7 @@ widget/js/browser.js: browser.js
 widget/css/style.css: style.css
 	cp style.css widget/css/style.css
 
-browser.js: cli-widget.js jsmm/jsmmparser.js jsmm/*.js editor/*.js clayer/*.js output/*.js dares/*.js
+browser.js: cli-widget.js */*.js jsmm/jsmmparser.js
 	$(MAKE) test
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
