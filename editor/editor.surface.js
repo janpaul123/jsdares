@@ -512,7 +512,12 @@ module.exports = function(editor) {
 			//this.$div.scrollTop(y);
 		},
 
+		sanitizeTextArea: function() {
+			this.$textarea.val(this.$textarea.val().replace(/\t/g, '  '));
+		},
+
 		keyDown: function(event) {
+			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				// note: this will never be called at the first keypress, only when holding it!
 				this.text = this.$textarea.val();
@@ -537,6 +542,7 @@ module.exports = function(editor) {
 		},
 
 		keyUp: function(event) {
+			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();
 				this.delegate.autoIndent(event, this.$textarea[0].selectionStart);

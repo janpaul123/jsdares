@@ -421,8 +421,12 @@ module.exports = function(editor) {
 						// remove spaces
 						var spaces = Math.min(code.getLine(i).match(/^ */)[0].length, 2);
 						newText += line.substring(spaces) + '\n';
-						if (i === pos1.line) totalOffset1 -= spaces;
-						totalOffset2 -= spaces;
+						if (i === pos1.line) totalOffset1 -= Math.min(spaces, pos1.column);
+						if (i === pos2.line) {
+							totalOffset2 -= Math.min(spaces, pos2.column);
+						} else {
+							totalOffset2 -= spaces;
+						}
 					}
 				}
 				var finalOffset = code.lineColumnToOffset(pos2.line+1, 0);
