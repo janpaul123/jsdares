@@ -168,6 +168,9 @@ module.exports = function(jsmm) {
 			this.callStack = this.callStack.slice(0);
 			this.callStack.pop();
 		},
+		inFunction: function() {
+			return this.callStack.length > 0;
+		},
 		increaseExecutionCounter: function(node, amount) {
 			this.executionCounter += amount;
 			if (this.executionCounter > jsmm.func.maxExecutionCounter) { // TODO
@@ -292,13 +295,10 @@ module.exports = function(jsmm) {
 	/* expression */
 	jsmm.nodes.ReturnStatement.prototype.getRunCode = function() {
 		var output = hooksBefore(this);
-		if (this.expression === null) {
-			output += 'jsmmContext.temp = undefined;';
-		} else {
-			output += 'jsmmContext.temp = ' + getNode(this) + '.runFunc(jsmmContext, ' + this.expression.getRunCode() + ');';
-		}
+		var expressonCode = this.expression === null ? 'undefined' : this.expression.getRunCode();
+		output += 'jsmmContext.temp = ' + getNode(this) + '.runFunc(jsmmContext, ' + expressonCode + ');';
 		output += getNode(this) + '.iterateRunHooksAfter(jsmmContext);';
-		output += 'return jsmmContext.temp';
+		output += 'return jsmmContext.temp;';
 		return output;
 	};
 	

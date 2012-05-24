@@ -52,7 +52,7 @@ module.exports = function(jsmm) {
 				if (error instanceof jsmm.msg.Error) {
 					this.error = error;
 				} else {
-					//throw error;
+					throw error;
 					this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 				}
 			}
@@ -268,7 +268,9 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ReturnStatement.prototype = jsmm.addCommonNodeMethods('ReturnStatement', {
 		init: function(expression) {
 			this.expression = expression;
-			expression.parent = this;
+			if (this.expression !== null) {
+				expression.parent = this;
+			}
 			this.tree.nodesByLine[this.lineLoc.line] = this;
 			this.hooksBefore = [];
 			this.hooksAfter = [];

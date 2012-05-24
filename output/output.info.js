@@ -12,6 +12,7 @@ module.exports = function(output) {
 			this.$scope = $('<div class="info-scope"></div>');
 			$div.append(this.$scope);
 			this.highlighting = false;
+			this.scopeTracker = null;
 		},
 
 		remove: function() {
@@ -44,10 +45,12 @@ module.exports = function(output) {
 
 		highlightLine: function(line) {
 			this.removeHighlights();
-			var ids = this.scopeTracker.getHighlightIdsByLine(line);
-			for (var i=0; i<ids.length; i++) {
-				if (this.$variables[ids[i]] !== undefined) {
-					this.$variables[ids[i]].addClass('info-scope-variable-highlight');
+			if (this.scopeTracker !== null) {
+				var ids = this.scopeTracker.getHighlightIdsByLine(line);
+				for (var i=0; i<ids.length; i++) {
+					if (this.$variables[ids[i]] !== undefined) {
+						this.$variables[ids[i]].addClass('info-scope-variable-highlight');
+					}
 				}
 			}
 		},
@@ -112,7 +115,7 @@ module.exports = function(output) {
 
 		mouseMove: function(event) {
 			event.stopPropagation();
-			if (this.highlighting) {
+			if (this.highlighting && this.commandTracker !== null) {
 				this.removeHighlights();
 				var $target = $(event.delegateTarget);
 				if ($target.data('id') !== undefined) {
@@ -139,6 +142,7 @@ module.exports = function(output) {
 			this.$table.on('mouseleave', $.proxy(this.mouseLeave, this));
 			this.commands = {};
 			this.highlighting = false;
+			this.commandTracker = null;
 
 			for (var i=0; i<commands.length; i++) {
 				var command = commands[i];
@@ -170,13 +174,15 @@ module.exports = function(output) {
 		},
 
 		highlightLine: function(line) {
-			var ids = this.commandTracker.getHighlightIdsByLine(line);
-			this.removeHighlights();
-			for (var i=0; i<ids.length; i++) {
-				var id = ids[i];
-				if (this.commands[id] !== undefined) {
-					//this.commands[id].$item.click();
-					this.commands[id].$item.addClass('info-table-item-highlight');
+			if (this.commandTracker !== null) {
+				var ids = this.commandTracker.getHighlightIdsByLine(line);
+				this.removeHighlights();
+				for (var i=0; i<ids.length; i++) {
+					var id = ids[i];
+					if (this.commands[id] !== undefined) {
+						//this.commands[id].$item.click();
+						this.commands[id].$item.addClass('info-table-item-highlight');
+					}
 				}
 			}
 		},
@@ -223,7 +229,7 @@ module.exports = function(output) {
 		},
 
 		mouseMove: function(event) {
-			if (this.highlighting) {
+			if (this.highlighting && this.commandTracker !== null) {
 				this.removeHighlights();
 				var $target = $(event.delegateTarget);
 				if ($target.data('command') !== undefined) {

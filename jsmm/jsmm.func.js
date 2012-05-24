@@ -344,6 +344,9 @@ module.exports = function(jsmm) {
 	jsmm.nodes.FunctionDeclaration.prototype.runFuncLeave = function(context, expression) {
 		if (this.type === 'ReturnStatement') {
 			context.addCommand(this, 'return');
+			if (!context.inFunction()) {
+				throw new jsmm.msg.Error(this, 'Cannot return if not inside a function');
+			}
 		}
 		var retVal;
 		if (this.expression !== undefined && expression !== undefined) {
