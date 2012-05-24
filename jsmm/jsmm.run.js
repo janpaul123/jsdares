@@ -74,9 +74,9 @@ module.exports = function(jsmm) {
 				var obj = data.scope.find(data.name);
 				if (obj !== undefined) {
 					if (data.scope.level === 0 || data.scope.vars[data.name] === undefined) {
-						this.addAssignment(callNr, node, 0, data.name, obj.value);
+						this.addAssignment(callNr, node, 0, data.name, obj.value, true);
 					} else {
-						this.addAssignment(callNr, node, this.scopes.length-1, data.name, obj.value);
+						this.addAssignment(callNr, node, this.scopes.length-1, data.name, obj.value, true);
 					}
 				}
 			} else if (data.type === 'return') {
@@ -86,7 +86,7 @@ module.exports = function(jsmm) {
 				this.calls.push({type: 'enter', callNr: callNr, node: node, name: data.name, position: this.scopes.length-1});
 
 				for (var name in data.scope.vars) {
-					this.addAssignment(callNr, node, this.scopes.length-1, name, data.scope.vars[name].value);
+					this.addAssignment(callNr, node, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
 				}
 			}
 		},
@@ -128,12 +128,14 @@ module.exports = function(jsmm) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addAssignment: function(callNr, node, position, name, value) {
-			this.scopes[position][name] = this.scopes[position][name] || [];
-			if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
+		addAssignment: function(callNr, node, position, name, value, highlight) {
+			if (highlight) {
+				this.scopes[position][name] = this.scopes[position][name] || [];
+				if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
 
-			this.lines[node.lineLoc.line] = this.lines[node.lineLoc.line] || [];
-			this.lines[node.lineLoc.line].push(position + '-' + name);
+				this.lines[node.lineLoc.line] = this.lines[node.lineLoc.line] || [];
+				this.lines[node.lineLoc.line].push(position + '-' + name);
+			}
 
 			this.calls.push({type: 'assignment', callNr: callNr, node: node, position: position, name: name, value: stringify(value)});
 		}
