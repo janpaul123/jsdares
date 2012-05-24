@@ -8,28 +8,29 @@ module.exports = function(output) {
 
 	output.Robot = function() { return this.init.apply(this, arguments); };
 	output.Robot.prototype = {
-		init: function($div, editor, columns, rows) {
+		init: function($div, editor, readOnly, columns, rows) {
 			this.$div = $div;
 			this.$div.addClass('output robot');
+			this.readOnly = readOnly || false;
 
 			this.$container = $('<div class="robot-not-highlighting"></div>');
 			this.$container.on('mouseup', $.proxy(this.containerMouseUp, this));
 			this.$container.on('mouseleave', $.proxy(this.containerMouseLeave, this));
 			this.$div.append(this.$container);
-			this.robot = new robot.Robot(this.$container, columns || 8, rows || 8, blockSize);
+			this.robot = new robot.Robot(this.$container, this.readOnly, blockSize, columns || 8, rows || 8);
 
-			this.$initial = $('<div class="robot-robot robot-initial"></div>');
-			this.$initial.on('mousedown', $.proxy(this.initialMouseDown, this));
-			this.$initial.on('mouseup', $.proxy(this.initialMouseUp, this));
-			this.$container.append(this.$initial);
-
-			this.callNr = Infinity
+			this.callNr = Infinity;
 			this.highlighting = false;
 			this.animation = null;
 			this.stateChangedCallback = null;
 			this.calls = [];
 
-			this.updateInterface();
+			if (!this.readOnly) {
+				this.robot.$initial.on('mousedown', $.proxy(this.initialMouseDown, this));
+				this.robot.$initial.on('mouseup', $.proxy(this.initialMouseUp, this));
+				this.updateInterface();
+			}
+
 			this.editor = editor;
 			this.editor.addOutput(this);
 		},
@@ -230,15 +231,11 @@ module.exports = function(output) {
 		},
 
 		updateInterface: function() {
-			$('.robot-maze-block').click($.proxy(this.clickBlock, this));
-			$('.robot-maze-line-vertical').click($.proxy(this.clickVerticalLine, this));
-			$('.robot-maze-line-horizontal').click($.proxy(this.clickHorizontalLine, this));
-			this.drawInitial();
-		},
-
-		drawInitial: function() {
-			this.$initial.css('left', this.robot.initialX * blockSize + blockSize/2);
-			this.$initial.css('top', this.robot.initialY * blockSize + blockSize/2);
+			if (!this.readOnly) {
+				$('.robot-maze-block').click($.proxy(this.clickBlock, this));
+				$('.robot-maze-line-vertical').click($.proxy(this.clickVerticalLine, this));
+				$('.robot-maze-line-horizontal').click($.proxy(this.clickHorizontalLine, this));
+			}
 		},
 
 		clickVerticalLine: function(event) {
@@ -324,7 +321,7 @@ module.exports = function(output) {
 				this.dragX = (event.pageX - offset.left)%blockSize - blockSize/2;
 				this.dragY = (event.pageY - offset.top)%blockSize - blockSize/2;
 				this.$container.on('mousemove', $.proxy(this.containerMouseMove, this));
-				this.$initial.addClass('robot-initial-dragging');
+				this.robot.$initial.addClass('robot-initial-dragging');
 				event.preventDefault();
 			}
 		},
@@ -332,18 +329,18 @@ module.exports = function(output) {
 		containerMouseUp: function(event) {
 			if (this.draggingInitial) {
 				this.$container.off('mousemove');
-				this.$initial.removeClass('robot-initial-dragging');
+				this.robot.$initial.removeClass('robot-initial-dragging');
 				this.draggingInitial = false;
-				this.drawInitial();
+				this.robot.drawInitial();
 			}
 		},
 
 		containerMouseLeave: function(event) {
 			if (this.draggingInitial) {
 				this.$container.off('mousemove');
-				this.$initial.removeClass('robot-initial-dragging');
+				this.robot.$initial.removeClass('robot-initial-dragging');
 				this.draggingInitial = false;
-				this.drawInitial();
+				this.robot.drawInitial();
 			}
 		},
 
@@ -357,8 +354,8 @@ module.exports = function(output) {
 				this.robot.initialY = y;
 				this.stateChanged();
 			}
-			this.$initial.css('left', event.pageX - offset.left - this.dragX);
-			this.$initial.css('top', event.pageY - offset.top - this.dragY);
+			this.robot.$initial.css('left', event.pageX - offset.left - this.dragX);
+			this.robot.$initial.css('top', event.pageY - offset.top - this.dragY);
 		},
 
 		clickBlock: function(event) {

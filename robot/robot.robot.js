@@ -6,10 +6,11 @@ module.exports = function(output) {
 
 	output.Robot = function() { return this.init.apply(this, arguments); };
 	output.Robot.prototype = {
-		init: function($container, blockSize, columns, rows) {
+		init: function($container, readOnly, blockSize, columns, rows) {
+			this.readOnly = readOnly;
+			this.blockSize = blockSize;
 			this.columns = columns || 8;
 			this.rows = rows || 8;
-			this.blockSize = blockSize;
 
 			this.$container = $container;
 			this.$container.addClass('robot-container');
@@ -23,6 +24,12 @@ module.exports = function(output) {
 			this.$robot = $('<div class="robot-robot"></div>');
 			this.$container.append(this.$robot);
 			this.$robot.hide();
+
+			this.$initial = $('<div class="robot-robot robot-initial"></div>');
+			this.$container.append(this.$initial);
+			if (this.blockSize !== 64) {
+				clayer.setCss3(this.$initial, 'transform', 'scale(' + (this.blockSize/64+0.01) + ')');
+			}
 
 			this.animationManager = new output.RobotAnimationManager(this.$robot, this.blockSize);
 			this.animation = null;
@@ -56,10 +63,10 @@ module.exports = function(output) {
 			var length = Math.sqrt(dx*dx+dy*dy);
 			var $line = $('<div class="robot-path-line"><div class="robot-path-line-inside"></div></div>');
 			this.$path.append($line);
-			$line.width(length);
+			$line.width(Math.round(length));
 			clayer.setCss3($line, 'transform', 'rotate(' + (angleRad*180/Math.PI) + 'deg)');
-			$line.css('left', fromX*this.blockSize + this.blockSize/2 + dx/2 - length/2);
-			$line.css('top', fromY*this.blockSize + this.blockSize/2 + dy/2);
+			$line.css('left', Math.round(fromX*this.blockSize + this.blockSize/2 + dx/2 - length/2));
+			$line.css('top', Math.round(fromY*this.blockSize + this.blockSize/2 + dy/2));
 
 			this.robotX = toX;
 			this.robotY = toY;
@@ -81,8 +88,8 @@ module.exports = function(output) {
 			var toAngleRad = toAngle/180*Math.PI;
 
 			// 5 = 0.5*@robot-path-point-arrow-hover
-			$point.css('left', this.robotX*this.blockSize + this.blockSize/2 + 5*Math.cos(toAngleRad));
-			$point.css('top', this.robotY*this.blockSize + this.blockSize/2 - 5*Math.sin(toAngleRad));
+			$point.css('left', Math.round(this.robotX*this.blockSize + this.blockSize/2 + 5*Math.cos(toAngleRad)));
+			$point.css('top', Math.round(this.robotY*this.blockSize + this.blockSize/2 - 5*Math.sin(toAngleRad)));
 			clayer.setCss3($point, 'transform', 'rotate(' + (-toAngle) + 'deg)');
 
 			this.robotAngle = (toAngle%360+360)%360;
@@ -208,48 +215,61 @@ module.exports = function(output) {
 			// blocks
 			for (x=0; x<this.columns; x++) {
 				for (y=0; y<this.rows; y++) {
-					$block = $('<div class="robot-maze-block"></div>');
-					$block.css('left', x*this.blockSize);
-					$block.css('top', y*this.blockSize);
-					$block.width(this.blockSize);
-					$block.height(this.blockSize);
-					$block.data('x', x);
-					$block.data('y', y);
-					if (this.blockGoal[x][y]) $block.addClass('robot-maze-block-goal');
-					this.$maze.append($block);
-					this.$blocks[x][y] = $block;
+					if (!this.readOnly || this.blockGoal[x][y]) {
+						$block = $('<div class="robot-maze-block"></div>');
+						$block.css('left', x*this.blockSize);
+						$block.css('top', y*this.blockSize);
+						$block.width(this.blockSize);
+						$block.height(this.blockSize);
+						$block.data('x', x);
+						$block.data('y', y);
+						if (this.blockGoal[x][y]) $block.addClass('robot-maze-block-goal');
+						this.$maze.append($block);
+						this.$blocks[x][y] = $block;
+					}
 				}
 			}
 
 			// vertical lines
 			for (y=0; y<this.rows; y++) {
 				for (x=1; x<this.columns; x++) {
-					$line = $('<div class="robot-maze-line-vertical"><div class="robot-maze-line-inside"></div></div>');
-					$line.css('left', x*this.blockSize);
-					$line.css('top', y*this.blockSize);
-					$line.height(this.blockSize);
-					$line.data('x', x);
-					$line.data('y', y);
-					if (this.verticalActive[x][y]) $line.addClass('robot-maze-line-active');
-					this.$maze.append($line);
-					this.$verticalLines[x][y] = $line;
+					if (!this.readOnly || this.verticalActive[x][y]) {
+						$line = $('<div class="robot-maze-line-vertical"><div class="robot-maze-line-inside"></div></div>');
+						$line.css('left', x*this.blockSize);
+						$line.css('top', y*this.blockSize);
+						$line.height(this.blockSize);
+						$line.data('x', x);
+						$line.data('y', y);
+						if (this.verticalActive[x][y]) $line.addClass('robot-maze-line-active');
+						this.$maze.append($line);
+						this.$verticalLines[x][y] = $line;
+					}
 				}
 			}
 
 			// horizontal lines
 			for (x=0; x<this.columns; x++) {
 				for (y=1; y<this.rows; y++) {
-					$line = $('<div class="robot-maze-line-horizontal"><div class="robot-maze-line-inside"></div></div>');
-					$line.css('left', x*this.blockSize);
-					$line.css('top', y*this.blockSize);
-					$line.width(this.blockSize);
-					$line.data('x', x);
-					$line.data('y', y);
-					if (this.horizontalActive[x][y]) $line.addClass('robot-maze-line-active');
-					this.$maze.append($line);
-					this.$horizontalLines[x][y] = {$line: $line, active: false};
+					if (!this.readOnly || this.horizontalActive[x][y]) {
+						$line = $('<div class="robot-maze-line-horizontal"><div class="robot-maze-line-inside"></div></div>');
+						$line.css('left', x*this.blockSize);
+						$line.css('top', y*this.blockSize);
+						$line.width(this.blockSize);
+						$line.data('x', x);
+						$line.data('y', y);
+						if (this.horizontalActive[x][y]) $line.addClass('robot-maze-line-active');
+						this.$maze.append($line);
+						this.$horizontalLines[x][y] = {$line: $line, active: false};
+					}
 				}
 			}
+
+			this.drawInitial();
+		},
+
+		drawInitial: function() {
+			this.$initial.css('left', this.initialX * this.blockSize + this.blockSize/2);
+			this.$initial.css('top', this.initialY * this.blockSize + this.blockSize/2);
 		},
 
 		playAll: function() {

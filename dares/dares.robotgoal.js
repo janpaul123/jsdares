@@ -33,7 +33,7 @@ module.exports = function(dares) {
 			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numVisitedGoals - ' + this.linePenalty + '*numLines;</span></div>');
 			$preview.append(this.makePreviewButton());
 
-			this.previewRobot = new robot.Robot($robot, this.previewBlockSize);
+			this.previewRobot = new robot.Robot($robot, true, this.previewBlockSize);
 			this.previewRobot.setState(this.state);
 			this.previewRobot.clear();
 			this.previewRobot.insertDelay(100000);
@@ -52,7 +52,7 @@ module.exports = function(dares) {
 
 			this.$div = $div;
 			$div.addClass('dare dare-robotgoal');
-			this.robot = this.ui.addRobot();
+			this.robot = this.ui.addRobot(true);
 			this.robot.setState(this.state);
 			
 			this.$originalRobotContainer = $('<span class="dare-robotgoal-original-container"></span>');
@@ -71,7 +71,7 @@ module.exports = function(dares) {
 			this.$submit.on('click', $.proxy(this.submit, this));
 			this.$description.append(this.$submit);
 
-			this.originalRobot = new robot.Robot(this.$originalRobot, this.resultBlockSize);
+			this.originalRobot = new robot.Robot(this.$originalRobot, true, this.resultBlockSize);
 			this.originalRobot.setState(this.state);
 			this.originalRobot.clear();
 			this.originalRobot.insertDelay(30000);

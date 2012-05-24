@@ -110,9 +110,9 @@ module.exports = function(output) {
 			return this.canvas;
 		},
 
-		addRobot: function(width, height) {
+		addRobot: function(readOnly, width, height) {
 			this.addTab('robot');
-			this.robot = new output.Robot($('#robot'), this.editor, 64, width || 8, height || 8);
+			this.robot = new output.Robot($('#robot'), this.editor, readOnly, 64, width, height);
 			this.scope.robot = this.robot.getAugmentedObject();
 			this.editor.setScope(this.scope);
 			return this.robot;

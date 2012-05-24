@@ -10,8 +10,8 @@ module.exports = function(output) {
 			this.$robot = $robot;
 			this.blockSize = blockSize;
 
-			this.scale = blockSize/64;
-			if (this.scale !== 1) {
+			this.scale = blockSize/64+0.01;
+			if (this.blockSize !== 64) {
 				clayer.setCss3(this.$robot, 'transform', 'scale(' + this.scale + ')');
 			}
 			
@@ -97,7 +97,7 @@ module.exports = function(output) {
 			this.animateTimeout = null;
 			this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', $.proxy(this.animationEnd, this));
 			var animation = this.animationQueue[this.number];
-			var duration = this.duration*animation.length;
+			var duration = (this.duration*animation.length).toFixed(5);
 
 			if (animation.type === 'movement') {
 				clayer.setCss3(this.$robot, 'transition', 'left ' + duration + 's ease-in-out, top ' + duration + 's ease-in-out');
@@ -117,12 +117,12 @@ module.exports = function(output) {
 		},
 
 		setPosition: function(x, y) {
-			this.$robot.css('left', x*this.blockSize + this.blockSize/2);
-			this.$robot.css('top', y*this.blockSize + this.blockSize/2);
+			this.$robot.css('left', Math.round(x*this.blockSize + this.blockSize/2));
+			this.$robot.css('top', Math.round(y*this.blockSize + this.blockSize/2));
 		},
 
 		setOrientation: function(angle) {
-			clayer.setCss3(this.$robot, 'transform', 'rotate(' + (90-angle) + 'deg)' + (this.scale !== 1 ? ' scale(' + this.scale + ')' : ''));
+			clayer.setCss3(this.$robot, 'transform', 'rotate(' + Math.round(90-angle) + 'deg)' + (this.blockSize !== 64 ? ' scale(' + this.scale + ')' : ''));
 		},
 
 		setLight: function(state) {
