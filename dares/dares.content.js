@@ -12,7 +12,7 @@ module.exports = function(dares) {
 						description: '',
 						speed: 100,
 						maxLines: 5,
-						linePenalty: 5,
+						linePenalty: 0,
 						goalReward: 50,
 						numGoals: 1,
 						state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',

@@ -31,4 +31,45 @@
 			display: block;
 		}
 	}
+
+	.dare-robotgoal-points {
+		.code-well();
+		margin-top: 10px;
+		margin-bottom: 10px;
+		padding: 0px;
+		position: relative;
+		overflow: auto;
+		width: 100%;
+
+		.dare-robotgoal-points-goals {
+			padding: 15px;
+			overflow: auto;
+		}
+
+		.dare-robotgoal-points-square {
+			width: 40px;
+			height: 40px;
+			float: left;
+			border: 3px solid #eee;
+			margin-right: 20px;
+
+			&.active {
+				background-color: #0a0;
+			}
+		}
+
+		.dare-robotgoal-points-points {
+			position: absolute;
+			right: 10px;
+			top: 4px;
+			color: #eee;
+			height: 40+2*15px;
+			line-height: 40+2*15px;
+			font-size: 36px;
+			
+			&.win {
+				color: #0d0;
+			}
+		}
+	}
 }

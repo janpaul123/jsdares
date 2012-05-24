@@ -3,6 +3,52 @@
 
 module.exports = function(dares) {
 	var robot = require('../robot');
+	var clayer = require('../clayer');
+
+	dares.RobotGoalPoints = function() { return this.init.apply(this, arguments); };
+	dares.RobotGoalPoints.prototype = {
+		init: function($div, numGoals, reward, threshold) {
+			this.$div = $div;
+			this.$div.addClass('dare-robotgoal-points');
+			this.$div.hide();
+
+			this.$goals = $('<div class="dare-robotgoal-points-goals"></div>');
+			this.$div.append(this.$goals);
+
+			this.$squares = [];
+			for (var i=0; i<numGoals; i++) {
+				var $square = $('<div class="dare-robotgoal-points-square"></div>');
+				this.$goals.append($square);
+				this.$squares.push($square);
+			}
+
+			this.$points = $('<div class="dare-robotgoal-points-points">0</div>');
+			this.$div.append(this.$points);
+			this.reward = reward;
+			this.threshold = threshold;
+		},
+		show: function() {
+			this.$div.slideDown(150);
+		},
+		hide: function() {
+			this.$div.slideUp(150);
+		},
+		setValue: function(name, value) {
+			if (value > 0 && value <= this.$squares.length) {
+				clayer.setCss3(this.$squares[value-1], 'transition', 'background-color 0.2s linear');
+				this.$squares[value-1].addClass('active');
+			} else {
+				for (var i=0; i<this.$squares.length; i++) {
+					clayer.setCss3(this.$squares[i], 'transition', '');
+					this.$squares[i].removeClass('active');
+				}
+			}
+			this.$points.text(this.reward*value);
+			if (this.reward*value >= this.threshold) this.$points.addClass('win');
+			else this.$points.removeClass('win');
+		},
+		setChanging: function() {}
+	};
 
 	dares.RobotGoalDare = function() { return this.init.apply(this, arguments); };
 	dares.RobotGoalDare.prototype = dares.addCommonDareMethods({
@@ -13,10 +59,11 @@ module.exports = function(dares) {
 			this.original = options.original;
 			this.previewBlockSize = options.previewBlockSize || 32;
 			this.resultBlockSize = options.resultBlockSize || 48;
-			this.goalReward = options.goalReward || 20;
-			this.linePenalty = options.linePenalty || 3;
+			this.numGoals = options.numGoals;
+			this.linePenalty = options.linePenalty;
+			this.goalReward = options.goalReward || 50;
 			this.maxLines = options.maxLines || 10;
-			this.threshold = options.threshold || options.numGoals*this.goalReward - this.linePenalty*this.maxLines;
+			this.threshold = options.threshold || this.numGoals*this.goalReward - this.linePenalty*this.maxLines;
 			this.previewRobot = null;
 			this.animation = null;
 		},
@@ -79,11 +126,16 @@ module.exports = function(dares) {
 
 			var $points = $('<div></div>');
 			this.$div.append($points);
-			this.animatedPoints = new dares.AnimatedPoints($points);
-			this.animatedPoints.addFactor('numVisitedGoals', this.goalReward);
-			this.animatedPoints.addFactor('numLines', -this.linePenalty);
-			this.animatedPoints.setThreshold(this.threshold);
-			this.animatedPoints.finish();
+
+			if (this.linePenalty > 0) {
+				this.animatedPoints = new dares.AnimatedPoints($points);
+				this.animatedPoints.addFactor('numVisitedGoals', this.goalReward);
+				this.animatedPoints.addFactor('numLines', -this.linePenalty);
+				this.animatedPoints.setThreshold(this.threshold);
+				this.animatedPoints.finish();
+			} else {
+				this.animatedPoints = new dares.RobotGoalPoints($points, this.numGoals, this.goalReward, this.threshold);
+			}
 
 			this.$score = $('<div class="dare-score"></div>');
 			this.$div.append(this.$score);
@@ -117,14 +169,18 @@ module.exports = function(dares) {
 			var points = this.robot.getNumberOfVisitedGoals() * this.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(this.robot.getNumberOfVisitedGoals()+1, 50, $.proxy(this.animationGoalCallback, this));
-			this.updateScoreAndAnimationWithLines(points);
+			this.animation.addSegment(this.robot.getNumberOfVisitedGoals()+1, 500, $.proxy(this.animationGoalCallback, this));
+			if (this.linePenalty > 0) {
+				this.updateScoreAndAnimationWithLines(points);
+			} else {
+				this.updateScore(points);
+			}
 			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
 			this.animation.run();
 		},
 
 		animationGoalCallback: function(i) {
-			if (i === 0) {
+			if (i === 0 && this.linePenalty > 0) {
 				this.animatedPoints.setChanging('numVisitedGoals');
 			}
 			this.animatedPoints.setValue('numVisitedGoals', i);

@@ -172,18 +172,16 @@ module.exports = function(dares) {
 			this.error = true;
 			this.$submit.addClass('disabled');
 			this.animationFinish();
-			this.animatedPoints.show();
 		};
 
 		dare.setCallNr = function() {
 			this.error = false;
 			this.$submit.removeClass('disabled');
 			this.animationFinish();
-			this.animatedPoints.show();
 		};
 
 		dare.updateScore = function(points) {
-			if (points > this.threshold) {
+			if (points >= this.threshold) {
 				this.completed = true;
 				this.highscore = Math.max(this.highscore, points);
 				window.localStorage.setItem('dare-completed-' + this.name, true);

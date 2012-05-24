@@ -251,9 +251,9 @@ module.exports = function(dares) {
 			for (var j=0; j<10 && i+j<this.animationRects.length; j++) {
 				rectangle = this.animationRects[i+j];
 				if (rectangle.match) {
-					this.resultContext.fillStyle = '#030';
+					this.resultContext.fillStyle = '#060';
 				} else {
-					this.resultContext.fillStyle = '#300';
+					this.resultContext.fillStyle = '#600';
 				}
 				this.resultContext.fillRect(rectangle.x1*this.charWidth, rectangle.y*this.lineHeight, (rectangle.x2-rectangle.x1)*this.charWidth, this.lineHeight);
 			}
