@@ -31,8 +31,14 @@ module.exports = function(editor) {
 			this.$element.css('top', this.$marking.position().top+this.$marking.outerHeight());
 		},
 		html: function(html) {
+			// first place in top-left corner, so text wrapping etc. wont happen due to being at a border
+			this.$element.css('left', 0);
+			this.$element.css('top', 0);
 			this.$message.html(html);
 			this.updatePosition();
+			// now force re-rendering at the new location
+			this.$message.html('');
+			this.$message.html(html);
 		},
 		remove: function() {
 			this.$element.remove();
@@ -485,7 +491,6 @@ module.exports = function(editor) {
 			this.$mirror.text(this.text);
 			this.$textarea.width(this.$mirror.outerWidth());
 			this.$textarea.height(Math.max(this.$mirror.outerHeight() + 100, this.$div.height()));
-			this.$surface.width(this.$mirror.outerWidth() + 150);
 		},
 
 		showElements: function() {

@@ -4,7 +4,8 @@
 	padding: 0;
 	position: relative;
 	background-color: @editor-background-color;
-	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .editor-code, .editor-mirror {
@@ -104,6 +105,7 @@
 .editor-surface {
 	position: absolute;
 	display: inline-block;
+	width: 525px;
 }
 
 /// MARKING ///

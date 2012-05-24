@@ -7,6 +7,7 @@ module.exports = function(editor) {
 	editor.Code.prototype = {
 		init: function(text) {
 			this.text = '' + text;
+			this.errorLine = null;
 		},
 		getText: function() {
 			return this.text;
@@ -60,6 +61,26 @@ module.exports = function(editor) {
 				result = Math.max(result, this.lines[i-1].length);
 			}
 			return result;
+		},
+		hasError: function() {
+			this.makeLines();
+			for (var i=0; i<this.lines.length; i++) {
+				if (this.lines[i].length > 60) {
+					this.errorLine = i+1;
+					return true;
+				}
+			}
+			return false;
+		},
+		getError: function() {
+			var msg = 'This line is too long, please split it into separate statements';
+			if (this.errorLine === null) return null;
+			else return {
+				type: 'Error',
+				loc: {line: this.errorLine, column: 60, column2: 60},
+				getMessage: function() { return msg; },
+				getHTML: function() { return msg; }
+			};
 		},
 		/// INTERNAL FUNCTIONS ///
 		makeLines: function() {

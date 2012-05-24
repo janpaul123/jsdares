@@ -88,21 +88,18 @@ module.exports = function(editor) {
 		update: function() {
 			this.updateTimeout = null;
 			this.code = new editor.Code(this.surface.getText());
-			this.tree = new this.language.Tree(this.code.text);
-			if (this.tree.hasError()) {
-				if (this.editablesEnabled) {
-					this.disableEditables();
-				}
-				if (this.highlightingEnabled) {
-					this.disableHighlighting();
-				}
-				this.handleError(this.tree.getError());
-				this.toolbar.criticalError();
+			if (this.code.hasError()) {
+				this.handleCriticalError(this.code.getError());
 			} else {
-				if (this.highlightingEnabled) {
-					this.refreshHighlights();
+				this.tree = new this.language.Tree(this.code.text);
+				if (this.tree.hasError()) {
+					this.handleCriticalError(this.tree.getError());
+				} else {
+					if (this.highlightingEnabled) {
+						this.refreshHighlights();
+					}
+					this.run();
 				}
-				this.run();
 			}
 			this.textChangeCallback(this.code.text);
 		},
@@ -130,18 +127,6 @@ module.exports = function(editor) {
 				this.runner.run();
 				this.callOutputs('endRun');
 				this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
-				/*
-				var messages = this.runner.getMessages(), shown=false;
-				for (var i=0; i<messages.length; i++) {
-					if (messages[i].type === 'Inline') {
-						shown = true;
-						this.callOutputs('setCallNr', messages[i].callNr);
-					}
-				}
-				if (!shown) {
-					this.callOutputs('setCallNr', -1);
-				}
-				*/
 			}
 		},
 
@@ -204,6 +189,17 @@ module.exports = function(editor) {
 			return loc;
 		},
 
+		handleCriticalError: function(error) {
+			if (this.editablesEnabled) {
+				this.disableEditables();
+			}
+			if (this.highlightingEnabled) {
+				this.disableHighlighting();
+			}
+			this.handleError(error);
+			this.toolbar.criticalError();
+		},
+
 		handleError: function(error) {
 			this.surface.hideStepMessage();
 			this.surface.hideAutoCompleteBox();
@@ -243,12 +239,17 @@ module.exports = function(editor) {
 		},
 
 		outputRequestsRerun: function() { //callback
-			if (!this.tree.hasError()) {
-				this.delayedRun();
-				return true;
-			} else {
-				this.handleError(this.tree.getError());
+			if (this.code.hasError()) {
+				this.handleError(this.code.getError());
 				return false;
+			} else {
+				if (this.tree.hasError()) {
+					this.handleError(this.tree.getError());
+					return false;
+				} else {
+					this.delayedRun();
+					return true;
+				}
 			}
 		},
 
@@ -509,16 +510,6 @@ module.exports = function(editor) {
 
 			var text = this.surface.getText();
 			this.runTemp(text.substring(0, offset1) + example + text.substring(offset2));
-			/*
-			if (!this.tree.hasError()) {
-				this.runner.restart();
-				this.callOutputs('startRun');
-				this.runner.newTree(this.tree);
-				this.runner.run();
-				this.callOutputs('endRun');
-			}
-			*/
-			
 			this.toolbar.previewing();
 		},
 
