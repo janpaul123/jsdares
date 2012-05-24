@@ -63,6 +63,7 @@ module.exports = function(output) {
 				this.editor = null;
 			}
 			this.scope = {};
+			this.commands = [];
 			this.$tabs.children('li').remove();
 			this.$content.children('div').remove();
 			this.$main.removeClass('ui-dares-active');
@@ -99,6 +100,7 @@ module.exports = function(output) {
 			this.console = new output.Console($('#console'), this.editor);
 			this.scope.console = this.console.getAugmentedObject();
 			this.editor.setScope(this.scope);
+			this.commands = this.commands.concat(this.console.getCommands());
 			return this.console;
 		},
 
@@ -107,6 +109,7 @@ module.exports = function(output) {
 			this.canvas = new output.Canvas($('#canvas'), this.editor, size || 540);
 			this.scope.canvas = this.canvas.getAugmentedObject();
 			this.editor.setScope(this.scope);
+			this.commands = this.commands.concat(this.canvas.getCommands());
 			return this.canvas;
 		},
 
@@ -115,6 +118,7 @@ module.exports = function(output) {
 			this.robot = new output.Robot($('#robot'), this.editor, readOnly, width, height);
 			this.scope.robot = this.robot.getAugmentedObject();
 			this.editor.setScope(this.scope);
+			this.commands = this.commands.concat(this.robot.getCommands());
 			return this.robot;
 		},
 
@@ -133,6 +137,10 @@ module.exports = function(output) {
 		},
 
 		finish: function() {
+			if (this.info !== null) {
+				this.info.addCommands(this.commands);
+				this.info.addCommands(jsmm.info.getCommands());
+			}
 			this.selectTab(this.tabs[0]);
 		},
 

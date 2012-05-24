@@ -136,14 +136,17 @@ module.exports = function(output) {
 	output.InfoTable.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
-		init: function($div, info, commands) {
+		init: function($div, info) {
 			this.info = info;
 			this.$table = $('<div class="info-table">');
 			this.$table.on('mouseleave', $.proxy(this.mouseLeave, this));
+			$div.append(this.$table);
 			this.commands = {};
 			this.highlighting = false;
 			this.commandTracker = null;
+		},
 
+		addCommands: function(commands) {
 			for (var i=0; i<commands.length; i++) {
 				var command = commands[i];
 
@@ -151,7 +154,10 @@ module.exports = function(output) {
 				var $cell = $('<div class="info-table-cell"></div>');
 				this.makeCell(command, $cell);
 				$item.append($cell);
-				$item.append('<div class="info-table-content"></div>');
+
+				var $content = $('<div class="info-table-content"></div>');
+				$content.hide();
+				$item.append($content);
 
 				$item.data('command', command);
 				$item.on('click', $.proxy(this.itemClick, this));
@@ -160,8 +166,6 @@ module.exports = function(output) {
 				this.$table.append($item);
 				this.commands[command.id] = {command: command, $item: $item};
 			}
-
-			$div.append(this.$table);
 		},
 
 		remove: function() {
@@ -217,6 +221,7 @@ module.exports = function(output) {
 				$content.slideUp(200);
 			} else {
 				this.$table.children('.info-table-item-active').removeClass('info-table-item-active').children('.info-table-content').slideUp(200);
+				$content.show();
 				command.makeContent($content);
 				$target.addClass('info-table-item-active');
 				$content.hide();
@@ -257,7 +262,11 @@ module.exports = function(output) {
 			this.editor.addOutput(this);
 
 			this.scope = new output.InfoScope(this.$div, this);
-			this.table = new output.InfoTable(this.$div, this, output.getConsoleInfo());
+			this.table = new output.InfoTable(this.$div, this);
+		},
+
+		addCommands: function(commands) {
+			this.table.addCommands(commands);
 		},
 
 		remove: function() {

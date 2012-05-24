@@ -14,5 +14,6 @@ require('./jsmm.simple.runner')(jsmm);
 require('./jsmm.static.runner')(jsmm);
 require('./jsmm.test')(jsmm);
 require('./jsmm.editor')(jsmm);
+require('./jsmm.info')(jsmm);
 
 module.exports = jsmm;

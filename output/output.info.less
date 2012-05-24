@@ -67,7 +67,7 @@
 
 .info-table-item {
 	border-top: 1px solid #555;
-	padding: 5px 5px 2px 5px;
+	padding: 5px;
 	cursor: pointer;
 	overflow: hidden;
 
@@ -104,10 +104,9 @@
 	}
 
 	.info-table-content {
-		margin-left: 0px;
 		overflow: auto;
-		padding-bottom: 2px;
 		z-index: 10;
+		padding: 3px;
 	}
 
 	&:hover {
@@ -130,6 +129,36 @@
 
 	&.info-table-item-highlight {
 		background-color: @highlight-color !important;
+	}
+
+	dfn {
+		.code-well();
+		padding: 0px;
+		display: block;
+		position: relative;
+		overflow: auto;
+		width: 100%;
+
+		samp {
+			position: absolute;
+			left: 5px;
+			top: 5px;
+		}
+
+		code {
+			.code-foreground();
+			float: right;
+			padding: 5px 10px;
+			border: none;
+			background: none;
+			border-left: 1px solid #333;
+			min-width: 50%;
+		}
+	}
+
+	var {
+		.code-well();
+		padding: 2px 4px;
 	}
 }
 

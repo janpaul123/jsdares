@@ -36,7 +36,10 @@ module.exports = function(dares) {
 				var $item = $('<div class="dares-table-item"></div>');
 				var $cell = $('<div class="dares-table-cell"></div>');
 				$item.append($cell);
-				$item.append('<div class="dares-table-preview"></div>');
+
+				var $preview = $('<div class="dares-table-preview"></div>');
+				$preview.hide();
+				$item.append($preview);
 
 				$item.data('dare', dare);
 				$item.on('click', $.proxy(this.itemClick, this));
@@ -85,6 +88,7 @@ module.exports = function(dares) {
 				$preview.slideUp(200);
 			} else {
 				this.$body.find('.dares-table-item-active').removeClass('dares-table-item-active').children('.dares-table-preview').slideUp(200);
+				$preview.show();
 				dare.setPreview($preview);
 				$target.addClass('dares-table-item-active');
 				$preview.hide();
