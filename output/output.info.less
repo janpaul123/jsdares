@@ -131,6 +131,13 @@
 		background-color: @highlight-color !important;
 	}
 
+	code {
+		.code-foreground();
+		padding: 5px 10px;
+		border: none;
+		background: none;
+	}
+
 	dfn {
 		.code-well();
 		padding: 0px;
@@ -146,13 +153,9 @@
 		}
 
 		code {
-			.code-foreground();
 			float: right;
-			padding: 5px 10px;
-			border: none;
-			background: none;
 			border-left: 1px solid #333;
-			min-width: 50%;
+			min-width: 60%;
 		}
 	}
 

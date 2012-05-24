@@ -5,7 +5,7 @@ module.exports = function(output) {
 	output.Console.prototype.getCommands = function() {
 		return [
 			{
-				name: 'console.log',
+				name: 'console.log(text)',
 				id: 'console.log',
 				outputs: ['console'],
 				makeContent: function($content) {
@@ -13,7 +13,7 @@ module.exports = function(output) {
 				}
 			},
 			{
-				name: 'console.clear',
+				name: 'console.clear()',
 				id: 'console.clear',
 				outputs: ['console'],
 				makeContent: function($content) {
@@ -21,7 +21,7 @@ module.exports = function(output) {
 				}
 			},
 			{
-				name: 'console.setColor',
+				name: 'console.setColor(color)',
 				id: 'console.setColor',
 				outputs: ['console'],
 				makeContent: function($content) {
