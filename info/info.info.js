@@ -1,12 +1,14 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-module.exports = function(output) {
-	output.InfoScope = function() { return this.init.apply(this, arguments); };
-	output.InfoTable = function() { return this.init.apply(this, arguments); };
-	output.Info = function() { return this.init.apply(this, arguments); };
+module.exports = function(info) {
+	info.commands = [];
 
-	output.InfoScope.prototype = {
+	info.InfoScope = function() { return this.init.apply(this, arguments); };
+	info.InfoTable = function() { return this.init.apply(this, arguments); };
+	info.Info = function() { return this.init.apply(this, arguments); };
+
+	info.InfoScope.prototype = {
 		init: function($div, info) {
 			this.info = info;
 			this.$scope = $('<div class="info-scope"></div>');
@@ -133,7 +135,7 @@ module.exports = function(output) {
 		}
 	};
 
-	output.InfoTable.prototype = {
+	info.InfoTable.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
 		init: function($div, info) {
@@ -254,19 +256,16 @@ module.exports = function(output) {
 		}
 	};
 
-	output.Info.prototype = {
-		init: function($div, editor) {
+	info.Info.prototype = {
+		init: function($div, editor, commandFilter) {
 			this.$div = $div;
 			this.$div.addClass('output info');
 			this.editor = editor;
 			this.editor.addOutput(this);
 
-			this.scope = new output.InfoScope(this.$div, this);
-			this.table = new output.InfoTable(this.$div, this);
-		},
-
-		addCommands: function(commands) {
-			this.table.addCommands(commands);
+			this.scope = new info.InfoScope(this.$div, this);
+			this.table = new info.InfoTable(this.$div, this);
+			this.table.addCommands(this.filterCommands(commandFilter));
 		},
 
 		remove: function() {
@@ -293,6 +292,24 @@ module.exports = function(output) {
 		setCallNr: function(context, callNr) {
 			this.scope.update(context.getScopeTracker(), callNr);
 			this.table.update(context.getCommandTracker());
+		},
+
+		/// INTERNAL FUNCTIONS ///
+		filterCommands: function(filter) {
+			if (filter === undefined) {
+				return info.commands;
+			} else {
+				var commands = [];
+				for (var i=0; i<info.commands.length; i++) {
+					var command = info.commands[i];
+					for (var j=0; j<filter.length; j++) {
+						if (command.id.indexOf(filter[j]) === 0) {
+							commands.push(command);
+						}
+					}
+				}
+				return commands;
+			}
 		}
 	};
 };
