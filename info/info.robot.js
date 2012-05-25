@@ -5,7 +5,7 @@ var robot = require('../robot');
 
 var makeExample = function(num, $content, example, func, state, console) {
 	var $wrapper = $('<div class="robot-info-wrapper"></div>');
-	$content.append($('<p>' + (num > 0 ? 'Another example' : 'Example') +':</p>').append($wrapper));
+	$content.append($('<p>' + ['Example', 'Another example', 'Yet another example'][Math.min(num, 2)] +':</p>').append($wrapper));
 
 	var $container = $('<div class="robot-container"></div>');
 	$wrapper.append($container);
@@ -70,7 +70,7 @@ module.exports = function(info) {
 			outputs: ['robot'],
 			makeContent: function($content) {
 				$content.html('<p>This function returns a boolean (true or false) depending on whether the robot is standing on top of a goal square. It is usually used inside other statements, such as <var>if (robot.detectGoal())</var>, but you can also print the value to the console.</p>');
-				makeExample(0, $content, 'while(!robot.detectGoal());\n  robot.drive();\n  console.log(robot.detectGoal());\n}', function(robot) { robot.insertLine(1, 2); robot.insertLine(1, 1); robot.insertLine(1, 0); }, '{"columns":3,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false]],"numGoals":1}', 'false\nfalse\nfalse\ntrue');
+				makeExample(0, $content, 'while(!robot.detectGoal());\n  robot.drive();\n  console.log(robot.detectGoal());\n}', function(robot) { robot.insertLine(1, 2); robot.insertLine(1, 1); robot.insertLine(1, 0); }, '{"columns":3,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false]],"numGoals":1}', 'false\nfalse\ntrue');
 			}
 		}
 	]);

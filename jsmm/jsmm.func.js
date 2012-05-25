@@ -108,9 +108,9 @@ module.exports = function(jsmm) {
 		if ((symbol === '+' || symbol === '+=') && (typeof value1 === 'string' || typeof value2 === 'string')) {
 			context.addCommand(node, '+s');
 		} else if (['+', '-', '*', '/', '%'].indexOf(symbol) >= 0) {
-			context.addCommand(node, '-');
+			context.addCommand(node, '+');
 		} else if (['+=', '-=', '*=', '/=', '%='].indexOf(symbol) >= 0) {
-			context.addCommand(node, '-=');
+			context.addCommand(node, '+=');
 		} else if (['>', '>=', '<', '<='].indexOf(symbol) >= 0) {
 			context.addCommand(node, '>');
 		} else if (['==', '!='].indexOf(symbol) >= 0) {
