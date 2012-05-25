@@ -103,12 +103,6 @@
 		}
 	}
 
-	.info-table-content {
-		overflow: auto;
-		z-index: 10;
-		padding: 3px;
-	}
-
 	&:hover {
 		z-index: 11;
 		background-color: #555;
@@ -131,37 +125,47 @@
 		background-color: @highlight-color !important;
 	}
 
-	code {
-		.code-foreground();
-		padding: 5px 10px;
-		border: none;
-		background: none;
-	}
-
-	dfn {
-		.code-well();
-		padding: 0px;
-		display: block;
-		position: relative;
+	.info-table-content {
 		overflow: auto;
-		width: 100%;
+		z-index: 10;
+		padding: 5px 8px 0px;
 
-		samp {
-			position: absolute;
-			left: 5px;
-			top: 5px;
+		p {
+			overflow: hidden;
 		}
 
 		code {
-			float: right;
-			border-left: 1px solid #333;
-			min-width: 60%;
+			.code-foreground();
+			padding: 5px 10px;
+			border: none;
+			background: none;
 		}
-	}
 
-	var {
-		.code-well();
-		padding: 2px 4px;
+		dfn {
+			.code-well();
+			padding: 0px;
+			display: block;
+			position: relative;
+			overflow: auto;
+			width: 100%;
+
+			samp {
+				position: absolute;
+				left: 5px;
+				top: 5px;
+			}
+
+			code {
+				float: right;
+				border-left: 1px solid #333;
+				min-width: 60%;
+			}
+		}
+
+		var {
+			.code-well();
+			padding: 2px 4px;
+		}
 	}
 }
 

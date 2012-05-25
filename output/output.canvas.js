@@ -98,6 +98,7 @@ module.exports = function(output) {
 			return {
 				width: {
 					name: 'width',
+					info: 'canvas.width',
 					type: 'variable',
 					example: 'width',
 					get: $.proxy(function() {
@@ -109,6 +110,7 @@ module.exports = function(output) {
 				},
 				height: {
 					name: 'height',
+					info: 'canvas.height',
 					type: 'variable',
 					example: 'height',
 					get: $.proxy(function() {
@@ -120,6 +122,7 @@ module.exports = function(output) {
 				},
 				getContext: {
 					name: 'getContext',
+					info: 'canvas.getContext',
 					type: 'function',
 					example: 'getContext("2d")',
 					func: $.proxy(function(node, name, args) {
@@ -141,6 +144,7 @@ module.exports = function(output) {
 				if (func.type === 'function') {
 					obj[name] = {
 						name: name,
+						info: 'context.' + name,
 						type: 'function',
 						func: $.proxy(this.handleMethod, this),
 						example: func.example
@@ -148,6 +152,7 @@ module.exports = function(output) {
 				} else if (func.type === 'variable') {
 					obj[name] = {
 						name: name,
+						info: 'context.' + name,
 						type: 'variable',
 						get: $.proxy(this.handleAttributeGet, this),
 						set: $.proxy(this.handleAttributeSet, this),
