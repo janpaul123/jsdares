@@ -11,7 +11,7 @@ var makeExample = function($content, example) {
 	var $canvas = $('<canvas class="canvas-canvas" width="150" height="150"></canvas>');
 	$container.append($canvas);
 
-	$wrapper.append('<code>var context = canvas.getContext("2d");<br>' + example.replace(/\n/g, '<br>') + '</code>');
+	$wrapper.append('<code>var context = canvas.getContext("2d");\n' + example + '</code>');
 
 	var context = $canvas[0].getContext('2d');
 	eval(example);

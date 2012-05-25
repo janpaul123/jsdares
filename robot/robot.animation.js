@@ -111,6 +111,7 @@ module.exports = function(output) {
 
 		animationEnd: function() {
 			this.animateTimeout = null;
+			this.setLight('default');
 			if (this.number < this.lastNumber) {
 				this.playAnimation(this.number+1);
 			}
