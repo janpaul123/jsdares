@@ -13,7 +13,7 @@ module.exports = function(output) {
 		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
 
 		init: function() {
-			this.editor = this.console = this.canvas = this.robot = this.info = this.dare = null;
+			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = null;
 			this.$main = $('#main');
 			this.initTabs();
 			this.loadInitial();
@@ -39,6 +39,10 @@ module.exports = function(output) {
 		},
 
 		removeAll: function() {
+			if (this.robot !== null) {
+				this.robot.remove();
+				this.robot = null;
+			}
 			if (this.console !== null) {
 				this.console.remove();
 				this.console = null;
@@ -46,10 +50,6 @@ module.exports = function(output) {
 			if (this.canvas !== null) {
 				this.canvas.remove();
 				this.canvas = null;
-			}
-			if (this.robot !== null) {
-				this.robot.remove();
-				this.robot = null;
 			}
 			if (this.info !== null) {
 				this.info.remove();
@@ -95,6 +95,14 @@ module.exports = function(output) {
 			return this.editor;
 		},
 
+		addRobot: function(readOnly, width, height) {
+			this.addTab('robot');
+			this.robot = new output.Robot($('#robot'), this.editor, readOnly, width, height);
+			this.scope.robot = this.robot.getAugmentedObject();
+			this.editor.setScope(this.scope);
+			return this.robot;
+		},
+
 		addConsole: function() {
 			this.addTab('console');
 			this.console = new output.Console($('#console'), this.editor);
@@ -109,14 +117,6 @@ module.exports = function(output) {
 			this.scope.canvas = this.canvas.getAugmentedObject();
 			this.editor.setScope(this.scope);
 			return this.canvas;
-		},
-
-		addRobot: function(readOnly, width, height) {
-			this.addTab('robot');
-			this.robot = new output.Robot($('#robot'), this.editor, readOnly, width, height);
-			this.scope.robot = this.robot.getAugmentedObject();
-			this.editor.setScope(this.scope);
-			return this.robot;
 		},
 
 		addInfo: function() {
@@ -148,9 +148,9 @@ module.exports = function(output) {
 		loadInitial: function() {
 			this.removeAll();
 			this.addEditor();
+			this.addRobot();
 			this.addConsole();
 			this.addCanvas();
-			this.addRobot();
 			this.addInfo();
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));

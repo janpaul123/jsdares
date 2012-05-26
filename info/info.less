@@ -88,6 +88,11 @@
 		.info-table-cell-name {
 			width: 650-110-90-20px;
 			font-weight: bold;
+
+			small {
+				font-size: smaller;
+				margin-left: 5px;
+			}
 		}
 
 		.info-table-output {
@@ -169,22 +174,12 @@
 			padding: 2px 4px;
 		}
 
-		.canvas-info-wrapper {
-			.canvas-container {
-				width: 150px;
-				float: left;
-				margin-right: 15px;
-			}
+		.info-table-content-wrapper {
+			overflow: auto;
+			padding-bottom: 5px;
+			margin-bottom: 5px;
 
-			code {
-				.code-well();
-				display: block;
-				float: left;		
-			}
-		}
-
-		.robot-info-wrapper {
-			.robot-container {
+			.info-table-content-container {
 				width: 150px;
 				float: left;
 				margin-right: 15px;

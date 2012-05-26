@@ -1,8 +1,73 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var robot = require('../robot');
+
 module.exports = function(info) {
 	info.commands = [];
+
+	info.consoleExample = function($content, example, sampText) {
+		var $dfn = $('<dfn></dfn>');
+		$content.append($('<div class="info-table-content-wrapper"></div>').append($dfn));
+
+		var $samp = $('<samp></samp>');
+		$dfn.append($samp);
+
+		var $code = $('<code>' + example + '</code>');
+		$dfn.append($code);
+
+		if (sampText === undefined) {
+			sampText = '';
+			var console = {
+				log: function(string) {
+					if (typeof string === 'object') string = '[object]';
+					sampText += string + '\n';
+				},
+				clear: function() {
+					sampText = '';
+				}
+			};
+			eval(example);
+		}
+		$samp.html(sampText);
+	};
+
+	info.canvasExample = function($content, example) {
+		var $wrapper = $('<div class="info-table-content-wrapper"></div>');
+		$content.append($wrapper);
+
+		var $container = $('<div class="canvas-container info-table-content-container"></div>');
+		$wrapper.append($container);
+
+		var $canvas = $('<canvas class="canvas-canvas" width="150" height="150"></canvas>');
+		$container.append($canvas);
+
+		$wrapper.append('<code>var context = canvas.getContext("2d");\n' + example + '</code>');
+
+		var context = $canvas[0].getContext('2d');
+		eval(example);
+	};
+
+	info.robotExample = function($content, example, func, state, console) {
+		var $wrapper = $('<div class="info-table-content-wrapper"></div>');
+		$content.append($wrapper);
+
+		var $container = $('<div class="robot-container info-table-content-container"></div>');
+		$wrapper.append($container);
+
+		if (console === undefined) {
+			$wrapper.append('<code>' + example + '</code>');
+		} else {
+			$wrapper.append('<dfn><samp>' + console + '</samp><code>' + example + '</code></dfn>');
+		}
+
+		var rob = new robot.Robot($container, true, 48);
+		rob.setState(state || '{"columns":4,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":0,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":0}');
+		rob.clear();
+		rob.insertDelay(100000);
+		func(rob);
+		rob.playAll();
+	};
 
 	info.InfoScope = function() { return this.init.apply(this, arguments); };
 	info.InfoTable = function() { return this.init.apply(this, arguments); };
