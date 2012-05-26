@@ -38,6 +38,14 @@ module.exports = function(info) {
 			}
 		},
 		{
+			name: '!',
+			id: '!',
+			outputs: [],
+			makeContent: function($content) {
+				$content.html('<p>To invert a boolean, you can use <var>!</var>. For example, <var>!true</var> is just false.</p> <p>Example:<dfn><samp>false\ntrue</samp><code>console.log(!true);\nconsole.log(!(5 == 7));</code></dfn></p>');
+			}
+		},
+		{
 			name: '+=, -=, *=, /=, %=',
 			id: '+=',
 			outputs: [],
@@ -74,7 +82,7 @@ module.exports = function(info) {
 			id: '&&',
 			outputs: [],
 			makeContent: function($content) {
-				$content.html('<p>These operators are used to combine boolean values (true and false). <var>a && b</var> returns true if both <var>a</var> and <var>b</var> are true, so it is also called <em>and</em>. <var>a || b</var> returns true is either of them is true, so it is also called <em>or</em>.</p> <p>Example:<dfn><samp>true\nfalse\ntrue\ntrue\nfalse</samp><code>console.log(true && true);\nconsole.log(true && false);\nconsole.log(true || false);\nconsole.log(false || (5 == 5));\nconsole.log(false || false);</code></dfn></p>');
+				$content.html('<p>These operators are used to combine boolean values (true and false). <var>a && b</var> returns true if both <var>a</var> and <var>b</var> are true, so it is also called <em>and</em>. <var>a || b</var> returns true is either of them is true, so it is also called <em>or</em>.</p> <p>Example:<dfn><samp>true\nfalse\ntrue\ntrue\nfalse</samp><code>console.log(true && true);\nconsole.log(true && false);\nconsole.log(true || false);\nconsole.log(false || !(10 == 11));\nconsole.log(false || false);</code></dfn></p>');
 			}
 		},
 		{
@@ -107,6 +115,22 @@ module.exports = function(info) {
 			outputs: [],
 			makeContent: function($content) {
 				$content.html('<p>The for-loop is in fact a shorthand notation for commonly used while-loops. The first statement is executed before the for-loop starts, which is often used for initializing a variable, such as <var>i = 0</var>. The boolean is checked before the part between brackets is executed, just as with while-loops. Finally, the second statement is executed after each loop, for example to increase a counter variable by doing <var>i = i+1</var>. The shorthand version <var>i++</var> is also used often.</p> <p>Example:<dfn><samp>0\n1\n2\n3\n4</samp><code>for(var i = 0; i < 5; i++) {\n  console.log(i);\n}\n\n\n</code></dfn></p>');
+			}
+		},
+		{
+			name: 'function name(arguments)',
+			id: 'function',
+			outputs: [],
+			makeContent: function($content) {
+				$content.html('<p>Functions are used to avoid having to write the same code over and over again. They are pieces of code that you can call from other points in the program. Between parentheses you can specify variables that should be passed into the function, these are called <em>arguments</em>. Most of the commands in this list are functions, for example <var>console.log</var> is a function that takes one string variable as argument.</p> <p>Example:<dfn><samp>3pm\n12am\n5am\n12pm</samp><code>function printAmPm(hour) {\n  if (hour == 0) {\n    console.log(\"12am\");\n  } else if (hour < 12) {\n    console.log(hour + \"am\");\n  } else if (hour == 12) {\n    console.log(\"12pm\");\n  } else {\n    console.log((hour-12) + \"pm\");\n  }\n}\n\nprintAmPm(15);\nprintAmPm(0);\nprintAmPm(5);\nprintAmPm(12);</code></dfn></p>');
+			}
+		},
+		{
+			name: 'return value',
+			id: 'return',
+			outputs: [],
+			makeContent: function($content) {
+				$content.html('<p>Functions can also return some value after they have been run. For example, <var>robot.detectWall()</var> returns true or false depending on whether or not the robot faces a wall. Your functions can return some value, too. For example, to return the number 5 at some point in a function, you write <var>return 5;</var>.</p> <p>Example:<dfn><samp>10\n42\n-10</samp><code>function largest(num1, num2) {\n  if (num1 > num2) {\n    return num1;\n  } else {\n    return num2;\n  }\n}\n\nconsole.log(largest(6, 10));\nconsole.log(largest(30, 40) + 2);\nconsole.log(largest(1, 2) - largest(3, 12));</code></dfn></p>');
 			}
 		}
 	]);

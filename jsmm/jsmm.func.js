@@ -200,7 +200,7 @@ module.exports = function(jsmm) {
 				result = !value;
 			}
 		} else {
-			context.addCommand(this, '-');
+			context.addCommand(this, '+');
 			if (typeof value !== 'number') {
 				throw new jsmm.msg.Error(this, '<var>' + symbol + '</var> not possible since <var>' + stringify(value) + '</var> is not a number');
 			} else {
