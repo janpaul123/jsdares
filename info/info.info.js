@@ -304,7 +304,7 @@ module.exports = function(info) {
 					var command = info.commands[i];
 					for (var j=0; j<filter.length; j++) {
 						if (command.id.indexOf(filter[j]) === 0) {
-							commands.push(command);
+							commands[command.id] = command;
 						}
 					}
 				}

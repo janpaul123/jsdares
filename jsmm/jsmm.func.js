@@ -243,7 +243,8 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.nodes.IfBlock.prototype.runFunc = jsmm.nodes.WhileBlock.prototype.runFunc =
+	jsmm.nodes.IfBlock.prototype.runFunc =
+	jsmm.nodes.WhileBlock.prototype.runFunc =
 	jsmm.nodes.ForBlock.prototype.runFunc = function(context, expression) {
 		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
 		context.addCommand(this, type);
@@ -253,6 +254,11 @@ module.exports = function(jsmm) {
 		} else {
 			return value;
 		}
+	};
+
+	jsmm.nodes.ElseIfBlock.prototype.runFunc =
+	jsmm.nodes.ElseBlock.prototype.runFunc = function(context) {
+		context.addCommand(this, 'else');
 	};
 	
 	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, scope, func, args) {

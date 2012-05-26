@@ -379,12 +379,12 @@ module.exports = function(jsmm) {
 	
 	/* ifBlock */
 	jsmm.nodes.ElseIfBlock.prototype.getRunCode = function() {
-		return this.ifBlock.getRunCode();
+		return getNode(this) + '.runFunc(jsmmContext);\n' + this.ifBlock.getRunCode();
 	};
 	
 	/* statementList */
 	jsmm.nodes.ElseBlock.prototype.getRunCode = function() {
-		return hooksBefore(this) + '\n' + this.statementList.getRunCode() + hooksAfter(this);
+		return hooksBefore(this) + '\n' + getNode(this) + '.runFunc(jsmmContext);\n' + this.statementList.getRunCode() + hooksAfter(this);
 	};
 	
 	/* expression, statementList */

@@ -421,7 +421,10 @@ module.exports = function(jsmm) {
 			this.elseBlock = elseBlock;
 			expression.parent = this;
 			statementList.parent = this;
-			if (elseBlock !== null) elseBlock.parent = this;
+			if (elseBlock !== null) {
+				elseBlock.parent = this;
+				this.blockLoc.line2 = elseBlock.blockLoc.line-1;
+			}
 			this.tree.nodesByLine[this.lineLoc.line] = this;
 			this.hooksBefore = [];
 			this.hooksAfter = [];
