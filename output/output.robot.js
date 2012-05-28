@@ -54,33 +54,13 @@ module.exports = function(output) {
 			} else if (Math.round(amount) !== amount && this.robot.mazeObjects > 0) {
 				throw 'Fractional amounts are only allowed when the maze is empty';
 			} else if (amount !== 0) {
-				var x = this.robot.robotX, y = this.robot.robotY;
-
-				if (this.robot.mazeObjects > 0) {
-					var positive = amount > 0;
-					for (var i=0; i<Math.abs(amount); i++) {
-						if (this.isWall(x, y, positive ? this.robot.robotAngle : (this.robot.robotAngle + 180)%360)) {
-							this.addCall(context, this.robot.insertLine(x, y));
-							throw 'Robot ran into a wall';
-						}
-						if (this.robot.robotAngle === 0) {
-							x += (positive ? 1 : -1);
-						} else if (this.robot.robotAngle === 90) {
-							y -= (positive ? 1 : -1);
-						} else if (this.robot.robotAngle === 180) {
-							x -= (positive ? 1 : -1);
-						} else if (this.robot.robotAngle === 270) {
-							y += (positive ? 1 : -1);
-						}
-						if (this.robot.blockGoal[x][y] && this.visitedGoals.indexOf(x+y*this.robot.columns) < 0) {
-							this.visitedGoals.push(x+y*this.robot.columns);
-						}
-					}
-				} else {
-					x += Math.cos(this.robot.robotAngle / 180 * Math.PI)*amount;
-					y -= Math.sin(this.robot.robotAngle / 180 * Math.PI)*amount;
+				try {
+					this.robot.drive(amount);
+				} catch (error) {
+					this.addCall(context);
+					throw error;
 				}
-				this.addCall(context, this.robot.insertLine(x, y));
+				this.addCall(context);
 			}
 		},
 
@@ -89,7 +69,6 @@ module.exports = function(output) {
 			if (args[0] !== undefined) {
 				amount = args[0];
 			}
-			amount = (name === 'turnLeft' ? amount : -amount);
 
 			if (args.length > 1) {
 				throw '<var>' + name + '</var> accepts no more than <var>1</var> argument';
@@ -98,19 +77,19 @@ module.exports = function(output) {
 			} else if ([0, 90, 180, 270].indexOf((amount%360+360)%360) < 0 && this.robot.mazeObjects > 0) {
 				throw 'Only <var>90</var>, <var>180</var> and <var>270</var> degrees are allowed when the maze is not empty';
 			} else {
-				this.addCall(context, this.robot.insertPoint(amount));
+				this.robot[name](amount);
+				this.addCall(context);
 			}
 		},
 
 		detectWall: function(context, name, args) {
-			var wall = this.isWall(this.robot.robotX, this.robot.robotY, this.robot.robotAngle);
-			this.addCall(context, this.robot.insertDetectWall(wall));
+			var wall = this.robot.detectWall();
+			this.addCall(context);
 			return wall;
 		},
 
 		detectGoal: function(node, name, args) {
-			if (this.robot.mazeObjects <= 0) return false;
-			else return this.robot.blockGoal[this.robot.robotX][this.robot.robotY];
+			return this.robot.detectGoal();
 		},
 		
 		getAugmentedObject: function() {
@@ -163,7 +142,6 @@ module.exports = function(output) {
 
 		startRun: function() {
 			this.robot.clear();
-			this.visitedGoals = [];
 			this.calls = [];
 			this.$container.removeClass('robot-error');
 		},
@@ -183,23 +161,31 @@ module.exports = function(output) {
 		},
 
 		setFocus: function() {
-			this.robot.playAll();
+			this.robot.animationManager.playAll();
 		},
 
 		setCallNr: function(context, callNr) {
-			if (callNr !== Infinity || this.callNr !== callNr) {
-				this.callNr = callNr;
-				this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
-				this.robot.animation = this.robot.animationManager.newAnimation();
-				for (var i=0; i<this.calls.length; i++) {
-					var call = this.calls[i];
-					if (call.callNr > this.callNr) break;
-					if (call.info.$element !== undefined) call.info.$element.show();
-					if (call.info.anim !== undefined) this.robot.animation.add(call.info.anim);
-				}
-				this.robot.playLast();
+			this.callNr = callNr;
+			if (this.callNr === Infinity) {
+				this.robot.$path.children('.robot-path-line, .robot-path-point').show();
+				this.robot.animationManager.playAll();
 			} else {
-				this.robot.playAll();
+				this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
+				var call;
+				for (var i=0; i<this.calls.length; i++) {
+					if (this.calls[i].callNr > this.callNr) break;
+					call = this.calls[i];
+					if (call.$element !== null) call.$element.show();
+				}
+				if (call !== undefined) {
+					if (call.callNr === this.callNr) {
+						this.robot.animationManager.playAnimNum(call.animNum);
+					} else {
+						this.robot.animationManager.setAnimNumEnd(call.animNum);
+					}
+				} else {
+					this.robot.animationManager.playNone();
+				}
 			}
 		},
 
@@ -207,27 +193,28 @@ module.exports = function(output) {
 			this.robot.removeHighlights();
 			for (var i=0; i<this.calls.length; i++) {
 				var call = this.calls[i];
-				if (calls.indexOf(call.callNr) >= 0 && call.info.$element !== undefined) {
-					call.info.$element.addClass('robot-path-highlight');
+				if (calls.indexOf(call.callNr) >= 0 && call.$element !== null) {
+					call.$element.addClass('robot-path-highlight');
 				}
 			}
 		},
 
-		getNumberOfVisitedGoals: function() {
-			return this.visitedGoals.length;
+		getVisitedGoals: function() {
+			return this.robot.visitedGoals;
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addCall: function(context, info) {
+		addCall: function(context) {
 			if (this.calls.length > 300) {
 				throw 'Program takes too long to run';
 			}
-			if (info.$element !== undefined) {
-				info.$element.data('index', this.calls.length);
-				info.$element.on('mousemove', $.proxy(this.pathMouseMove, this));
-				info.$element.on('mouseleave', $.proxy(this.pathMouseLeave, this));
+			var $element = this.robot.$lastElement;
+			if ($element !== null) {
+				$element.data('index', this.calls.length);
+				$element.on('mousemove', $.proxy(this.pathMouseMove, this));
+				$element.on('mouseleave', $.proxy(this.pathMouseLeave, this));
 			}
-			this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), info: info});
+			this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), $element: $element, animNum: this.robot.animation.getLength()-1});
 		},
 
 		updateInterface: function() {
@@ -264,31 +251,6 @@ module.exports = function(output) {
 				$target.removeClass('robot-maze-line-active');
 			}
 			this.stateChanged();
-		},
-		
-		isWall: function(x, y, angle) {
-			if (this.robot.mazeObjects <= 0) {
-				return false;
-			} else {
-				if (angle === 0) {
-					if (x >= this.robot.columns-1 || this.robot.verticalActive[x+1][y]) {
-						return true;
-					}
-				} else if (angle === 90) {
-					if (y <= 0 || this.robot.horizontalActive[x][y]) {
-						return true;
-					}
-				} else if (angle === 180) {
-					if (x <= 0 || this.robot.verticalActive[x][y]) {
-						return true;
-					}
-				} else if (angle === 270) {
-					if (y >= this.robot.rows-1 || this.robot.horizontalActive[x][y+1]) {
-						return true;
-					}
-				}
-				return false;
-			}
 		},
 
 		pathMouseMove: function(event) {

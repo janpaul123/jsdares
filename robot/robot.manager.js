@@ -4,16 +4,17 @@
 module.exports = function(output) {
 	output.RobotAnimationManager = function() { return this.init.apply(this, arguments); };
 	output.RobotAnimationManager.prototype = {
-		init: function($robot, blockSize) {
+		init: function($robot, $maze, blockSize) {
 			this.$robot = $robot;
 			this.$robot.hide();
+			this.$maze = $maze;
 			this.blockSize = blockSize;
 			this.runningAnimation = null;
 			this.insertingAnimation = null;
 		},
 
 		newAnimation: function() {
-			this.insertingAnimation = new output.RobotAnimation(this.$robot, this.blockSize);
+			this.insertingAnimation = new output.RobotAnimation(this.$robot, this.$maze, this.blockSize);
 			return this.insertingAnimation;
 		},
 		
@@ -21,8 +22,16 @@ module.exports = function(output) {
 			this.execFunc('playAll');
 		},
 
-		playLast: function() {
-			this.execFunc('playLast');
+		playNone: function() {
+			this.execFunc('playNone');
+		},
+
+		playAnimNum: function(num) {
+			this.execFunc('playAnimNum', num);
+		},
+
+		setAnimNumEnd: function(num) {
+			this.execFunc('setAnimNumEnd', num);
 		},
 
 		remove: function() {
@@ -37,18 +46,18 @@ module.exports = function(output) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		execFunc: function(name) {
+		execFunc: function(name, arg) {
 			if (this.runningAnimation === null && this.insertingAnimation === null) {
 				// nothing
 			} else if (this.runningAnimation === null && this.insertingAnimation !== null) {
 				this.runningAnimation = this.insertingAnimation;
-				this.runningAnimation[name]();
+				this.runningAnimation[name](arg);
 			} else if (this.runningAnimation !== null && this.insertingAnimation === null) {
-				this.runningAnimation[name]();
+				this.runningAnimation[name](arg);
 			} else if (this.insertingAnimation.animationString !== this.runningAnimation.animationString) {
 				this.runningAnimation.remove();
 				this.runningAnimation = this.insertingAnimation;
-				this.runningAnimation[name]();
+				this.runningAnimation[name](arg);
 			}
 			this.insertingAnimation = null;
 		}

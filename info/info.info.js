@@ -48,25 +48,36 @@ module.exports = function(info) {
 		eval(example);
 	};
 
-	info.robotExample = function($content, example, func, state, console) {
+	info.robotExample = function($content, example, state) {
 		var $wrapper = $('<div class="info-table-content-wrapper"></div>');
 		$content.append($wrapper);
 
 		var $container = $('<div class="robot-container info-table-content-container"></div>');
 		$wrapper.append($container);
 
-		if (console === undefined) {
-			$wrapper.append('<code>' + example + '</code>');
-		} else {
-			$wrapper.append('<dfn><samp>' + console + '</samp><code>' + example + '</code></dfn>');
-		}
+		var consoleText = '';
+		var console = {
+			log: function(string) {
+				if (typeof string === 'object') string = '[object]';
+				consoleText += string + '\n';
+			},
+			clear: function() {
+				consoleText = '';
+			}
+		};
 
 		var rob = new robot.Robot($container, true, 48);
 		rob.setState(state || '{"columns":4,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":0,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":0}');
 		rob.clear();
 		rob.insertDelay(100000);
-		func(rob);
+		(function(robot) { eval(example); }(rob));
 		rob.playAll();
+
+		if (consoleText.length > 0) {
+			$wrapper.append('<dfn><samp>' + consoleText + '</samp><code>' + example + '</code></dfn>');
+		} else {
+			$wrapper.append('<code>' + example + '</code>');
+		}
 	};
 
 	info.InfoScope = function() { return this.init.apply(this, arguments); };

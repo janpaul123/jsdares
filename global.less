@@ -73,6 +73,29 @@
 	height: 16px;
 }
 
+.animation(@name, @duration, @timing-function: linear, @iteration-count: infinite) {
+	animation-name: @name;
+	animation-duration: @duration;
+	animation-timing-function: @timing-function;
+	animation-iteration-count: @iteration-count;
+	-webkit-animation-name: @name;
+	-webkit-animation-duration: @duration;
+	-webkit-animation-timing-function: @timing-function;
+	-webkit-animation-iteration-count: @iteration-count;
+	-moz-animation-name: @name;
+	-moz-animation-duration: @duration;
+	-moz-animation-timing-function: @timing-function;
+	-moz-animation-iteration-count: @iteration-count;
+	-ms-animation-name: @name;
+	-ms-animation-duration: @duration;
+	-ms-animation-timing-function: @timing-function;
+	-ms-animation-iteration-count: @iteration-count;
+	-o-animation-name: @name;
+	-o-animation-duration: @duration;
+	-o-animation-timing-function: @timing-function;
+	-o-animation-iteration-count: @iteration-count;
+}
+
 p {
 	font-size: 14px;
 	line-height: 20px;

@@ -166,10 +166,10 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.animatedPoints.show();
 
-			var points = this.robot.getNumberOfVisitedGoals() * this.goalReward;
+			var points = this.robot.getVisitedGoals().length * this.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(this.robot.getNumberOfVisitedGoals()+1, 500, $.proxy(this.animationGoalCallback, this));
+			this.animation.addSegment(this.robot.getVisitedGoals().length+1, 500, $.proxy(this.animationGoalCallback, this));
 			if (this.linePenalty > 0) {
 				this.updateScoreAndAnimationWithLines(points);
 			} else {

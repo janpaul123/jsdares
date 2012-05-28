@@ -49,10 +49,7 @@
 		line-height: 20px;
 		padding: 5px;
 		background-image: url(../img/star.png);
-		-webkit-animation-name: dare-score-star-move;
-		-webkit-animation-duration: 1.5s;
-		-webkit-animation-timing-function: linear;
-		-webkit-animation-iteration-count: infinite;
+		.animation(dare-score-star-move-anim, 1.5s);
 
 		span {
 			margin-right: 10px;
@@ -60,49 +57,29 @@
 	}
 }
 
+.dare-score-star-move-anim() {
+	from {
+		background-position: 0px 0px;
+	}
+	to {
+		background-position: 0px 18px;
+	}
+}
+
 // hack hack hack
-@keyframes dare-score-star-move {
-	from {
-		background-position: 0px 0px;
-	}
-	to {
-		background-position: 0px 18px;
-	}
+@keyframes dare-score-star-move-anim {
+	.dare-score-star-move-anim();
 }
-
-@-webkit-keyframes dare-score-star-move {
-	from {
-		background-position: 0px 0px;
-	}
-	to {
-		background-position: 0px 18px;
-	}
+@-webkit-keyframes dare-score-star-move-anim {
+	.dare-score-star-move-anim();
 }
-
-@-moz-keyframes dare-score-star-move {
-	from {
-		background-position: 0px 0px;
-	}
-	to {
-		background-position: 0px 18px;
-	}
+@-moz-keyframes dare-score-star-move-anim {
+	.dare-score-star-move-anim();
 }
-
-@-ms-keyframes dare-score-star-move {
-	from {
-		background-position: 0px 0px;
-	}
-	to {
-		background-position: 0px 18px;
-	}
+@-ms-keyframes dare-score-star-move-anim {
+	.dare-score-star-move-anim();
 }
-
-@-o-keyframes dare-score-star-move {
-	from {
-		background-position: 0px 0px;
-	}
-	to {
-		background-position: 0px 18px;
-	}
+@-o-keyframes dare-score-star-move-anim {
+	.dare-score-star-move-anim();
 }
 

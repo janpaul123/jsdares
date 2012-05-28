@@ -26,7 +26,13 @@
 		cursor: hand;
 
 		&.robot-maze-block-goal {
-			background-color: #0a0;
+			.opacity(60);
+			background-color: #080;
+			.transition(opacity 0.3s linear);
+
+			&.robot-maze-block-goal-blink {
+				.opacity(100);
+			}
 		}
 	}
 
@@ -244,3 +250,30 @@
 		}
 	}
 }
+
+.robot-maze-block-goal-blink-anim() {
+	0%, 100% {
+		.opacity(60);
+	}
+	50% {
+		.opacity(100);
+	}
+}
+
+// hack hack hack
+@keyframes robot-maze-block-goal-blink-anim {
+	.robot-maze-block-goal-blink-anim();
+}
+@-webkit-keyframes robot-maze-block-goal-blink-anim {
+	.robot-maze-block-goal-blink-anim();
+}
+@-moz-keyframes robot-maze-block-goal-blink-anim {
+	.robot-maze-block-goal-blink-anim();
+}
+@-ms-keyframes robot-maze-block-goal-blink-anim {
+	.robot-maze-block-goal-blink-anim();
+}
+@-o-keyframes robot-maze-block-goal-blink-anim {
+	.robot-maze-block-goal-blink-anim();
+}
+

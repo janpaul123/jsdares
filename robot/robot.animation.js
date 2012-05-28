@@ -6,8 +6,9 @@ module.exports = function(output) {
 
 	output.RobotAnimation = function() { return this.init.apply(this, arguments); };
 	output.RobotAnimation.prototype = {
-		init: function($robot, blockSize) {
+		init: function($robot, $maze, blockSize) {
 			this.$robot = $robot;
+			this.$maze = $maze;
 			this.blockSize = blockSize;
 
 			this.scale = blockSize/64+0.01;
@@ -21,6 +22,7 @@ module.exports = function(output) {
 			this.animationLength = 0;
 			this.duration = 0.006;
 			this.animateTimeout = null;
+			this.blinkTimeouts = [];
 			this.currentAnimation = null;
 			this.lastNumber = 0;
 			this.animationString = '';
@@ -32,6 +34,12 @@ module.exports = function(output) {
 				anim.length = Math.sqrt(dx*dx + dy*dy);
 				if (anim.length <= 0) return;
 				this.animationLength += anim.length;
+
+				if (anim.goals !== null) {
+					for (var i=0; i<anim.goals.length; i++) {
+						this.animationString += 'G' + anim.goals[i].loc + '/' + anim.goals[i].amount + ',';
+					}
+				}
 			} else if (anim.type === 'rotation') {
 				anim.length = Math.abs(anim.angle2-anim.angle);
 				if (anim.length <= 0) return;
@@ -46,15 +54,9 @@ module.exports = function(output) {
 		},
 
 		playAnimation: function(number) {
-			this.$robot.show();
-			clayer.setCss3(this.$robot, 'transition', '');
-			this.$robot.off('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd');
-
 			var animation = this.animationQueue[number];
 			this.number = number;
-			this.setPosition(animation.x, animation.y);
-			this.setOrientation(animation.angle);
-			this.setLight('default');
+			this.setInitial(animation);
 
 			if (this.animateTimeout !== null) {
 				clearTimeout(this.animateTimeout);
@@ -67,6 +69,12 @@ module.exports = function(output) {
 				this.animateTimeout = setTimeout($.proxy(this.animationEnd, this), this.duration*animation.length);
 			} else {
 				this.animateTimeout = setTimeout($.proxy(this.animationStart, this), 0);
+			}
+		},
+
+		playNone: function() {
+			if (this.animationQueue.length > 0) {
+				this.setInitial(this.animationQueue[0]);
 			}
 		},
 
@@ -84,15 +92,57 @@ module.exports = function(output) {
 			}
 		},
 
+		playAnimNum: function(num) {
+			if (this.animationQueue.length > 0 && this.animationQueue.length > num) {
+				this.lastNumber = num;
+				this.playAnimation(this.lastNumber);
+			}
+		},
+
+		setAnimNumEnd: function(num) {
+			if (this.animationQueue.length > 0) {
+				if (num+1 < this.animationQueue.length) {
+					this.setInitial(this.animationQueue[num+1]);
+				} else if (num < this.animationQueue.length) {
+					this.resetRobot();
+					var animation = this.animationQueue[num];
+					this.setPosition(animation.x2 || animation.x, animation.y2 || animation.y);
+					this.setOrientation(animation.angle2 || animation.angle);
+					this.setLight('default');
+				}
+			}
+		},
+
+		getLength: function() {
+			return this.animationQueue.length;
+		},
+
 		remove: function() {
 			if (this.animateTimeout !== null) {
 				clearTimeout(this.animateTimeout);
 			}
-			this.$robot.off('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd');
+			this.resetRobot();
 			this.$robot.hide();
 		},
 
 		/// INTERNAL FUNCTIONS ///
+		resetRobot: function() {
+			this.$robot.show();
+			clayer.setCss3(this.$robot, 'transition', '');
+			this.$robot.off('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd');
+			this.$maze.children('.robot-maze-block-goal-blink').removeClass('robot-maze-block-goal-blink');
+			for (var i=0; i<this.blinkTimeouts.length; i++) {
+				clearTimeout(this.blinkTimeouts[i]);
+			}
+		},
+
+		setInitial: function(animation) {
+			this.resetRobot();
+			this.setPosition(animation.x, animation.y);
+			this.setOrientation(animation.angle);
+			this.setLight('default');
+		},
+
 		animationStart: function() {
 			this.animateTimeout = null;
 			this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', $.proxy(this.animationEnd, this));
@@ -100,8 +150,14 @@ module.exports = function(output) {
 			var duration = (this.duration*animation.length).toFixed(5);
 
 			if (animation.type === 'movement') {
-				clayer.setCss3(this.$robot, 'transition', 'left ' + duration + 's ease-in-out, top ' + duration + 's ease-in-out');
+				clayer.setCss3(this.$robot, 'transition', 'left ' + duration + 's linear, top ' + duration + 's linear');
 				this.setPosition(animation.x2, animation.y2);
+
+				if (animation.goals !== null) {
+					for (var i=0; i<animation.goals.length; i++) {
+						this.setBlinkAnim(animation.goals[i].$block, animation.goals[i].amount);
+					}
+				}
 			} else if (animation.type === 'rotation') {
 				duration = this.rotationFactor*duration;
 				clayer.setCss3(this.$robot, 'transition', 'transform ' + duration + 's linear', true);
@@ -109,9 +165,19 @@ module.exports = function(output) {
 			}
 		},
 
+		setBlinkAnim: function($block, amount) {
+			this.blinkTimeouts.push(setTimeout(function() {
+				$block.addClass('robot-maze-block-goal-blink');
+			}, (amount-0.5)*this.blockSize*this.duration*1000));
+			this.blinkTimeouts.push(setTimeout(function() {
+				$block.removeClass('robot-maze-block-goal-blink');
+			}, (amount+0.5)*this.blockSize*this.duration*1000));
+		},
+
 		animationEnd: function() {
 			this.animateTimeout = null;
 			this.setLight('default');
+
 			if (this.number < this.lastNumber) {
 				this.playAnimation(this.number+1);
 			}

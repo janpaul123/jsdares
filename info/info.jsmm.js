@@ -24,7 +24,7 @@ module.exports = function(info) {
 
 				info.consoleExample($content, 'var counter = 1;\nconsole.log(counter);\ncounter = counter+1;\nconsole.log(counter);\ncounter = counter*3;\nconsole.log(counter);\n\nvar height = 100;\nconsole.log(height);\nheight = height * counter;\nconsole.log(height);');
 
-				info.robotExample($content, 'var distance = 2;\nrobot.drive(distance);', function(robot) { robot.insertLine(1, 1); });
+				info.robotExample($content, 'var distance = 2;\nrobot.drive(distance);');
 			}
 		},
 		{
@@ -36,7 +36,7 @@ module.exports = function(info) {
 
 				info.consoleExample($content, 'console.log(4+6);\nconsole.log(10-3);\nconsole.log(5*10);\nconsole.log(81/9);\nconsole.log(18%5);');
 
-				info.robotExample($content, 'robot.drive(5-2);', function(robot) { robot.insertLine(1, 0); });
+				info.robotExample($content, 'robot.drive(5-2);');
 			}
 		},
 		{
@@ -120,7 +120,7 @@ module.exports = function(info) {
 
 				info.consoleExample($content, 'if (false) {\n  console.log("Hello!");\n}\n\nif (true) {\n  console.log("Goodbye!");\n}\n');
 
-				info.robotExample($content, 'while(!robot.detectGoal());\n  robot.drive();\n  if (robot.detectWall()) {\n    robot.turnLeft();\n  }\n}', function(robot) { robot.insertLine(1, 2); robot.insertDetectWall(false); robot.insertLine(1, 1); robot.insertDetectWall(true); robot.insertPoint(90); robot.insertDetectWall(false); robot.insertLine(0, 1); }, '{"columns":3,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,true,false,false]],"horizontalActive":[[false,true,false,false],[false,true,false,false],[false,false,false,false]],"blockGoal":[[false,true,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}');
+				info.robotExample($content, 'while(!robot.detectGoal()) {\n  if (robot.detectWall()) {\n    robot.turnLeft();\n  }\n  robot.drive();\n}', '{"columns":3,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,true,false,false]],"horizontalActive":[[false,true,false,false],[false,true,false,false],[false,false,false,false]],"blockGoal":[[false,true,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}');
 			}
 		},
 		{ // am-pm does not work!
@@ -164,7 +164,7 @@ module.exports = function(info) {
 
 				info.consoleExample($content, 'function printAmPm(hour) {\n  if (hour == 0) {\n    console.log(\"12am\");\n  } else if (hour < 12) {\n    console.log(hour + \"am\");\n  } else if (hour == 12) {\n    console.log(\"12pm\");\n  } else {\n    console.log((hour-12) + \"pm\");\n  }\n}\n\nprintAmPm(15);\nprintAmPm(0);\nprintAmPm(5);\nprintAmPm(12);');
 
-				info.robotExample($content, 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);', function(robot) { robot.insertLine(1, 0); robot.insertPoint(-90); robot.insertLine(3, 0); robot.insertPoint(-90); robot.insertLine(3, 2); robot.insertPoint(-90); robot.insertLine(2, 2); robot.insertPoint(-90); });
+				info.robotExample($content, 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);');
 
 				info.canvasExample($content, '\nfunction smiley(x, y) {\n  context.fillRect(x+7, y+6, 5, 5);\n  context.fillRect(x+18, y+6, 5, 5);\n  context.beginPath();\n  context.arc(x+15, y+9, 12, 0.5, -3.6);\n  context.fill();\n}\nsmiley(10, 10);\nsmiley(20, 80);\nsmiley(40, 120);\nsmiley(80, 60);\ncontext.fillStyle = "#0aa";\nsmiley(120, 30);');
 			}

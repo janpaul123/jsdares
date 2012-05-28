@@ -31,7 +31,7 @@ module.exports = function(output) {
 				clayer.setCss3(this.$initial, 'transform', 'scale(' + (this.blockSize/64+0.01) + ')');
 			}
 
-			this.animationManager = new output.RobotAnimationManager(this.$robot, this.blockSize);
+			this.animationManager = new output.RobotAnimationManager(this.$robot, this.$maze, this.blockSize);
 			this.animation = null;
 
 			this.initialState(columns, rows);
@@ -42,6 +42,7 @@ module.exports = function(output) {
 			this.clear();
 			this.$container.children('.robot-maze-block .robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
 			this.animationManager.remove();
+			this.$lastElement = null;
 
 			this.$maze.remove();
 			this.$path.remove();
@@ -54,65 +55,73 @@ module.exports = function(output) {
 			this.robotAngle = this.initialAngle;
 			this.$path.children('.robot-path-line, .robot-path-point').remove();
 			this.animation = this.animationManager.newAnimation();
+			this.visitedGoals = [];
 		},
 
-		insertLine: function(toX, toY) {
-			var fromX = this.robotX, fromY = this.robotY;
-			var dy = (toY-fromY)*this.blockSize, dx = (toX-fromX)*this.blockSize;
-			var angleRad = Math.atan2(dy, dx);
-			var length = Math.sqrt(dx*dx+dy*dy);
-			var $line = $('<div class="robot-path-line"><div class="robot-path-line-inside"></div></div>');
-			this.$path.append($line);
-			$line.width(Math.round(length));
-			clayer.setCss3($line, 'transform', 'rotate(' + (angleRad*180/Math.PI) + 'deg)');
-			$line.css('left', Math.round(fromX*this.blockSize + this.blockSize/2 + dx/2 - length/2));
-			$line.css('top', Math.round(fromY*this.blockSize + this.blockSize/2 + dy/2));
+		drive: function(amount) {
+			if (amount === undefined) amount = 1;
 
-			this.robotX = toX;
-			this.robotY = toY;
+			if (amount !== 0) {
+				var x = this.robotX, y = this.robotY;
 
-			var anim = {type: 'movement', x: fromX, y: fromY, x2: toX, y2: toY, angle: this.robotAngle};
-			this.animation.add(anim);
+				var goals = null;
+				if (this.mazeObjects > 0) {
+					var positive = amount > 0;
 
-			return {
-				$element: $line,
-				anim: anim
-			};
+					for (var i=0; i<Math.abs(amount); i++) {
+						if (this.isWall(x, y, positive ? this.robotAngle : (this.robotAngle + 180)%360)) {
+							this.insertLine(x, y);
+							throw 'Robot ran into a wall';
+						}
+						if (this.robotAngle === 0) {
+							x += (positive ? 1 : -1);
+						} else if (this.robotAngle === 90) {
+							y -= (positive ? 1 : -1);
+						} else if (this.robotAngle === 180) {
+							x -= (positive ? 1 : -1);
+						} else if (this.robotAngle === 270) {
+							y += (positive ? 1 : -1);
+						}
+						if (this.blockGoal[x][y] && this.visitedGoals.indexOf(x+y*this.columns) < 0) {
+							this.visitedGoals.push(x+y*this.columns);
+							var goal = {$block: this.$blocks[x][y], amount: i+1, loc: x+y*this.columns};
+							if (goals === null) {
+								goals = [goal];
+							} else {
+								goals.push(goal);
+							}
+						}
+					}
+				} else {
+					x += Math.cos(this.robotAngle / 180 * Math.PI)*amount;
+					y -= Math.sin(this.robotAngle / 180 * Math.PI)*amount;
+				}
+				this.insertLine(x, y, goals);
+			}
 		},
 
-		insertPoint: function(amount) {
-			var fromAngle = this.robotAngle, toAngle = this.robotAngle+amount;
-			var $point = $('<div class="robot-path-point"><div class="robot-path-point-inside"><div class="robot-path-point-arrow"></div></div></div>');
-			this.$path.append($point);
-
-			var toAngleRad = toAngle/180*Math.PI;
-
-			// 5 = 0.5*@robot-path-point-arrow-hover
-			$point.css('left', Math.round(this.robotX*this.blockSize + this.blockSize/2 + 5*Math.cos(toAngleRad)));
-			$point.css('top', Math.round(this.robotY*this.blockSize + this.blockSize/2 - 5*Math.sin(toAngleRad)));
-			clayer.setCss3($point, 'transform', 'rotate(' + (-toAngle) + 'deg)');
-
-			this.robotAngle = (toAngle%360+360)%360;
-
-			var anim = {type: 'rotation', x: this.robotX, y: this.robotY, angle: fromAngle, angle2: toAngle};
-			this.animation.add(anim);
-
-			return {
-				$element: $point,
-				anim: anim
-			};
+		turnLeft: function(amount) {
+			if (amount === undefined) amount = 90;
+			this.insertPoint(amount);
 		},
 
-		insertDetectWall: function(wall) {
+		turnRight: function(amount) {
+			if (amount === undefined) amount = 90;
+			this.insertPoint(-amount);
+		},
+
+		detectWall: function() {
+			var wall = this.isWall(this.robotX, this.robotY, this.robotAngle);
 			var anim = {type: 'wall', x: this.robotX, y: this.robotY, angle: this.robotAngle, wall: wall};
 			this.animation.add(anim);
-			return {anim: anim};
+			this.$lastElement = null;
+			return wall;
 		},
 
-		insertDelay: function(delay) {
-			var anim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
-			this.animation.add(anim);
-			return {anim: anim};
+		detectGoal: function(node, name, args) {
+			this.$lastElement = null;
+			if (this.mazeObjects <= 0) return false;
+			else return this.blockGoal[this.robotX][this.robotY];
 		},
 
 		removeHighlights: function() {
@@ -276,12 +285,81 @@ module.exports = function(output) {
 			this.animationManager.playAll();
 		},
 
-		playLast: function() {
-			this.animationManager.playLast();
-		},
-
 		stop: function() {
 			this.animationManager.remove();
+		},
+
+		/// INTERNAL FUNCTIONS ///
+		isWall: function(x, y, angle) {
+			if (this.mazeObjects <= 0) {
+				return false;
+			} else {
+				if (angle === 0) {
+					if (x >= this.columns-1 || this.verticalActive[x+1][y]) {
+						return true;
+					}
+				} else if (angle === 90) {
+					if (y <= 0 || this.horizontalActive[x][y]) {
+						return true;
+					}
+				} else if (angle === 180) {
+					if (x <= 0 || this.verticalActive[x][y]) {
+						return true;
+					}
+				} else if (angle === 270) {
+					if (y >= this.rows-1 || this.horizontalActive[x][y+1]) {
+						return true;
+					}
+				}
+				return false;
+			}
+		},
+
+		insertLine: function(toX, toY, goals) {
+			var fromX = this.robotX, fromY = this.robotY;
+			var dy = (toY-fromY)*this.blockSize, dx = (toX-fromX)*this.blockSize;
+			var angleRad = Math.atan2(dy, dx);
+			var length = Math.sqrt(dx*dx+dy*dy);
+			var $line = $('<div class="robot-path-line"><div class="robot-path-line-inside"></div></div>');
+			this.$path.append($line);
+			$line.width(Math.round(length));
+			clayer.setCss3($line, 'transform', 'rotate(' + (angleRad*180/Math.PI) + 'deg)');
+			$line.css('left', Math.round(fromX*this.blockSize + this.blockSize/2 + dx/2 - length/2));
+			$line.css('top', Math.round(fromY*this.blockSize + this.blockSize/2 + dy/2));
+
+			this.robotX = toX;
+			this.robotY = toY;
+
+			var anim = {type: 'movement', x: fromX, y: fromY, x2: toX, y2: toY, angle: this.robotAngle, goals: goals};
+			this.animation.add(anim);
+
+			this.$lastElement = $line;
+		},
+
+		insertPoint: function(amount) {
+			var fromAngle = this.robotAngle, toAngle = this.robotAngle+amount;
+			var $point = $('<div class="robot-path-point"><div class="robot-path-point-inside"><div class="robot-path-point-arrow"></div></div></div>');
+			this.$path.append($point);
+
+			var toAngleRad = toAngle/180*Math.PI;
+
+			// 5 = 0.5*@robot-path-point-arrow-hover
+			$point.css('left', Math.round(this.robotX*this.blockSize + this.blockSize/2 + 5*Math.cos(toAngleRad)));
+			$point.css('top', Math.round(this.robotY*this.blockSize + this.blockSize/2 - 5*Math.sin(toAngleRad)));
+			clayer.setCss3($point, 'transform', 'rotate(' + (-toAngle) + 'deg)');
+
+			this.robotAngle = (toAngle%360+360)%360;
+
+			var anim = {type: 'rotation', x: this.robotX, y: this.robotY, angle: fromAngle, angle2: toAngle};
+			this.animation.add(anim);
+
+			this.$lastElement = $point;
+		},
+
+		insertDelay: function(delay) {
+			var anim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
+			this.animation.add(anim);
+			this.$lastElement = null;
 		}
 	};
 };
