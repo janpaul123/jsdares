@@ -70,7 +70,7 @@ module.exports = function(output) {
 
 					for (var i=0; i<Math.abs(amount); i++) {
 						if (this.isWall(x, y, positive ? this.robotAngle : (this.robotAngle + 180)%360)) {
-							this.insertLine(x, y);
+							this.insertLine(x, y, goals);
 							throw 'Robot ran into a wall';
 						}
 						if (this.robotAngle === 0) {
@@ -124,8 +124,22 @@ module.exports = function(output) {
 			else return this.blockGoal[this.robotX][this.robotY];
 		},
 
+		insertDelay: function(delay) {
+			var anim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
+			this.animation.add(anim);
+			this.$lastElement = null;
+		},
+
 		removeHighlights: function() {
 			this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
+		},
+
+		highlightVisitedGoal: function(goal) {
+			this.$maze.children('.robot-maze-block-goal-blink').removeClass('robot-maze-block-goal-blink');
+			if (goal !== null) {
+				this.$blocks[goal%this.columns][Math.floor(goal/this.columns)].addClass('robot-maze-block-goal-blink');
+				console.log(this.$blocks[goal%this.columns][Math.floor(goal/this.columns)]);
+			}
 		},
 
 		getState: function() {
@@ -354,12 +368,6 @@ module.exports = function(output) {
 			this.animation.add(anim);
 
 			this.$lastElement = $point;
-		},
-
-		insertDelay: function(delay) {
-			var anim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
-			this.animation.add(anim);
-			this.$lastElement = null;
 		}
 	};
 };

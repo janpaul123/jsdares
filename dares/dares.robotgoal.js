@@ -34,18 +34,24 @@ module.exports = function(dares) {
 			this.$div.slideUp(150);
 		},
 		setValue: function(name, value) {
-			if (value > 0 && value <= this.$squares.length) {
+			if (value > 0) {
 				clayer.setCss3(this.$squares[value-1], 'transition', 'background-color 0.2s linear');
-				this.$squares[value-1].addClass('active');
+				this.$squares[value-1].addClass('dare-robotgoal-points-square-active dare-robotgoal-points-square-blink');
+				if (value-2 >= 0) {
+					this.$squares[value-2].removeClass('dare-robotgoal-points-square-blink');
+				}
 			} else {
 				for (var i=0; i<this.$squares.length; i++) {
 					clayer.setCss3(this.$squares[i], 'transition', '');
-					this.$squares[i].removeClass('active');
+					this.$squares[i].removeClass('dare-robotgoal-points-square-active dare-robotgoal-points-square-blink');
 				}
 			}
 			this.$points.text(this.reward*value);
 			if (this.reward*value >= this.threshold) this.$points.addClass('win');
 			else this.$points.removeClass('win');
+		},
+		endAnimation: function() {
+			this.$squares[this.$squares.length-1].removeClass('dare-robotgoal-points-square-blink');
 		},
 		setChanging: function() {}
 	};
@@ -166,10 +172,12 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.animatedPoints.show();
 
-			var points = this.robot.getVisitedGoals().length * this.goalReward;
+			this.visitedGoals = this.robot.getVisitedGoals();
+			var points = this.visitedGoals.length * this.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(this.robot.getVisitedGoals().length+1, 500, $.proxy(this.animationGoalCallback, this));
+			this.animation.addSegment(1, 500, $.proxy(this.animationGoalStartCallback, this));
+			this.animation.addSegment(this.visitedGoals.length+1, 500, $.proxy(this.animationGoalCallback, this));
 			if (this.linePenalty > 0) {
 				this.updateScoreAndAnimationWithLines(points);
 			} else {
@@ -179,11 +187,21 @@ module.exports = function(dares) {
 			this.animation.run();
 		},
 
-		animationGoalCallback: function(i) {
+		animationGoalStartCallback: function(i) {
 			if (i === 0 && this.linePenalty > 0) {
 				this.animatedPoints.setChanging('numVisitedGoals');
 			}
-			this.animatedPoints.setValue('numVisitedGoals', i);
+			this.animatedPoints.setValue('numVisitedGoals', 0);
+		},
+
+		animationGoalCallback: function(i) {
+			if (i < this.visitedGoals.length) {
+				this.animatedPoints.setValue('numVisitedGoals', i+1);
+				this.originalRobot.highlightVisitedGoal(this.visitedGoals[i]);
+			} else {
+				this.animatedPoints.endAnimation();
+				this.originalRobot.highlightVisitedGoal(null);
+			}
 		}
 	});
 };

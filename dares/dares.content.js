@@ -17,9 +17,9 @@ module.exports = function(dares) {
 						numGoals: 1,
 						state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
 						original: function(robot) {
-							robot.insertLine(2, 0);
-							robot.insertPoint(90);
-							robot.insertLine(1, 0);
+							robot.drive(2);
+							robot.turnLeft();
+							robot.drive(1);
 						}
 					}, ui),
 					new dares.ConsoleMatchDare({

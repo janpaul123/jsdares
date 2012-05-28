@@ -203,6 +203,10 @@ module.exports = function(output) {
 			return this.robot.visitedGoals;
 		},
 
+		highlightVisitedGoal: function(goal) {
+			this.robot.highlightVisitedGoal(goal);
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		addCall: function(context) {
 			if (this.calls.length > 300) {
