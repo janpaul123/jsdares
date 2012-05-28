@@ -119,9 +119,9 @@ module.exports = function(output) {
 			return this.canvas;
 		},
 
-		addInfo: function() {
+		addInfo: function(commandFilter) {
 			this.addTab('info');
-			this.info = new info.Info($('#info'), this.editor);
+			this.info = new info.Info($('#info'), this.editor, commandFilter);
 			return this.robot;
 		},
 

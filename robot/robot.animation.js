@@ -16,7 +16,7 @@ module.exports = function(output) {
 				clayer.setCss3(this.$robot, 'transform', 'scale(' + this.scale + ')');
 			}
 			
-			this.rotationFactor = 0.6;
+			this.rotationFactor = 0.75;
 			this.detectWallLength = 40000;
 			this.animationQueue = [];
 			this.animationLength = 0;

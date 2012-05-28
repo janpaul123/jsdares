@@ -143,6 +143,8 @@ module.exports = function(dares) {
 			this.$div.append(this.$score);
 			this.drawScore();
 
+			this.loadInfo(ui);
+
 			this.editor.addOutput(this);
 			this.editor.outputRequestsRerun();
 			this.animateConsole();

@@ -372,7 +372,7 @@ module.exports = function(info) {
 
 		/// INTERNAL FUNCTIONS ///
 		filterCommands: function(filter) {
-			if (filter === undefined) {
+			if (filter === undefined || filter === null) {
 				return info.commands;
 			} else {
 				var commands = [];

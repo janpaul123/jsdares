@@ -82,13 +82,15 @@ module.exports = function(output) {
 						} else if (this.robotAngle === 270) {
 							y += (positive ? 1 : -1);
 						}
-						if (this.blockGoal[x][y] && this.visitedGoals.indexOf(x+y*this.columns) < 0) {
-							this.visitedGoals.push(x+y*this.columns);
+						if (this.blockGoal[x][y]) {
 							var goal = {$block: this.$blocks[x][y], amount: i+1, loc: x+y*this.columns};
 							if (goals === null) {
 								goals = [goal];
 							} else {
 								goals.push(goal);
+							}
+							if (this.visitedGoals.indexOf(x+y*this.columns) < 0) {
+								this.visitedGoals.push(x+y*this.columns);
 							}
 						}
 					}

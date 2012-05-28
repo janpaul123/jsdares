@@ -139,6 +139,7 @@ module.exports = function(dares) {
 			this.threshold = options.threshold || 1000;
 			this.linePenalty = options.linePenalty || 1;
 			this.speed = options.speed || 50;
+			this.infoCommandFilter = options.infoCommandFilter || null;
 			this.error = false;
 
 			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;
@@ -166,6 +167,12 @@ module.exports = function(dares) {
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem(codeName, text);
 			});
+		};
+
+		dare.loadInfo = function(ui) {
+			if (this.infoCommandFilter === null || this.infoCommandFilter.length > 0) {
+				this.info = ui.addInfo(this.infoCommandFilter);
+			}
 		};
 
 		dare.hasError = function() {
