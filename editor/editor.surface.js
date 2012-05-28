@@ -522,6 +522,7 @@ module.exports = function(editor) {
 		},
 
 		keyDown: function(event) {
+			event.stopPropagation();
 			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				// note: this will never be called at the first keypress, only when holding it!
@@ -543,10 +544,10 @@ module.exports = function(editor) {
 			if (this.userChangedText) {
 				this.hideElements();
 			}
-			// TODO: include offset vars and update UI elements
 		},
 
 		keyUp: function(event) {
+			event.stopPropagation();
 			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();

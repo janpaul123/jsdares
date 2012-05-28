@@ -20,9 +20,8 @@ module.exports = function(output) {
 			this.$container.append(this.$content);
 
 			this.calls = [];
-			this.$elements = [];
 
-			//this.debugToBrowser = true;
+			this.debugToBrowser = true;
 			this.highlighting = false;
 			this.highlightNextLines = false;
 			this.autoScroll = false;
@@ -73,8 +72,14 @@ module.exports = function(output) {
 			else if (typeof value === 'function') text = '[function]';
 			this.text += text + '\n';
 
+			var $element = $('<div class="console-line"></div>');
+			this.$content.append($element);
+			$element.data('index', this.calls.length);
+			$element.text(text);
+			$element.css('color', this.color);
+			
 			var callNr = context.getCallNr();
-			this.calls.push({text: text, node: context.getCallNode(), color: this.color, callNr: callNr});
+			this.calls.push({$element: $element, node: context.getCallNode(), callNr: callNr});
 
 			if (this.debugToBrowser && console && console.log) console.log(value);
 		},
@@ -86,9 +91,12 @@ module.exports = function(output) {
 
 		highlightCalls: function(calls) {
 			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
-			for(var i=0; i<calls.length; i++) {
-				var $element = this.$elementsByCallNr[calls[i]];
-				if ($element !== undefined) $element.addClass('console-highlight-line');
+
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (calls.indexOf(call.callNr) >= 0 && call.$element !== null) {
+					call.$element.addClass('console-highlight-line');
+				}
 			}
 
 			var $last = this.$content.children('.console-highlight-line').last();
@@ -120,11 +128,13 @@ module.exports = function(output) {
 			this.color = '';
 			this.text = '';
 			this.calls = [];
+			this.$elementsByCallNr = [];
 			this.$content.removeClass('console-error');
+			this.$content.children('.console-line').remove(); // prevent $.data leaks
 		},
 
 		endRun: function() {
-			this.render();
+			// this.render();
 		},
 
 		hasError: function() {
@@ -135,7 +145,8 @@ module.exports = function(output) {
 			this.color = '';
 			this.text = '';
 			var callNr = context.getCallNr();
-			this.calls.push({clear: true, callNr: callNr});
+			this.calls.push({clear: true, callNr: callNr, $element: null});
+			this.$content.children('.console-line').hide();
 			
 			if (this.debugToBrowser && console && console.clear) console.clear();
 		},
@@ -162,13 +173,13 @@ module.exports = function(output) {
 
 		setCallNr: function(context, callNr) {
 			this.$content.children('.console-line').hide();
-			for (var i=0; i<this.$elements.length; i++) {
+			for (var i=0; i<this.calls.length; i++) {
 				var call = this.calls[i];
 				if (call !== undefined && call.callNr <= callNr) {
 					if (call.clear) {
 						this.$content.children('.console-line').hide();
 					} else {
-						this.$elements[i].show();
+						call.$element.show();
 					}
 				}
 			}
@@ -179,24 +190,6 @@ module.exports = function(output) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		render: function() {
-			this.$elementsByCallNr = [];
-
-			for (var i=0; i<this.calls.length; i++) {
-				var $element = this.$elements[i], call = this.calls[i];
-				if ($element === undefined) {
-					$element = $('<div class="console-line"></div>');
-					this.$content.append($element);
-					this.$elements[i] = $element;
-					$element.data('index', i);
-				}
-				
-				$element.text(call.text);
-				$element.css('color', call.color);
-				this.$elementsByCallNr[call.callNr] = $element;
-			}
-		},
-
 		scrollToY: function(y, smooth) {
 			smooth = smooth || false;
 			y = Math.max(0, y - this.$div.height()/2);

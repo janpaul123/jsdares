@@ -9,11 +9,58 @@ var info = require('../info');
 module.exports = function(output) {
 	output.UI = function() { return this.init.apply(this, arguments); };
 
+	output.Document = function() { return this.init.apply(this, arguments); };
+
+	output.Document.prototype = {
+		init: function() {
+			this.onkeydown = null;
+			$(document).on('keydown', $.proxy(this.handleKeyDownEvent, this));
+		},
+
+		getAugmentedObject: function() {
+			return {
+				onkeydown: {
+					name: 'onkeydown',
+					info: 'document.onkeydown',
+					type: 'variable',
+					example: 'onkeydown("Hello World!")',
+					get: $.proxy(this.handleAttributeGet, this),
+					set: $.proxy(this.handleAttributeSet, this)
+				}
+			};
+		},
+
+		handleAttributeGet: function(name) {
+
+		},
+
+		handleAttributeSet: function(context, name, value) {
+			this.context = context;
+			this.onkeydown = value;
+		},
+
+		handleKeyDownEvent: function(event) {
+			var e = {
+				keyCode: event.keyCode
+			};
+			if (this.onkeydown !== null) {
+				try {
+					this.onkeydown(this.context, [e]);
+				} catch (error) {
+					console.log('error!', error);
+				}
+			}
+		}
+	};
+
 	output.UI.prototype = {
 		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
 
 		init: function() {
 			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = null;
+
+			this.document = new output.Document();
+
 			this.$main = $('#main');
 			this.initTabs();
 			this.loadInitial();
@@ -63,7 +110,7 @@ module.exports = function(output) {
 				this.editor.remove();
 				this.editor = null;
 			}
-			this.scope = {};
+			this.scope = {document: this.document.getAugmentedObject()};
 			this.$tabs.children('li').remove();
 			this.$content.children('div').remove();
 			this.$main.removeClass('ui-dares-active');
