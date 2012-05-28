@@ -96,30 +96,35 @@ module.exports = function(output) {
 			return {
 				drive: {
 					name: 'drive',
+					info: 'robot.drive',
 					type: 'function',
 					example: 'drive(3)',
 					func: $.proxy(this.drive, this)
 				},
 				turnLeft: {
 					name: 'turnLeft',
+					info: 'robot.turnLeft',
 					type: 'function',
 					example: 'turnLeft()',
 					func: $.proxy(this.turn, this)
 				},
 				turnRight: {
 					name: 'turnRight',
+					info: 'robot.turnRight',
 					type: 'function',
 					example: 'turnRight()',
 					func: $.proxy(this.turn, this)
 				},
 				detectWall: {
 					name: 'detectWall',
+					info: 'robot.detectWall',
 					type: 'function',
 					example: 'detectWall()',
 					func: $.proxy(this.detectWall, this)
 				},
 				detectGoal: {
 					name: 'detectGoal',
+					info: 'robot.detectGoal',
 					type: 'function',
 					example: 'detectGoal()',
 					func: $.proxy(this.detectGoal, this)
