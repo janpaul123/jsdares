@@ -141,11 +141,28 @@ module.exports = function(jsmm) {
 		}
 	};
 
+	jsmm.CallTracker = function() { return this.init.apply(this, arguments); };
+	jsmm.CallTracker.prototype = {
+		init: function() {
+			this.outputStates = {};
+			this.outputCalls = {};
+		},
+		addOutput: function(output, state) {
+			this.outputStates[output] = state;
+			this.outputCalls[output] = [];
+			return this.outputCalls[output];
+		},
+		getCalls: function(output) {
+			return this.outputCalls[output];
+		}
+	};
+
 	jsmm.RunContext = function() { return this.init.apply(this, arguments); };
 	jsmm.RunContext.prototype = {
-		init: function(tree, scope) {
+		init: function(tree, scope, outputs) {
 			this.tree = tree;
 			this.scope = new jsmm.func.Scope(scope);
+			this.outputs = outputs;
 			this.executionCounter = 0;
 			this.steps = [];
 			this.callCounter = 0;
@@ -153,8 +170,41 @@ module.exports = function(jsmm) {
 			this.callStack = [];
 			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
+			this.callTracker = new jsmm.CallTracker();
 			this.callNode = null;
 			this.temp = undefined;
+		},
+		callOutputs: function(funcName) {
+			for (var i=0; i<this.outputs.length; i++) {
+				if (this.outputs[i][funcName] !== undefined) {
+					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
+				}
+			}
+		},
+		runProgram: function() {
+			this.callOutputs('outputClear', this);
+			this.runFunction(this.tree.programNode.getRunFunction(), null);
+		},
+		runFunction: function(func, args) {
+			this.callOutputs('outputStartRun', this);
+			func(this, args);
+			this.callOutputs('outputEndRun', this);
+		},
+		getCallTracker: function() {
+			return this.callTracker;
+		},
+		externalCall: function(node, funcValue, args) {
+			this.newCall(node);
+			try {
+				return funcValue.func.call(null, this, funcValue.name, args);
+			} catch (error) {
+				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
+				if (typeof error === 'string') {
+					throw new jsmm.msg.Error(this, error);
+				} else {
+					throw error;
+				}
+			}
 		},
 		enterCall: function(node) {
 			// copy callstack

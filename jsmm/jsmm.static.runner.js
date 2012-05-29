@@ -7,13 +7,19 @@ module.exports = function(jsmm) {
 	jsmm.StaticRunner = function() { return this.init.apply(this, arguments); };
 		
 	jsmm.StaticRunner.prototype = {
-		init: function() {
+		init: function(editor) {
+			this.editor = editor;
 			this.tree = null;
 			this.scope = null;
 			this.error = null;
 			this.runFunc = null;
 			this.context = null;
 			this.step = Infinity;
+			this.outputs = [];
+		},
+
+		addOutput: function(output) {
+			this.outputs.push(output);
 		},
 
 		restart: function() {
@@ -69,12 +75,14 @@ module.exports = function(jsmm) {
 			this.error = null;
 
 			try {
-				if (this.runFunc === null) {
-					this.runFunc = this.tree.programNode.getRunFunction();
-				}
+				// if (this.runFunc === null) {
+					// this.runFunc = this.tree.programNode.getRunFunction();
+				// }
 
-				this.context = new jsmm.RunContext(this.tree, this.scope);
-				this.runFunc(this.context);
+				//this.context = new jsmm.RunContext(this.tree, this.scope);
+				this.context = this.editor.getNewContext();
+				this.context.runProgram();
+				// this.runFunc(this.context);
 
 				if (this.step >= this.context.steps.length && this.step !== Infinity) this.step = this.context.steps.length-1;
 

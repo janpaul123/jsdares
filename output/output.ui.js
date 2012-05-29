@@ -14,6 +14,7 @@ module.exports = function(output) {
 	output.Document.prototype = {
 		init: function() {
 			this.onkeydown = null;
+			this.contexts = [];
 			$(document).on('keydown', $.proxy(this.handleKeyDownEvent, this));
 		},
 
@@ -35,7 +36,6 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(context, name, value) {
-			this.context = context;
 			this.onkeydown = value;
 		},
 
@@ -44,11 +44,13 @@ module.exports = function(output) {
 				keyCode: event.keyCode
 			};
 			if (this.onkeydown !== null) {
+				var context = window.ui.editor.getNewContext();
 				try {
-					this.onkeydown(this.context, [e]);
+					context.runFunction(this.onkeydown, [e]);
 				} catch (error) {
 					console.log('error!', error);
 				}
+				this.contexts.push(context);
 			}
 		}
 	};
@@ -195,16 +197,18 @@ module.exports = function(output) {
 		loadInitial: function() {
 			this.removeAll();
 			this.addEditor();
-			this.addRobot();
+			//this.addRobot();
 			this.addConsole();
-			this.addCanvas();
+			//this.addCanvas();
 			this.addInfo();
+			/*
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
 			}
 			this.robot.setStateChangedCallback(function(state) {
 				window.localStorage.setItem('initial-robot', state);
 			});
+			*/
 			this.editor.setText(window.localStorage.getItem('initial-code') || '');
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem('initial-code', text);

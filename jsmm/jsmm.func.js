@@ -275,18 +275,8 @@ module.exports = function(jsmm) {
 		var retVal;
 		context.enterCall(this);
 		if (typeof funcValue === 'object' && funcValue.type === 'function') {
-			context.newCall(this);
 			context.addCommand(this, funcValue.info);
-			try {
-				retVal = funcValue.func.call(null, context, funcValue.name, funcArgs);
-			} catch (error) {
-				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
-				if (typeof error === 'string') {
-					throw new jsmm.msg.Error(this, error);
-				} else {
-					throw error;
-				}
-			}
+			retVal = context.externalCall(this, funcValue, funcArgs);
 		} else if (typeof funcValue !== 'function') {
 			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
 		} else {

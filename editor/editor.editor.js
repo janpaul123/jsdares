@@ -13,7 +13,7 @@ module.exports = function(editor) {
 			this.surface = new editor.Surface($div, this);
 			this.toolbar = new editor.Toolbar($toolbar, this);
 			this.outputs = [];
-			this.runner = new language.StaticRunner();
+			this.runner = new language.StaticRunner(this);
 
 			this.editables = [];
 			this.editablesByLine = [];
@@ -48,6 +48,7 @@ module.exports = function(editor) {
 		},
 
 		setScope: function(scope) {
+			this.scope = scope;
 			this.runner.newScope(scope);
 			if (!this.tree.hasError()) {
 				this.run();
@@ -57,6 +58,10 @@ module.exports = function(editor) {
 
 		addOutput: function(output) {
 			this.outputs.push(output);
+		},
+
+		getNewContext: function() {
+			return new this.language.RunContext(this.tree, this.scope, this.outputs);
 		},
 
 		setTextChangeCallback: function(callback) {
