@@ -30,6 +30,7 @@ module.exports = function(jsmm) {
 	var stringify = function(value) {
 		if (typeof value === 'function') return '[function]';
 		else if (typeof value === 'object' && value.type === 'function') return '[function]';
+		else if (typeof value === 'object' && value.type === 'internalFunction') return '[function]';
 		else if (Object.prototype.toString.call(value) === '[object Array]') return '[array]';
 		else if (typeof value === 'object') return '[object]';
 		else if (value === undefined) return 'undefined';
@@ -277,11 +278,11 @@ module.exports = function(jsmm) {
 		if (typeof funcValue === 'object' && funcValue.type === 'function') {
 			context.addCommand(this, funcValue.info);
 			retVal = context.externalCall(this, funcValue, funcArgs);
-		} else if (typeof funcValue !== 'function') {
-			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
-		} else {
-			retVal = funcValue.call(null, context, funcArgs);
+		} else if (typeof funcValue === 'object' && funcValue.type === 'internalFunction') {
+			retVal = funcValue.func.call(null, context, funcArgs);
 			context.callScope(this, {type: 'return', scope: scope});
+		} else {
+			throw new jsmm.msg.Error(this, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
 		}
 		context.leaveCall(this);
 
@@ -300,13 +301,13 @@ module.exports = function(jsmm) {
 		context.addCommand(this, 'function');
 		// only check local scope for conflicts
 		if (scope.vars[name] !== undefined) {
-			if (typeof scope.vars[name] === 'function' || (typeof scope.vars[name] === 'object' && scope.vars[name].type === 'function')) {
+			if (typeof scope.vars[name] === 'object' && (scope.vars[name].type === 'function' || scope.vars[name].type === 'internalFunction')) {
 				throw new jsmm.msg.Error(this, 'Function <var>' + name + '</var> cannot be declared since there already is a function with that name');
 			} else {
 				throw new jsmm.msg.Error(this, 'Function <var>' + name + '</var> cannot be declared since there already is a variable with that name');
 			}
 		} else {
-			scope.vars[name] = {type: 'local', value: func};
+			scope.vars[name] = {type: 'local', value: {type: 'internalFunction', name: name, func: func}};
 			context.callScope(this, {type: 'assignment', scope: scope, name: name});
 			context.newStep([new jsmm.msg.Inline(this.blockLoc, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
 			return scope.vars[name];
@@ -329,6 +330,7 @@ module.exports = function(jsmm) {
 				msgFuncArgs.push(stringify(args[i]));
 			}
 		}
+		context.addCalledFunction(this.name);
 		var scope = new jsmm.func.Scope(scopeVars, context.scope);
 		var fullName = this.name + '(' + msgFuncArgs.join(', ') + ')';
 		context.callScope(this, {type: 'enter', scope: scope, name: fullName});

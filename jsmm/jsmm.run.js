@@ -155,7 +155,9 @@ module.exports = function(jsmm) {
 			this.scopeTracker = new jsmm.ScopeTracker();
 			this.outputStates = {};
 			this.outputCalls = {};
+			this.calledFunctions = [];
 			this.callNode = null;
+			this.error = null;
 		},
 		callOutputs: function(funcName) {
 			for (var i=0; i<this.outputs.length; i++) {
@@ -169,9 +171,27 @@ module.exports = function(jsmm) {
 			this.runFunction(this.tree.programNode.getRunFunction(), null);
 		},
 		runFunction: function(func, args) {
+			this.error = null;
 			this.callOutputs('outputStartRun', this);
-			func(this, args);
-			this.callOutputs('outputEndRun', this);
+			try {
+				func(this, args);
+			} catch (error) {
+				this.callOutputs('outputError');
+				if (error instanceof jsmm.msg.Error) {
+					this.error = error;
+				} else {
+					throw error;
+					//this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
+				}
+			} finally {
+				this.callOutputs('outputEndRun', this);
+			}
+		},
+		hasError: function() {
+			return this.error !== null;
+		},
+		getError: function() {
+			return this.error;
 		},
 		addOutputState: function(output, state) {
 			this.outputStates[output] = state;
@@ -262,6 +282,12 @@ module.exports = function(jsmm) {
 		},
 		getScopeTracker: function() {
 			return this.scopeTracker;
+		},
+		addCalledFunction: function(name) {
+			this.calledFunctions.push(name);
+		},
+		getCalledFunctions: function() {
+			return this.calledFunctions;
 		}
 		/// INTERNAL FUNCTIONS ///
 		
@@ -304,8 +330,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.StatementList.prototype.getRunCode = function() {
 		var output = 'jsmmContext.increaseExecutionCounter(' + getNode(this) + ', ' + (this.statements.length+1) + ');\n';
 		for (var i=0; i<this.statements.length; i++) {
-			output += '/* line : ' + this.statements[i].lineLoc.line + ' */ ';
-			output += this.statements[i].getRunCode() + '\n\n\n';
+			output += this.statements[i].getRunCode() + '\n\n';
 			// if (jsmm.verbose) {
 				// output += 'console.log("after line ' + this.statements[i].endPos.line + ':");\n';
 				// output += 'console.log(jsmmContext);\n';
@@ -319,8 +344,7 @@ module.exports = function(jsmm) {
 		var output = '';
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type === 'FunctionDeclaration') {
-				output += '/* line : ' + this.statements[i].lineLoc.line + ' */ ';
-				output += this.statements[i].getRunCode() + '\n\n\n';
+				output += this.statements[i].getRunCode() + '\n\n';
 			}
 		}
 		return output;
@@ -330,8 +354,7 @@ module.exports = function(jsmm) {
 		var output = '';
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type !== 'FunctionDeclaration' || functionNames.indexOf(this.statements[i].name) >= 0) {
-				output += '/* line : ' + this.statements[i].lineLoc.line + ' */ ';
-				output += this.statements[i].getRunCode() + '\n\n\n';
+				output += this.statements[i].getRunCode() + '\n\n';
 			}
 		}
 		return output;

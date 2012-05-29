@@ -58,6 +58,13 @@ module.exports = function(jsmm) {
 		hasError: function() {
 			return this.error !== null;
 		},
+		compare: function(context) {
+			if (this.hasError() || context.tree.hasError() || context.hasError()) {
+				return false;
+			} else {
+				return context.tree.programNode.getCompareCode(context.getCalledFunctions()) === this.programNode.getCompareCode(context.getCalledFunctions());
+			}
+		},
 		getError: function() {
 			return this.error;
 		},

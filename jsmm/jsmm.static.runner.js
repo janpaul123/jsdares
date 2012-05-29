@@ -9,7 +9,6 @@ module.exports = function(jsmm) {
 		init: function(runner) {
 			this.runner = runner;
 			this.context = null;
-			this.error = null;
 			this.step = Infinity;
 		},
 
@@ -56,37 +55,21 @@ module.exports = function(jsmm) {
 		},
 
 		hasError: function() {
-			return this.error !== null;
+			return this.context.hasError();
 		},
 
 		getError: function() {
-			return this.error;
+			return this.context.getError();
 		},
 
 		run: function() {
-			this.error = null;
-			try {
-				this.context = this.runner.getNewContext();
-				this.context.runProgram();
-				return true;
-			} catch (error) {
-				this.handleError(error);
-				return false;
-			}
+			this.context = this.runner.getNewContext();
+			this.context.runProgram();
 		},
 
 		getMessages: function() {
 			if (this.context === null || this.step === Infinity) return [];
 			else return this.context.steps[this.step] || [];
-		},
-
-		handleError: function(error) {
-			if (error instanceof jsmm.msg.Error) {
-				this.error = error;
-			} else {
-				throw error;
-				//this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
-			}
 		}
 	};
 
@@ -102,6 +85,8 @@ module.exports = function(jsmm) {
 			this.baseRun = new jsmm.Run(this);
 			this.liveRuns = [];
 			this.currentRun = -1;
+			this.calledFunctions = [];
+			this.compareCode = '';
 
 			this.baseRun.run();
 		},
@@ -173,11 +158,15 @@ module.exports = function(jsmm) {
 
 		newTree: function(tree) {
 			this.tree = tree;
-			this.runFunc = null;
-			this.context = null;
+			if (this.tree.compare(this.baseRun.context)) {
 
-			this.baseRun.run();
-			this.baseRun.select();
+			} else {
+				console.log(this.tree.programNode.getCompareCode(this.calledFunctions), this.compareCode);
+				this.baseRun.run();
+				this.baseRun.select();
+				this.calledFunctions = this.baseRun.context.getCalledFunctions();
+				this.compareCode = this.tree.programNode.getCompareCode(this.calledFunctions);
+			}
 		},
 
 		getExamples: function(text) {

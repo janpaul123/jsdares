@@ -44,13 +44,13 @@ module.exports = function(output) {
 				keyCode: event.keyCode
 			};
 			if (this.onkeydown !== null) {
-				var context = window.ui.editor.getNewContext();
+				//var context = window.ui.editor.getNewContext();
 				try {
-					context.runFunction(this.onkeydown, [e]);
+					//context.runFunction(this.onkeydown, [e]);
 				} catch (error) {
 					console.log('error!', error);
 				}
-				this.contexts.push(context);
+				//this.contexts.push(context);
 			}
 		}
 	};
