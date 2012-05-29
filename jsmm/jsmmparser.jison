@@ -88,7 +88,7 @@ commonStatement
 simpleStatement
 	: assignmentStatement
 	| varStatement
-	| callStatement
+	| callExpression
 	| identExpression "+" "+"					{ $$ = new yy.nodes.PostfixStatement(@$, undefined, $1, $2+$2); }
 ;
 
@@ -178,10 +178,6 @@ callExpression
 callArguments
 	: expression								{ $$ = [$1]; }
 	| callArguments "," expression				{ $$ = $1; $$.push($3); }
-;
-
-callStatement
-	: callExpression							{ $$ = new yy.nodes.CallStatement(@$, undefined, $1); }
 ;
 
 blockStatement

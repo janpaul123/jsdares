@@ -12,8 +12,10 @@ module.exports = function(editor) {
 			this.language = language;
 			this.surface = new editor.Surface($div, this);
 			this.toolbar = new editor.Toolbar($toolbar, this);
+			this.scope = {};
 			this.outputs = [];
-			this.runner = new language.StaticRunner(this);
+			this.inputs = [];
+			this.updateRunner();
 
 			this.editables = [];
 			this.editablesByLine = [];
@@ -29,6 +31,10 @@ module.exports = function(editor) {
 			this.textChangeCallback = function(){};
 
 			this.setText('');
+		},
+
+		updateRunner: function() {
+			this.runner = new this.language.Runner(this, this.scope, this.outputs, this.inputs);
 		},
 
 		remove: function() {
@@ -49,19 +55,26 @@ module.exports = function(editor) {
 
 		setScope: function(scope) {
 			this.scope = scope;
-			this.runner.newScope(scope);
+			this.updateRunner();
 			if (!this.tree.hasError()) {
 				this.run();
 			}
-			this.refreshRunnerOutput();
 		},
 
 		addOutput: function(output) {
 			this.outputs.push(output);
+			this.updateRunner();
+			if (!this.tree.hasError()) {
+				this.run();
+			}
 		},
 
-		getNewContext: function() {
-			return new this.language.RunContext(this.tree, this.scope, this.outputs);
+		addInput: function(input) {
+			this.inputs.push(input);
+			this.updateRunner();
+			if (!this.tree.hasError()) {
+				this.run();
+			}
 		},
 
 		setTextChangeCallback: function(callback) {
@@ -117,10 +130,7 @@ module.exports = function(editor) {
 
 		run: function() {
 			this.runTimeout = null;
-			this.callOutputs('startRun');
 			this.runner.newTree(this.tree);
-			this.runner.run();
-			this.callOutputs('endRun', this.runner.getContext());
 			this.refreshRunnerOutput();
 		},
 
@@ -147,14 +157,14 @@ module.exports = function(editor) {
 				if (!this.runner.isStepping()) {
 					this.surface.openStepMessage();
 				}
-				this.runner.stepForward();
+				this.runner.baseStepForward();
 				this.refreshRunnerOutput();
 			}
 		},
 
 		stepBackward: function() {
 			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				this.runner.stepBackward();
+				this.runner.baseStepBackward();
 				this.refreshRunnerOutput();
 			}
 		},
@@ -219,12 +229,12 @@ module.exports = function(editor) {
 				if (messages[i].type === 'Inline') {
 					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
 					shown = true;
-					this.callOutputs('setCallNr', this.runner.getContext(), messages[i].callNr);
+					// this.callOutputs('setCallNr', this.runner.getContext(), messages[i].callNr);
 				}
 			}
 			if (!shown) {
 				this.surface.hideStepMessage();
-				this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
+				// this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
 			}
 		},
 
@@ -333,7 +343,6 @@ module.exports = function(editor) {
 		},
 
 		disableHighlighting: function() {
-			this.tree.clearHooks();
 			this.currentHighlightNode = null;
 			this.currentHighlightLine = 0;
 			this.surface.disableMouse();

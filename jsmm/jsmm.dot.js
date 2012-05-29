@@ -75,11 +75,6 @@ module.exports = function(jsmm) {
 		return makeEdge(fromId, this.id) + makeNode(this.id, this.getCode());
 	};
 	
-	/* functionCall */
-	jsmm.nodes.CallStatement.prototype.getDot = function(fromId) {
-		return this.functionCall.getDot(fromId);
-	};
-	
 	/* expression, statementList, elseBlock */
 	jsmm.nodes.IfBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);

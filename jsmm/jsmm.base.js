@@ -23,7 +23,6 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ObjectIdentifier = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.ArrayIdentifier = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.FunctionCall = function() { return this.build.apply(this, arguments); };
-	jsmm.nodes.CallStatement = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.IfBlock = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.ElseIfBlock = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.ElseBlock = function() { return this.build.apply(this, arguments); };
@@ -39,11 +38,10 @@ module.exports = function(jsmm) {
 			this.nodesByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
 				AssignmentStatement: [], VarStatement: [], VarItem: [], ReturnStatement: [], BinaryExpression: [],
 				UnaryExpression: [], ParenExpression: [], NumberLiteral: [], StringLiteral: [], BooleanLiteral: [], NameIdentifier: [],
-				ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], CallStatement: [], IfBlock: [], ElseIfBlock: [],
+				ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], IfBlock: [], ElseIfBlock: [],
 				ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 			};
 			this.nodesByLine = {};
-			this.nodesWithHook = [];
 			this.error = null;
 			jsmm.parser.yy.tree = this;
 			try {
@@ -79,66 +77,55 @@ module.exports = function(jsmm) {
 		},
 		getNodesByType: function(type) {
 			return this.nodesByType[type];
-		},
-		addHookBeforeNode: function(node, func) {
-			if (node.hooksBefore === undefined) {
-				throw new Error('Trying to add a hook to an unhookable node');
-			} else {
-				node.hooksBefore.push(func);
-				this.nodesWithHook.push(node);
-				return true;
-			}
-		},
-		addHookAfterNode: function(node, func) {
-			if (node.hooksAfter === undefined) {
-				throw new Error('Trying to add a hook to an unhookable node');
-			} else {
-				node.hooksAfter.push(func);
-				this.nodesWithHook.push(node);
-				return true;
-			}
-		},
-		clearHooks: function() {
-			for (var i=0; i<this.nodesWithHook.length; i++) {
-				this.nodesWithHook[i].hooksBefore = [];
-				this.nodesWithHook[i].hooksAfter = [];
-			}
-			this.nodesWithHook = [];
 		}
 	};
 
-	jsmm.addCommonNodeMethods = function(type, node) {
+	jsmm.addCommonNodeMethods = function(type, children, node) {
+		node.children = children;
 		node.build = function(_$, column2) {
 			this.tree = jsmm.parser.yy.tree;
-			this.id = this.tree.getNewId();
-			this.tree.nodes[this.id] = this;
 			this.tree.nodesByType[type].push(this);
 			this.type = type;
 			this.lineLoc = {line: _$.first_line, column: _$.first_column, column2 : (column2 || _$.last_column)};
 			this.blockLoc = {line: _$.first_line, line2: _$.last_line};
 			this.textLoc = {line: _$.first_line, column: _$.first_column, line2: _$.last_line, column2: _$.last_column};
 			this.parent = null;
+			var i=2;
+			for (var name in this.children) {
+				this[name] = arguments[i++];
+				if (this.children[name] && this[name] !== null) { // it is a node
+					this[name].parent = this;
+				}
+			}
 			this.init.apply(this, [].slice.call(arguments, 2));
 		};
-		node.runHooksBefore = function(context, scope) {
-			if (this.hooksBefore === undefined) throw new Error('runHooksBefore on unhookable node');
-			for (var i=0; i<this.hooksBefore.length; i++) {
-				this.hooksBefore[i](this, context, scope);
-			}
-		};
-		node.runHooksAfter = function(context, scope) {
-			if (this.hooksAfter === undefined) throw new Error('runHooksAfter on unhookable node');
-			for (var i=0; i<this.hooksAfter.length; i++) {
-				this.hooksAfter[i](this, context, scope);
-			}
-		};
+		if (node.getChildren === undefined) {
+			node.getChildren = function() {
+				var children = [];
+				for (var name in this.children) {
+					if (this.children[name] && this[name] !== null) { // it is a node
+						children.push(this[name]);
+					}
+				}
+				return children;
+			};
+		}
+		if (node.makeId === undefined) {
+			node.makeId = function() {
+				this.id = this.tree.getNewId();
+				this.tree.nodes[this.id] = this;
+				var children = this.getChildren();
+				for (var i=0; i<children.length; i++) {
+					children[i].makeId();
+				}
+			};
+		}
 		return node;
 	};
 
-	jsmm.nodes.Program.prototype = jsmm.addCommonNodeMethods('Program', {
-		init: function(statementList) {
-			this.statementList = statementList;
-			statementList.parent = this;
+	jsmm.nodes.Program.prototype = jsmm.addCommonNodeMethods('Program', {statementList: true}, {
+		init: function() {
+			this.makeId();
 		},
 		getCode: function() {
 			return this.statementList.getCode();
@@ -159,7 +146,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.StatementList.prototype = jsmm.addCommonNodeMethods('StatementList', {
+	jsmm.nodes.StatementList.prototype = jsmm.addCommonNodeMethods('StatementList', {}, {
 		init: function() {
 			this.statements = [];
 		},
@@ -176,58 +163,49 @@ module.exports = function(jsmm) {
 		},
 		getChildren: function() {
 			return this.statements;
+		},
+		makeId: function() {
+			this.id = this.tree.getNewId();
+			this.tree.nodes[this.id] = this;
+			for (var i=0; i<this.statements.length; i++) {
+				if (this.statements[i].type !== 'FunctionDeclaration') {
+					this.statements[i].makeId();
+				}
+			}
+			for (i=0; i<this.statements.length; i++) {
+				if (this.statements[i].type === 'FunctionDeclaration') {
+					this.statements[i].makeId();
+				}
+			}
 		}
 	});
 
-	jsmm.nodes.CommonSimpleStatement.prototype = jsmm.addCommonNodeMethods('CommonSimpleStatement', {
-		init: function(statement) {
-			this.statement = statement;
-			statement.parent = this;
+	jsmm.nodes.CommonSimpleStatement.prototype = jsmm.addCommonNodeMethods('CommonSimpleStatement', {statement: true}, {
+		init: function() {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
-			//console.log(this);
 		},
 		getCode: function() {
 			return this.statement.getCode() + ';';
-		},
-		getChildren: function() {
-			return [this.statement];
 		}
 	});
 
-	jsmm.nodes.PostfixStatement.prototype = jsmm.addCommonNodeMethods('PostfixStatement', {
-		init: function(identifier, symbol) {
-			this.identifier = identifier;
-			this.symbol = symbol;
-			identifier.parent = this;
-			symbol.parent = this;
+	jsmm.nodes.PostfixStatement.prototype = jsmm.addCommonNodeMethods('PostfixStatement', {identifier: true, symbol: false}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.identifier.getCode() + this.symbol;
-		},
-		getChildren: function() {
-			return [this.identifier];
 		}
 	});
 
-	jsmm.nodes.AssignmentStatement.prototype = jsmm.addCommonNodeMethods('AssignmentStatement', {
-		init: function(identifier, symbol, expression) {
-			this.identifier = identifier;
-			this.symbol = symbol;
-			this.expression = expression;
-			identifier.parent = this;
-			expression.parent = this;
+	jsmm.nodes.AssignmentStatement.prototype = jsmm.addCommonNodeMethods('AssignmentStatement', {identifier: true, symbol: false, expression: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.identifier.getCode() + ' ' + this.symbol + ' ' + this.expression.getCode();
-		},
-		getChildren: function() {
-			return [this.identifier, this.expression];
 		}
 	});
 
-	jsmm.nodes.VarStatement.prototype = jsmm.addCommonNodeMethods('VarStatement', {
+	jsmm.nodes.VarStatement.prototype = jsmm.addCommonNodeMethods('VarStatement', {}, {
 		init: function() {
 			this.items = [];
 		},
@@ -247,11 +225,8 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.VarItem.prototype = jsmm.addCommonNodeMethods('VarItem', {
-		init: function(name, assignment) {
-			this.name = name;
-			this.assignment = assignment;
-			if (assignment !== null) assignment.parent = this;
+	jsmm.nodes.VarItem.prototype = jsmm.addCommonNodeMethods('VarItem', {name: false, assignment: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			if (this.assignment === null) {
@@ -259,21 +234,12 @@ module.exports = function(jsmm) {
 			} else {
 				return this.assignment.getCode();
 			}
-		},
-		getChildren: function() {
-			return [this.assignment];
 		}
 	});
 
-	jsmm.nodes.ReturnStatement.prototype = jsmm.addCommonNodeMethods('ReturnStatement', {
-		init: function(expression) {
-			this.expression = expression;
-			if (this.expression !== null) {
-				expression.parent = this;
-			}
+	jsmm.nodes.ReturnStatement.prototype = jsmm.addCommonNodeMethods('ReturnStatement', {expression: true}, {
+		init: function() {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
 		},
 		getCode: function() {
 			if (this.expression === null) {
@@ -281,117 +247,87 @@ module.exports = function(jsmm) {
 			} else {
 				return 'return ' + this.expression.getCode() + ';';
 			}
-		},
-		iterateRunHooksAfter: function(scope) {
-			var node = this;
-			while (!(node.type === 'Program' || node.type === 'FunctionDeclaration')) {
-				if (node.hooksAfter !== undefined) node.runHooksAfter(scope);
-				node = node.parent;
-			}
-			if (node.hooksAfter !== undefined) node.runHooksAfter(scope);
 		}
 	});
 
-	jsmm.nodes.BinaryExpression.prototype = jsmm.addCommonNodeMethods('BinaryExpression', {
-		init: function(expression1, symbol, expression2) {
-			this.expression1 = expression1;
-			this.symbol = symbol;
-			this.expression2 = expression2;
-			expression1.parent = this;
-			expression2.parent = this;
+	jsmm.nodes.BinaryExpression.prototype = jsmm.addCommonNodeMethods('BinaryExpression', {expression1: true, symbol: false, expression2: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.expression1.getCode() + ' ' + this.symbol + ' ' + this.expression2.getCode();
 		}
 	});
 
-	jsmm.nodes.UnaryExpression.prototype = jsmm.addCommonNodeMethods('UnaryExpression', {
-		init: function(symbol, expression) {
-			this.symbol = symbol;
-			this.expression = expression;
-			expression.parent = this;
+	jsmm.nodes.UnaryExpression.prototype = jsmm.addCommonNodeMethods('UnaryExpression', {symbol: false, expression: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.symbol + this.expression.getCode();
 		}
 	});
 
-	jsmm.nodes.ParenExpression.prototype = jsmm.addCommonNodeMethods('ParenExpression', {
-		init: function(expression) {
-			this.expression = expression;
-			expression.parent = this;
+	jsmm.nodes.ParenExpression.prototype = jsmm.addCommonNodeMethods('ParenExpression', {expression: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			return '(' + this.expression.getCode() + ')';
 		}
 	});
 
-	jsmm.nodes.NumberLiteral.prototype = jsmm.addCommonNodeMethods('NumberLiteral', {
-		init: function(number) {
-			this.number = parseFloat(number);
+	jsmm.nodes.NumberLiteral.prototype = jsmm.addCommonNodeMethods('NumberLiteral', {number: false}, {
+		init: function() {
+			this.number = parseFloat(this.number);
 		},
 		getCode: function() {
 			return this.number;
 		}
 	});
 
-	jsmm.nodes.StringLiteral.prototype = jsmm.addCommonNodeMethods('StringLiteral', {
-		init: function(str) {
-			this.str = JSON.parse(str);
+	jsmm.nodes.StringLiteral.prototype = jsmm.addCommonNodeMethods('StringLiteral', {str: false}, {
+		init: function() {
+			this.str = JSON.parse(this.str);
 		},
 		getCode: function() {
 			return JSON.stringify(this.str);
 		}
 	});
 
-	jsmm.nodes.BooleanLiteral.prototype = jsmm.addCommonNodeMethods('BooleanLiteral', {
-		init: function(bool) {
-			this.bool = bool;
+	jsmm.nodes.BooleanLiteral.prototype = jsmm.addCommonNodeMethods('BooleanLiteral', {bool: false}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.bool ? 'true' : 'false';
 		}
 	});
 
-	jsmm.nodes.NameIdentifier.prototype = jsmm.addCommonNodeMethods('NameIdentifier', {
-		init: function(name) {
-			this.name = name;
+	jsmm.nodes.NameIdentifier.prototype = jsmm.addCommonNodeMethods('NameIdentifier', {name: false}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.name;
 		}
 	});
 
-	jsmm.nodes.ObjectIdentifier.prototype = jsmm.addCommonNodeMethods('ObjectIdentifier', {
-		init: function(identifier, prop) {
-			this.identifier = identifier;
-			this.prop = prop;
-			identifier.parent = this;
+	jsmm.nodes.ObjectIdentifier.prototype = jsmm.addCommonNodeMethods('ObjectIdentifier', {identifier: true, prop: false}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.identifier.getCode() + '.' + this.prop;
 		}
 	});
 
-	jsmm.nodes.ArrayIdentifier.prototype = jsmm.addCommonNodeMethods('ArrayIdentifier', {
-		init: function(identifier, expression) {
-			this.identifier = identifier;
-			this.expression = expression;
-			identifier.parent = this;
-			expression.parent = this;
+	jsmm.nodes.ArrayIdentifier.prototype = jsmm.addCommonNodeMethods('ArrayIdentifier', {identifier: true, expression: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			return this.identifier.getCode() + '[' + this.expression.getCode() + ']';
 		}
 	});
 
-	jsmm.nodes.FunctionCall.prototype = jsmm.addCommonNodeMethods('FunctionCall', {
-		init: function(identifier, expressionArgs) {
-			this.identifier = identifier;
-			this.expressionArgs = expressionArgs;
-			identifier.parent = this;
+	jsmm.nodes.FunctionCall.prototype = jsmm.addCommonNodeMethods('FunctionCall', {identifier: true, expressionArgs: false}, {
+		init: function() {
 			for (var i=0; i<this.expressionArgs.length; i++) {
-				expressionArgs[i].parent = this;
+				this.expressionArgs[i].parent = this;
 			}
 		},
 		getCode: function() {
@@ -401,33 +337,18 @@ module.exports = function(jsmm) {
 				output += ", " + this.expressionArgs[i].getCode();
 			}
 			return output + ')';
-		}
-	});
-
-	jsmm.nodes.CallStatement.prototype = jsmm.addCommonNodeMethods('CallStatement', {
-		init: function(functionCall) {
-			this.functionCall = functionCall;
-			functionCall.parent = this;
 		},
-		getCode: function() {
-			return this.functionCall.getCode();
+		getChildren: function() {
+			return this.expressionArgs.concat([this.identifier]);
 		}
 	});
 
-	jsmm.nodes.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {
-		init: function(expression, statementList, elseBlock) {
-			this.expression = expression;
-			this.statementList = statementList;
-			this.elseBlock = elseBlock;
-			expression.parent = this;
-			statementList.parent = this;
-			if (elseBlock !== null) {
-				elseBlock.parent = this;
-				this.blockLoc.line2 = elseBlock.blockLoc.line-1;
+	jsmm.nodes.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {expression: true, statementList: true, elseBlock: true}, {
+		init: function() {
+			if (this.elseBlock !== null) {
+				this.blockLoc.line2 = this.elseBlock.blockLoc.line-1;
 			}
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
 		},
 		getCode: function() {
 			var output = 'if (' + this.expression.getCode() + ') {\n' + this.statementList.getCode() + '}';
@@ -438,57 +359,35 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.ElseIfBlock.prototype = jsmm.addCommonNodeMethods('ElseIfBlock', {
-		init: function(ifBlock) {
-			this.ifBlock = ifBlock;
-			ifBlock.parent = this;
+	jsmm.nodes.ElseIfBlock.prototype = jsmm.addCommonNodeMethods('ElseIfBlock', {ifBlock: true}, {
+		init: function() {
 		},
 		getCode: function() {
 			return ' else ' + this.ifBlock.getCode();
 		}
 	});
 
-	jsmm.nodes.ElseBlock.prototype = jsmm.addCommonNodeMethods('ElseBlock', {
-		init: function(statementList) {
-			this.statementList = statementList;
-			statementList.parent = this;
+	jsmm.nodes.ElseBlock.prototype = jsmm.addCommonNodeMethods('ElseBlock', {statementList: true}, {
+		init: function() {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
 		},
 		getCode: function() {
 			return ' else {\n' + this.statementList.getCode() + '}';
 		}
 	});
 
-	jsmm.nodes.WhileBlock.prototype = jsmm.addCommonNodeMethods('WhileBlock', {
-		init: function(expression, statementList) {
-			this.expression = expression;
-			this.statementList = statementList;
-			expression.parent = this;
-			statementList.parent = this;
+	jsmm.nodes.WhileBlock.prototype = jsmm.addCommonNodeMethods('WhileBlock', {expression: true, statementList: true}, {
+		init: function() {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
 		},
 		getCode: function() {
 			return 'while (' + this.expression.getCode() + ') {\n' + this.statementList.getCode() + '}';
 		}
 	});
 
-	jsmm.nodes.ForBlock.prototype = jsmm.addCommonNodeMethods('ForBlock', {
-		init: function(statement1, expression, statement2, statementList) {
-			this.statement1 = statement1;
-			this.expression = expression;
-			this.statement2 = statement2;
-			this.statementList = statementList;
-			statement1.parent = this;
-			expression.parent = this;
-			statement2.parent = this;
-			statementList.parent = this;
+	jsmm.nodes.ForBlock.prototype = jsmm.addCommonNodeMethods('ForBlock', {statement1: true, expression: true, statement2: true, statementList: true}, {
+		init: function() {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
 		},
 		getCode: function() {
 			var output = 'for (' + this.statement1.getCode() + ';' + this.expression.getCode() + ';';
@@ -497,15 +396,9 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.FunctionDeclaration.prototype = jsmm.addCommonNodeMethods('FunctionDeclaration', {
-		init: function(name, nameArgs, statementList) {
-			this.name = name;
-			this.nameArgs = nameArgs;
-			this.statementList = statementList;
-			statementList.parent = this;
+	jsmm.nodes.FunctionDeclaration.prototype = jsmm.addCommonNodeMethods('FunctionDeclaration', {name: false, nameArgs: false, statementList: true}, {
+		init: function() {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
-			this.hooksBefore = [];
-			this.hooksAfter = [];
 		},
 		getArgList: function() {
 			var output = '(';

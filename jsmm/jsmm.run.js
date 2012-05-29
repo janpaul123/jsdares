@@ -156,7 +156,6 @@ module.exports = function(jsmm) {
 			this.outputStates = {};
 			this.outputCalls = {};
 			this.callNode = null;
-			this.temp = undefined;
 		},
 		callOutputs: function(funcName) {
 			for (var i=0; i<this.outputs.length; i++) {
@@ -273,7 +272,7 @@ module.exports = function(jsmm) {
 		var output = 'new function() {';
 		output += 'return function(jsmmContext) {';
 		output += 'var jsmmScope;\n';
-		output += getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ');';
+		output += getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ');\n';
 		output += this.statementList.getRunCode() + '}; }';
 		return output;
 	};
@@ -281,6 +280,24 @@ module.exports = function(jsmm) {
 	jsmm.nodes.Program.prototype.getRunFunction = function() {
 		/*jshint evil:true*/
 		return eval(this.getRunCode());
+	};
+
+	jsmm.nodes.Program.prototype.getFunctionCode = function() {
+		var output = 'new function() {';
+		output += 'return function(jsmmContext) {';
+		output += 'var jsmmScope;\n';
+		output += getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ');\n';
+		output += this.statementList.getFunctionCode() + '}; }';
+		return output;
+	};
+
+	jsmm.nodes.Program.prototype.getFunctionFunction = function() {
+		/*jshint evil:true*/
+		return eval(this.getFunctionCode());
+	};
+
+	jsmm.nodes.Program.prototype.getCompareCode = function(functionNames) {
+		return this.statementList.getCompareCode(functionNames);
 	};
 	
 	/* statements */
@@ -297,10 +314,32 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
+
+	jsmm.nodes.StatementList.prototype.getFunctionCode = function() {
+		var output = '';
+		for (var i=0; i<this.statements.length; i++) {
+			if (this.statements[i].type === 'FunctionDeclaration') {
+				output += '/* line : ' + this.statements[i].lineLoc.line + ' */ ';
+				output += this.statements[i].getRunCode() + '\n\n\n';
+			}
+		}
+		return output;
+	};
+
+	jsmm.nodes.StatementList.prototype.getCompareCode = function(functionNames) {
+		var output = '';
+		for (var i=0; i<this.statements.length; i++) {
+			if (this.statements[i].type !== 'FunctionDeclaration' || functionNames.indexOf(this.statements[i].name) >= 0) {
+				output += '/* line : ' + this.statements[i].lineLoc.line + ' */ ';
+				output += this.statements[i].getRunCode() + '\n\n\n';
+			}
+		}
+		return output;
+	};
 	
 	/* statement */
 	jsmm.nodes.CommonSimpleStatement.prototype.getRunCode = function() {
-		return hooksBefore(this) + this.statement.getRunCode() + ";" + hooksAfter(this);
+		return this.statement.getRunCode() + ";";
 	};
 	
 	/* identifier, symbol */
@@ -335,11 +374,9 @@ module.exports = function(jsmm) {
 	
 	/* expression */
 	jsmm.nodes.ReturnStatement.prototype.getRunCode = function() {
-		var output = hooksBefore(this);
+		var output = '';
 		var expressonCode = this.expression === null ? 'undefined' : this.expression.getRunCode();
-		output += 'jsmmContext.temp = ' + getNode(this) + '.runFunc(jsmmContext, ' + expressonCode + ');';
-		output += getNode(this) + '.iterateRunHooksAfter(jsmmContext);';
-		output += 'return jsmmContext.temp;';
+		output += 'return ' + getNode(this) + '.runFunc(jsmmContext, ' + expressonCode + ');';
 		return output;
 	};
 	
@@ -398,21 +435,15 @@ module.exports = function(jsmm) {
 		return output + '])';
 	};
 	
-	/* functionCall */
-	jsmm.nodes.CallStatement.prototype.getRunCode = function() {
-		return this.functionCall.getRunCode();
-	};
-	
 	/* expression, statementList, elseBlock */
 	jsmm.nodes.IfBlock.prototype.getRunCode = function() {
-		var output = hooksBefore(this);
-		output += 'if (' + getNode(this) + '.runFunc(jsmmContext, ' + this.expression.getRunCode() + ')) {\n';
-		output += this.statementList.getRunCode() + hooksAfter(this) + '}';
-		output += ' else {\n'  + hooksAfter(this) + '\n';
+		var output = 'if (' + getNode(this) + '.runFunc(jsmmContext, ' + this.expression.getRunCode() + ')) {\n';
+		output += this.statementList.getRunCode() + '}';
 		if (this.elseBlock !== null) {
+			output += ' else {\n';
 			output += this.elseBlock.getRunCode() + '\n';
+			output += '}';
 		}
-		output += '}';
 		return output;
 	};
 	
@@ -423,24 +454,21 @@ module.exports = function(jsmm) {
 	
 	/* statementList */
 	jsmm.nodes.ElseBlock.prototype.getRunCode = function() {
-		return hooksBefore(this) + '\n' + getNode(this) + '.runFunc(jsmmContext);\n' + this.statementList.getRunCode() + hooksAfter(this);
+		return getNode(this) + '.runFunc(jsmmContext);\n' + this.statementList.getRunCode();
 	};
 	
 	/* expression, statementList */
 	jsmm.nodes.WhileBlock.prototype.getRunCode = function() {
-		var output = hooksBefore(this) + '\n';
-		output += 'while (' + getNode(this) + '.runFunc(jsmmContext, '  + this.expression.getRunCode() + '))';
-		output += '{\n' + this.statementList.getRunCode() + '}\n' + hooksAfter(this);
+		var output = 'while (' + getNode(this) + '.runFunc(jsmmContext, '  + this.expression.getRunCode() + '))';
+		output += '{\n' + this.statementList.getRunCode() + '}';
 		return output;
 	};
 	
 	/* statement1, expression, statement2, statementList */
 	jsmm.nodes.ForBlock.prototype.getRunCode = function() {
-		var output = hooksBefore(this) + '\n';
-		output += 'for (' + this.statement1.getRunCode() + '; ';
+		var output = 'for (' + this.statement1.getRunCode() + '; ';
 		output += getNode(this) + '.runFunc(jsmmContext, '  + this.expression.getRunCode() + '); ';
-		output += this.statement2.getRunCode() + ') {\n' + this.statementList.getRunCode() + '}\n';
-		output += hooksAfter(this);
+		output += this.statement2.getRunCode() + ') {\n' + this.statementList.getRunCode() + '}';
 		return output;
 	};
 	
@@ -449,7 +477,6 @@ module.exports = function(jsmm) {
 		var output = getNode(this) + '.runFuncDecl(jsmmContext, ' + getScope() + ', "' + this.name + '", ';
 		output += 'function (jsmmContext, args) {\n';
 		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
-		output += hooksBefore(this) + '\n';
 		/*
 		if (jsmm.verbose) {
 			output += 'console.log("after entering ' + this.name + ':");\n';
@@ -458,7 +485,6 @@ module.exports = function(jsmm) {
 		}
 		*/
 		output += this.statementList.getRunCode();
-		output += hooksAfter(this) + '\n';
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
 		output += '});';
 		return output;
