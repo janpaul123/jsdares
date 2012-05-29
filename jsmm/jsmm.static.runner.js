@@ -161,7 +161,6 @@ module.exports = function(jsmm) {
 			if (this.tree.compare(this.baseRun.context)) {
 
 			} else {
-				console.log(this.tree.programNode.getCompareCode(this.calledFunctions), this.compareCode);
 				this.baseRun.run();
 				this.baseRun.select();
 				this.calledFunctions = this.baseRun.context.getCalledFunctions();

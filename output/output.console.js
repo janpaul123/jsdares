@@ -127,7 +127,6 @@ module.exports = function(output) {
 		outputClear: function(context) {
 			this.color = '';
 			this.text = '';
-			this.$content.removeClass('console-error');
 			this.$content.children('.console-line').remove(); // prevent $.data leaks
 			this.$elements = [];
 		},
@@ -154,8 +153,12 @@ module.exports = function(output) {
 			// this.render();
 		},
 
-		hasError: function() {
-			this.$content.addClass('console-error');
+		outputSetError: function(error) {
+			if (error) {
+				this.$content.addClass('console-error');
+			} else {
+				this.$content.removeClass('console-error');
+			}
 		},
 
 		clear: function(context) {

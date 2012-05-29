@@ -219,10 +219,11 @@ module.exports = function(editor) {
 			this.surface.hideStepMessage();
 			this.surface.hideAutoCompleteBox();
 			this.surface.showErrorMessage(this.makeMessageLoc(error), error.getHTML());
-			this.callOutputs('hasError');
+			this.callOutputs('outputSetError', true);
 		},
 
 		handleMessages: function(messages) {
+			this.callOutputs('outputSetError', false);
 			this.surface.hideErrorMessage();
 			var shown = false;
 			for (var i=0; i<messages.length; i++) {
