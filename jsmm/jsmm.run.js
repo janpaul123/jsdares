@@ -69,34 +69,34 @@ module.exports = function(jsmm) {
 			this.calls = [];
 		},
 
-		logScope: function(callNr, node, data) {
+		logScope: function(stepNum, node, data) {
 			if (data.type === 'assignment') {
 				var obj = data.scope.find(data.name);
 				if (obj !== undefined) {
 					if (data.scope.level === 0 || data.scope.vars[data.name] === undefined) {
-						this.addAssignment(callNr, node, 0, data.name, obj.value, true);
+						this.addAssignment(stepNum, node, 0, data.name, obj.value, true);
 					} else {
-						this.addAssignment(callNr, node, this.scopes.length-1, data.name, obj.value, true);
+						this.addAssignment(stepNum, node, this.scopes.length-1, data.name, obj.value, true);
 					}
 				}
 			} else if (data.type === 'return') {
-				this.calls.push({type: 'return', callNr: callNr, node: node});
+				this.calls.push({type: 'return', stepNum: stepNum, node: node});
 			} else { // data.type === 'enter'
 				this.scopes.push({});
-				this.calls.push({type: 'enter', callNr: callNr, node: node, name: data.name, position: this.scopes.length-1});
+				this.calls.push({type: 'enter', stepNum: stepNum, node: node, name: data.name, position: this.scopes.length-1});
 
 				for (var name in data.scope.vars) {
-					this.addAssignment(callNr, node, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
+					this.addAssignment(stepNum, node, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
 				}
 			}
 		},
 
-		getState: function(callNr) {
+		getState: function(stepNum) {
 			var stack = [];
 
 			for (var i=0; i<this.calls.length; i++) {
 				var call = this.calls[i];
-				if (call.callNr > callNr) break;
+				if (call.stepNum > stepNum) break;
 
 				if (call.type === 'assignment') {
 					var level = stack[call.position === 0 ? 0 : stack.length-1];
@@ -128,7 +128,7 @@ module.exports = function(jsmm) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addAssignment: function(callNr, node, position, name, value, highlight) {
+		addAssignment: function(stepNum, node, position, name, value, highlight) {
 			if (highlight) {
 				this.scopes[position][name] = this.scopes[position][name] || [];
 				if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
@@ -137,23 +137,7 @@ module.exports = function(jsmm) {
 				this.lines[node.lineLoc.line].push(position + '-' + name);
 			}
 
-			this.calls.push({type: 'assignment', callNr: callNr, node: node, position: position, name: name, value: stringify(value)});
-		}
-	};
-
-	jsmm.CallTracker = function() { return this.init.apply(this, arguments); };
-	jsmm.CallTracker.prototype = {
-		init: function() {
-			this.outputStates = {};
-			this.outputCalls = {};
-		},
-		addOutput: function(output, state) {
-			this.outputStates[output] = state;
-			this.outputCalls[output] = [];
-			return this.outputCalls[output];
-		},
-		getCalls: function(output) {
-			return this.outputCalls[output];
+			this.calls.push({type: 'assignment', stepNum: stepNum, node: node, position: position, name: name, value: stringify(value)});
 		}
 	};
 
@@ -165,12 +149,12 @@ module.exports = function(jsmm) {
 			this.outputs = outputs;
 			this.executionCounter = 0;
 			this.steps = [];
-			this.callCounter = 0;
-			this.callsByLine = {};
 			this.callStack = [];
+			this.callLinesByLine = {};
 			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
-			this.callTracker = new jsmm.CallTracker();
+			this.outputStates = {};
+			this.outputCalls = {};
 			this.callNode = null;
 			this.temp = undefined;
 		},
@@ -190,11 +174,25 @@ module.exports = function(jsmm) {
 			func(this, args);
 			this.callOutputs('outputEndRun', this);
 		},
-		getCallTracker: function() {
-			return this.callTracker;
+		addOutputState: function(output, state) {
+			this.outputStates[output] = state;
+			this.outputCalls[output] = [];
+			return this.outputCalls[output];
+		},
+		getCalls: function(output) {
+			return this.outputCalls[output];
 		},
 		externalCall: function(node, funcValue, args) {
-			this.newCall(node);
+			this.callNode = node;
+			for (var i=0; i<this.callStack.length; i++) {
+				var line = this.callStack[i].lineLoc.line;
+				if (this.callLinesByLine[line] === undefined) {
+					this.callLinesByLine[line] = [];
+				}
+				if (this.callLinesByLine[line].indexOf(line) < 0) {
+					this.callLinesByLine[line].push(node.lineLoc.line);
+				}
+			}
 			try {
 				return funcValue.func.call(null, this, funcValue.name, args);
 			} catch (error) {
@@ -235,39 +233,30 @@ module.exports = function(jsmm) {
 		addToStep: function(msg) {
 			this.steps[this.steps.length-1].push(msg);
 		},
+		getStepNum: function() {
+			return this.steps.length;
+		},
 		addCommand: function(node, command) {
 			this.commandTracker.addCommand(node, command);
 		},
 		callScope: function(node, data) {
-			this.newCall(node);
-			this.scopeTracker.logScope(this.callCounter, node, data);
+			this.scopeTracker.logScope(this.getStepNum(), node, data);
 		},
-		newCall: function(node) {
-			this.callCounter++;
-			this.callNode = node;
-			for (var i=0; i<this.callStack.length; i++) {
-				var line = this.callStack[i].lineLoc.line;
-				if (this.callsByLine[line] === undefined) {
-					this.callsByLine[line] = [];
+		getCallLinesByRange: function(line1, line2) {
+			var lines = [];
+			for (var line=line1; line<=line2; line++) {
+				if (this.callLinesByLine[line] !== undefined) {
+					for (var i=0; i<this.callLinesByLine[line].length; i++) {
+						if (lines.indexOf(this.callLinesByLine[line][i]) < 0) {
+							lines.push(this.callLinesByLine[line][i]);
+						}
+					}
 				}
-				this.callsByLine[line].push(this.callCounter);
 			}
-			return this.callCounter;
+			return lines;
 		},
 		getCallNode: function() {
 			return this.callNode;
-		},
-		getCallNr: function() {
-			return this.callCounter;
-		},
-		getCallsByRange: function(lineStart, lineEnd) {
-			var output = [];
-			for (var i=lineStart; i<= lineEnd; i++) {
-				if (this.callsByLine[i] !== undefined) {
-					output = output.concat(this.callsByLine[i]);
-				}
-			}
-			return output;
 		},
 		getCommandTracker: function() {
 			return this.commandTracker;

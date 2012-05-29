@@ -79,8 +79,8 @@ module.exports = function(output) {
 			$element.css('color', this.color);
 			this.$elements.push($element);
 			
-			var callNr = context.getCallNr();
-			this.calls.push({text: text, color: this.color, node: context.getCallNode(), callNr: callNr});
+			var stepNum = context.getStepNum();
+			this.calls.push({text: text, color: this.color, node: context.getCallNode(), stepNum: stepNum});
 
 			if (this.debugToBrowser && console && console.log) console.log(value);
 		},
@@ -95,7 +95,7 @@ module.exports = function(output) {
 
 			for (var i=0; i<this.calls.length; i++) {
 				var call = this.calls[i];
-				if (calls.indexOf(call.callNr) >= 0 && call.$element !== null) {
+				if (calls.indexOf(call.stepNum) >= 0 && call.$element !== null) {
 					call.$element.addClass('console-highlight-line');
 				}
 			}
@@ -133,7 +133,7 @@ module.exports = function(output) {
 		},
 
 		outputStartRun: function(context) {
-			this.calls = context.getCallTracker().addOutput('console', this.getState);
+			this.calls = context.addOutputState('console', this.getState);
 		},
 
 		getState: function() {
@@ -161,8 +161,8 @@ module.exports = function(output) {
 		clear: function(context) {
 			this.color = '';
 			this.text = '';
-			var callNr = context.getCallNr();
-			this.calls.push({clear: true, callNr: callNr});
+			var stepNum = context.getStepNum();
+			this.calls.push({clear: true, stepNum: stepNum});
 			this.$content.children('.console-line').hide();
 			
 			if (this.debugToBrowser && console && console.clear) console.clear();
@@ -188,8 +188,8 @@ module.exports = function(output) {
 			this.$content.css('min-height', this.$targetConsole.height());
 		},
 
-		setCallNr: function(context, callNr) {
-			var calls = context.getCallTracker().getCalls('console');
+		setstepNum: function(context, stepNum) {
+			var calls = context.getCalls('console');
 			if (calls !== this.calls) {
 				this.calls = calls;
 				this.$content.children('.console-line').remove();
@@ -208,7 +208,7 @@ module.exports = function(output) {
 			this.$content.children('.console-line').hide();
 			for (var j=0; j<this.calls.length; j++) {
 				var call2 = this.calls[j];
-				if (call2 !== undefined && call2.callNr <= callNr) {
+				if (call2 !== undefined && call2.stepNum <= stepNum) {
 					if (call2.clear) {
 						this.$content.children('.console-line').hide();
 					} else {

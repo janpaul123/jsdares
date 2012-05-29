@@ -22,10 +22,9 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(loc, callNr, msg) {
+		init: function(loc, msg) {
 			this.type = 'Inline';
 			this.loc = loc.lineLoc || loc;
-			this.callNr = callNr;
 			this.msg = msg;
 		}
 	});

@@ -100,7 +100,7 @@ module.exports = function(jsmm) {
 			}
 			setVariable(context, this, this.identifier, variable, value);
 			context.callScope(this, {type: 'assignment', scope: scope, name: this.identifier.getCode()});
-			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 		}
 	};
 
@@ -168,7 +168,7 @@ module.exports = function(jsmm) {
 		}
 		setVariable(context, this, this.identifier, variable, value);
 		context.callScope(this, {type: 'assignment', scope: scope, name: this.identifier.getCode()});
-		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '</var> = <var>' + stringify(value) + '</var>')]);
 	};
 	
 	jsmm.nodes.VarItem.prototype.runFunc = function(context, scope, name) {
@@ -177,7 +177,7 @@ module.exports = function(jsmm) {
 		if (this.assignment === null) {
 			context.callScope(this, {type: 'assignment', scope: scope, name: name});
 			//context.callScope(this, {type: 'declaration', scope: scope, name: name});
-			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.name + '</var> = <var>undefined</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, '<var>' + this.name + '</var> = <var>undefined</var>')]);
 		}
 	};
 	
@@ -185,7 +185,7 @@ module.exports = function(jsmm) {
 		var value1 = getValue(this.expression1, expression1);
 		var value2 = getValue(this.expression2, expression2);
 		var result = runBinaryExpression(context, this, value1, symbol, value2);
-		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + stringify(value1) + '</var> ' + symbol + ' <var>' + stringify(value2) + '</var> = <var>' + stringify(result) + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, '<var>' + stringify(value1) + '</var> ' + symbol + ' <var>' + stringify(value2) + '</var> = <var>' + stringify(result) + '</var>')]);
 		return result;
 	};
 	
@@ -207,7 +207,7 @@ module.exports = function(jsmm) {
 				result = (symbol === '+' ? value : -value);
 			}
 		}
-		context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + symbol + stringify(value) + '</var> = <var>' + stringify(result) + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, '<var>' + symbol + stringify(value) + '</var> = <var>' + stringify(result) + '</var>')]);
 		return result;
 	};
 	
@@ -270,7 +270,7 @@ module.exports = function(jsmm) {
 			msgFuncArgs.push(stringify(value));
 		}
 
-		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'calling <var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, 'calling <var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var>')]);
 
 		var retVal;
 		context.enterCall(this);
@@ -290,7 +290,7 @@ module.exports = function(jsmm) {
 		}
 
 		if (retVal !== undefined) {
-			context.newStep([new jsmm.msg.Inline(this, context.callCounter, '<var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var> = <var>' + stringify(retVal) + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, '<var>' + this.identifier.getCode() + '(' + msgFuncArgs.join(', ') + ')' + '</var> = <var>' + stringify(retVal) + '</var>')]);
 		}
 
 		return retVal;
@@ -308,7 +308,7 @@ module.exports = function(jsmm) {
 		} else {
 			scope.vars[name] = {type: 'local', value: func};
 			context.callScope(this, {type: 'assignment', scope: scope, name: name});
-			context.newStep([new jsmm.msg.Inline(this.blockLoc, context.callCounter, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this.blockLoc, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
 			return scope.vars[name];
 		}
 	};
@@ -332,7 +332,7 @@ module.exports = function(jsmm) {
 		var scope = new jsmm.func.Scope(scopeVars, context.scope);
 		var fullName = this.name + '(' + msgFuncArgs.join(', ') + ')';
 		context.callScope(this, {type: 'enter', scope: scope, name: fullName});
-		context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'entering <var>' + fullName + '</var>')]);
+		context.newStep([new jsmm.msg.Inline(this, 'entering <var>' + fullName + '</var>')]);
 		return scope;
 	};
 	
@@ -347,7 +347,7 @@ module.exports = function(jsmm) {
 		var retVal;
 		if (this.expression !== undefined && expression !== undefined) {
 			retVal = getValue(this.expression, expression);
-			context.newStep([new jsmm.msg.Inline(this, context.callCounter, 'returning <var>' + stringify(retVal) + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, 'returning <var>' + stringify(retVal) + '</var>')]);
 		}
 		return retVal;
 	};
