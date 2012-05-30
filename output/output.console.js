@@ -132,7 +132,7 @@ module.exports = function(output) {
 		},
 
 		outputStartRun: function(context) {
-			this.calls = context.addOutputState('console', this.getState);
+			this.calls = context.addOutputState('console', this.getState());
 		},
 
 		getState: function() {
@@ -191,7 +191,7 @@ module.exports = function(output) {
 			this.$content.css('min-height', this.$targetConsole.height());
 		},
 
-		setstepNum: function(context, stepNum) {
+		outputSetState: function(context, stepNum) {
 			var calls = context.getCalls('console');
 			if (calls !== this.calls) {
 				this.calls = calls;

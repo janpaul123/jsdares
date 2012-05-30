@@ -542,6 +542,11 @@ module.exports = function(editor) {
 				this.autoCompletionEnabled = false;
 				this.delayedUpdate();
 			}
+		},
+
+
+		addEvent: function(funcName, args) {
+			this.runner.addEvent(funcName, args);
 		}
 	};
 };

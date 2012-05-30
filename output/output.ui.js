@@ -12,10 +12,14 @@ module.exports = function(output) {
 	output.Document = function() { return this.init.apply(this, arguments); };
 
 	output.Document.prototype = {
-		init: function() {
+		init: function(editor) {
 			this.onkeydown = null;
 			this.contexts = [];
 			$(document).on('keydown', $.proxy(this.handleKeyDownEvent, this));
+
+			this.editor = editor;
+			this.editor.addOutput(this);
+			this.editor.addInput(this);
 		},
 
 		getAugmentedObject: function() {
@@ -36,7 +40,7 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(context, name, value) {
-			this.onkeydown = value;
+			this.onkeydown = value.name;
 		},
 
 		handleKeyDownEvent: function(event) {
@@ -44,13 +48,7 @@ module.exports = function(output) {
 				keyCode: event.keyCode
 			};
 			if (this.onkeydown !== null) {
-				//var context = window.ui.editor.getNewContext();
-				try {
-					//context.runFunction(this.onkeydown, [e]);
-				} catch (error) {
-					console.log('error!', error);
-				}
-				//this.contexts.push(context);
+				this.editor.addEvent(this.onkeydown, [e]);
 			}
 		}
 	};
@@ -61,7 +59,6 @@ module.exports = function(output) {
 		init: function() {
 			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = null;
 
-			this.document = new output.Document();
 
 			this.$main = $('#main');
 			this.initTabs();
@@ -112,7 +109,7 @@ module.exports = function(output) {
 				this.editor.remove();
 				this.editor = null;
 			}
-			this.scope = {document: this.document.getAugmentedObject()};
+			this.scope = {};
 			this.$tabs.children('li').remove();
 			this.$content.children('div').remove();
 			this.$main.removeClass('ui-dares-active');
@@ -201,6 +198,10 @@ module.exports = function(output) {
 			this.addConsole();
 			//this.addCanvas();
 			this.addInfo();
+
+			this.document = new output.Document(this.editor);
+			this.scope.document = this.document.getAugmentedObject();
+			this.editor.setScope(this.scope);
 			/*
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));

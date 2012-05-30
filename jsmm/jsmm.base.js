@@ -408,12 +408,7 @@ module.exports = function(jsmm) {
 			this.tree.nodesByLine[this.lineLoc.line] = this;
 		},
 		getArgList: function() {
-			var output = '(';
-			if (this.nameArgs.length > 0) output += this.nameArgs[0];
-			for (var i=1; i<this.nameArgs.length; i++) {
-				output += ', ' + this.nameArgs[i];
-			}
-			return output + ')';
+			return '(' + this.nameArgs.join(', ') + ')';
 		},
 		getCode: function() {
 			var output = 'function ' + this.name + this.getArgList() + '{\n' + this.statementList.getCode() + '}';

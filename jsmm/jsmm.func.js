@@ -61,6 +61,13 @@ module.exports = function(jsmm) {
 				scope = scope.parent;
 			} while(scope !== null);
 			return undefined;
+		},
+		getVars: function() {
+			var vars = {};
+			for (var name in this.vars) {
+				vars[name] = this.vars[name].value;
+			}
+			return vars;
 		}
 	};
 
@@ -297,10 +304,10 @@ module.exports = function(jsmm) {
 		return retVal;
 	};
 	
-	jsmm.nodes.FunctionDeclaration.prototype.runFuncDecl = function(context, scope, name, func) {
+	jsmm.nodes.FunctionDeclaration.prototype.runFuncDecl = function(context, scope, name, replace, func) {
 		context.addCommand(this, 'function');
 		// only check local scope for conflicts
-		if (scope.vars[name] !== undefined) {
+		if (scope.vars[name] !== undefined && !replace) {
 			if (typeof scope.vars[name] === 'object' && (scope.vars[name].type === 'function' || scope.vars[name].type === 'internalFunction')) {
 				throw new jsmm.msg.Error(this, 'Function <var>' + name + '</var> cannot be declared since there already is a function with that name');
 			} else {

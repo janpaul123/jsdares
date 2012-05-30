@@ -6,14 +6,16 @@ module.exports = function(jsmm) {
 	
 	jsmm.Run = function() { return this.init.apply(this, arguments); };
 	jsmm.Run.prototype = {
-		init: function(runner) {
+		init: function(runner, funcName, args) {
 			this.runner = runner;
+			this.funcName = funcName;
+			this.args = args;
 			this.context = null;
 			this.step = Infinity;
 		},
 
 		select: function(step) {
-			if (this.step !== undefined) {
+			if (step !== undefined) {
 				this.step = step;
 			}
 			if (this.step < 0 || this.step >= this.context.steps.length) this.step = Infinity;
@@ -62,9 +64,13 @@ module.exports = function(jsmm) {
 			return this.context.getError();
 		},
 
-		run: function() {
-			this.context = this.runner.getNewContext();
-			this.context.runProgram();
+		run: function(context) {
+			this.context = context;
+			if (this.funcName === null) {
+				this.context.runProgram();
+			} else {
+				this.context.runFunction(this.funcName, this.args);
+			}
 		},
 
 		getMessages: function() {
@@ -81,14 +87,14 @@ module.exports = function(jsmm) {
 			this.outputs = outputs;
 			this.inputs = inputs;
 
-			this.tree = new jsmm.Tree('');
-			this.baseRun = new jsmm.Run(this);
-			this.liveRuns = [];
-			this.currentRun = -1;
+			this.tree = null;
+			this.baseRun = new jsmm.Run(this, null);
+			this.runs = [this.baseRun];
+			this.currentRun = 0;
 			this.calledFunctions = [];
 			this.compareCode = '';
 
-			this.baseRun.run();
+			this.newTree(new jsmm.Tree(''));
 		},
 
 		callAll: function(type, funcName) {
@@ -99,32 +105,27 @@ module.exports = function(jsmm) {
 			}
 		},
 
-		getNewContext: function() {
-			return new jsmm.RunContext(this.tree, this.scope, this.outputs);
-		},
-
-		removeLiveRuns: function() {
-			this.currentRun = -1;
-			this.liveRuns = [];
+		removeRuns: function() {
+			this.currentRun = 0;
+			this.runs = [this.baseRun];
 		},
 
 		getCurrentRun: function() {
-			if (this.currentRun < 0) return this.baseRun;
-			else return this.liveRuns[this.run];
+			return this.runs[this.currentRun];
 		},
 
 		restart: function() {
-			this.removeLiveRuns();
+			this.removeRuns();
 			return this.baseRun.select(Infinity);
 		},
 
 		baseStepForward: function() {
-			this.removeLiveRuns();
+			this.removeRuns();
 			return this.baseRun.stepForward();
 		},
 
 		baseStepBackward: function() {
-			this.removeLiveRuns();
+			this.removeRuns();
 			return this.baseRun.stepBackward();
 		},
 
@@ -156,12 +157,28 @@ module.exports = function(jsmm) {
 			return this.getCurrentRun().getMessages();
 		},
 
+		addEvent: function(funcName, args) {
+			var run = new jsmm.Run(this, funcName, args);
+			run.run(new jsmm.RunContext(this.tree, this.runs[this.runs.length-1].context.scope.getVars(), this.outputs));
+			this.runs.push(run);
+		},
+
 		newTree: function(tree) {
 			this.tree = tree;
-			if (this.tree.compare(this.baseRun.context)) {
+			if (this.baseRun.context !== null && this.currentRun > 0 && this.tree.compare(this.baseRun.context)) {
+				/*
+				var context = new jsmm.RunContext(this.tree, this.runs[0].context.scope.getVars(), this.outputs);
+				this.runs[0].select(Infinity);
+				var func = this.tree.programNode.getFunctionFunction(context);
 
+				for (var i=1; i<this.runs.length; i++) {
+					var scope = this.runs[i-1].context.scope.getVars();
+					this.runs[i].run(new jsmm.RunContext(this.tree, scope, this.outputs));
+				}
+				this.runs[this.currentRun].select();
+				*/
 			} else {
-				this.baseRun.run();
+				this.baseRun.run(new jsmm.RunContext(this.tree, this.scope, this.outputs));
 				this.baseRun.select();
 				this.calledFunctions = this.baseRun.context.getCalledFunctions();
 				this.compareCode = this.tree.programNode.getCompareCode(this.calledFunctions);

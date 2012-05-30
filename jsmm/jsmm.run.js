@@ -168,9 +168,13 @@ module.exports = function(jsmm) {
 		},
 		runProgram: function() {
 			this.callOutputs('outputClear', this);
-			this.runFunction(this.tree.programNode.getRunFunction(), null);
+			this.run(this.tree.programNode.getRunFunction(), null);
 		},
-		runFunction: function(func, args) {
+		runFunction: function(funcName, args) {
+			console.log(funcName);
+			this.run(this.scope.find(funcName).value.func, args);
+		},
+		run: function(func, args) {
 			this.error = null;
 			this.callOutputs('outputStartRun', this);
 			try {
@@ -343,7 +347,7 @@ module.exports = function(jsmm) {
 		var output = '';
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type === 'FunctionDeclaration') {
-				output += this.statements[i].getRunCode() + '\n\n';
+				output += this.statements[i].getRunCode(true) + '\n\n';
 			}
 		}
 		return output;
@@ -354,6 +358,8 @@ module.exports = function(jsmm) {
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type !== 'FunctionDeclaration' || functionNames.indexOf(this.statements[i].name) >= 0) {
 				output += this.statements[i].getRunCode() + '\n\n';
+			} else {
+				output += '/* function ' + this.statements[i].name + this.statements[i].getArgList() + ' */\n\n';
 			}
 		}
 		return output;
@@ -495,17 +501,11 @@ module.exports = function(jsmm) {
 	};
 	
 	/* name, nameArgs, statementList */
-	jsmm.nodes.FunctionDeclaration.prototype.getRunCode = function() {
+	jsmm.nodes.FunctionDeclaration.prototype.getRunCode = function(replace) {
 		var output = getNode(this) + '.runFuncDecl(jsmmContext, ' + getScope() + ', "' + this.name + '", ';
+		output += replace ? 'true, ' : 'false, ';
 		output += 'function (jsmmContext, args) {\n';
 		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
-		/*
-		if (jsmm.verbose) {
-			output += 'console.log("after entering ' + this.name + ':");\n';
-			output += 'console.log(jsmmscopeInner);\n';
-			output += 'console.log(" ");\n';
-		}
-		*/
 		output += this.statementList.getRunCode();
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
 		output += '});';
