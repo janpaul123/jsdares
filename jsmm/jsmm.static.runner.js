@@ -20,6 +20,7 @@ module.exports = function(jsmm) {
 			}
 			if (this.step < 0 || this.step >= this.context.steps.length) this.step = Infinity;
 			this.runner.callAll('outputs', 'outputSetState', this.context, this.step);
+			this.runner.updateEditor();
 		},
 
 		restart: function() {
@@ -29,8 +30,11 @@ module.exports = function(jsmm) {
 		stepForward: function() {
 			if (this.context === null) {
 				return false;
-			} else {
+			} else if (this.step < Infinity) {
 				this.select(this.step+1);
+				return true;
+			} else { // this.step === Infinity
+				this.select(0);
 				return true;
 			}
 		},
@@ -93,8 +97,13 @@ module.exports = function(jsmm) {
 			this.currentRun = 0;
 			this.calledFunctions = [];
 			this.compareCode = '';
+			this.paused = false;
 
 			this.newTree(new jsmm.Tree(''));
+		},
+
+		updateEditor: function() {
+			this.editor.updateRunnerOutput();
 		},
 
 		callAll: function(type, funcName) {
@@ -157,15 +166,51 @@ module.exports = function(jsmm) {
 			return this.getCurrentRun().getMessages();
 		},
 
+		hasRuns: function() {
+			return this.runs.length > 1;
+		},
+
+		isBaseSelected: function() {
+			return this.currentRun === 0;
+		},
+
+		getBaseRun: function() {
+			return this.baseRun;
+		},
+
+		isPaused: function() {
+			return this.paused;
+		},
+
+		getRunTotal: function() {
+			return this.runs.length-1;
+		},
+
+		getRunValue: function() {
+			return this.currentRun-1;
+		},
+
+		setRunValue: function(value) {
+			if (value < this.runs.length-1) {
+				this.runs[value+1].select(Infinity);
+			}
+		},
+
 		addEvent: function(funcName, args) {
-			var run = new jsmm.Run(this, funcName, args);
-			run.run(new jsmm.RunContext(this.tree, this.runs[this.runs.length-1].context.scope.getVars(), this.outputs));
-			this.runs.push(run);
+			if (this.paused) {
+				return false;
+			} else {
+				var run = new jsmm.Run(this, funcName, args);
+				run.run(new jsmm.RunContext(this.tree, this.runs[this.runs.length-1].context.scope.getVars(), this.outputs));
+				this.runs.push(run);
+				this.updateEditor();
+				return true;
+			}
 		},
 
 		newTree: function(tree) {
 			this.tree = tree;
-			if (this.baseRun.context !== null && this.currentRun > 0 && this.tree.compare(this.baseRun.context)) {
+			if (this.baseRun.context !== null && this.tree.compare(this.baseRun.context)) {
 				/*
 				var context = new jsmm.RunContext(this.tree, this.runs[0].context.scope.getVars(), this.outputs);
 				this.runs[0].select(Infinity);

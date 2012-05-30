@@ -131,60 +131,38 @@ module.exports = function(editor) {
 		run: function() {
 			this.runTimeout = null;
 			this.runner.newTree(this.tree);
-			this.refreshRunnerOutput();
 		},
 
 		runTemp: function(text) {
 			this.tree = new this.language.Tree(text);
-			if (!this.tree.hasError()) {
-				this.callOutputs('startRun');
+			if (!this.code.hasError() && !this.tree.hasError()) {
 				this.runner.newTree(this.tree);
-				this.runner.run();
-				this.callOutputs('endRun');
-				this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
 			}
 		},
 
-		restart: function() {
-			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				this.runner.restart();
-				this.refreshRunnerOutput();
-			}
+		hasCriticalError: function() {
+			return this.code.hasError() || this.tree.hasError();
 		},
 
-		stepForward: function() {
-			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				if (!this.runner.isStepping()) {
-					this.surface.openStepMessage();
-				}
-				this.runner.baseStepForward();
-				this.refreshRunnerOutput();
-			}
+		canRun: function() {
+			return !this.hasCriticalError() && !this.autoCompletionEnabled;
 		},
 
-		stepBackward: function() {
-			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
-				this.runner.baseStepBackward();
+		updateRunnerOutput: function() { // callback
+			if (!this.autoCompletionEnabled) {
 				this.refreshRunnerOutput();
 			}
 		},
 
 		refreshRunnerOutput: function() {
 			this.surface.hideAutoCompleteBox();
-			if (this.runner.hasError()) {
-				this.handleError(this.runner.getError());
-				if (this.runner.isStepping()) {
-					this.toolbar.steppingWithError(this.runner.getStepValue(), this.runner.getStepTotal());
+			if (this.runner !== undefined) {
+				if (this.runner.hasError()) {
+					this.handleError(this.runner.getError());
 				} else {
-					this.toolbar.runningWithError();
+					this.handleMessages(this.runner.getMessages());
 				}
-			} else {
-				this.handleMessages(this.runner.getMessages());
-				if (this.runner.isStepping()) {
-					this.toolbar.steppingWithoutError(this.runner.getStepValue(), this.runner.getStepTotal());
-				} else {
-					this.toolbar.runningWithoutError();
-				}
+				this.toolbar.update();
 			}
 		},
 
@@ -212,7 +190,6 @@ module.exports = function(editor) {
 				this.disableHighlighting();
 			}
 			this.handleError(error);
-			this.toolbar.criticalError();
 		},
 
 		handleError: function(error) {
@@ -236,13 +213,6 @@ module.exports = function(editor) {
 			if (!shown) {
 				this.surface.hideStepMessage();
 				// this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
-			}
-		},
-
-		setStepValue: function(value) { // callback
-			if (!this.tree.hasError() && this.runner.isStepping()) {
-				this.runner.setStepValue(value);
-				this.refreshRunnerOutput();
 			}
 		},
 
@@ -275,7 +245,7 @@ module.exports = function(editor) {
 
 		/// EDITABLES METHODS AND CALLBACKS ///
 		enableEditables: function() {
-			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
+			if (this.canRun()) {
 				this.editablesEnabled = true;
 				this.toolbar.editablesEnabled();
 				this.refreshEditables();
@@ -334,7 +304,7 @@ module.exports = function(editor) {
 
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
 		enableHighlighting: function() {
-			if (!this.tree.hasError() && !this.autoCompletionEnabled) {
+			if (this.canRun()) {
 				this.surface.enableMouse();
 				this.surface.enableHighlighting();
 				this.highlightingEnabled = true;
@@ -546,7 +516,7 @@ module.exports = function(editor) {
 
 
 		addEvent: function(funcName, args) {
-			this.runner.addEvent(funcName, args);
+			return this.runner.addEvent(funcName, args);
 		}
 	};
 };

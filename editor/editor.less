@@ -6,6 +6,7 @@
 	background-color: @editor-background-color;
 	overflow-x: hidden;
 	overflow-y: auto;
+	z-index: 52;
 }
 
 .editor-code, .editor-mirror {
@@ -70,7 +71,7 @@
 	width: @editor-margin-size;
 	height: 10px;
 	overflow: visible;
-	z-index: 5;
+	z-index: 55;
 }
 
 .editor-margin-icon {
@@ -78,7 +79,7 @@
 	top: 0px;
 	right: 5px;
 	cursor: pointer;
-	z-index: 10;
+	z-index: 56;
 	margin-top: -5px;
 }
 
@@ -138,7 +139,7 @@
 	display: block;
 	background-color: @editor-box-background-color;
 	font-size: 14px;
-	z-index: 10;
+	z-index: 57;
 	cursor: pointer;
 	.border-radius();
 
@@ -217,35 +218,48 @@ div.colorpicker div.circle.lightness {
 }
 
 /// TOOLBAR ///
-@toolbar-bubble-arrow-size: @box-arrow-size;
-@toolbar-bubble-color: lighten(@editor-box-background-color, 5%);
-.editor-toolbar-step-bubble {
-	.code-foreground();
-	position: absolute;
-	left: -@toolbar-bubble-arrow-size;
-	top: 0px;
-	background-color: @toolbar-bubble-color;
-	padding: 5px;
-	z-index: 1000;
-	.border-radius();
-	@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.2);
-	.box-shadow(@shadow);
+.editor-toolbar {
+	z-index: 50;
 
-	.editor-toolbar-step-bubble-arrow {
-		#popoverArrow > .left(@toolbar-bubble-arrow-size, @toolbar-bubble-color);
+	@toolbar-bubble-arrow-size: @box-arrow-size;
+	@toolbar-bubble-color: lighten(@editor-box-background-color, 5%);
+	.editor-toolbar-step-bubble {
+		.code-foreground();
 		position: absolute;
-		width: 0;
-		height: 0;
-		margin-right: -@toolbar-bubble-arrow-size;
-		right: 0px;
+		left: -@toolbar-bubble-arrow-size;
+		top: 0px;
+		background-color: @toolbar-bubble-color;
+		padding: 5px;
+		z-index: 1000;
+		.border-radius();
+		@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.2);
+		.box-shadow(@shadow);
+
+		.editor-toolbar-step-bubble-arrow {
+			#popoverArrow > .left(@toolbar-bubble-arrow-size, @toolbar-bubble-color);
+			position: absolute;
+			width: 0;
+			height: 0;
+			margin-right: -@toolbar-bubble-arrow-size;
+			right: 0px;
+		}
+
+		&.editor-toolbar-step-editing .editor-toolbar-step-value {
+		background-color: @editor-marking-color;
+			cursor: col-resize;
+
+			&:hover, &.active {
+				background-color: @editor-marking-color-active;
+			}
+		}
 	}
 
-	&.editor-toolbar-step-editing .editor-toolbar-step-value {
-	background-color: @editor-marking-color;
-		cursor: col-resize;
+	.editor-toolbar-run-bar {
+		.transition(top 0.5s ease-in-out);
+		top: 50px;
 
-		&:hover, &.active {
-			background-color: @editor-marking-color-active;
+		&.editor-toolbar-run-active {
+			top: 0px;
 		}
 	}
 }

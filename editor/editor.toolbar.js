@@ -5,10 +5,8 @@ var clayer = require('../clayer');
 
 module.exports = function(editor) {
 	editor.BubbleValue = function() { return this.init.apply(this, arguments); };
-	editor.Toolbar = function() { return this.init.apply(this, arguments); };
-
 	editor.BubbleValue.prototype = {
-		init: function($div, toolbar) {
+		init: function($div, delegate) {
 			this.$body = $('body');
 
 			this.$stepBubble = $('<div class="editor-toolbar-step-bubble"><div class="editor-toolbar-step-bubble-arrow"></div></div>');
@@ -23,7 +21,7 @@ module.exports = function(editor) {
 			this.hasTooltip = false;
 			this.touchable = new clayer.Touchable(this.$stepValue, this);
 			this.setEditing(false);
-			this.toolbar = toolbar;
+			this.delegate = delegate;
 		},
 
 		remove: function() {
@@ -90,7 +88,7 @@ module.exports = function(editor) {
 			value = Math.min(Math.max(value, 0), this.total);
 
 			if (value !== this.value) {
-				this.toolbar.bubbleValueChanged(value);
+				this.delegate.bubbleValueChanged(value);
 			}
 		},
 
@@ -102,29 +100,168 @@ module.exports = function(editor) {
 		}
 	};
 
+	editor.StepBar = function() { return this.init.apply(this, arguments); };
+	editor.StepBar.prototype = {
+		init: function($div, $bubbleDiv) {
+			this.bubbleValue = new editor.BubbleValue($bubbleDiv, this);
+			this.run = null;
+
+			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
+			this.$stepBackward.on('mousedown', $.proxy(this.stepBackwardDown, this));
+			this.$stepBackward.on('mouseup', $.proxy(this.stepBackwardUp, this));
+			$div.append(this.$stepBackward);
+
+			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon-arrow-right icon-white"></i> Step</button>');
+			this.$stepForward.on('mousedown', $.proxy(this.stepForwardDown, this));
+			this.$stepForward.on('mouseup', $.proxy(this.stepForwardUp, this));
+			$div.append(this.$stepForward);
+
+			this.$restart = $('<button class="btn btn-success editor-toolbar-restart"><i class="icon-repeat icon-white"></i></button>');
+			this.$restart.click($.proxy(this.restart, this));
+			$div.append(this.$restart);
+
+			this.disable();
+		},
+
+		remove: function() {
+			this.bubbleValue.remove();
+			this.$stepBackward.remove();
+			this.$stepForward.remove();
+			this.$restart.remove();
+		},
+
+		disable: function() {
+			this.canRun = false;
+			this.$stepForward.addClass('disabled');
+			this.$stepBackward.addClass('disabled');
+			this.$restart.addClass('disabled');
+			this.clearStepping();
+		},
+
+		update: function(run) {
+			this.run = run;
+			this.canRun = true;
+			console.log('update');
+			if (this.run.isStepping()) {
+				if (this.run.hasError()) {
+					this.$stepForward.addClass('disabled');
+				} else {
+					this.$stepForward.removeClass('disabled');
+				}
+				this.$stepBackward.removeClass('disabled');
+				this.$restart.removeClass('disabled');
+				this.bubbleValue.setStepInfo(this.run.getStepValue(), this.run.getStepTotal());
+			} else {
+				this.$stepForward.removeClass('disabled');
+				this.$stepBackward.addClass('disabled');
+				this.$restart.addClass('disabled');
+				this.clearStepping();
+			}
+		},
+
+		bubbleValueChanged: function(value) { // callback
+			if (this.canRun) {
+				this.run.setStepValue(value);
+			}
+		},
+
+		stepForwardDown: function() {
+			if (this.canRun) {
+				this.run.stepForward();
+			}
+			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
+			this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
+		},
+
+		stepForwardUp: function() {
+			this.stepForwardDelay = undefined;
+			clearTimeout(this.stepForwardTimeout);
+			this.stepForwardTimeout = null;
+		},
+
+		stepBackwardDown: function() {
+			if (this.canRun) {
+				this.run.stepBackward();
+			}
+			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
+			this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
+		},
+
+		stepBackwardUp: function() {
+			this.stepBackwardDelay = undefined;
+			clearTimeout(this.stepBackwardTimeout);
+			this.stepBackwardTimeout = null;
+		},
+
+		restart: function() {
+			if (this.canRun) {
+				this.run.restart();
+			}
+		},
+
+		clearStepping: function() {
+			if (this.stepForwardTimeout === null) {
+				this.stepForwardUp();
+			}
+			if (this.stepBackwardTimeout === null) {
+				this.stepBackwardUp();
+			}
+			this.bubbleValue.disable();
+		}
+	};
+
+	editor.RunBar = function() { return this.init.apply(this, arguments); };
+	editor.RunBar.prototype = {
+		init: function($div) {
+			this.runner = null;
+			this.$div = $div;
+			//this.stepBar = new editor.StepBar()
+
+			this.$playPause = $('<button class="btn btn-inverse editor-toolbar-run-playpause"></button>');
+			this.$div.append(this.$playPause);
+
+			this.disable();
+		},
+
+		remove: function() {
+			this.$playPause.remove();
+		},
+
+		disable: function() {
+			this.canRun = false;
+			this.$div.removeClass('editor-toolbar-run-active');
+		},
+
+		update: function(runner) {
+			console.log(runner);
+			this.canRun = true;
+			this.runner = runner;
+
+			if (this.runner.hasRuns()) {
+				this.$div.addClass('editor-toolbar-run-active');
+
+				if (this.runner.isPaused()) {
+					this.$playPause.html('<i class="icon-play icon-white"></i>');
+				} else {
+					this.$playPause.html('<i class="icon-pause icon-white"></i>');
+				}
+			} else {
+				this.$div.removeClass('editor-toolbar-run-active');
+			}
+		}
+	};
+
+	editor.Toolbar = function() { return this.init.apply(this, arguments); };
 	editor.Toolbar.prototype = {
 		init: function($div, ed) {
 			this.$div = $div;
 			this.editor = ed;
 
 			this.$div.addClass('btn-toolbar editor-toolbar');
-			this.bubbleValue = new editor.BubbleValue(this.$div, this);
 			
-			var $stepGroup = $('<div class="btn-group editor-toolbar-step-group"></div>');
-			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
-			this.$stepBackward.on('mousedown', $.proxy(this.stepBackwardDown, this));
-			this.$stepBackward.on('mouseup', $.proxy(this.stepBackwardUp, this));
-			$stepGroup.append(this.$stepBackward);
-
-			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon-arrow-right icon-white"></i> Step</button>');
-			this.$stepForward.on('mousedown', $.proxy(this.stepForwardDown, this));
-			this.$stepForward.on('mouseup', $.proxy(this.stepForwardUp, this));
-			$stepGroup.append(this.$stepForward);
-
-			this.$restart = $('<button class="btn btn-success editor-toolbar-restart"><i class="icon-repeat icon-white"></i></button>');
-			this.$restart.click($.proxy(this.editor.restart, this.editor));
-			$stepGroup.append(this.$restart);
-			this.$div.append($stepGroup);
+			var $stepBar = $('<div class="btn-group editor-toolbar-step-bar"></div>');
+			this.baseStepBar = new editor.StepBar($stepBar, this.$div);
+			this.$div.append($stepBar);
 
 			var isMac = navigator.platform.indexOf("Mac") >= 0;
 			var $editHighlightGroup = $('<div class="btn-group editor-toolbar-highlight-group"></div>');
@@ -138,6 +275,10 @@ module.exports = function(editor) {
 			this.$edit.tooltip({title: '<strong>alt</strong>' + (isMac ? ' (&#8997;)' : ''), placement: 'bottom'});
 			$editHighlightGroup.append(this.$edit);
 			this.$div.append($editHighlightGroup);
+
+			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
+			this.runBar = new editor.RunBar($runBar, this.$div);
+			this.$div.append($runBar);
 
 			this.$checkKeys = $.proxy(this.checkKeys, this);
 			this.$keyDown = $.proxy(this.keyDown, this);
@@ -183,99 +324,21 @@ module.exports = function(editor) {
 			this.refreshCheckKeys();
 		},
 
-		previewing: function() {
-			this.$stepForward.addClass('disabled');
-			this.$stepBackward.addClass('disabled');
-			this.$restart.addClass('disabled');
-			this.$edit.addClass('disabled');
-			this.$highlight.addClass('disabled');
-			this.clearStepping();
-		},
-
-		criticalError: function() {
-			this.$stepForward.addClass('disabled');
-			this.$stepBackward.addClass('disabled');
-			this.$restart.addClass('disabled');
-			this.$edit.addClass('disabled');
-			this.$highlight.addClass('disabled');
-			this.clearStepping();
-		},
-
-		runningWithoutError: function() {
-			this.$stepForward.removeClass('disabled');
-			this.$stepBackward.addClass('disabled');
-			this.$restart.addClass('disabled');
-			this.$edit.removeClass('disabled');
-			this.$highlight.removeClass('disabled');
-			this.clearStepping();
-		},
-
-		runningWithError: function() {
-			this.$stepForward.removeClass('disabled');
-			this.$stepBackward.addClass('disabled');
-			this.$restart.addClass('disabled');
-			this.$edit.removeClass('disabled');
-			this.$highlight.removeClass('disabled');
-			this.clearStepping();
-		},
-
-		steppingWithoutError: function(stepValue, stepTotal) {
-			this.$stepForward.removeClass('disabled');
-			this.$stepBackward.removeClass('disabled');
-			this.$restart.removeClass('disabled');
-			this.$edit.removeClass('disabled');
-			this.$highlight.removeClass('disabled');
-			this.bubbleValue.setStepInfo(stepValue, stepTotal);
-		},
-
-		steppingWithError: function(stepValue, stepTotal) {
-			this.$stepForward.addClass('disabled');
-			this.$stepBackward.removeClass('disabled');
-			this.$restart.removeClass('disabled');
-			this.$edit.removeClass('disabled');
-			this.$highlight.removeClass('disabled');
-			this.bubbleValue.setStepInfo(stepValue, stepTotal);
-		},
-
-		bubbleValueChanged: function(value) { // callback
-			this.editor.setStepValue(value);
+		update: function() {
+			if (this.editor.canRun()) {
+				this.$highlight.removeClass('disabled');
+				this.$edit.removeClass('disabled');
+				this.baseStepBar.update(this.editor.runner.getBaseRun());
+				this.runBar.update(this.editor.runner);
+			} else {
+				this.baseStepBar.disable();
+				this.runBar.disable();
+				this.$highlight.addClass('disabled');
+				this.$edit.addClass('disabled');
+			}
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		stepForwardDown: function() {
-			this.editor.stepForward();
-			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
-			this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
-		},
-
-		stepForwardUp: function() {
-			this.stepForwardDelay = undefined;
-			clearTimeout(this.stepForwardTimeout);
-			this.stepForwardTimeout = null;
-		},
-
-		stepBackwardDown: function() {
-			this.editor.stepBackward();
-			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
-			this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
-		},
-
-		stepBackwardUp: function() {
-			this.stepBackwardDelay = undefined;
-			clearTimeout(this.stepBackwardTimeout);
-			this.stepBackwardTimeout = null;
-		},
-
-		clearStepping: function() {
-			if (this.stepForwardTimeout === null) {
-				this.stepForwardUp();
-			}
-			if (this.stepBackwardTimeout === null) {
-				this.stepBackwardUp();
-			}
-			this.bubbleValue.disable();
-		},
-
 		refreshCheckKeys: function() {
 			if (this.highlightingKey || this.editablesKey) {
 				$(document).on('mousemove', this.$checkKeys);
