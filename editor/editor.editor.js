@@ -130,6 +130,7 @@ module.exports = function(editor) {
 
 		run: function() {
 			this.runTimeout = null;
+			this.runner.enable();
 			this.runner.newTree(this.tree);
 		},
 
@@ -168,6 +169,7 @@ module.exports = function(editor) {
 				this.disableHighlighting();
 			}
 			this.handleError(error);
+			this.runner.disable();
 			this.toolbar.disable();
 		},
 
@@ -506,6 +508,10 @@ module.exports = function(editor) {
 
 		addEvent: function(funcName, args) {
 			return this.runner.addEvent(funcName, args);
+		},
+
+		makeInteractive: function() {
+			this.runner.makeInteractive();
 		}
 	};
 };

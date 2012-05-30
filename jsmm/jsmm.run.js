@@ -311,9 +311,7 @@ module.exports = function(jsmm) {
 
 	jsmm.nodes.Program.prototype.getFunctionCode = function() {
 		var output = 'new function() {';
-		output += 'return function(jsmmContext) {';
-		output += 'var jsmmScope;\n';
-		output += getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ');\n';
+		output += 'return function(jsmmScope) {';
 		output += this.statementList.getFunctionCode() + '}; }';
 		return output;
 	};
@@ -345,7 +343,7 @@ module.exports = function(jsmm) {
 		var output = '';
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type === 'FunctionDeclaration') {
-				output += this.statements[i].getRunCode(true) + '\n\n';
+				output += this.statements[i].getFunctionCode() + '\n\n';
 			}
 		}
 		return output;
@@ -499,14 +497,23 @@ module.exports = function(jsmm) {
 	};
 	
 	/* name, nameArgs, statementList */
-	jsmm.nodes.FunctionDeclaration.prototype.getRunCode = function(replace) {
+	jsmm.nodes.FunctionDeclaration.prototype.getRunCode = function() {
 		var output = getNode(this) + '.runFuncDecl(jsmmContext, ' + getScope() + ', "' + this.name + '", ';
-		output += replace ? 'true, ' : 'false, ';
 		output += 'function (jsmmContext, args) {\n';
 		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
 		output += '});';
+		return output;
+	};
+
+	jsmm.nodes.FunctionDeclaration.prototype.getFunctionCode = function() {
+		var output = 'jsmmScope.vars["' + this.name + '"] = {type: "local", value: {type: "internalFunction", name: "' + this.name + '", func: ';
+		output += 'function (jsmmContext, args) {\n';
+		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
+		output += this.statementList.getRunCode();
+		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
+		output += '}}};';
 		return output;
 	};
 };

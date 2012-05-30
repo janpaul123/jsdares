@@ -58,11 +58,18 @@ module.exports = function(jsmm) {
 		hasError: function() {
 			return this.error !== null;
 		},
-		compare: function(context) {
+		compareMain: function(context) {
 			if (this.hasError() || context.tree.hasError() || context.hasError()) {
 				return false;
 			} else {
 				return context.tree.programNode.getCompareCode(context.getCalledFunctions()) === this.programNode.getCompareCode(context.getCalledFunctions());
+			}
+		},
+		compareAll: function(context) {
+			if (this.hasError() || context.tree.hasError() || context.hasError()) {
+				return false;
+			} else {
+				return context.tree.programNode.getRunCode() === this.programNode.getRunCode();
 			}
 		},
 		getError: function() {

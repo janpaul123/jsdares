@@ -41,6 +41,7 @@ module.exports = function(output) {
 
 		handleAttributeSet: function(context, name, value) {
 			this.onkeydown = value.name;
+			this.editor.makeInteractive();
 		},
 
 		handleKeyDownEvent: function(event) {

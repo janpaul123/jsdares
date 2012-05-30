@@ -252,36 +252,46 @@ module.exports = function(editor) {
 
 		disable: function() {
 			this.canRun = false;
-			this.$div.addClass('editor-toolbar-run-disabled');
+			this.$playPause.addClass('disabled');
+			this.hideSlider();
 		},
 
 		update: function(runner) {
 			this.canRun = true;
 			this.runner = runner;
 
-			if (this.runner.hasRuns()) {
+			this.$playPause.removeClass('disabled');
+			if (this.runner.isInteractive()) {
 				this.$div.removeClass('editor-toolbar-run-disabled');
 
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
-					this.$slider.attr('max', this.runner.getRunTotal()-1);
-					this.$slider.val(this.runner.getRunValue());
-					this.$slider.width(this.runner.getRunTotal()*20);
-					this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
-					this.$slider.css('margin-left', '');
+					if (this.runner.hasRuns()) {
+						this.$slider.attr('max', this.runner.getRunTotal()-1);
+						this.$slider.val(this.runner.getRunValue());
+						this.$slider.width(this.runner.getRunTotal()*20);
+						this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
+						this.$slider.css('margin-left', '');
+					} else {
+						this.hideSlider();
+					}
 				} else {
 					this.$playPause.html('<i class="icon-pause icon-white"></i>');
-					this.$sliderContainer.addClass('editor-toolbar-run-slider-container-disabled');
-					this.$slider.css('margin-left', -this.$slider.width()-20);
+					this.hideSlider();
 				}
 			} else {
 				this.$div.addClass('editor-toolbar-run-disabled');
-				this.$slider.css('margin-left', -this.$slider.width()-20);
+				this.hideSlider();
 			}
 		},
 
+		hideSlider: function() {
+			this.$sliderContainer.addClass('editor-toolbar-run-slider-container-disabled');
+			this.$slider.css('margin-left', -this.$slider.width()-20);
+		},
+
 		playPause: function() {
-			if (this.runner.hasRuns()) {
+			if (this.runner.isInteractive()) {
 				if (this.runner.isPaused()) {
 					this.runner.play();
 				} else {

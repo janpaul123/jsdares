@@ -85,11 +85,12 @@ module.exports = function(jsmm) {
 
 	jsmm.Runner = function() { return this.init.apply(this, arguments); };
 	jsmm.Runner.prototype = {
-		init: function(editor, scope, outputs, inputs) {
+		init: function(editor, scope, outputs, inputs, maxHistory) {
 			this.editor = editor;
 			this.scope = scope;
 			this.outputs = outputs;
 			this.inputs = inputs;
+			this.maxHistory = maxHistory || 10;
 
 			this.tree = null;
 			this.baseRun = new jsmm.Run(this, null);
@@ -97,7 +98,10 @@ module.exports = function(jsmm) {
 			this.currentRun = 0;
 			this.calledFunctions = [];
 			this.compareCode = '';
+			this.oldRun = null;
 			this.paused = false;
+			this.interactive = false;
+			this.enabled = false;
 
 			this.newTree(new jsmm.Tree(''));
 		},
@@ -115,7 +119,9 @@ module.exports = function(jsmm) {
 		},
 
 		selectBaseRun: function() {
+			this.oldRun = null;
 			this.currentRun = 0;
+			this.paused = false;
 			this.runs = [this.baseRun];
 		},
 
@@ -139,6 +145,14 @@ module.exports = function(jsmm) {
 			return this.paused;
 		},
 
+		isInteractive: function() {
+			return this.interactive;
+		},
+
+		makeInteractive: function() {
+			this.interactive = true;
+		},
+
 		pause: function() {
 			this.paused = true;
 			this.updateEditor();
@@ -146,34 +160,53 @@ module.exports = function(jsmm) {
 
 		play: function() {
 			this.paused = false;
-			this.runs = this.runs.slice(0, this.currentRun+1);
-			this.getCurrentRun().restart();
+			if (this.hasRuns()) {
+				this.runs = this.runs.slice(0, this.currentRun+1);
+				this.getCurrentRun().restart();
+			} else {
+				this.updateEditor();
+			}
 		},
 
 		getRunTotal: function() {
-			return this.runs.length-1;
+			return this.runs.length;
 		},
 
 		getRunValue: function() {
-			return this.currentRun-1;
+			return this.currentRun;
 		},
 
 		setRunValue: function(value) {
-			console.log(value);
-			if (value >= 0 && value < this.runs.length-1) {
-				this.currentRun = value+1;
+			if (value >= 0 && value < this.runs.length) {
+				this.currentRun = value;
 				this.runs[this.currentRun].restart();
 			}
 		},
 
+		disable: function() {
+			this.enabled = false;
+		},
+
+		enable: function() {
+			this.enabled = true;
+		},
+
+		isEnabled: function() {
+			return this.enabled;
+		},
+
 		addEvent: function(funcName, args) {
-			if (this.paused) {
+			if (!this.enabled || this.paused || this.getCurrentRun().isStepping()) {
 				return false;
 			} else {
 				var run = new jsmm.Run(this, funcName, args);
 				run.run(new jsmm.RunContext(this.tree, this.runs[this.runs.length-1].context.scope.getVars(), this.outputs));
 				this.currentRun = this.runs.length;
 				this.runs.push(run);
+				if (this.runs.length > this.maxHistory) {
+					this.oldRun = this.runs.shift();
+					this.currentRun--;
+				}
 				this.updateEditor();
 				return true;
 			}
@@ -181,23 +214,38 @@ module.exports = function(jsmm) {
 
 		newTree: function(tree) {
 			this.tree = tree;
-			if (this.baseRun.context !== null && this.tree.compare(this.baseRun.context)) {
-				/*
-				var context = new jsmm.RunContext(this.tree, this.runs[0].context.scope.getVars(), this.outputs);
-				this.runs[0].select(Infinity);
-				var func = this.tree.programNode.getFunctionFunction(context);
+			if (this.baseRun.context !== null && this.tree.compareMain(this.baseRun.context)) {
+				if (this.hasRuns() && !this.tree.compareAll(this.baseRun.context)) {
+					var func = tree.programNode.getFunctionFunction();
+					func(this.baseRun.context.scope);
 
-				for (var i=1; i<this.runs.length; i++) {
-					var scope = this.runs[i-1].context.scope.getVars();
-					this.runs[i].run(new jsmm.RunContext(this.tree, scope, this.outputs));
+					var start, run;
+					if (this.oldRun !== null) {
+						func(this.oldRun.context.scope);
+						run = this.oldRun;
+						start = 0;
+					} else {
+						run = this.baseRun;
+						start = 1;
+					}
+					run.select(Infinity);
+					for (var i=start; i<this.runs.length; i++) {
+						var scope = run.context.scope.getVars();
+						run = this.runs[i];
+						run.run(new jsmm.RunContext(this.tree, scope, this.outputs));
+					}
 				}
 				this.runs[this.currentRun].select();
-				*/
 			} else {
+				this.interactive = false;
+
 				this.baseRun.run(new jsmm.RunContext(this.tree, this.scope, this.outputs));
-				this.baseRun.select();
 				this.calledFunctions = this.baseRun.context.getCalledFunctions();
 				this.compareCode = this.tree.programNode.getCompareCode(this.calledFunctions);
+
+				this.selectBaseRun();
+				this.paused = false;
+				this.baseRun.select();
 			}
 		},
 
