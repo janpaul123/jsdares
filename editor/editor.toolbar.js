@@ -102,9 +102,11 @@ module.exports = function(editor) {
 
 	editor.StepBar = function() { return this.init.apply(this, arguments); };
 	editor.StepBar.prototype = {
-		init: function($div, $bubbleDiv) {
+		init: function($div, $bubbleDiv, isBaseRun) {
 			this.bubbleValue = new editor.BubbleValue($bubbleDiv, this);
+			this.runner = null;
 			this.run = null;
+			this.isBaseRun = isBaseRun;
 
 			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
 			this.$stepBackward.on('mousedown', $.proxy(this.stepBackwardDown, this));
@@ -138,10 +140,11 @@ module.exports = function(editor) {
 			this.clearStepping();
 		},
 
-		update: function(run, enableRestart) {
+		update: function(runner, run) {
+			this.runner = runner;
 			this.run = run;
 			this.canRun = true;
-			console.log('update');
+
 			if (this.run.isStepping()) {
 				if (this.run.hasError()) {
 					this.$stepForward.addClass('disabled');
@@ -157,19 +160,27 @@ module.exports = function(editor) {
 				this.$restart.addClass('disabled');
 				this.clearStepping();
 			}
-			if (enableRestart) {
+			if (this.isBaseRun && this.runner.hasRuns()) {
 				this.$restart.removeClass('disabled');
 			}
 		},
 
 		bubbleValueChanged: function(value) { // callback
 			if (this.canRun) {
+				this.selectIfBaseRun();
 				this.run.setStepValue(value);
+			}
+		},
+
+		selectIfBaseRun: function() {
+			if (this.isBaseRun) {
+				this.runner.selectBaseRun();
 			}
 		},
 
 		stepForwardDown: function() {
 			if (this.canRun) {
+				this.selectIfBaseRun();
 				this.run.stepForward();
 			}
 			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
@@ -184,6 +195,7 @@ module.exports = function(editor) {
 
 		stepBackwardDown: function() {
 			if (this.canRun) {
+				this.selectIfBaseRun();
 				this.run.stepBackward();
 			}
 			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
@@ -198,6 +210,7 @@ module.exports = function(editor) {
 
 		restart: function() {
 			if (this.canRun) {
+				this.selectIfBaseRun();
 				this.run.restart();
 			}
 		},
@@ -221,10 +234,12 @@ module.exports = function(editor) {
 			//this.stepBar = new editor.StepBar()
 
 			this.$playPause = $('<button class="btn btn-inverse dropdown-toggle editor-toolbar-run-playpause"></button>');
+			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
 			this.$sliderContainer = $('<span class="btn btn-inverse editor-toolbar-run-slider-container"></span>');
 			this.$slider = $('<input class="editor-toolbar-run-slider" type="range" min="0"></input>');
+			this.$slider.on('change', $.proxy(this.sliderChange, this));
 			this.$sliderContainer.append(this.$slider);
 			this.$div.append(this.$sliderContainer);
 
@@ -249,7 +264,7 @@ module.exports = function(editor) {
 
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
-					this.$slider.attr('max', this.runner.getRunTotal());
+					this.$slider.attr('max', this.runner.getRunTotal()-1);
 					this.$slider.val(this.runner.getRunValue());
 					this.$slider.width(this.runner.getRunTotal()*20);
 					this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
@@ -263,6 +278,22 @@ module.exports = function(editor) {
 				this.$div.addClass('editor-toolbar-run-disabled');
 				this.$slider.css('margin-left', -this.$slider.width()-20);
 			}
+		},
+
+		playPause: function() {
+			if (this.runner.hasRuns()) {
+				if (this.runner.isPaused()) {
+					this.runner.play();
+				} else {
+					this.runner.pause();
+				}
+			}
+		},
+
+		sliderChange: function() {
+			if (this.runner.hasRuns() && this.runner.isPaused()) {
+				this.runner.setRunValue(parseInt(this.$slider.val(), 10));
+			}
 		}
 	};
 
@@ -275,7 +306,7 @@ module.exports = function(editor) {
 			this.$div.addClass('btn-toolbar editor-toolbar');
 			
 			var $stepBar = $('<div class="btn-group editor-toolbar-step-bar"></div>');
-			this.baseStepBar = new editor.StepBar($stepBar, this.$div);
+			this.baseStepBar = new editor.StepBar($stepBar, this.$div, true);
 			this.$div.append($stepBar);
 
 			var isMac = navigator.platform.indexOf("Mac") >= 0;
@@ -339,18 +370,18 @@ module.exports = function(editor) {
 			this.refreshCheckKeys();
 		},
 
-		update: function() {
-			if (this.editor.canRun()) {
-				this.$highlight.removeClass('disabled');
-				this.$edit.removeClass('disabled');
-				this.baseStepBar.update(this.editor.runner.getBaseRun(), this.editor.runner.hasRuns());
-				this.runBar.update(this.editor.runner);
-			} else {
-				this.baseStepBar.disable();
-				this.runBar.disable();
-				this.$highlight.addClass('disabled');
-				this.$edit.addClass('disabled');
-			}
+		update: function(runner) {
+			this.$highlight.removeClass('disabled');
+			this.$edit.removeClass('disabled');
+			this.baseStepBar.update(runner, runner.getBaseRun());
+			this.runBar.update(runner);
+		},
+
+		disable: function() {
+			this.baseStepBar.disable();
+			this.runBar.disable();
+			this.$highlight.addClass('disabled');
+			this.$edit.addClass('disabled');
 		},
 
 		/// INTERNAL FUNCTIONS ///

@@ -103,7 +103,7 @@ module.exports = function(jsmm) {
 		},
 
 		updateEditor: function() {
-			this.editor.updateRunnerOutput();
+			this.editor.updateRunnerOutput(this);
 		},
 
 		callAll: function(type, funcName) {
@@ -114,56 +114,13 @@ module.exports = function(jsmm) {
 			}
 		},
 
-		removeRuns: function() {
+		selectBaseRun: function() {
 			this.currentRun = 0;
 			this.runs = [this.baseRun];
 		},
 
 		getCurrentRun: function() {
 			return this.runs[this.currentRun];
-		},
-
-		restart: function() {
-			this.removeRuns();
-			return this.baseRun.select(Infinity);
-		},
-
-		baseStepForward: function() {
-			this.removeRuns();
-			return this.baseRun.stepForward();
-		},
-
-		baseStepBackward: function() {
-			this.removeRuns();
-			return this.baseRun.stepBackward();
-		},
-
-		isStepping: function() {
-			return this.getCurrentRun().isStepping();
-		},
-
-		getStepValue: function() {
-			return this.getCurrentRun().getStepValue();
-		},
-
-		setStepTotal: function() {
-			return this.getCurrentRun().getStepTotal();
-		},
-
-		setStepValue: function(value) {
-			this.getCurrentRun().setStepValue(value);
-		},
-
-		hasError: function() {
-			return this.getCurrentRun().hasError();
-		},
-
-		getError: function() {
-			return this.getCurrentRun().getError();
-		},
-
-		getMessages: function() {
-			return this.getCurrentRun().getMessages();
 		},
 
 		hasRuns: function() {
@@ -182,6 +139,17 @@ module.exports = function(jsmm) {
 			return this.paused;
 		},
 
+		pause: function() {
+			this.paused = true;
+			this.updateEditor();
+		},
+
+		play: function() {
+			this.paused = false;
+			this.runs = this.runs.slice(0, this.currentRun+1);
+			this.getCurrentRun().restart();
+		},
+
 		getRunTotal: function() {
 			return this.runs.length-1;
 		},
@@ -191,8 +159,10 @@ module.exports = function(jsmm) {
 		},
 
 		setRunValue: function(value) {
-			if (value < this.runs.length-1) {
-				this.runs[value+1].select(Infinity);
+			console.log(value);
+			if (value >= 0 && value < this.runs.length-1) {
+				this.currentRun = value+1;
+				this.runs[this.currentRun].restart();
 			}
 		},
 
@@ -202,6 +172,7 @@ module.exports = function(jsmm) {
 			} else {
 				var run = new jsmm.Run(this, funcName, args);
 				run.run(new jsmm.RunContext(this.tree, this.runs[this.runs.length-1].context.scope.getVars(), this.outputs));
+				this.currentRun = this.runs.length;
 				this.runs.push(run);
 				this.updateEditor();
 				return true;

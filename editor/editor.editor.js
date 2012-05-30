@@ -135,7 +135,7 @@ module.exports = function(editor) {
 
 		runTemp: function(text) {
 			this.tree = new this.language.Tree(text);
-			if (!this.code.hasError() && !this.tree.hasError()) {
+			if (!this.tree.hasError()) {
 				this.runner.newTree(this.tree);
 			}
 		},
@@ -148,38 +148,16 @@ module.exports = function(editor) {
 			return !this.hasCriticalError() && !this.autoCompletionEnabled;
 		},
 
-		updateRunnerOutput: function() { // callback
+		updateRunnerOutput: function(runner) {
 			if (!this.autoCompletionEnabled) {
-				this.refreshRunnerOutput();
-			}
-		},
-
-		refreshRunnerOutput: function() {
-			this.surface.hideAutoCompleteBox();
-			if (this.runner !== undefined) {
-				if (this.runner.hasError()) {
-					this.handleError(this.runner.getError());
+				//this.surface.hideAutoCompleteBox();
+				if (runner.getCurrentRun().hasError()) {
+					this.handleError(runner.getCurrentRun().getError());
 				} else {
-					this.handleMessages(this.runner.getMessages());
+					this.handleMessages(runner.getCurrentRun().getMessages());
 				}
-				this.toolbar.update();
+				this.toolbar.update(runner);
 			}
-		},
-
-		makeMessageLoc: function(message) {
-			var loc = {};
-			if (message.loc.line2 !== undefined) {
-				loc.line = message.loc.line;
-				loc.line2 = message.loc.line2+1;
-				loc.column = this.code.blockToLeftColumn(message.loc.line, message.loc.line2);
-				loc.column2 = this.code.blockToRightColumn(message.loc.line, message.loc.line2);
-			} else {
-				loc.line = message.loc.line;
-				loc.line2 = message.loc.line+1;
-				loc.column = message.loc.column;
-				loc.column2 = message.loc.column2 || message.loc.column;
-			}
-			return loc;
 		},
 
 		handleCriticalError: function(error) {
@@ -190,6 +168,7 @@ module.exports = function(editor) {
 				this.disableHighlighting();
 			}
 			this.handleError(error);
+			this.toolbar.disable();
 		},
 
 		handleError: function(error) {
@@ -216,6 +195,22 @@ module.exports = function(editor) {
 			}
 		},
 
+		makeMessageLoc: function(message) {
+			var loc = {};
+			if (message.loc.line2 !== undefined) {
+				loc.line = message.loc.line;
+				loc.line2 = message.loc.line2+1;
+				loc.column = this.code.blockToLeftColumn(message.loc.line, message.loc.line2);
+				loc.column2 = this.code.blockToRightColumn(message.loc.line, message.loc.line2);
+			} else {
+				loc.line = message.loc.line;
+				loc.line2 = message.loc.line+1;
+				loc.column = message.loc.column;
+				loc.column2 = message.loc.column2 || message.loc.column;
+			}
+			return loc;
+		},
+
 		userChangedText: function() { // callback
 			this.update(); // refreshEditables uses this.tree
 			if (this.editablesEnabled) {
@@ -225,17 +220,11 @@ module.exports = function(editor) {
 		},
 
 		outputRequestsRerun: function() { //callback
-			if (this.code.hasError()) {
-				this.handleError(this.code.getError());
-				return false;
+			if (this.canRun()) {
+				this.delayedRun();
+				return true;
 			} else {
-				if (this.tree.hasError()) {
-					this.handleError(this.tree.getError());
-					return false;
-				} else {
-					this.delayedRun();
-					return true;
-				}
+				return false;
 			}
 		},
 

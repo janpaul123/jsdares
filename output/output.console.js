@@ -20,6 +20,7 @@ module.exports = function(output) {
 			this.$container.append(this.$content);
 
 			this.calls = [];
+			this.clearCallIndex = 0;
 
 			this.debugToBrowser = true;
 			this.highlighting = false;
@@ -129,10 +130,14 @@ module.exports = function(output) {
 			this.text = '';
 			this.$content.children('.console-line').remove(); // prevent $.data leaks
 			this.$elements = [];
+			this.calls = [];
+			this.clearCallIndex = 0;
 		},
 
 		outputStartRun: function(context) {
-			this.calls = context.addOutputState('console', this.getState());
+			this.calls = this.calls.slice(this.clearCallIndex, this.calls.length);
+			this.renderElements();
+			context.setOutputState('console', this.calls);
 		},
 
 		getState: function() {
@@ -165,8 +170,10 @@ module.exports = function(output) {
 			this.color = '';
 			this.text = '';
 			var stepNum = context.getStepNum();
+			this.clearCallIndex = this.calls.length;
 			this.calls.push({clear: true, stepNum: stepNum});
 			this.$content.children('.console-line').hide();
+			this.$elements.push({});
 			
 			if (this.debugToBrowser && console && console.clear) console.clear();
 		},
@@ -192,13 +199,25 @@ module.exports = function(output) {
 		},
 
 		outputSetState: function(context, stepNum) {
-			var calls = context.getCalls('console');
+			var calls = context.getOutputState('console');
 			if (calls !== this.calls) {
 				this.calls = calls;
-				this.$content.children('.console-line').remove();
-				this.$elements = [];
-				for (var i=0; i<this.calls.length; i++) {
-					var call = this.calls[i];
+				this.renderElements();
+			}
+			this.setStepNum(stepNum);
+		},
+
+		/// INTERNAL FUNCTIONS ///
+		renderElements: function() {
+			this.$content.children('.console-line').remove();
+			this.$elements = [];
+			this.clearCallIndex = 0;
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (call.clear) {
+					this.clearCallIndex = i;
+					this.$elements.push({});
+				} else {
 					var $element = $('<div class="console-line"></div>');
 					this.$content.append($element);
 					//$element.data('index', this.calls.length);
@@ -207,15 +226,17 @@ module.exports = function(output) {
 					this.$elements.push($element);
 				}
 			}
+		},
 
+		setStepNum: function(stepNum) {
 			this.$content.children('.console-line').hide();
-			for (var j=0; j<this.calls.length; j++) {
-				var call2 = this.calls[j];
-				if (call2 !== undefined && call2.stepNum <= stepNum) {
-					if (call2.clear) {
+			for (var i=0; i<this.calls.length; i++) {
+				var call = this.calls[i];
+				if (call !== undefined && call.stepNum <= stepNum) {
+					if (call.clear) {
 						this.$content.children('.console-line').hide();
 					} else {
-						this.$elements[j].show();
+						this.$elements[i].show();
 					}
 				}
 			}
@@ -225,7 +246,6 @@ module.exports = function(output) {
 			}
 		},
 
-		/// INTERNAL FUNCTIONS ///
 		scrollToY: function(y, smooth) {
 			smooth = smooth || false;
 			y = Math.max(0, y - this.$div.height()/2);

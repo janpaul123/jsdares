@@ -196,13 +196,11 @@ module.exports = function(jsmm) {
 		getError: function() {
 			return this.error;
 		},
-		addOutputState: function(output, state) {
+		setOutputState: function(output, state) {
 			this.outputStates[output] = state;
-			this.outputCalls[output] = [];
-			return this.outputCalls[output];
 		},
-		getCalls: function(output) {
-			return this.outputCalls[output];
+		getOutputState: function(output) {
+			return this.outputStates[output];
 		},
 		externalCall: function(node, funcValue, args) {
 			this.callNode = node;
