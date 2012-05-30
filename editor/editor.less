@@ -255,11 +255,32 @@ div.colorpicker div.circle.lightness {
 	}
 
 	.editor-toolbar-run-bar {
-		.transition(top 0.5s ease-in-out);
-		top: 50px;
+		.transition(top 0.2s ease-in-out);
+		top: 0px;
 
-		&.editor-toolbar-run-active {
-			top: 0px;
+		&.editor-toolbar-run-disabled {
+			top: 50px;
+		}
+
+		.editor-toolbar-run-slider-container {
+			padding: 4px 0px;
+			overflow: hidden;
+			margin-left: -3px;
+
+			.editor-toolbar-run-slider {
+				display: inline-block;
+				height: 0px;
+				margin-bottom: 0px;
+				overflow: visible;
+				margin: 0px 10px;
+
+				.transition(margin-left 0.2s linear);
+			}
+
+			&.editor-toolbar-run-slider-container-disabled {
+				border-left: none;
+				border-right: none;
+			}
 		}
 	}
 }

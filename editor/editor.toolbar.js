@@ -138,7 +138,7 @@ module.exports = function(editor) {
 			this.clearStepping();
 		},
 
-		update: function(run) {
+		update: function(run, enableRestart) {
 			this.run = run;
 			this.canRun = true;
 			console.log('update');
@@ -156,6 +156,9 @@ module.exports = function(editor) {
 				this.$stepBackward.addClass('disabled');
 				this.$restart.addClass('disabled');
 				this.clearStepping();
+			}
+			if (enableRestart) {
+				this.$restart.removeClass('disabled');
 			}
 		},
 
@@ -217,8 +220,13 @@ module.exports = function(editor) {
 			this.$div = $div;
 			//this.stepBar = new editor.StepBar()
 
-			this.$playPause = $('<button class="btn btn-inverse editor-toolbar-run-playpause"></button>');
+			this.$playPause = $('<button class="btn btn-inverse dropdown-toggle editor-toolbar-run-playpause"></button>');
 			this.$div.append(this.$playPause);
+
+			this.$sliderContainer = $('<span class="btn btn-inverse editor-toolbar-run-slider-container"></span>');
+			this.$slider = $('<input class="editor-toolbar-run-slider" type="range" min="0"></input>');
+			this.$sliderContainer.append(this.$slider);
+			this.$div.append(this.$sliderContainer);
 
 			this.disable();
 		},
@@ -229,24 +237,31 @@ module.exports = function(editor) {
 
 		disable: function() {
 			this.canRun = false;
-			this.$div.removeClass('editor-toolbar-run-active');
+			this.$div.addClass('editor-toolbar-run-disabled');
 		},
 
 		update: function(runner) {
-			console.log(runner);
 			this.canRun = true;
 			this.runner = runner;
 
 			if (this.runner.hasRuns()) {
-				this.$div.addClass('editor-toolbar-run-active');
+				this.$div.removeClass('editor-toolbar-run-disabled');
 
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
+					this.$slider.attr('max', this.runner.getRunTotal());
+					this.$slider.val(this.runner.getRunValue());
+					this.$slider.width(this.runner.getRunTotal()*20);
+					this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
+					this.$slider.css('margin-left', '');
 				} else {
 					this.$playPause.html('<i class="icon-pause icon-white"></i>');
+					this.$sliderContainer.addClass('editor-toolbar-run-slider-container-disabled');
+					this.$slider.css('margin-left', -this.$slider.width()-20);
 				}
 			} else {
-				this.$div.removeClass('editor-toolbar-run-active');
+				this.$div.addClass('editor-toolbar-run-disabled');
+				this.$slider.css('margin-left', -this.$slider.width()-20);
 			}
 		}
 	};
@@ -328,7 +343,7 @@ module.exports = function(editor) {
 			if (this.editor.canRun()) {
 				this.$highlight.removeClass('disabled');
 				this.$edit.removeClass('disabled');
-				this.baseStepBar.update(this.editor.runner.getBaseRun());
+				this.baseStepBar.update(this.editor.runner.getBaseRun(), this.editor.runner.hasRuns());
 				this.runBar.update(this.editor.runner);
 			} else {
 				this.baseStepBar.disable();
