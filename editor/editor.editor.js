@@ -323,17 +323,21 @@ module.exports = function(editor) {
 			}
 		},
 
-		highlightNodes: function(nodes) { // callback
+		highlightNodeId: function(nodeId) { // callback
+			this.highlightNode(this.tree.getNodeById(nodeId));
+		},
+
+		highlightNodeIds: function(nodeIds) { // callback
 			this.surface.removeHighlights();
-			for (var i=0; i<nodes.length; i++) {
-				var node = nodes[i];
+			for (var i=0; i<nodeIds.length; i++) {
+				var node = this.tree.getNodeById(nodeIds[i]);
 				this.surface.addHighlight(node.lineLoc.line, node.lineLoc.column, node.lineLoc.line+1, node.lineLoc.column2);
 			}
 		},
 
 		highlightContentLine: function(line) { // used for dare line count
 			if (line === null) {
-				this.highlightNode(null);
+				this.highlightNode(0);
 			} else {
 				this.highlightNode(this.tree.getNodeByLine(line));
 			}
@@ -348,12 +352,10 @@ module.exports = function(editor) {
 				if (node !== null) {
 					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
 					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
-					this.callOutputs('highlightCalls', this.runner.getContext().getCallsByRange(line1, line2));
-					this.callOutputs('highlightCodeLine', node.lineLoc.line);
+					this.callOutputs('highlightCallNodes', this.runner.getCurrentRun().context.getCallNodesByRange(line1, line2));
 				} else {
 					this.surface.hideHighlight();
-					this.callOutputs('highlightCalls', []);
-					this.callOutputs('highlightCodeLine', 0);
+					this.callOutputs('highlightCallNodes', []);
 				}
 			}
 		},

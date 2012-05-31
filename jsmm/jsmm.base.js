@@ -32,7 +32,7 @@ module.exports = function(jsmm) {
 
 	jsmm.Tree.prototype = {
 		init: function(code) {
-			this.genId = 0;
+			this.genId = 1;
 			this.nodes = [];
 			//this.code = code;
 			this.nodesByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
@@ -91,10 +91,14 @@ module.exports = function(jsmm) {
 		},
 		getNodesByType: function(type) {
 			return this.nodesByType[type];
+		},
+		getNodeById: function(nodeId) {
+			if (this.nodes[nodeId] !== undefined) return this.nodes[nodeId];
+			else return null;
 		}
 	};
 
-	jsmm.addCommonNodeMethods = function(type, children, node) {
+	jsmm.addCommonNodeMethods = function(type, children, topNode, node) {
 		node.children = children;
 		node.build = function(_$, column2) {
 			this.tree = jsmm.parser.yy.tree;
@@ -104,6 +108,10 @@ module.exports = function(jsmm) {
 			this.blockLoc = {line: _$.first_line, line2: _$.last_line};
 			this.textLoc = {line: _$.first_line, column: _$.first_column, line2: _$.last_line, column2: _$.last_column};
 			this.parent = null;
+			this.topNode = topNode;
+			if (this.topNode) {
+				this.tree.nodesByLine[this.lineLoc.line] = this;
+			}
 			var i=2;
 			for (var name in this.children) {
 				this[name] = arguments[i++];
@@ -111,8 +119,19 @@ module.exports = function(jsmm) {
 					this[name].parent = this;
 				}
 			}
-			this.init.apply(this, [].slice.call(arguments, 2));
+			if (this.init !== undefined) {
+				this.init.apply(this, [].slice.call(arguments, 2));
+			}
 		};
+
+		node.getTopNode = function() {
+			var node = this;
+			while (node !== null && !node.topNode) {
+				node = node.parent;
+			}
+			return node;
+		};
+
 		if (node.getChildren === undefined) {
 			node.getChildren = function() {
 				var children = [];
@@ -124,6 +143,7 @@ module.exports = function(jsmm) {
 				return children;
 			};
 		}
+
 		if (node.makeId === undefined) {
 			node.makeId = function() {
 				this.id = this.tree.getNewId();
@@ -134,10 +154,11 @@ module.exports = function(jsmm) {
 				}
 			};
 		}
+
 		return node;
 	};
 
-	jsmm.nodes.Program.prototype = jsmm.addCommonNodeMethods('Program', {statementList: true}, {
+	jsmm.nodes.Program.prototype = jsmm.addCommonNodeMethods('Program', {statementList: true}, false, {
 		init: function() {
 			this.makeId();
 		},
@@ -160,7 +181,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.StatementList.prototype = jsmm.addCommonNodeMethods('StatementList', {}, {
+	jsmm.nodes.StatementList.prototype = jsmm.addCommonNodeMethods('StatementList', {}, false, {
 		init: function() {
 			this.statements = [];
 		},
@@ -194,32 +215,25 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.CommonSimpleStatement.prototype = jsmm.addCommonNodeMethods('CommonSimpleStatement', {statement: true}, {
-		init: function() {
-			this.tree.nodesByLine[this.lineLoc.line] = this;
-		},
+	jsmm.nodes.CommonSimpleStatement.prototype = jsmm.addCommonNodeMethods('CommonSimpleStatement', {statement: true}, true, {
 		getCode: function() {
 			return this.statement.getCode() + ';';
 		}
 	});
 
-	jsmm.nodes.PostfixStatement.prototype = jsmm.addCommonNodeMethods('PostfixStatement', {identifier: true, symbol: false}, {
-		init: function() {
-		},
+	jsmm.nodes.PostfixStatement.prototype = jsmm.addCommonNodeMethods('PostfixStatement', {identifier: true, symbol: false}, false, {
 		getCode: function() {
 			return this.identifier.getCode() + this.symbol;
 		}
 	});
 
-	jsmm.nodes.AssignmentStatement.prototype = jsmm.addCommonNodeMethods('AssignmentStatement', {identifier: true, symbol: false, expression: true}, {
-		init: function() {
-		},
+	jsmm.nodes.AssignmentStatement.prototype = jsmm.addCommonNodeMethods('AssignmentStatement', {identifier: true, symbol: false, expression: true}, false, {
 		getCode: function() {
 			return this.identifier.getCode() + ' ' + this.symbol + ' ' + this.expression.getCode();
 		}
 	});
 
-	jsmm.nodes.VarStatement.prototype = jsmm.addCommonNodeMethods('VarStatement', {}, {
+	jsmm.nodes.VarStatement.prototype = jsmm.addCommonNodeMethods('VarStatement', {}, false, {
 		init: function() {
 			this.items = [];
 		},
@@ -239,9 +253,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.VarItem.prototype = jsmm.addCommonNodeMethods('VarItem', {name: false, assignment: true}, {
-		init: function() {
-		},
+	jsmm.nodes.VarItem.prototype = jsmm.addCommonNodeMethods('VarItem', {name: false, assignment: true}, false, {
 		getCode: function() {
 			if (this.assignment === null) {
 				return this.name;
@@ -251,10 +263,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.ReturnStatement.prototype = jsmm.addCommonNodeMethods('ReturnStatement', {expression: true}, {
-		init: function() {
-			this.tree.nodesByLine[this.lineLoc.line] = this;
-		},
+	jsmm.nodes.ReturnStatement.prototype = jsmm.addCommonNodeMethods('ReturnStatement', {expression: true}, true, {
 		getCode: function() {
 			if (this.expression === null) {
 				return 'return;';
@@ -264,31 +273,25 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.BinaryExpression.prototype = jsmm.addCommonNodeMethods('BinaryExpression', {expression1: true, symbol: false, expression2: true}, {
-		init: function() {
-		},
+	jsmm.nodes.BinaryExpression.prototype = jsmm.addCommonNodeMethods('BinaryExpression', {expression1: true, symbol: false, expression2: true}, false, {
 		getCode: function() {
 			return this.expression1.getCode() + ' ' + this.symbol + ' ' + this.expression2.getCode();
 		}
 	});
 
-	jsmm.nodes.UnaryExpression.prototype = jsmm.addCommonNodeMethods('UnaryExpression', {symbol: false, expression: true}, {
-		init: function() {
-		},
+	jsmm.nodes.UnaryExpression.prototype = jsmm.addCommonNodeMethods('UnaryExpression', {symbol: false, expression: true}, false, {
 		getCode: function() {
 			return this.symbol + this.expression.getCode();
 		}
 	});
 
-	jsmm.nodes.ParenExpression.prototype = jsmm.addCommonNodeMethods('ParenExpression', {expression: true}, {
-		init: function() {
-		},
+	jsmm.nodes.ParenExpression.prototype = jsmm.addCommonNodeMethods('ParenExpression', {expression: true}, false, {
 		getCode: function() {
 			return '(' + this.expression.getCode() + ')';
 		}
 	});
 
-	jsmm.nodes.NumberLiteral.prototype = jsmm.addCommonNodeMethods('NumberLiteral', {number: false}, {
+	jsmm.nodes.NumberLiteral.prototype = jsmm.addCommonNodeMethods('NumberLiteral', {number: false}, false, {
 		init: function() {
 			this.number = parseFloat(this.number);
 		},
@@ -297,7 +300,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.StringLiteral.prototype = jsmm.addCommonNodeMethods('StringLiteral', {str: false}, {
+	jsmm.nodes.StringLiteral.prototype = jsmm.addCommonNodeMethods('StringLiteral', {str: false}, false, {
 		init: function() {
 			this.str = JSON.parse(this.str);
 		},
@@ -306,39 +309,31 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.BooleanLiteral.prototype = jsmm.addCommonNodeMethods('BooleanLiteral', {bool: false}, {
-		init: function() {
-		},
+	jsmm.nodes.BooleanLiteral.prototype = jsmm.addCommonNodeMethods('BooleanLiteral', {bool: false}, false, {
 		getCode: function() {
 			return this.bool ? 'true' : 'false';
 		}
 	});
 
-	jsmm.nodes.NameIdentifier.prototype = jsmm.addCommonNodeMethods('NameIdentifier', {name: false}, {
-		init: function() {
-		},
+	jsmm.nodes.NameIdentifier.prototype = jsmm.addCommonNodeMethods('NameIdentifier', {name: false}, false, {
 		getCode: function() {
 			return this.name;
 		}
 	});
 
-	jsmm.nodes.ObjectIdentifier.prototype = jsmm.addCommonNodeMethods('ObjectIdentifier', {identifier: true, prop: false}, {
-		init: function() {
-		},
+	jsmm.nodes.ObjectIdentifier.prototype = jsmm.addCommonNodeMethods('ObjectIdentifier', {identifier: true, prop: false}, false, {
 		getCode: function() {
 			return this.identifier.getCode() + '.' + this.prop;
 		}
 	});
 
-	jsmm.nodes.ArrayIdentifier.prototype = jsmm.addCommonNodeMethods('ArrayIdentifier', {identifier: true, expression: true}, {
-		init: function() {
-		},
+	jsmm.nodes.ArrayIdentifier.prototype = jsmm.addCommonNodeMethods('ArrayIdentifier', {identifier: true, expression: true}, false, {
 		getCode: function() {
 			return this.identifier.getCode() + '[' + this.expression.getCode() + ']';
 		}
 	});
 
-	jsmm.nodes.FunctionCall.prototype = jsmm.addCommonNodeMethods('FunctionCall', {identifier: true, expressionArgs: false}, {
+	jsmm.nodes.FunctionCall.prototype = jsmm.addCommonNodeMethods('FunctionCall', {identifier: true, expressionArgs: false}, false, {
 		init: function() {
 			for (var i=0; i<this.expressionArgs.length; i++) {
 				this.expressionArgs[i].parent = this;
@@ -357,7 +352,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {expression: true, statementList: true, elseBlock: true}, {
+	jsmm.nodes.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {expression: true, statementList: true, elseBlock: true}, false, {
 		init: function() {
 			if (this.elseBlock !== null) {
 				this.blockLoc.line2 = this.elseBlock.blockLoc.line-1;
@@ -373,36 +368,25 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.ElseIfBlock.prototype = jsmm.addCommonNodeMethods('ElseIfBlock', {ifBlock: true}, {
-		init: function() {
-		},
+	jsmm.nodes.ElseIfBlock.prototype = jsmm.addCommonNodeMethods('ElseIfBlock', {ifBlock: true}, false, {
 		getCode: function() {
 			return ' else ' + this.ifBlock.getCode();
 		}
 	});
 
-	jsmm.nodes.ElseBlock.prototype = jsmm.addCommonNodeMethods('ElseBlock', {statementList: true}, {
-		init: function() {
-			this.tree.nodesByLine[this.lineLoc.line] = this;
-		},
+	jsmm.nodes.ElseBlock.prototype = jsmm.addCommonNodeMethods('ElseBlock', {statementList: true}, true, {
 		getCode: function() {
 			return ' else {\n' + this.statementList.getCode() + '}';
 		}
 	});
 
-	jsmm.nodes.WhileBlock.prototype = jsmm.addCommonNodeMethods('WhileBlock', {expression: true, statementList: true}, {
-		init: function() {
-			this.tree.nodesByLine[this.lineLoc.line] = this;
-		},
+	jsmm.nodes.WhileBlock.prototype = jsmm.addCommonNodeMethods('WhileBlock', {expression: true, statementList: true}, true, {
 		getCode: function() {
 			return 'while (' + this.expression.getCode() + ') {\n' + this.statementList.getCode() + '}';
 		}
 	});
 
-	jsmm.nodes.ForBlock.prototype = jsmm.addCommonNodeMethods('ForBlock', {statement1: true, expression: true, statement2: true, statementList: true}, {
-		init: function() {
-			this.tree.nodesByLine[this.lineLoc.line] = this;
-		},
+	jsmm.nodes.ForBlock.prototype = jsmm.addCommonNodeMethods('ForBlock', {statement1: true, expression: true, statement2: true, statementList: true}, true, {
 		getCode: function() {
 			var output = 'for (' + this.statement1.getCode() + ';' + this.expression.getCode() + ';';
 			output += this.statement2.getCode() + ') {\n' + this.statementList.getCode() + '}';
@@ -410,10 +394,7 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.FunctionDeclaration.prototype = jsmm.addCommonNodeMethods('FunctionDeclaration', {name: false, nameArgs: false, statementList: true}, {
-		init: function() {
-			this.tree.nodesByLine[this.lineLoc.line] = this;
-		},
+	jsmm.nodes.FunctionDeclaration.prototype = jsmm.addCommonNodeMethods('FunctionDeclaration', {name: false, nameArgs: false, statementList: true}, true, {
 		getArgList: function() {
 			return '(' + this.nameArgs.join(', ') + ')';
 		},

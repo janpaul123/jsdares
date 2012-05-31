@@ -212,9 +212,6 @@ module.exports = function(jsmm) {
 			this.tree = tree;
 			if (this.baseRun.context !== null && this.tree.compareMain(this.baseRun.context)) {
 				if (this.interactive && !this.tree.compareAll(this.baseRun.context)) {
-					var func = tree.programNode.getFunctionFunction();
-					func(this.baseRun.context.scope);
-
 					if (!this.paused) {
 						if (this.runs.length > 1) {
 							this.oldRun = this.runs[this.runs.length-2];
@@ -223,6 +220,8 @@ module.exports = function(jsmm) {
 						}
 					}
 
+					var func = tree.programNode.getFunctionFunction();
+					func(this.baseRun.context.scope);
 					var start, run;
 					if (this.oldRun !== null) {
 						func(this.oldRun.context.scope);

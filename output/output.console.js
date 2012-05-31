@@ -81,7 +81,7 @@ module.exports = function(output) {
 			this.$elements.push($element);
 			
 			var stepNum = context.getStepNum();
-			this.calls.push({text: text, color: this.color, node: context.getCallNode(), stepNum: stepNum});
+			this.calls.push({text: text, color: this.color, nodeId: context.getCallNodeId(), stepNum: stepNum});
 
 			if (this.debugToBrowser && console && console.log) console.log(value);
 		},
@@ -91,13 +91,13 @@ module.exports = function(output) {
 			this.color = color;
 		},
 
-		highlightCalls: function(calls) {
+		highlightCallNodes: function(nodeIds) {
 			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 
 			for (var i=0; i<this.calls.length; i++) {
 				var call = this.calls[i];
-				if (calls.indexOf(call.stepNum) >= 0 && call.$element !== null) {
-					call.$element.addClass('console-highlight-line');
+				if (nodeIds.indexOf(call.nodeId) >= 0 && !call.clear) {
+					this.$elements[i].addClass('console-highlight-line');
 				}
 			}
 
@@ -264,11 +264,11 @@ module.exports = function(output) {
 					if (!$target.hasClass('console-highlight-line')) {
 						this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 						$target.addClass('console-highlight-line');
-						this.editor.highlightNode(this.calls[$target.data('index')].node);
+						this.editor.highlightNodeId(this.calls[$target.data('index')].nodeId);
 					}
 				} else {
 					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
-					this.editor.highlightNode(null);
+					this.editor.highlightNodeId(0);
 				}
 			}
 		},
@@ -276,7 +276,7 @@ module.exports = function(output) {
 		mouseLeave: function(event) {
 			if (this.highlighting) {
 				this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
-				this.editor.highlightNode(null);
+				this.editor.highlightNodeId(0);
 			}
 		},
 

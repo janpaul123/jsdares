@@ -150,13 +150,13 @@ module.exports = function(jsmm) {
 			this.executionCounter = 0;
 			this.steps = [];
 			this.callStack = [];
-			this.callLinesByLine = {};
+			this.callNodesByNodes = {};
 			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
 			this.outputStates = {};
 			this.outputCalls = {};
 			this.calledFunctions = [];
-			this.callNode = null;
+			this.callNodeId = null;
 			this.error = null;
 		},
 		callOutputs: function(funcName) {
@@ -203,14 +203,14 @@ module.exports = function(jsmm) {
 			return this.outputStates[output];
 		},
 		externalCall: function(node, funcValue, args) {
-			this.callNode = node;
+			this.callNodeId = node.id;
 			for (var i=0; i<this.callStack.length; i++) {
-				var line = this.callStack[i].lineLoc.line;
-				if (this.callLinesByLine[line] === undefined) {
-					this.callLinesByLine[line] = [];
+				var nodeId = this.callStack[i].getTopNode().id;
+				if (this.callNodesByNodes[nodeId] === undefined) {
+					this.callNodesByNodes[nodeId] = [];
 				}
-				if (this.callLinesByLine[line].indexOf(line) < 0) {
-					this.callLinesByLine[line].push(node.lineLoc.line);
+				if (this.callNodesByNodes[nodeId].indexOf(node.id) < 0) {
+					this.callNodesByNodes[nodeId].push(node.id);
 				}
 			}
 			try {
@@ -262,21 +262,22 @@ module.exports = function(jsmm) {
 		callScope: function(node, data) {
 			this.scopeTracker.logScope(this.getStepNum(), node, data);
 		},
-		getCallLinesByRange: function(line1, line2) {
-			var lines = [];
+		getCallNodesByRange: function(line1, line2) {
+			var nodeIds = [];
 			for (var line=line1; line<=line2; line++) {
-				if (this.callLinesByLine[line] !== undefined) {
-					for (var i=0; i<this.callLinesByLine[line].length; i++) {
-						if (lines.indexOf(this.callLinesByLine[line][i]) < 0) {
-							lines.push(this.callLinesByLine[line][i]);
+				var node = this.tree.getNodeByLine(line);
+				if (node !== null && this.callNodesByNodes[node.id] !== undefined) {
+					for (var i=0; i<this.callNodesByNodes[node.id].length; i++) {
+						if (nodeIds.indexOf(this.callNodesByNodes[node.id][i]) < 0) {
+							nodeIds.push(this.callNodesByNodes[node.id][i]);
 						}
 					}
 				}
 			}
-			return lines;
+			return nodeIds;
 		},
-		getCallNode: function() {
-			return this.callNode;
+		getCallNodeId: function() {
+			return this.callNodeId;
 		},
 		getCommandTracker: function() {
 			return this.commandTracker;
