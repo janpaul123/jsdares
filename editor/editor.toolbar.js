@@ -160,7 +160,7 @@ module.exports = function(editor) {
 				this.$restart.addClass('disabled');
 				this.clearStepping();
 			}
-			if (this.isBaseRun && this.runner.hasRuns()) {
+			if (this.isBaseRun && this.runner.isInteractive()) {
 				this.$restart.removeClass('disabled');
 			}
 		},
