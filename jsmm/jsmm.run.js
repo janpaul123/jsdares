@@ -509,12 +509,12 @@ module.exports = function(jsmm) {
 	};
 
 	jsmm.nodes.FunctionDeclaration.prototype.getFunctionCode = function() {
-		var output = 'jsmmScope.vars["' + this.name + '"] = {type: "local", value: {type: "internalFunction", name: "' + this.name + '", func: ';
+		var output = 'jsmmScope.vars["' + this.name + '"].value.func = ';
 		output += 'function (jsmmContext, args) {\n';
 		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
-		output += '}}};';
+		output += '};';
 		return output;
 	};
 };
