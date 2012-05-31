@@ -266,15 +266,11 @@ module.exports = function(editor) {
 
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
-					if (this.runner.hasRuns()) {
-						this.$slider.attr('max', this.runner.getRunTotal()-1);
-						this.$slider.val(this.runner.getRunValue());
-						this.$slider.width(this.runner.getRunTotal()*20);
-						this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
-						this.$slider.css('margin-left', '');
-					} else {
-						this.hideSlider();
-					}
+					this.$slider.attr('max', this.runner.getRunTotal()-1);
+					this.$slider.val(this.runner.getRunValue());
+					this.$slider.width(this.runner.getRunTotal()*20);
+					this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
+					this.$slider.css('margin-left', '');
 				} else {
 					this.$playPause.html('<i class="icon-pause icon-white"></i>');
 					this.hideSlider();
@@ -301,7 +297,7 @@ module.exports = function(editor) {
 		},
 
 		sliderChange: function() {
-			if (this.runner.hasRuns() && this.runner.isPaused()) {
+			if (this.runner.isPaused()) {
 				this.runner.setRunValue(parseInt(this.$slider.val(), 10));
 			}
 		}
