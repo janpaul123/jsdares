@@ -352,7 +352,7 @@ module.exports = function(editor) {
 				if (node !== null) {
 					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
 					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
-					this.callOutputs('highlightCallNodes', this.runner.getCurrentRun().context.getCallNodesByRange(line1, line2));
+					this.callOutputs('highlightCallNodes', this.runner.getCallNodesByRange(line1, line2));
 				} else {
 					this.surface.hideHighlight();
 					this.callOutputs('highlightCallNodes', []);

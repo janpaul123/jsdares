@@ -255,6 +255,10 @@ module.exports = function(jsmm) {
 			}
 		},
 
+		getCallNodesByRange: function(line1, line2) {
+			return this.getCurrentRun().context.getCallNodesByRange(line1, line2);
+		},
+
 		getExamples: function(text) {
 			return null;
 			/*

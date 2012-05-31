@@ -75,7 +75,7 @@ module.exports = function(output) {
 
 			var $element = $('<div class="console-line"></div>');
 			this.$content.append($element);
-			//$element.data('index', this.calls.length);
+			$element.data('index', this.calls.length);
 			$element.text(text);
 			$element.css('color', this.color);
 			this.$elements.push($element);
@@ -92,6 +92,7 @@ module.exports = function(output) {
 		},
 
 		highlightCallNodes: function(nodeIds) {
+			console.log(nodeIds);
 			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 
 			for (var i=0; i<this.calls.length; i++) {
@@ -220,7 +221,7 @@ module.exports = function(output) {
 				} else {
 					var $element = $('<div class="console-line"></div>');
 					this.$content.append($element);
-					//$element.data('index', this.calls.length);
+					$element.data('index', i);
 					$element.text(call.text);
 					$element.css('color', call.color);
 					this.$elements.push($element);
