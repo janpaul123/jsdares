@@ -10,8 +10,8 @@ module.exports = function(editor) {
 			this.$body = $('body');
 
 			this.$stepBubble = $('<div class="editor-toolbar-step-bubble"><div class="editor-toolbar-step-bubble-arrow"></div></div>');
-			this.$stepValue = $('<span class="editor-toolbar-step-value"></span>');
-			this.$stepBubble.append(this.$stepValue);
+			this.$stepNum = $('<span class="editor-toolbar-step-value"></span>');
+			this.$stepBubble.append(this.$stepNum);
 
 			this.$stepTotal = $('<span class="editor-toolbar-step-total"></span>');
 			this.$stepBubble.append(this.$stepTotal);
@@ -19,7 +19,7 @@ module.exports = function(editor) {
 			this.$stepBubble.hide();
 
 			this.hasTooltip = false;
-			this.touchable = new clayer.Touchable(this.$stepValue, this);
+			this.touchable = new clayer.Touchable(this.$stepNum, this);
 			this.setEditing(false);
 			this.delegate = delegate;
 		},
@@ -27,16 +27,16 @@ module.exports = function(editor) {
 		remove: function() {
 			this.hideTooltip();
 			this.touchable.setTouchable(false);
-			this.$stepValue.remove();
+			this.$stepNum.remove();
 			this.$stepTotal.remove();
 			this.$stepBubble.remove();
 		},
 
-		setStepInfo: function(stepValue, stepTotal) {
+		setStepInfo: function(stepNum, stepTotal) {
 			this.$stepBubble.fadeIn(150);
-			this.value = stepValue;
+			this.value = stepNum;
 			this.total = stepTotal;
-			this.$stepValue.text(stepValue);
+			this.$stepNum.text(stepNum);
 			this.$stepTotal.text('/' + stepTotal);
 			this.$stepBubble.css('margin-left', -this.$stepBubble.outerWidth());
 		},
@@ -59,17 +59,17 @@ module.exports = function(editor) {
 		showTooltip: function() {
 			if (!this.hasTooltip) {
 				this.hasTooltip = true;
-				this.$stepValue.tooltip({
+				this.$stepNum.tooltip({
 					title: '&larr; drag &rarr;',
 					placement: 'bottom'
 				});
 			}
-			this.$stepValue.tooltip('show');
+			this.$stepNum.tooltip('show');
 		},
 
 		hideTooltip: function() {
 			if (this.hasTooltip) {
-				this.$stepValue.tooltip('hide');
+				this.$stepNum.tooltip('hide');
 			}
 		},
 
@@ -105,7 +105,6 @@ module.exports = function(editor) {
 		init: function($div, $bubbleDiv, isBaseRun) {
 			this.bubbleValue = new editor.BubbleValue($bubbleDiv, this);
 			this.runner = null;
-			this.run = null;
 			this.isBaseRun = isBaseRun;
 
 			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
@@ -132,6 +131,10 @@ module.exports = function(editor) {
 			this.$restart.remove();
 		},
 
+		setEditing: function(editing) {
+			this.bubbleValue.setEditing(editing);
+		},
+
 		disable: function() {
 			this.canRun = false;
 			this.$stepForward.addClass('disabled');
@@ -142,18 +145,17 @@ module.exports = function(editor) {
 
 		update: function(runner, run) {
 			this.runner = runner;
-			this.run = run;
 			this.canRun = true;
 
-			if (this.run.isStepping()) {
-				if (this.run.hasError()) {
+			if (this.runner.isStepping()) {
+				if (this.runner.hasError()) {
 					this.$stepForward.addClass('disabled');
 				} else {
 					this.$stepForward.removeClass('disabled');
 				}
 				this.$stepBackward.removeClass('disabled');
 				this.$restart.removeClass('disabled');
-				this.bubbleValue.setStepInfo(this.run.getStepValue(), this.run.getStepTotal());
+				this.bubbleValue.setStepInfo(this.runner.getStepNum(), this.runner.getStepTotal());
 			} else {
 				this.$stepForward.removeClass('disabled');
 				this.$stepBackward.addClass('disabled');
@@ -168,7 +170,7 @@ module.exports = function(editor) {
 		bubbleValueChanged: function(value) { // callback
 			if (this.canRun) {
 				this.selectIfBaseRun();
-				this.run.setStepValue(value);
+				this.runner.setStepNum(value);
 			}
 		},
 
@@ -181,7 +183,7 @@ module.exports = function(editor) {
 		stepForwardDown: function() {
 			if (this.canRun) {
 				this.selectIfBaseRun();
-				this.run.stepForward();
+				this.runner.stepForward();
 			}
 			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
 			this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
@@ -196,7 +198,7 @@ module.exports = function(editor) {
 		stepBackwardDown: function() {
 			if (this.canRun) {
 				this.selectIfBaseRun();
-				this.run.stepBackward();
+				this.runner.stepBackward();
 			}
 			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
 			this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
@@ -211,7 +213,7 @@ module.exports = function(editor) {
 		restart: function() {
 			if (this.canRun) {
 				this.selectIfBaseRun();
-				this.run.restart();
+				this.runner.restart();
 			}
 		},
 
@@ -233,11 +235,11 @@ module.exports = function(editor) {
 			this.$div = $div;
 			//this.stepBar = new editor.StepBar()
 
-			this.$playPause = $('<button class="btn btn-inverse dropdown-toggle editor-toolbar-run-playpause"></button>');
+			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
-			this.$sliderContainer = $('<span class="btn btn-inverse editor-toolbar-run-slider-container"></span>');
+			this.$sliderContainer = $('<span class="btn btn-primary editor-toolbar-run-slider-container"></span>');
 			this.$slider = $('<input class="editor-toolbar-run-slider" type="range" min="0"></input>');
 			this.$slider.on('change', $.proxy(this.sliderChange, this));
 			this.$sliderContainer.append(this.$slider);
@@ -256,6 +258,10 @@ module.exports = function(editor) {
 			this.hideSlider();
 		},
 
+		setEditing: function(editing) {
+			//this.bubbleValue.setEditing(editing);
+		},
+
 		update: function(runner) {
 			this.canRun = true;
 			this.runner = runner;
@@ -266,11 +272,15 @@ module.exports = function(editor) {
 
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
-					this.$slider.attr('max', this.runner.getRunTotal()-1);
-					this.$slider.val(this.runner.getRunValue());
-					this.$slider.width(this.runner.getRunTotal()*20);
-					this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
-					this.$slider.css('margin-left', '');
+					if (this.runner.hasEvents()) {
+						this.$slider.attr('max', this.runner.getEventTotal()-1);
+						this.$slider.val(this.runner.getEventNum());
+						this.$slider.width(this.runner.getEventTotal()*20);
+						this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
+						this.$slider.css('margin-left', '');
+					} else {
+						this.hideSlider();
+					}
 				} else {
 					this.$playPause.html('<i class="icon-pause icon-white"></i>');
 					this.hideSlider();
@@ -298,7 +308,7 @@ module.exports = function(editor) {
 
 		sliderChange: function() {
 			if (this.runner.isPaused()) {
-				this.runner.setRunValue(parseInt(this.$slider.val(), 10));
+				this.runner.setEventNum(parseInt(this.$slider.val(), 10));
 			}
 		}
 	};
@@ -379,7 +389,7 @@ module.exports = function(editor) {
 		update: function(runner) {
 			this.$highlight.removeClass('disabled');
 			this.$edit.removeClass('disabled');
-			this.baseStepBar.update(runner, runner.getBaseRun());
+			this.baseStepBar.update(runner);
 			this.runBar.update(runner);
 		},
 
@@ -404,7 +414,7 @@ module.exports = function(editor) {
 				this.editor.disableHighlighting();
 			}
 			if (this.editablesKey && !event.altKey) {
-				this.bubbleValue.setEditing(false);
+				this.setEditing(false);
 				this.editor.disableEditables();
 			}
 		},
@@ -416,7 +426,7 @@ module.exports = function(editor) {
 				this.highlightingKey = true;
 				this.refreshCheckKeys();
 			} else if (event.keyCode === 18) {
-				this.bubbleValue.setEditing(true);
+				this.setEditing(true);
 				this.editor.enableEditables();
 				this.editablesKey = true;
 				this.refreshCheckKeys();
@@ -428,7 +438,7 @@ module.exports = function(editor) {
 			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
 				this.editor.disableHighlighting();
 			} else if (event.keyCode === 18) {
-				this.bubbleValue.setEditing(false);
+				this.setEditing(false);
 				this.editor.disableEditables();
 			}
 		},
@@ -440,12 +450,17 @@ module.exports = function(editor) {
 
 		edit: function(event) {
 			if (this.$edit.hasClass('active')) {
-				this.bubbleValue.setEditing(false);
+				this.setEditing(false);
 				this.editor.disableEditables();
 			} else {
-				this.bubbleValue.setEditing(true);
+				this.setEditing(true);
 				this.editor.enableEditables();
 			}
+		},
+
+		setEditing: function(editing) {
+			this.baseStepBar.setEditing(editing);
+			this.runBar.setEditing(editing);
 		}
 	};
 };

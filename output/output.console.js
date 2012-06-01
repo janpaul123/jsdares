@@ -19,8 +19,8 @@ module.exports = function(output) {
 			this.$content = $('<div class="console-content"></div>');
 			this.$container.append(this.$content);
 
-			this.calls = [];
-			this.clearCallIndex = 0;
+			this.$old = $('<div class="console-old"></div>');
+			this.$content.append(this.$old);
 
 			this.debugToBrowser = true;
 			this.highlighting = false;
@@ -71,19 +71,44 @@ module.exports = function(output) {
 			var text = '' + value;
 			if (typeof value === 'object') text = '[object]';
 			else if (typeof value === 'function') text = '[function]';
+
 			this.text += text + '\n';
 
 			var $element = $('<div class="console-line"></div>');
-			this.$content.append($element);
-			$element.data('index', this.calls.length);
 			$element.text(text);
 			$element.css('color', this.color);
-			this.$elements.push($element);
+			$element.data('index', this.currentEvent.calls.length);
+			$element.data('event', this.currentEvent);
+
+			this.$content.append($element);
+
+			var $lineElement = $element.clone();
+			this.$lines.append($lineElement);
 			
-			var stepNum = context.getStepNum();
-			this.calls.push({text: text, color: this.color, nodeId: context.getCallNodeId(), stepNum: stepNum});
+			this.currentEvent.calls.push({
+				$element: $element,
+				stepNum: context.getStepNum(),
+				nodeId: context.getCallNodeId()
+			});
+			if (this.currentEvent.$firstElement === null) {
+				this.currentEvent.$firstElement = $element;
+				this.currentEvent.$firstLineElement = $lineElement;
+			}
 
 			if (this.debugToBrowser && console && console.log) console.log(value);
+		},
+
+		clear: function(context) {
+			this.text = '';
+			this.color = '';
+			this.$lines = $('<div></div>');
+
+			this.currentEvent.calls.push({
+				clear: true,
+				stepNum: context.getStepNum()
+			});
+			
+			if (this.debugToBrowser && console && console.clear) console.clear();
 		},
 
 		setColor: function(context, name, args) {
@@ -91,14 +116,115 @@ module.exports = function(output) {
 			this.color = color;
 		},
 
+		outputClearAll: function() {
+			this.text = '';
+			this.color = '';
+			this.$lines = $('<div></div>');
+			this.$old.html('');
+			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.events = [];
+		},
+
+		outputStartEvent: function(context) {
+			this.currentEvent = {
+				text: this.text,
+				color: this.color,
+				$firstElement: null,
+				$firstLineElement: null,
+				oldHtml: this.$old.html() + this.$lines.html(),
+				calls: []
+			};
+			this.events.push(this.currentEvent);
+		},
+
+		outputEndEvent: function() {
+			this.updateEventHighlight();
+		},
+
+		outputClearToStart: function() {
+			this.text = this.events[0].text;
+			this.color = this.events[0].color;
+			this.$lines.html('');
+			this.$old.html(this.events[0].oldHtml);
+			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.events = [];
+		},
+
+		outputClearToEnd: function() {
+			this.$old.append(this.$lines.html());
+			this.$lines.html('');
+			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.events = [];
+		},
+
+		outputClearEventsFrom: function(eventNum) {
+			this.text = this.events[eventNum].text;
+			this.color = this.events[eventNum].color;
+			for (var i=eventNum; i<this.events.length; i++) {
+				if (this.events[i].$firstElement !== null) {
+					this.events[i].$firstElement.nextAll().remove();
+					this.events[i].$firstElement.remove();
+					this.events[i].$firstLineElement.nextAll().remove();
+					this.events[i].$firstLineElement.remove();
+					break;
+				}
+			}
+			this.events = this.events.slice(0, eventNum);
+		},
+
+		outputPopFront: function() {
+			var event = this.events.shift();
+			if (this.events.length > 0) {
+				this.$old.html(this.events[0].oldHtml);
+				if (this.events[0].$firstElement !== null) {
+					this.events[0].$firstElement.prevAll().remove();
+					this.events[0].$firstLineElement.prevAll().remove();
+				}
+			}
+		},
+
+		outputSetError: function(error) {
+			if (error) {
+				this.$content.addClass('console-error');
+			} else {
+				this.$content.removeClass('console-error');
+			}
+		},
+
+		outputSetEventStep: function(eventNum, stepNum) {
+			console.log(arguments);
+			this.currentEvent = this.events[eventNum];
+
+			this.$old.show();
+			this.$content.children('.console-line').hide();
+			for (var i=0; i<this.events.length; i++) {
+				if (i > eventNum) break;
+				for (var j=0; j<this.events[i].calls.length; j++) {
+					var call = this.events[i].calls[j];
+
+					if (call.clear) {
+						this.$old.hide();
+						this.$content.children('.console-line').hide();
+					} else {
+						call.$element.show();
+					}
+				}
+			}
+
+			this.updateEventHighlight();
+
+			if (this.autoScroll) {
+				this.scrollToY(this.$content.height());
+			}
+		},
+
 		highlightCallNodes: function(nodeIds) {
-			console.log(nodeIds);
 			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 
-			for (var i=0; i<this.calls.length; i++) {
-				var call = this.calls[i];
+			for (var i=0; i<this.currentEvent.calls.length; i++) {
+				var call = this.currentEvent.calls[i];
 				if (nodeIds.indexOf(call.nodeId) >= 0 && !call.clear) {
-					this.$elements[i].addClass('console-highlight-line');
+					call.$element.addClass('console-highlight-line');
 				}
 			}
 
@@ -116,68 +242,29 @@ module.exports = function(output) {
 			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
 			this.autoScroll = false;
 			this.$div.removeClass('console-autoscroll');
+			this.updateEventHighlight();
 		},
 
 		disableHighlighting: function() {
 			this.highlighting = false;
 			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+			this.updateEventHighlight();
 			this.$div.removeClass('console-highlighting');
 			this.$div.off('mousemove mouseleave');
 			this.refreshAutoScroll();
 		},
 
-		outputClear: function(context) {
-			this.color = '';
-			this.text = '';
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
-			this.$elements = [];
-			this.calls = [];
-			this.clearCallIndex = 0;
-		},
-
-		outputStartRun: function(context) {
-			this.calls = this.calls.slice(this.clearCallIndex, this.calls.length);
-			this.renderElements();
-			context.setOutputState('console', this.calls);
-		},
-
-		getState: function() {
-			return {
-				text: this.text,
-				color: this.color
-			};
-		},
-
-		/*
-		setState: function(state) {
-			this.$content.removeClass('console-error');
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
-		},
-		*/
-
-		endRun: function() {
-			// this.render();
-		},
-
-		outputSetError: function(error) {
-			if (error) {
-				this.$content.addClass('console-error');
-			} else {
-				this.$content.removeClass('console-error');
+		updateEventHighlight: function() {
+			this.$content.find('.console-highlight-event').removeClass('console-highlight-event');
+			if (this.highlighting) {
+				for (var i=0; i<this.currentEvent.calls.length; i++) {
+					console.log(i);
+					this.currentEvent.calls[i].$element.addClass('console-highlight-event');
+				}
 			}
 		},
 
-		clear: function(context) {
-			this.color = '';
-			this.text = '';
-			var stepNum = context.getStepNum();
-			this.clearCallIndex = this.calls.length;
-			this.calls.push({clear: true, stepNum: stepNum});
-			this.$content.children('.console-line').hide();
-			this.$elements.push({});
-			
-			if (this.debugToBrowser && console && console.clear) console.clear();
-		},
+		
 
 		getText: function() {
 			return this.text;
@@ -199,53 +286,7 @@ module.exports = function(output) {
 			this.$content.css('min-height', this.$targetConsole.height());
 		},
 
-		outputSetState: function(context, stepNum) {
-			var calls = context.getOutputState('console');
-			if (calls !== this.calls) {
-				this.calls = calls;
-				this.renderElements();
-			}
-			this.setStepNum(stepNum);
-		},
-
-		/// INTERNAL FUNCTIONS ///
-		renderElements: function() {
-			this.$content.children('.console-line').remove();
-			this.$elements = [];
-			this.clearCallIndex = 0;
-			for (var i=0; i<this.calls.length; i++) {
-				var call = this.calls[i];
-				if (call.clear) {
-					this.clearCallIndex = i;
-					this.$elements.push({});
-				} else {
-					var $element = $('<div class="console-line"></div>');
-					this.$content.append($element);
-					$element.data('index', i);
-					$element.text(call.text);
-					$element.css('color', call.color);
-					this.$elements.push($element);
-				}
-			}
-		},
-
-		setStepNum: function(stepNum) {
-			this.$content.children('.console-line').hide();
-			for (var i=0; i<this.calls.length; i++) {
-				var call = this.calls[i];
-				if (call !== undefined && call.stepNum <= stepNum) {
-					if (call.clear) {
-						this.$content.children('.console-line').hide();
-					} else {
-						this.$elements[i].show();
-					}
-				}
-			}
-
-			if (this.autoScroll) {
-				this.scrollToY(this.$content.height());
-			}
-		},
+		
 
 		scrollToY: function(y, smooth) {
 			smooth = smooth || false;
@@ -261,11 +302,11 @@ module.exports = function(output) {
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.target);
-				if (this.calls[$target.data('index')] !== undefined) {
+				if ($target.data('event') === this.currentEvent && this.currentEvent.calls[$target.data('index')] !== undefined) {
 					if (!$target.hasClass('console-highlight-line')) {
 						this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
 						$target.addClass('console-highlight-line');
-						this.editor.highlightNodeId(this.calls[$target.data('index')].nodeId);
+						this.editor.highlightNodeId(this.currentEvent.calls[$target.data('index')].nodeId);
 					}
 				} else {
 					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');

@@ -152,10 +152,10 @@ module.exports = function(editor) {
 		updateRunnerOutput: function(runner) {
 			if (!this.autoCompletionEnabled) {
 				//this.surface.hideAutoCompleteBox();
-				if (runner.getCurrentRun().hasError()) {
-					this.handleError(runner.getCurrentRun().getError());
+				if (runner.hasError()) {
+					this.handleError(runner.getError());
 				} else {
-					this.handleMessages(runner.getCurrentRun().getMessages());
+					this.handleMessages(runner.getMessages());
 				}
 				this.toolbar.update(runner);
 			}

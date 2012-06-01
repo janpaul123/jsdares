@@ -4,82 +4,24 @@
 module.exports = function(jsmm) {
 	require('./jsmm.msg')(jsmm);
 	
-	jsmm.Run = function() { return this.init.apply(this, arguments); };
-	jsmm.Run.prototype = {
+	jsmm.Event = function() { return this.init.apply(this, arguments); };
+	jsmm.Event.prototype = {
 		init: function(runner, funcName, args) {
 			this.runner = runner;
-			this.funcName = funcName;
-			this.args = args;
+			this.funcName = funcName || null;
+			this.args = args || [];
 			this.context = null;
-			this.step = Infinity;
-		},
-
-		select: function(step) {
-			if (step !== undefined) {
-				this.step = step;
-			}
-			if (this.step < 0 || this.step >= this.context.steps.length) this.step = Infinity;
-			this.runner.callAll('outputs', 'outputSetState', this.context, this.step);
-			this.runner.updateEditor();
-		},
-
-		restart: function() {
-			this.select(Infinity);
-		},
-
-		stepForward: function() {
-			if (this.context === null) {
-				return false;
-			} else if (this.step < Infinity) {
-				this.select(this.step+1);
-				return true;
-			} else { // this.step === Infinity
-				this.select(0);
-				return true;
-			}
-		},
-
-		stepBackward: function() {
-			if (this.context !== null && this.step < Infinity) {
-				this.select(this.step-1);
-				return true;
-			} else {
-				return false;
-			}
-		},
-
-		isStepping: function() {
-			return this.step < Infinity;
-		},
-
-		getStepValue: function() {
-			return this.step;
-		},
-
-		getStepTotal: function() {
-			return this.context.steps.length-1;
-		},
-
-		hasError: function() {
-			return this.context.hasError();
-		},
-
-		getError: function() {
-			return this.context.getError();
 		},
 
 		run: function(context) {
 			this.context = context;
+			this.runner.callOutputs('outputStartEvent', this.context);
 			if (this.funcName === null) {
 				this.context.runProgram();
 			} else {
 				this.context.runFunction(this.funcName, this.args);
 			}
-		},
-
-		getMessages: function() {
-			if (this.context === null || this.step === Infinity) return [];
-			else return this.context.steps[this.step] || [];
+			this.runner.callOutputs('outputEndEvent', this.context);
 		}
 	};
 
@@ -93,12 +35,12 @@ module.exports = function(jsmm) {
 			this.maxHistory = maxHistory || 10;
 
 			this.tree = null;
-			this.baseRun = new jsmm.Run(this, null);
-			this.runs = [this.baseRun];
-			this.currentRun = 0;
-			this.calledFunctions = [];
-			this.compareCode = '';
-			this.oldRun = null;
+			this.baseEvent = new jsmm.Event(this);
+			this.events = [this.baseEvent];
+			this.eventNum = 0;
+			this.stepNum = Infinity;
+			this.runScope = null;
+
 			this.paused = false;
 			this.interactive = false;
 			this.enabled = false;
@@ -106,39 +48,164 @@ module.exports = function(jsmm) {
 			this.newTree(new jsmm.Tree(''));
 		},
 
-		updateEditor: function() {
-			this.editor.updateRunnerOutput(this);
+		selectBaseEvent: function() {
+			this.eventNum = 0;
+			this.paused = false;
+			this.events = [this.baseEvent];
+			this.callOutputs('outputClearAll');
+			this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
+			this.runScope = this.baseEvent.context.scope.getVars();
 		},
 
-		callAll: function(type, funcName) {
-			for (var i=0; i<this[type].length; i++) {
-				if (this[type][i][funcName] !== undefined) {
-					this[type][i][funcName].apply(this[type][i], [].slice.call(arguments, 2));
+		addEvent: function(funcName, args) {
+			if (!this.enabled || this.paused || this.isStepping()) {
+				return false;
+			} else {
+				var event = new jsmm.Event(this, funcName, args);
+				event.run(new jsmm.RunContext(this.tree, this.runScope));
+				this.runScope = event.context.scope.getVars();
+
+				this.eventNum = this.events.length;
+				this.events.push(event);
+				if (this.events.length > this.maxHistory) {
+					this.events.shift();
+					this.eventNum--;
+					this.callOutputs('outputPopFront');
 				}
+				this.updateEditor();
+				return true;
 			}
 		},
 
-		selectBaseRun: function() {
-			this.oldRun = null;
-			this.currentRun = 0;
+		newTree: function(tree) {
+			this.tree = tree;
+			if (this.baseEvent.context !== null && this.tree.compareMain(this.baseEvent.context)) {
+				if (this.interactive && !this.tree.compareAll(this.baseEvent.context)) {
+					if (!this.paused || this.eventNum < 0) {
+						this.callOutputs('outputClearToEnd');
+						this.events = [];
+						this.eventNum = -1;
+						this.tree.programNode.getFunctionFunction()(this.runScope);
+					} else {
+						var start;
+						if (this.events[0] === this.baseEvent) {
+							this.callOutputs('outputClearAll');
+							this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
+							this.runScope = this.baseEvent.context.scope.getVars();
+							start = 1;
+						} else {
+							this.callOutputs('outputClearToStart');
+							this.runScope = this.events[0].context.startScope.getVars();
+							this.tree.programNode.getFunctionFunction()(this.runScope);
+							start = 0;
+						}
+						for (var i=start; i<this.events.length; i++) {
+							this.events[i].run(new jsmm.RunContext(this.tree, this.runScope));
+							this.runScope = this.events[i].context.scope.getVars();
+						}
+						this.updateEventStep();
+					}
+				} else {
+					this.updateEditor();
+				}
+				this.baseEvent.context.tree = this.tree;
+			} else {
+				this.interactive = false;
+				this.selectBaseEvent();
+			}
+		},
+
+		/// EVENTS ///
+		play: function() {
 			this.paused = false;
-			this.runs = [this.baseRun];
+			if (this.eventNum < this.events.length-1) {
+				this.events = this.events.slice(0, this.eventNum+1);
+				this.callOutputs('outputClearEventsFrom', this.eventNum+1);
+				this.stepNum = Infinity;
+				this.updateEventStep();
+			} else {
+				this.updateEditor();
+			}
 		},
 
-		getCurrentRun: function() {
-			return this.runs[this.currentRun];
-		},
-
-		isBaseSelected: function() {
-			return this.currentRun === 0;
-		},
-
-		getBaseRun: function() {
-			return this.baseRun;
+		pause: function() {
+			this.paused = true;
+			this.updateEditor();
 		},
 
 		isPaused: function() {
 			return this.paused;
+		},
+
+		hasEvents: function() {
+			return this.events.length > 0;
+		},
+
+		getEventTotal: function() {
+			return this.events.length;
+		},
+
+		getEventNum: function() {
+			return this.eventNum;
+		},
+
+		setEventNum: function(eventNum) {
+			this.eventNum = eventNum;
+			this.step = Infinity;
+			this.updateEventStep();
+		},
+
+		/// STEPPING ///
+		isStepping: function() {
+			return this.stepNum < Infinity;
+		},
+
+		restart: function() {
+			this.stepNum = Infinity;
+			this.updateEventStep();
+		},
+
+		stepForward: function() {
+			if (this.stepNum < Infinity) {
+				this.stepNum++;
+				this.updateEventStep();
+			} else { // this.stepNum === Infinity
+				this.stepNum = 0;
+				this.updateEventStep();
+			}
+		},
+
+		stepBackward: function() {
+			if (this.stepNum < Infinity) {
+				this.stepNum--;
+				this.updateEventStep();
+			}
+		},
+
+		getStepTotal: function() {
+			return this.events[this.eventNum].context.steps.length-1;
+		},
+
+		getStepNum: function() {
+			return this.stepNum;
+		},
+
+		setStepNum: function(stepNum) {
+			this.stepNum = stepNum;
+			this.updateEventStep();
+		},
+
+		/// CONTROLS ///
+		enable: function() {
+			this.enabled = true;
+		},
+
+		disable: function() {
+			this.enabled = false;
+		},
+
+		isEnabled: function() {
+			return this.enabled;
 		},
 
 		isInteractive: function() {
@@ -149,114 +216,23 @@ module.exports = function(jsmm) {
 			this.interactive = true;
 		},
 
-		pause: function() {
-			this.paused = true;
-			this.updateEditor();
+		/// ERRORS & MSG ///
+		hasError: function() {
+			return this.eventNum >= 0 && this.events[this.eventNum].context.hasError();
 		},
 
-		play: function() {
-			this.paused = false;
-			if (this.currentRun < this.runs.length-1) {
-				this.runs = this.runs.slice(0, this.currentRun+1);
-				this.getCurrentRun().restart();
-			} else {
-				this.updateEditor();
-			}
+		getError: function() {
+			return this.events[this.eventNum].context.getError();
 		},
 
-		getRunTotal: function() {
-			return this.runs.length;
+		getMessages: function() {
+			if (this.eventNum < 0 || this.events[this.eventNum].context === null || this.stepNum === Infinity) return [];
+			else return this.events[this.eventNum].context.steps[this.step] || [];
 		},
 
-		getRunValue: function() {
-			return this.currentRun;
-		},
-
-		setRunValue: function(value) {
-			if (value >= 0 && value < this.runs.length) {
-				this.currentRun = value;
-				this.runs[this.currentRun].restart();
-			}
-		},
-
-		disable: function() {
-			this.enabled = false;
-		},
-
-		enable: function() {
-			this.enabled = true;
-		},
-
-		isEnabled: function() {
-			return this.enabled;
-		},
-
-		addEvent: function(funcName, args) {
-			if (!this.enabled || this.paused || this.getCurrentRun().isStepping()) {
-				return false;
-			} else {
-				var run = new jsmm.Run(this, funcName, args);
-				run.run(new jsmm.RunContext(this.tree, this.runs[this.runs.length-1].context.scope.getVars(), this.outputs));
-				this.currentRun = this.runs.length;
-				this.runs.push(run);
-				if (this.runs.length > this.maxHistory) {
-					this.oldRun = this.runs.shift();
-					this.currentRun--;
-				}
-				this.updateEditor();
-				return true;
-			}
-		},
-
-		newTree: function(tree) {
-			this.tree = tree;
-			if (this.baseRun.context !== null && this.tree.compareMain(this.baseRun.context)) {
-				if (this.interactive && !this.tree.compareAll(this.baseRun.context)) {
-					if (!this.paused) {
-						if (this.runs.length > 1) {
-							this.oldRun = this.runs[this.runs.length-2];
-							this.runs = [this.runs[this.runs.length-1]];
-							this.currentRun = 0;
-						}
-					}
-
-					var func = tree.programNode.getFunctionFunction();
-					func(this.baseRun.context.scope);
-					var start, run;
-					if (this.oldRun !== null) {
-						func(this.oldRun.context.scope);
-						run = this.oldRun;
-						start = 0;
-					} else {
-						run = this.baseRun;
-						start = 1;
-					}
-					run.select(Infinity);
-					for (var i=start; i<this.runs.length; i++) {
-						var scope = run.context.scope.getVars();
-						run = this.runs[i];
-						run.run(new jsmm.RunContext(this.tree, scope, this.outputs));
-					}
-					this.getCurrentRun().select();
-				} else {
-					this.updateEditor();
-				}
-				this.baseRun.context.tree = this.tree;
-			} else {
-				this.interactive = false;
-
-				this.baseRun.run(new jsmm.RunContext(this.tree, this.scope, this.outputs));
-				this.calledFunctions = this.baseRun.context.getCalledFunctions();
-				this.compareCode = this.tree.programNode.getCompareCode(this.calledFunctions);
-
-				this.selectBaseRun();
-				this.paused = false;
-				this.baseRun.select();
-			}
-		},
-
+		/// UTILS ///
 		getCallNodesByRange: function(line1, line2) {
-			return this.getCurrentRun().context.getCallNodesByRange(line1, line2);
+			return this.events[this.eventNum].context.getCallNodesByRange(line1, line2);
 		},
 
 		getExamples: function(text) {
@@ -268,9 +244,35 @@ module.exports = function(jsmm) {
 				return jsmm.editor.autocompletion.getExamples(scope, text);
 			}
 			*/
-		}
+		},
 
 		/// INTERNAL FUNCTIONS ///
-		
+		callOutputs: function(funcName) {
+			for (var i=0; i<this.outputs.length; i++) {
+				if (this.outputs[i][funcName] !== undefined) {
+					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
+				}
+			}
+		},
+
+		updateEventStep: function() {
+			if (this.events.length <= 0) {
+				this.eventNum = -1;
+			} else {
+				if (this.eventNum < 0 || this.eventNum >= this.events.length) {
+					throw 'Event number invalid';
+				} else if (this.stepNum < 0 ||
+						(this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length)) {
+					throw 'Step number invalid';
+				} else {
+					this.callOutputs('outputSetEventStep', this.eventNum, this.stepNum);
+				}
+			}
+			this.updateEditor();
+		},
+
+		updateEditor: function() {
+			this.editor.updateRunnerOutput(this);
+		}
 	};
 };

@@ -12,22 +12,6 @@ module.exports = function(jsmm) {
 		return '(jsmmScope || jsmmContext.scope)';
 	};
 
-	var hooksBefore = function(node) {
-		if (node.hooksBefore.length > 0) {
-			return getNode(node) + '.runHooksBefore(jsmmContext, ' + getScope() + ');';
-		} else {
-			return '';
-		}
-	};
-
-	var hooksAfter = function(node) {
-		if (node.hooksAfter.length > 0) {
-			return getNode(node) + '.runHooksAfter(jsmmContext, ' + getScope() + ');';
-		} else {
-			return '';
-		}
-	};
-
 	var stringify = function(value) { // TODO: remove double functionality
 		if (typeof value === 'function') return '[function]';
 		else if (typeof value === 'object' && value.type === 'function') return '[function]';
@@ -143,10 +127,10 @@ module.exports = function(jsmm) {
 
 	jsmm.RunContext = function() { return this.init.apply(this, arguments); };
 	jsmm.RunContext.prototype = {
-		init: function(tree, scope, outputs) {
+		init: function(tree, scope) {
 			this.tree = tree;
+			this.startScope = new jsmm.func.Scope(scope);
 			this.scope = new jsmm.func.Scope(scope);
-			this.outputs = outputs;
 			this.executionCounter = 0;
 			this.steps = [];
 			this.callStack = [];
@@ -154,20 +138,11 @@ module.exports = function(jsmm) {
 			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
 			this.outputStates = {};
-			this.outputCalls = {};
 			this.calledFunctions = [];
 			this.callNodeId = null;
 			this.error = null;
 		},
-		callOutputs: function(funcName) {
-			for (var i=0; i<this.outputs.length; i++) {
-				if (this.outputs[i][funcName] !== undefined) {
-					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
-				}
-			}
-		},
 		runProgram: function() {
-			this.callOutputs('outputClear', this);
 			this.run(this.tree.programNode.getRunFunction(), null);
 		},
 		runFunction: function(funcName, args) {
@@ -176,7 +151,7 @@ module.exports = function(jsmm) {
 		},
 		run: function(func, args) {
 			this.error = null;
-			this.callOutputs('outputStartRun', this);
+			
 			try {
 				func(this, args);
 			} catch (error) {
@@ -186,8 +161,6 @@ module.exports = function(jsmm) {
 					throw error;
 					//this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
 				}
-			} finally {
-				this.callOutputs('outputEndRun', this);
 			}
 		},
 		hasError: function() {
@@ -509,7 +482,7 @@ module.exports = function(jsmm) {
 	};
 
 	jsmm.nodes.FunctionDeclaration.prototype.getFunctionCode = function() {
-		var output = 'jsmmScope.vars["' + this.name + '"].value.func = ';
+		var output = 'jsmmScope["' + this.name + '"].func = ';
 		output += 'function (jsmmContext, args) {\n';
 		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();
