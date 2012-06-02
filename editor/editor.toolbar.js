@@ -102,10 +102,10 @@ module.exports = function(editor) {
 
 	editor.StepBar = function() { return this.init.apply(this, arguments); };
 	editor.StepBar.prototype = {
-		init: function($div, $bubbleDiv, isBaseRun) {
+		init: function($div, $bubbleDiv, isBaseEvent) {
 			this.bubbleValue = new editor.BubbleValue($bubbleDiv, this);
 			this.runner = null;
-			this.isBaseRun = isBaseRun;
+			this.isBaseEvent = isBaseEvent;
 
 			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
 			this.$stepBackward.on('mousedown', $.proxy(this.stepBackwardDown, this));
@@ -125,6 +125,7 @@ module.exports = function(editor) {
 		},
 
 		remove: function() {
+			this.clearStepping();
 			this.bubbleValue.remove();
 			this.$stepBackward.remove();
 			this.$stepForward.remove();
@@ -162,27 +163,27 @@ module.exports = function(editor) {
 				this.$restart.addClass('disabled');
 				this.clearStepping();
 			}
-			if (this.isBaseRun && this.runner.isInteractive()) {
+			if (this.isBaseEvent && this.runner.isInteractive()) {
 				this.$restart.removeClass('disabled');
 			}
 		},
 
 		bubbleValueChanged: function(value) { // callback
 			if (this.canRun) {
-				this.selectIfBaseRun();
+				this.selectIfBaseEvent();
 				this.runner.setStepNum(value);
 			}
 		},
 
-		selectIfBaseRun: function() {
-			if (this.isBaseRun) {
-				this.runner.selectBaseRun();
+		selectIfBaseEvent: function() {
+			if (this.isBaseEvent) {
+				this.runner.selectBaseEvent();
 			}
 		},
 
 		stepForwardDown: function() {
 			if (this.canRun) {
-				this.selectIfBaseRun();
+				this.selectIfBaseEvent();
 				this.runner.stepForward();
 			}
 			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
@@ -197,7 +198,7 @@ module.exports = function(editor) {
 
 		stepBackwardDown: function() {
 			if (this.canRun) {
-				this.selectIfBaseRun();
+				this.selectIfBaseEvent();
 				this.runner.stepBackward();
 			}
 			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
@@ -212,16 +213,16 @@ module.exports = function(editor) {
 
 		restart: function() {
 			if (this.canRun) {
-				this.selectIfBaseRun();
+				this.selectIfBaseEvent();
 				this.runner.restart();
 			}
 		},
 
 		clearStepping: function() {
-			if (this.stepForwardTimeout === null) {
+			if (this.stepForwardTimeout !== null) {
 				this.stepForwardUp();
 			}
-			if (this.stepBackwardTimeout === null) {
+			if (this.stepBackwardTimeout !== null) {
 				this.stepBackwardUp();
 			}
 			this.bubbleValue.disable();
@@ -250,6 +251,8 @@ module.exports = function(editor) {
 
 		remove: function() {
 			this.$playPause.remove();
+			this.$slider.remove();
+			this.$sliderContainer.remove();
 		},
 
 		disable: function() {
@@ -353,10 +356,8 @@ module.exports = function(editor) {
 		},
 
 		remove: function() {
-			this.bubbleValue.remove();
-			this.$stepBackward.remove();
-			this.$stepForward.remove();
-			this.$restart.remove();
+			this.baseStepBar.remove();
+			this.runBar.remove();
 			this.$highlight.remove();
 			this.$edit.remove();
 			$(document).off('mousemove', this.$checkKeys);

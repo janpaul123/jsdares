@@ -49,12 +49,14 @@ module.exports = function(jsmm) {
 		},
 
 		selectBaseEvent: function() {
-			this.eventNum = 0;
 			this.paused = false;
 			this.events = [this.baseEvent];
+			this.eventNum = 0;
+			this.stepNum = Infinity;
 			this.callOutputs('outputClearAll');
 			this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
 			this.runScope = this.baseEvent.context.scope.getVars();
+			this.updateEventStep();
 		},
 
 		addEvent: function(funcName, args) {
@@ -103,8 +105,8 @@ module.exports = function(jsmm) {
 							this.events[i].run(new jsmm.RunContext(this.tree, this.runScope));
 							this.runScope = this.events[i].context.scope.getVars();
 						}
-						this.updateEventStep();
 					}
+					this.updateEventStep();
 				} else {
 					this.updateEditor();
 				}
@@ -232,7 +234,11 @@ module.exports = function(jsmm) {
 
 		/// UTILS ///
 		getCallNodesByRange: function(line1, line2) {
-			return this.events[this.eventNum].context.getCallNodesByRange(line1, line2);
+			if (this.eventNum >= 0) {
+				return this.events[this.eventNum].context.getCallNodesByRange(line1, line2);
+			} else {
+				return [];
+			}
 		},
 
 		getExamples: function(text) {
