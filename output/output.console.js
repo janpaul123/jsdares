@@ -132,6 +132,15 @@ module.exports = function(output) {
 			this.updateEventHighlight();
 		},
 
+		outputClearAll: function() {
+			this.text = '';
+			this.color = '';
+			this.$lines = $('<div></div>');
+			this.$old.html('');
+			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.events = [];
+		},
+
 		outputPopFront: function() {
 			var event = this.events.shift();
 			if (this.events.length > 0) {
@@ -141,15 +150,6 @@ module.exports = function(output) {
 					this.events[0].$firstLineElement.prevAll().remove();
 				}
 			}
-		},
-
-		outputClearAll: function() {
-			this.text = '';
-			this.color = '';
-			this.$lines = $('<div></div>');
-			this.$old.html('');
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
-			this.events = [];
 		},
 
 		outputClearToStart: function() {
@@ -192,7 +192,6 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			console.log(arguments);
 			this.currentEvent = this.events[eventNum];
 
 			this.$old.show();

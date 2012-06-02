@@ -203,7 +203,7 @@ module.exports = function(output) {
 			this.addEditor();
 			//this.addRobot();
 			this.addConsole();
-			//this.addCanvas();
+			this.addCanvas();
 			this.addInfo();
 
 			this.document = new output.Document(this.editor);

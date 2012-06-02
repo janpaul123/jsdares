@@ -124,6 +124,7 @@ module.exports = function(jsmm) {
 				this.events = this.events.slice(0, this.eventNum+1);
 				this.callOutputs('outputClearEventsFrom', this.eventNum+1);
 				this.stepNum = Infinity;
+				this.runScope = this.events[this.eventNum].context.scope.getVars();
 				this.updateEventStep();
 			} else {
 				this.updateEditor();
