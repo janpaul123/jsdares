@@ -2,8 +2,34 @@
 "use strict";
 
 module.exports = function(output) {
-	output.Canvas = function() { return this.init.apply(this, arguments); };
+	output.CanvasWrapper = function() { return this.init.apply(this, arguments); };
+	output.CanvasWrapper.prototype = {
+		init: function($canvas) {
+			this.$canvas = $canvas;
+			this.context = $canvas[0].getContext('2d');
+			this.context.save();
+		},
+		reset: function() {
+			this.context.restore();
+			this.context.save();
+			this.context.beginPath();
+		},
+		set: function(name, value) {
+			this.context[name] = value;
+		},
+		getState: function() {
+			return {
+				strokeStyle: this.context.strokeStyle,
+				fillStyle: this.context.fillStyle
+			};
+		},
+		setState: function(state) {
+			this.context.strokeStyle = state.strokeStyle;
+			this.context.fillStyle = state.fillStyle;
+		}
+	};
 
+	output.Canvas = function() { return this.init.apply(this, arguments); };
 	output.Canvas.prototype = {
 		init: function($div, editor, size) {
 			this.$div = $div;
@@ -20,7 +46,8 @@ module.exports = function(output) {
 			this.$canvas.attr('width', this.size);
 			this.$canvas.attr('height', this.size);
 			this.context = this.$canvas[0].getContext('2d');
-			this.context.save();
+
+			this.wrapper = new output.CanvasWrapper(this.$canvas);
 
 			this.$mirrorCanvas = $('<canvas class="canvas-mirror"></canvas>');
 			this.$div.append(this.$mirrorCanvas);
@@ -78,8 +105,8 @@ module.exports = function(output) {
 			// fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', draws: true, mirror: true},
 			// strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', draws: true, mirror: true},
 			// isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', draws: false, mirror: true},
-			// fillStyle: {type: 'variable', example: 'fillStyle = "#a00"', draws: false, mirror: false},
-			// strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"', draws: false, mirror: false},
+			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"', draws: false, mirror: false},
+			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"', draws: false, mirror: false},
 			// shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10', draws: false, mirror: true},
 			// shadowOffsetY: {type: 'variable', example: 'shadowOffsetY = 10', draws: false, mirror: true},
 			// shadowBlur: {type: 'variable', example: 'shadowBlur = 5', draws: false, mirror: false},
@@ -171,7 +198,7 @@ module.exports = function(output) {
 			} else if (args.length > max) {
 				throw '<var>' + name + '</var> accepts no more than <var>' + max + '</var> arguments';
 			}
-			this.currentEvent.calls.push({type: 'function', name: name, args: args, stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+			this.currentEvent.calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
 			return this.context[name].apply(this.context, args);
 		},
 
@@ -180,8 +207,9 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(context, name, value) {
-			this.currentEvent.calls.push({type: 'variable', name: name, value: value, stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
-			this.context[name] = value;
+			//this.currentEvent.calls.push({type: 'variable', name: name, value: value, stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+			//this.context[name] = value;
+			this.wrapper.set(name, value);
 		},
 
 		outputStartEvent: function(context) {
@@ -189,6 +217,7 @@ module.exports = function(output) {
 			$originalCanvas[0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
 			this.currentEvent = {
 				$originalCanvas: $originalCanvas,
+				state: this.wrapper.getState(),
 				calls: []
 			};
 			this.events.push(this.currentEvent);
@@ -199,10 +228,8 @@ module.exports = function(output) {
 		},
 
 		outputClearAll: function() {
-			this.context.restore();
-			this.context.save();
+			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
-			this.context.beginPath();
 
 			this.events = [];
 		},
@@ -212,9 +239,7 @@ module.exports = function(output) {
 		},
 
 		outputClearToStart: function() {
-			this.context.restore();
-			this.context.save();
-			this.context.beginPath();
+			this.wrapper.setState(this.events[0].state);
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.events[0].$originalCanvas[0], 0, 0);
 
@@ -226,9 +251,7 @@ module.exports = function(output) {
 		},
 
 		outputClearEventsFrom: function(eventNum) {
-			this.context.restore();
-			this.context.save();
-			this.context.beginPath();
+			this.wrapper.setState(this.events[eventNum].state);
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.events[eventNum].$originalCanvas[0], 0, 0);
 
@@ -246,23 +269,16 @@ module.exports = function(output) {
 		outputSetEventStep: function(eventNum, stepNum) {
 			this.currentEvent = this.events[eventNum];
 
-			//console.log(this.currentEvent);
 
-			this.context.restore();
-			this.context.save();
-			this.context.beginPath();
+			this.wrapper.setState(this.currentEvent.state);
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];
 				if (call.stepNum > this.stepNum) break;
-
-				if (call.type === 'function') {
-					this.context[call.name].apply(this.context, call.args);
-				} else {
-					this.context[call.name] = call.value;
-				}
+				this.wrapper.setState(call.state);
+				this.context[call.name].apply(this.context, call.args);
 			}
 		},
 
