@@ -22,6 +22,11 @@ module.exports = function(output) {
 			this.$old = $('<div class="console-old"></div>');
 			this.$content.append(this.$old);
 
+			this.$lines = $('<div class="console-lines"></div>');
+			this.$content.append(this.$lines);
+
+			this.$mirror = $('<div></div>');
+
 			this.debugToBrowser = true;
 			this.highlighting = false;
 			this.highlightNextLines = false;
@@ -33,8 +38,9 @@ module.exports = function(output) {
 		},
 
 		remove: function() {
-			this.$content.children('.console-line').remove();
+			this.$lines.children('.console-line').remove();
 			this.$container.remove();
+			this.$mirror.remove();
 			this.$div.removeClass('output console');
 			this.$div.off('scroll mousemove mouseleave');
 			this.editor.removeOutput(this);
@@ -80,10 +86,10 @@ module.exports = function(output) {
 			$element.data('index', this.currentEvent.calls.length);
 			$element.data('event', this.currentEvent);
 
-			this.$content.append($element);
+			this.$lines.append($element);
 
-			var $lineElement = $element.clone();
-			this.$lines.append($lineElement);
+			var $mirrorElement = $element.clone();
+			this.$mirror.append($mirrorElement);
 			
 			this.currentEvent.calls.push({
 				$element: $element,
@@ -92,7 +98,7 @@ module.exports = function(output) {
 			});
 			if (this.currentEvent.$firstElement === null) {
 				this.currentEvent.$firstElement = $element;
-				this.currentEvent.$firstLineElement = $lineElement;
+				this.currentEvent.$firstMirrorElement = $mirrorElement;
 			}
 
 			if (this.debugToBrowser && console && console.log) console.log(value);
@@ -101,7 +107,7 @@ module.exports = function(output) {
 		clear: function(context) {
 			this.text = '';
 			this.color = '';
-			this.$lines = $('<div></div>');
+			this.$mirror.html('');
 
 			this.currentEvent.calls.push({
 				clear: true,
@@ -121,8 +127,8 @@ module.exports = function(output) {
 				text: this.text,
 				color: this.color,
 				$firstElement: null,
-				$firstLineElement: null,
-				oldHtml: this.$old.html() + this.$lines.html(),
+				$firstMirrorElement: null,
+				oldHtml: this.$old.html() + this.$mirror.html(),
 				calls: []
 			};
 			this.events.push(this.currentEvent);
@@ -135,9 +141,9 @@ module.exports = function(output) {
 		outputClearAll: function() {
 			this.text = '';
 			this.color = '';
-			this.$lines = $('<div></div>');
+			this.$mirror.html('');
 			this.$old.html('');
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.$lines.children('.console-line').remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
@@ -145,9 +151,10 @@ module.exports = function(output) {
 			var event = this.events.shift();
 			if (this.events.length > 0) {
 				this.$old.html(this.events[0].oldHtml);
+				console.log(this.events[0].oldHtml);
 				if (this.events[0].$firstElement !== null) {
 					this.events[0].$firstElement.prevAll().remove();
-					this.events[0].$firstLineElement.prevAll().remove();
+					this.events[0].$firstMirrorElement.prevAll().remove();
 				}
 			}
 		},
@@ -155,16 +162,16 @@ module.exports = function(output) {
 		outputClearToStart: function() {
 			this.text = this.events[0].text;
 			this.color = this.events[0].color;
-			this.$lines.html('');
+			this.$mirror.html('');
 			this.$old.html(this.events[0].oldHtml);
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.$lines.children('.console-line').remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
 		outputClearToEnd: function() {
-			this.$old.append(this.$lines.html());
-			this.$lines.html('');
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.$old.append(this.$mirror.html());
+			this.$mirror.html('');
+			this.$lines.children('.console-line').remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
@@ -175,8 +182,8 @@ module.exports = function(output) {
 				if (this.events[i].$firstElement !== null) {
 					this.events[i].$firstElement.nextAll().remove();
 					this.events[i].$firstElement.remove();
-					this.events[i].$firstLineElement.nextAll().remove();
-					this.events[i].$firstLineElement.remove();
+					this.events[i].$firstMirrorElement.nextAll().remove();
+					this.events[i].$firstMirrorElement.remove();
 					break;
 				}
 			}
@@ -195,7 +202,7 @@ module.exports = function(output) {
 			this.currentEvent = this.events[eventNum];
 
 			this.$old.show();
-			this.$content.children('.console-line').hide();
+			this.$lines.children('.console-line').hide();
 			for (var i=0; i<this.events.length; i++) {
 				if (i > eventNum) break;
 				for (var j=0; j<this.events[i].calls.length; j++) {
@@ -203,7 +210,7 @@ module.exports = function(output) {
 
 					if (call.clear) {
 						this.$old.hide();
-						this.$content.children('.console-line').hide();
+						this.$lines.children('.console-line').hide();
 					} else {
 						call.$element.show();
 					}
@@ -218,7 +225,7 @@ module.exports = function(output) {
 		},
 
 		highlightCallNodes: function(nodeIds) {
-			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+			this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];
@@ -227,7 +234,7 @@ module.exports = function(output) {
 				}
 			}
 
-			var $last = this.$content.children('.console-highlight-line').last();
+			var $last = this.$lines.children('.console-highlight-line').last();
 			if ($last.length > 0) {
 				// the offset is weird since .position().top changes when scrolling
 				this.scrollToY($last.position().top, true);
@@ -246,7 +253,7 @@ module.exports = function(output) {
 
 		disableHighlighting: function() {
 			this.highlighting = false;
-			this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+			this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
 			this.updateEventHighlight();
 			this.$div.removeClass('console-highlighting');
 			this.$div.off('mousemove mouseleave');
@@ -254,7 +261,7 @@ module.exports = function(output) {
 		},
 
 		updateEventHighlight: function() {
-			this.$content.find('.console-highlight-event').removeClass('console-highlight-event');
+			this.$lines.find('.console-highlight-event').removeClass('console-highlight-event');
 			if (this.highlighting) {
 				for (var i=0; i<this.currentEvent.calls.length; i++) {
 					console.log(i);
@@ -303,12 +310,12 @@ module.exports = function(output) {
 				var $target = $(event.target);
 				if ($target.data('event') === this.currentEvent && this.currentEvent.calls[$target.data('index')] !== undefined) {
 					if (!$target.hasClass('console-highlight-line')) {
-						this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+						this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
 						$target.addClass('console-highlight-line');
 						this.editor.highlightNodeId(this.currentEvent.calls[$target.data('index')].nodeId);
 					}
 				} else {
-					this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+					this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
 					this.editor.highlightNodeId(0);
 				}
 			}
@@ -316,7 +323,7 @@ module.exports = function(output) {
 
 		mouseLeave: function(event) {
 			if (this.highlighting) {
-				this.$content.children('.console-highlight-line').removeClass('console-highlight-line');
+				this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
 				this.editor.highlightNodeId(0);
 			}
 		},
