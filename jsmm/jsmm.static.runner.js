@@ -49,6 +49,7 @@ module.exports = function(jsmm) {
 		},
 
 		selectBaseEvent: function() {
+			this.interactive = false;
 			this.paused = false;
 			this.events = [this.baseEvent];
 			this.eventNum = 0;
@@ -112,7 +113,6 @@ module.exports = function(jsmm) {
 				}
 				this.baseEvent.context.tree = this.tree;
 			} else {
-				this.interactive = false;
 				this.selectBaseEvent();
 			}
 		},
@@ -152,9 +152,17 @@ module.exports = function(jsmm) {
 		},
 
 		setEventNum: function(eventNum) {
-			this.eventNum = eventNum;
-			this.step = Infinity;
-			this.updateEventStep();
+			if (eventNum > 0 && eventNum < this.events.length) {
+				this.eventNum = eventNum;
+				this.step = Infinity;
+				this.updateEventStep();
+			} else {
+				this.updateEditor();
+			}
+		},
+
+		isBaseEventSelected: function() {
+			return this.eventNum === 0 && this.events[0] === this.baseEvent;
 		},
 
 		/// STEPPING ///
@@ -163,24 +171,44 @@ module.exports = function(jsmm) {
 		},
 
 		restart: function() {
-			this.stepNum = Infinity;
-			this.updateEventStep();
+			if (this.eventNum === 0) {
+				if (this.stepNum === Infinity) {
+					this.updateEditor();
+				} else {
+					this.stepNum = Infinity;
+					this.updateEventStep();
+				}
+			} else {
+				this.eventNum = 0;
+				this.stepNum = Infinity;
+				this.updateEventStep();
+			}
 		},
 
 		stepForward: function() {
-			if (this.stepNum < Infinity) {
+			if (this.eventNum < 0) {
+				this.updateEditor();
+			} else if (this.stepNum < this.events[this.eventNum].context.steps.length-1) {
 				this.stepNum++;
 				this.updateEventStep();
-			} else { // this.stepNum === Infinity
+			} else if (this.stepNum === Infinity) {
 				this.stepNum = 0;
+				this.updateEventStep();
+			} else {
+				this.stepNum = Infinity;
 				this.updateEventStep();
 			}
 		},
 
 		stepBackward: function() {
-			if (this.stepNum < Infinity) {
+			if (this.stepNum < Infinity && this.stepNum > 0) {
 				this.stepNum--;
 				this.updateEventStep();
+			} else if (this.stepNum < Infinity) {
+				this.stepNum = Infinity;
+				this.updateEventStep();
+			} else {
+				this.updateEditor();
 			}
 		},
 
@@ -193,8 +221,13 @@ module.exports = function(jsmm) {
 		},
 
 		setStepNum: function(stepNum) {
-			this.stepNum = stepNum;
-			this.updateEventStep();
+			if (stepNum >= 0 && stepNum < this.events[this.eventNum].context.steps.length) {
+				this.paused = true;
+				this.stepNum = stepNum;
+				this.updateEventStep();
+			} else {
+				this.updateEditor();
+			}
 		},
 
 		/// CONTROLS ///
@@ -229,7 +262,7 @@ module.exports = function(jsmm) {
 
 		getMessages: function() {
 			if (this.eventNum < 0 || this.events[this.eventNum].context === null || this.stepNum === Infinity) return [];
-			else return this.events[this.eventNum].context.steps[this.step] || [];
+			else return this.events[this.eventNum].context.steps[this.stepNum] || [];
 		},
 
 		/// UTILS ///

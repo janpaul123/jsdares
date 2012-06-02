@@ -522,7 +522,12 @@ module.exports = function(editor) {
 		},
 
 		keyDown: function(event) {
-			event.stopPropagation();
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// let these through for the keyboard shortcuts
+			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) < 0) {
+				event.stopPropagation();
+			}
+
 			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				// note: this will never be called at the first keypress, only when holding it!
@@ -547,7 +552,12 @@ module.exports = function(editor) {
 		},
 
 		keyUp: function(event) {
-			event.stopPropagation();
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// let these through for the keyboard shortcuts
+			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) < 0) {
+				event.stopPropagation();
+			}
+			
 			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();

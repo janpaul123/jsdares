@@ -176,7 +176,7 @@ module.exports = function(editor) {
 		},
 
 		selectIfBaseEvent: function() {
-			if (this.isBaseEvent) {
+			if (this.isBaseEvent && (!this.runner.isBaseEventSelected() || this.runner.isPaused())) {
 				this.runner.selectBaseEvent();
 			}
 		},
@@ -184,10 +184,11 @@ module.exports = function(editor) {
 		stepForwardDown: function() {
 			if (this.canRun) {
 				this.selectIfBaseEvent();
+
+				this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
+				this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
 				this.runner.stepForward();
 			}
-			this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
-			this.stepForwardTimeout = setTimeout($.proxy(this.stepForwardDown, this), this.stepForwardDelay);
 		},
 
 		stepForwardUp: function() {
@@ -199,10 +200,11 @@ module.exports = function(editor) {
 		stepBackwardDown: function() {
 			if (this.canRun) {
 				this.selectIfBaseEvent();
+
+				this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
+				this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
 				this.runner.stepBackward();
 			}
-			this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
-			this.stepBackwardTimeout = setTimeout($.proxy(this.stepBackwardDown, this), this.stepBackwardDelay);
 		},
 
 		stepBackwardUp: function() {

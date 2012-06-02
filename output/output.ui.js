@@ -45,6 +45,12 @@ module.exports = function(output) {
 		},
 
 		handleKeyDownEvent: function(event) {
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// block these as they are only keyboard shortcuts
+			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) >= 0) {
+				return;
+			}
+			
 			var e = {
 				keyCode: event.keyCode
 			};

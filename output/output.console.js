@@ -116,15 +116,6 @@ module.exports = function(output) {
 			this.color = color;
 		},
 
-		outputClearAll: function() {
-			this.text = '';
-			this.color = '';
-			this.$lines = $('<div></div>');
-			this.$old.html('');
-			this.$content.children('.console-line').remove(); // prevent $.data leaks
-			this.events = [];
-		},
-
 		outputStartEvent: function(context) {
 			this.currentEvent = {
 				text: this.text,
@@ -139,6 +130,26 @@ module.exports = function(output) {
 
 		outputEndEvent: function() {
 			this.updateEventHighlight();
+		},
+
+		outputPopFront: function() {
+			var event = this.events.shift();
+			if (this.events.length > 0) {
+				this.$old.html(this.events[0].oldHtml);
+				if (this.events[0].$firstElement !== null) {
+					this.events[0].$firstElement.prevAll().remove();
+					this.events[0].$firstLineElement.prevAll().remove();
+				}
+			}
+		},
+
+		outputClearAll: function() {
+			this.text = '';
+			this.color = '';
+			this.$lines = $('<div></div>');
+			this.$old.html('');
+			this.$content.children('.console-line').remove(); // prevent $.data leaks
+			this.events = [];
 		},
 
 		outputClearToStart: function() {
@@ -170,17 +181,6 @@ module.exports = function(output) {
 				}
 			}
 			this.events = this.events.slice(0, eventNum);
-		},
-
-		outputPopFront: function() {
-			var event = this.events.shift();
-			if (this.events.length > 0) {
-				this.$old.html(this.events[0].oldHtml);
-				if (this.events[0].$firstElement !== null) {
-					this.events[0].$firstElement.prevAll().remove();
-					this.events[0].$firstLineElement.prevAll().remove();
-				}
-			}
 		},
 
 		outputSetError: function(error) {
