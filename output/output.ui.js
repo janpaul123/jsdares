@@ -66,7 +66,6 @@ module.exports = function(output) {
 		init: function() {
 			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = null;
 
-
 			this.$main = $('#main');
 			this.initTabs();
 			this.loadInitial();

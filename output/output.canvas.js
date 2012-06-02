@@ -185,8 +185,10 @@ module.exports = function(output) {
 		},
 
 		outputStartEvent: function(context) {
+			var $originalCanvas = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
+			$originalCanvas[0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
 			this.currentEvent = {
-				image: this.$canvas[0].toDataURL(),
+				$originalCanvas: $originalCanvas,
 				calls: []
 			};
 			this.events.push(this.currentEvent);
@@ -212,12 +214,9 @@ module.exports = function(output) {
 		outputClearToStart: function() {
 			this.context.restore();
 			this.context.save();
-			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.beginPath();
-
-			var img = new Image();
-			img.src = this.events[0].image;
-			this.context.drawImage(img, 0, 0);
+			this.context.clearRect(0, 0, this.size, this.size);
+			this.context.drawImage(this.events[0].$originalCanvas[0], 0, 0);
 
 			this.events = [];
 		},
@@ -229,12 +228,9 @@ module.exports = function(output) {
 		outputClearEventsFrom: function(eventNum) {
 			this.context.restore();
 			this.context.save();
-			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.beginPath();
-
-			var img = new Image();
-			img.src = this.events[eventNum].image;
-			this.context.drawImage(img, 0, 0);
+			this.context.clearRect(0, 0, this.size, this.size);
+			this.context.drawImage(this.events[eventNum].$originalCanvas[0], 0, 0);
 
 			this.events = this.events.slice(0, eventNum);
 		},
@@ -254,12 +250,9 @@ module.exports = function(output) {
 
 			this.context.restore();
 			this.context.save();
-			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.beginPath();
-
-			var img = new Image();
-			img.src = this.currentEvent.image;
-			this.context.drawImage(img, 0, 0);
+			this.context.clearRect(0, 0, this.size, this.size);
+			this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];

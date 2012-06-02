@@ -27,7 +27,7 @@ module.exports = function(output) {
 
 			this.$mirror = $('<div></div>');
 
-			this.debugToBrowser = true;
+			//this.debugToBrowser = true;
 			this.highlighting = false;
 			this.highlightNextLines = false;
 			this.autoScroll = false;
@@ -151,7 +151,6 @@ module.exports = function(output) {
 			var event = this.events.shift();
 			if (this.events.length > 0) {
 				this.$old.html(this.events[0].oldHtml);
-				console.log(this.events[0].oldHtml);
 				if (this.events[0].$firstElement !== null) {
 					this.events[0].$firstElement.prevAll().remove();
 					this.events[0].$firstMirrorElement.prevAll().remove();
@@ -264,7 +263,6 @@ module.exports = function(output) {
 			this.$lines.find('.console-highlight-event').removeClass('console-highlight-event');
 			if (this.highlighting) {
 				for (var i=0; i<this.currentEvent.calls.length; i++) {
-					console.log(i);
 					this.currentEvent.calls[i].$element.addClass('console-highlight-event');
 				}
 			}

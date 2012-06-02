@@ -153,7 +153,7 @@ module.exports = function(jsmm) {
 		},
 
 		setEventNum: function(eventNum) {
-			if (eventNum > 0 && eventNum < this.events.length) {
+			if (eventNum >= 0 && eventNum < this.events.length) {
 				this.eventNum = eventNum;
 				this.step = Infinity;
 				this.updateEventStep();

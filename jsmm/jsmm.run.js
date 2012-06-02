@@ -146,7 +146,6 @@ module.exports = function(jsmm) {
 			this.run(this.tree.programNode.getRunFunction(), null);
 		},
 		runFunction: function(funcName, args) {
-			console.log(funcName);
 			this.run(this.scope.find(funcName).value.func, args);
 		},
 		run: function(func, args) {
