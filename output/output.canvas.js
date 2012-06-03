@@ -4,9 +4,9 @@
 module.exports = function(output) {
 	output.CanvasWrapper = function() { return this.init.apply(this, arguments); };
 	output.CanvasWrapper.prototype = {
-		init: function($canvas) {
-			this.$canvas = $canvas;
-			this.context = $canvas[0].getContext('2d');
+		init: function(canvas) {
+			this.canvas = canvas;
+			this.context = canvas.getContext('2d');
 			this.context.save();
 		},
 		reset: function() {
@@ -29,6 +29,13 @@ module.exports = function(output) {
 		}
 	};
 
+	// some spread is needed between the numbers as borders are blurred, and colour information is thus not 100% reliable
+	// therefore we use calculation modulo prime, so that eventually all numbers are used, and this also introduces a nice cycle,
+	// so that colours can be used again; the assumption is that whenever there are so many elements on the screen, the ones
+	// that introduced faulty colours, or the original ones in case of reusing colours, are most likely overwritten already
+	var highlightMult = 67*65536 + 111*256 + 11;
+	var highlightPrime = 16777213;
+
 	output.Canvas = function() { return this.init.apply(this, arguments); };
 	output.Canvas.prototype = {
 		init: function($div, editor, size) {
@@ -47,14 +54,14 @@ module.exports = function(output) {
 			this.$canvas.attr('height', this.size);
 			this.context = this.$canvas[0].getContext('2d');
 
-			this.wrapper = new output.CanvasWrapper(this.$canvas);
-
 			this.$mirrorCanvas = $('<canvas class="canvas-mirror"></canvas>');
 			this.$div.append(this.$mirrorCanvas);
 			this.$mirrorCanvas.attr('width', this.size);
 			this.$mirrorCanvas.attr('height', this.size);
 			this.mirrorContext = this.$mirrorCanvas[0].getContext('2d');
-			this.mirrorContext.save();
+
+			this.wrapper = new output.CanvasWrapper(this.$canvas[0]);
+			this.mirrorWrapper = new output.CanvasWrapper(this.$mirrorCanvas[0]);
 
 			this.$targetCanvas = null;
 
@@ -215,6 +222,7 @@ module.exports = function(output) {
 		outputStartEvent: function(context) {
 			var $originalCanvas = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
 			$originalCanvas[0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
+
 			this.currentEvent = {
 				$originalCanvas: $originalCanvas,
 				state: this.wrapper.getState(),
@@ -224,7 +232,6 @@ module.exports = function(output) {
 		},
 
 		outputEndEvent: function() {
-			
 		},
 
 		outputClearAll: function() {
@@ -267,9 +274,28 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			this.currentEvent = this.events[eventNum];
+			if (this.currentEvent !== this.events[eventNum] || this.stepNum !== stepNum) {
+				this.currentEvent = this.events[eventNum];
+				this.stepNum = stepNum;
+				this.render();
+			}
+		},
 
+		highlightCallNodes: function(nodeIds) {
+			this.render(true);
+			for (var i=0; i<this.currentEvent.calls.length; i++) {
+				var call = this.currentEvent.calls[i];
+				if (nodeIds.indexOf(call.nodeId) >= 0) {
+					this.wrapper.setState(call.state);
+					this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
+					this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
+					this.context.shadowColor = 'rgba(5, 195, 5, 0.85)';
+					this.context[call.name].apply(this.context, call.args);
+				}
+			}
+		},
 
+		render: function(highlightEvent) {
 			this.wrapper.setState(this.currentEvent.state);
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
@@ -278,90 +304,55 @@ module.exports = function(output) {
 				var call = this.currentEvent.calls[i];
 				if (call.stepNum > this.stepNum) break;
 				this.wrapper.setState(call.state);
+
+				if (highlightEvent) {
+					this.context[call.name].apply(this.context, call.args);
+					this.context.strokeStyle = 'rgba(0, 150, 250, 0.25)';
+					this.context.fillStyle = 'rgba(0, 150, 250, 0.25)';
+					this.context.shadowColor = 'rgba(0, 150, 250, 0.25)';
+				}
+
 				this.context[call.name].apply(this.context, call.args);
 			}
 		},
 
+		drawMirror: function() {
+			this.clearMirror();
+			for (var i=0; i<this.currentEvent.calls.length; i++) {
+				var call = this.currentEvent.calls[i];
+				this.mirrorWrapper.setState(call.state);
 
-
-
-
-
-
-
-
-		render: function(highlightstepNums) {
-			/*
-			highlightstepNums = highlightstepNums || [];
-			this.clear();
-			for (var i=0; i<this.calls.length; i++) {
-				var call = this.calls[i];
-				if (call.stepNum > this.stepNum) break;
-
-				if (call.type === 'function') {
-					if (this.highlighting) this.highlight(call.node, call.name, call.args, highlightstepNums.indexOf(call.stepNum) >= 0);
-					else this.context[call.name].apply(this.context, call.args);
-				} else {
-					this.context[call.name] = call.value;
-					if (this.highlighting) {
-						if (this.functions[call.name].mirror) this.mirrorContext[call.name] = call.value;
-
-						if (call.name === 'strokeStyle') {
-							this.actualStrokeStyle = this.context.strokeStyle;
-						} else if (call.name === 'fillStyle') {
-							this.actualFillStyle = this.context.fillStyle;
-						} else if (call.name === 'shadowColor') {
-							this.actualShadowColor = this.context.shadowColor;
-						}
-					}
-				}
+				var highlightId = (highlightMult*(i+1))%highlightPrime;
+				var color = 'rgba(' + (~~(highlightId/65536)%256) + ',' + (~~(highlightId/256)%256) + ',' + (highlightId%256) + ', 1)';
+				this.mirrorContext.strokeStyle = color;
+				this.mirrorContext.fillStyle = color;
+				this.mirrorContext.shadowColor = color;
+				this.mirrorContext.lineWidth = Math.max(3, this.context.lineWidth);
+				this.mirrorContext[call.name].apply(this.mirrorContext, call.args);
 			}
-			*/
+		},
+
+		clearMirror: function() {
+			this.mirrorWrapper.setState(this.currentEvent.state);
+			this.mirrorContext.clearRect(0, 0, this.size, this.size);
 		},
 
 		enableHighlighting: function() {
 			this.highlighting = true;
+			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
-			this.render();
+			this.render(true);
+			this.drawMirror();
 		},
 
 		disableHighlighting: function() {
 			this.highlighting = false;
-			this.highlightCallTarget = 0;
+			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
 			this.render();
-		},
-
-		startRun: function() {
-			this.clear();
-			this.$container.removeClass('canvas-error');
-			this.calls = [];
-		},
-
-		endRun: function() {
-			if (this.highlighting) {
-				this.render();
-			}
-		},
-
-		clear: function() {
-			this.context.restore();
-			this.context.save();
-			this.context.clearRect(0, 0, this.size, this.size);
-			this.context.beginPath();
-
-			if (this.highlighting) {
-				this.mirrorContext.restore();
-				this.mirrorContext.save();
-				this.mirrorContext.clearRect(0, 0, this.size, this.size);
-				this.mirrorContext.beginPath();
-				this.highlightCallCounter = 1;
-				this.actualStrokeStyle = this.context.strokeStyle;
-				this.actualFillStyle = this.context.fillStyle;
-				this.actualShadowColor = this.context.shadowColor;
-			}
+			this.clearMirror();
 		},
 
 		getImageData: function() {
@@ -380,70 +371,34 @@ module.exports = function(output) {
 			return this.size;
 		},
 
-		setFocus: function() {
-
-		},
-
-		setstepNum: function(context, stepNum) {
-			if (stepNum !== this.stepNum) {
-				this.stepNum = stepNum;
-				this.render();
-			}
-		},
-
-		highlightCalls: function(calls) {
-			this.render(calls);
-		},
-
 		/// INTERNAL FUNCTIONS ///
-		highlight: function(node, name, args, showHighlight) {
-			if (this.functions[name].draws) {
-				if (this.functions[name].mirror && this.context.globalAlpha > 0) {
-					// some spread is needed between the numbers as borders are blurred, and colour information is thus not 100% reliable
-					// therefore we use calculation modulo prime, so that eventually all numbers are used, and this also introduces a nice cycle,
-					// so that colours can be used again; the assumption is that whenever there are so many elements on the screen, the ones
-					// that introduced faulty colours, or the original ones in case of reusing colours, are most likely overwritten already
-					this.highlightCallCounter = (this.highlightCallCounter + 67*65536 + 111*256 + 11) % 16777213;
-					//this.highlightCallCounter++;
-					var color = 'rgba(' + (~~(this.highlightCallCounter/65536)%256) + ',' + (~~(this.highlightCallCounter/256)%256) + ',' + (this.highlightCallCounter%256) + ', 1)';
-					this.mirrorContext.strokeStyle = color;
-					this.mirrorContext.fillStyle = color;
-					this.mirrorContext.shadowColor = color;
-					this.mirrorContext.lineWidth = Math.max(3, this.context.lineWidth);
-					this.mirrorContext[name].apply(this.mirrorContext, args);
-				}
-
-				if (showHighlight || this.highlightCallCounter === this.highlightCallTarget) {
-					this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
-					this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
-					this.context.shadowColor = 'rgba(5, 195, 5, 0.85)';
-					if (this.highlightCallTarget > 0) this.editor.highlightNode(node);
-
-					var retVal = this.context[name].apply(this.context, args);
-					this.context.strokeStyle = this.actualStrokeStyle;
-					this.context.fillStyle = this.actualFillStyle;
-					this.context.shadowColor = this.actualShadowColor;
-					return retVal;
-				}
-			} else {
-				if (this.functions[name].mirror) this.mirrorContext[name].apply(this.mirrorContext, args);
-			}
-			return this.context[name].apply(this.context, args);
-		},
-
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var offset = this.$canvas.offset();
 				var x = event.pageX - offset.left, y = event.pageY - offset.top;
 				var pixel = this.mirrorContext.getImageData(x, y, 1, 1).data;
-				// use the alpha channel as an extra safeguard
-				var target = (pixel[3] < 255 ? 0 : (pixel[0]*65536 + pixel[1]*256 + pixel[2]) % 16777213);
 
-				if (this.highlightCallTarget !== target) {
-					this.highlightCallTarget = target;
-					this.render();
-					if (this.highlightCallTarget <= 0) {
+				// use the alpha channel as an extra safeguard
+				var highlightId = (pixel[3] < 255 ? 0 : (pixel[0]*65536 + pixel[1]*256 + pixel[2]) % 16777213);
+
+				var highlightCallIndex = -1;
+				for (var i=0; i<this.currentEvent.calls.length; i++) {
+					var highlightIdMatch = (highlightMult*(i+1))%highlightPrime;
+					if (highlightId === highlightIdMatch) {
+						highlightCallIndex = i;
+						break;
+					}
+				}
+
+				if (this.highlightCallIndex !== highlightCallIndex) {
+					this.highlightCallIndex = highlightCallIndex;
+
+					if (this.highlightCallIndex < 0) {
 						this.editor.highlightNode(null);
+						this.render(true); // == this.highlightCallNodes([]);
+					} else {
+						this.editor.highlightNodeId(this.currentEvent.calls[this.highlightCallIndex].nodeId);
+						this.highlightCallNodes([this.currentEvent.calls[this.highlightCallIndex].nodeId]);
 					}
 				}
 			}
