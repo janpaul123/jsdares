@@ -37,11 +37,12 @@ module.exports = function(output) {
 			return this.state;
 		},
 		setState: function(state) {
-			this.state = null;
+			this.state = state;
 			this.context.strokeStyle = state.strokeStyle;
 			this.context.fillStyle = state.fillStyle;
-			for (var i=0; i<state.path.length; i++) {
-				this.context[state.path[i].name].apply(this.context, state.path[i].args);
+			this.path = state.path.slice();
+			for (var i=0; i<this.path.length; i++) {
+				this.context[this.path[i].name].apply(this.context, this.path[i].args);
 			}
 		}
 	};
