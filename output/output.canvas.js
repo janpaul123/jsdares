@@ -4,8 +4,9 @@
 module.exports = function(output) {
 	output.CanvasWrapper = function() { return this.init.apply(this, arguments); };
 	output.CanvasWrapper.prototype = {
-		init: function(canvas) {
+		init: function(canvas, properties) {
 			this.canvas = canvas;
+			this.properties = properties;
 			this.context = canvas.getContext('2d');
 			this.context.save();
 			this.reset();
@@ -29,19 +30,22 @@ module.exports = function(output) {
 			this.context[name] = value;
 		},
 		getState: function() {
-			if (this.state === null) this.state = {
-				strokeStyle: this.context.strokeStyle,
-				fillStyle: this.context.fillStyle,
-				path: this.path.slice()
-			};
+			if (this.state === null) {
+				this.state = { path: this.path.slice() };
+				for (var i=0; i<this.properties.length; i++) {
+					this.state[this.properties[i]] = this.context[this.properties[i]];
+				}
+			}
 			return this.state;
 		},
 		setState: function(state) {
 			this.state = state;
-			this.context.strokeStyle = state.strokeStyle;
-			this.context.fillStyle = state.fillStyle;
+			for (var i=0; i<this.properties.length; i++) {
+				this.context[this.properties[i]] = this.state[this.properties[i]];
+			}
+
 			this.path = state.path.slice();
-			for (var i=0; i<this.path.length; i++) {
+			for (i=0; i<this.path.length; i++) {
 				this.context[this.path[i].name].apply(this.context, this.path[i].args);
 			}
 		}
@@ -78,8 +82,12 @@ module.exports = function(output) {
 			this.$mirrorCanvas.attr('height', this.size);
 			this.mirrorContext = this.$mirrorCanvas[0].getContext('2d');
 
-			this.wrapper = new output.CanvasWrapper(this.$canvas[0]);
-			this.mirrorWrapper = new output.CanvasWrapper(this.$mirrorCanvas[0]);
+			this.wrapper = new output.CanvasWrapper(this.$canvas[0], ['strokeStyle', 'fillStyle',
+				'shadowOffsetX', 'shadowOffsetY', 'shadowBlur', 'shadowColor', 'globalAlpha', 'lineWidth',
+				'lineCap', 'lineJoin', 'miterLimit', 'font', 'textAlign', 'textBaseline']);
+
+			this.mirrorWrapper = new output.CanvasWrapper(this.$mirrorCanvas[0], ['strokeStyle', 'fillStyle',
+				'lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'font', 'textAlign', 'textBaseline']);
 
 			this.$targetCanvas = null;
 
@@ -127,23 +135,23 @@ module.exports = function(output) {
 			// rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', path: false},
 			// translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', path: false},
 			// transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', path: false},
-			// fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false},
-			// strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false},
-			// isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false},
+			fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false},
+			strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false},
+			isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false},
 			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"'},
 			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"'},
-			// shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10'},
-			// shadowOffsetY: {type: 'variable', example: 'shadowOffsetY = 10'},
-			// shadowBlur: {type: 'variable', example: 'shadowBlur = 5'},
-			// shadowColor: {type: 'variable', example: 'shadowColor = "#3a3"'},
-			// globalAlpha: {type: 'variable', example: 'globalAlpha = 0.5'},
-			// lineWidth: {type: 'variable', example: 'lineWidth = 3'},
-			// lineCap: {type: 'variable', example: 'lineCap = "round"'},
-			// lineJoin: {type: 'variable', example: 'lineJoin = "bevel"'},
-			// miterLimit: {type: 'variable', example: 'miterLimit = 3'},
-			// font: {type: 'variable', example: 'font = "40pt Calibri"'},
-			// textAlign: {type: 'variable', example: 'textAlign = "center"'},
-			// textBaseline: {type: 'variable', example: 'textBaseline = "top"'e}
+			shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10'},
+			shadowOffsetY: {type: 'variable', example: 'shadowOffsetY = 10'},
+			shadowBlur: {type: 'variable', example: 'shadowBlur = 5'},
+			shadowColor: {type: 'variable', example: 'shadowColor = "#3a3"'},
+			globalAlpha: {type: 'variable', example: 'globalAlpha = 0.5'},
+			lineWidth: {type: 'variable', example: 'lineWidth = 3'},
+			lineCap: {type: 'variable', example: 'lineCap = "round"'},
+			lineJoin: {type: 'variable', example: 'lineJoin = "bevel"'},
+			miterLimit: {type: 'variable', example: 'miterLimit = 3'},
+			font: {type: 'variable', example: 'font = "40pt Calibri"'},
+			textAlign: {type: 'variable', example: 'textAlign = "center"'},
+			textBaseline: {type: 'variable', example: 'textBaseline = "top"'}
 		},
 
 		getAugmentedObject: function() {
@@ -268,9 +276,10 @@ module.exports = function(output) {
 		},
 
 		outputClearToStart: function() {
-			this.wrapper.setState(this.events[0].state);
+			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.events[0].$originalCanvas[0], 0, 0);
+			this.wrapper.setState(this.events[0].state);
 
 			this.events = [];
 		},
@@ -280,9 +289,10 @@ module.exports = function(output) {
 		},
 
 		outputClearEventsFrom: function(eventNum) {
-			this.wrapper.setState(this.events[eventNum].state);
+			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.events[eventNum].$originalCanvas[0], 0, 0);
+			this.wrapper.setState(this.events[eventNum].state);
 
 			this.events = this.events.slice(0, eventNum);
 		},
@@ -318,9 +328,10 @@ module.exports = function(output) {
 		},
 
 		render: function(highlightEvent) {
-			this.wrapper.setState(this.currentEvent.state);
+			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 			this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
+			this.wrapper.setState(this.currentEvent.state);
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];
@@ -355,8 +366,9 @@ module.exports = function(output) {
 		},
 
 		clearMirror: function() {
-			this.mirrorWrapper.setState(this.currentEvent.state);
+			this.mirrorWrapper.reset();
 			this.mirrorContext.clearRect(0, 0, this.size, this.size);
+			this.mirrorWrapper.setState(this.currentEvent.state);
 		},
 
 		enableHighlighting: function() {
