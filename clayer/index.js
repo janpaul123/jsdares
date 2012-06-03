@@ -349,7 +349,7 @@ clayer.Slider.prototype = {
 		this.$element.append(this.$bar);
 
 		this.$marker = $('<div class="clayer-slider-marker"></div>');
-		this.$marker.width(this.valueWidth);
+		//this.$marker.width(this.valueWidth);
 		this.$bar.append(this.$marker);
 
 		this.$knob = $('<div class="clayer-slider-knob"></div>');
@@ -422,7 +422,7 @@ clayer.Slider.prototype = {
 	},
 
 	renderMarker: function() {
-		this.$marker.css('left', this.markerValue*this.valueWidth);
+		this.$marker.css('left', (this.markerValue+0.5)*this.valueWidth);
 	},
 
 	mouseMove: function(event) {

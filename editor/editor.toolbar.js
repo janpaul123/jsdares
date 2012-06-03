@@ -242,10 +242,12 @@ module.exports = function(editor) {
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
-			this.$sliderContainer = $('<div class="btn btn-primary editor-toolbar-run-slider-container"></div>');
+			this.$sliderContainer = $('<div class="editor-toolbar-run-slider-container"></div>');
+			this.$sliderButton = $('<div class="btn btn-primary editor-toolbar-run-slider-button"></div>');
 			this.$slider = $('<div class="editor-toolbar-run-slider"></div>');
 			this.slider = new clayer.Slider(this.$slider, this, 20);
-			this.$sliderContainer.append(this.$slider);
+			this.$sliderButton.append(this.$slider);
+			this.$sliderContainer.append(this.$sliderButton);
 			this.$div.append(this.$sliderContainer);
 
 			this.disable();
@@ -279,11 +281,12 @@ module.exports = function(editor) {
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
 					if (this.runner.hasEvents()) {
-						if (this.$sliderContainer.hasClass('editor-toolbar-run-slider-container-disabled')) {
-							this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
+						if (this.$div.hasClass('editor-toolbar-run-slider-disabled')) {
+							this.$div.removeClass('editor-toolbar-run-slider-disabled');
+							this.$div.addClass('editor-toolbar-run-slider-enabled');
 							this.$slider.width(this.runner.getEventTotal()*20);
 							this.slider.setValue(this.runner.getEventNum());
-							this.$slider.css('margin-left', '');
+							this.$sliderButton.css('margin-left', '');
 						}
 					} else {
 						this.hideSlider();
@@ -299,8 +302,9 @@ module.exports = function(editor) {
 		},
 
 		hideSlider: function() {
-			this.$sliderContainer.addClass('editor-toolbar-run-slider-container-disabled');
-			this.$slider.css('margin-left', -this.$slider.width()-20);
+			this.$div.addClass('editor-toolbar-run-slider-disabled');
+			this.$div.removeClass('editor-toolbar-run-slider-enabled');
+			this.$sliderButton.css('margin-left', -this.$slider.width()-20);
 		},
 
 		playPause: function() {
