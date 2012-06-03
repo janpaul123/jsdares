@@ -242,9 +242,9 @@ module.exports = function(editor) {
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
-			this.$sliderContainer = $('<span class="btn btn-primary editor-toolbar-run-slider-container"></span>');
-			this.$slider = $('<input class="editor-toolbar-run-slider" type="range" min="0"></input>');
-			this.$slider.on('change', $.proxy(this.sliderChange, this));
+			this.$sliderContainer = $('<div class="btn btn-primary editor-toolbar-run-slider-container"></div>');
+			this.$slider = $('<div class="editor-toolbar-run-slider"></div>');
+			this.slider = new clayer.Slider(this.$slider, this, 20);
 			this.$sliderContainer.append(this.$slider);
 			this.$div.append(this.$sliderContainer);
 
@@ -252,6 +252,7 @@ module.exports = function(editor) {
 		},
 
 		remove: function() {
+			this.slider.remove();
 			this.$playPause.remove();
 			this.$slider.remove();
 			this.$sliderContainer.remove();
@@ -278,11 +279,12 @@ module.exports = function(editor) {
 				if (this.runner.isPaused()) {
 					this.$playPause.html('<i class="icon-play icon-white"></i>');
 					if (this.runner.hasEvents()) {
-						this.$slider.attr('max', this.runner.getEventTotal()-1);
-						this.$slider.val(this.runner.getEventNum());
-						this.$slider.width(this.runner.getEventTotal()*20);
-						this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
-						this.$slider.css('margin-left', '');
+						if (this.$sliderContainer.hasClass('editor-toolbar-run-slider-container-disabled')) {
+							this.$sliderContainer.removeClass('editor-toolbar-run-slider-container-disabled');
+							this.$slider.width(this.runner.getEventTotal()*20);
+							this.slider.setValue(this.runner.getEventNum());
+							this.$slider.css('margin-left', '');
+						}
 					} else {
 						this.hideSlider();
 					}
@@ -311,9 +313,9 @@ module.exports = function(editor) {
 			}
 		},
 
-		sliderChange: function() {
+		sliderChanged: function(value) {
 			if (this.runner.isPaused()) {
-				this.runner.setEventNum(parseInt(this.$slider.val(), 10));
+				this.runner.setEventNum(value);
 			}
 		}
 	};

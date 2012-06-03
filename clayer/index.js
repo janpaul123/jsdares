@@ -3,10 +3,6 @@
 "use strict";
 
 var clayer = {};
-
-clayer.Touchable = function() { return this.init.apply(this, arguments); };
-clayer.Touch = function() { return this.init.apply(this, arguments); };
-
 clayer.setCss3 = function($element, name, value, addBrowserToValue) {
 	addBrowserToValue = addBrowserToValue || false;
 	var browsers = ['', '-ms-', '-moz-', '-webkit-', '-o-'];
@@ -169,6 +165,7 @@ clayer.Layer.prototype = {
 };
 */
 
+clayer.Touchable = function() { return this.init.apply(this, arguments); };
 clayer.Touchable.prototype = {
 	init: function($element, delegate) {
 		this.$element = $element;
@@ -278,6 +275,7 @@ clayer.Touchable.prototype = {
 	}
 };
 
+clayer.Touch = function() { return this.init.apply(this, arguments); };
 clayer.Touch.prototype = {
 	init: function($element, event) {
 		this.$element = $element;
@@ -333,6 +331,128 @@ clayer.Touch.prototype = {
 		var offset = this.$element.offset();
 		this.localPoint.x = this.globalPoint.x - offset.left;
 		this.localPoint.y = this.globalPoint.y - offset.left;
+	}
+};
+
+clayer.Slider = function() { return this.init.apply(this, arguments); };
+clayer.Slider.prototype = {
+	init: function($element, delegate, valueWidth) {
+		this.$element = $element;
+		this.$element.addClass('clayer-slider');
+		this.delegate = delegate;
+
+		this.valueWidth = valueWidth || 1;
+		this.markerValue = 0;
+		this.knobValue = 0;
+
+		this.$bar = $('<div class="clayer-slider-bar"></div>');
+		this.$element.append(this.$bar);
+
+		this.$marker = $('<div class="clayer-slider-marker"></div>');
+		this.$marker.width(this.valueWidth);
+		this.$bar.append(this.$marker);
+
+		this.$knob = $('<div class="clayer-slider-knob"></div>');
+		this.$bar.append(this.$knob);
+
+		this.$element.on('mousemove', $.proxy(this.mouseMove, this));
+		this.$element.on('mouseleave', $.proxy(this.mouseLeave, this));
+		this.touchable = new clayer.Touchable(this.$element, this);
+
+		this.bounceTimer = null;
+
+		this.renderKnob();
+		this.renderMarker();
+	},
+
+	remove: function() {
+		this.touchable.setTouchable(false);
+		this.$element.off('mousemove mouseleave');
+		this.$marker.remove();
+		this.$knob.remove();
+		this.$bar.remove();
+	},
+
+	setValue: function(value) {
+		this.markerValue = this.knobValue = value;
+		this.renderKnob();
+		this.renderMarker();
+	},
+
+	changed: function() {
+		this.delegate.sliderChanged(this.knobValue);
+	},
+
+	updateKnob: function(x) {
+		if (x >= 0 && x <= this.$element.width()) {
+			var knobValue = Math.floor(x/this.valueWidth);
+			if (this.knobValue !== knobValue) {
+					this.knobValue = knobValue;
+					this.renderKnob();
+					this.changed();
+			}
+		}
+	},
+
+	updateMarker: function(x) {
+		if (x >= 0 && x <= this.$element.width()) {
+			var markerValue = Math.floor(x/this.valueWidth);
+			if (this.markerValue !== markerValue) {
+				this.knobValue = this.markerValue = markerValue;
+				this.renderKnob();
+				this.renderMarker();
+				this.changed();
+			}
+		}
+	},
+
+	renderKnob: function() {
+		this.$knob.css('left', (this.knobValue+0.5)*this.valueWidth);
+
+		if (this.bounceTimer !== null) {
+			this.bounceProgress = Math.min(this.bounceProgress + 0.04, 1);
+			var p = this.bounceProgress;
+			var jumpY = (p < 0.5) ? (15*(1-Math.pow(4*p-1, 2))) : (4*(1-Math.pow(4*(p-0.5)-1, 2)));
+			this.$knob.css('top', -jumpY);
+			if (this.bounceProgress >= 1) {
+				clearInterval(this.bounceTimer);
+				this.bounceTimer = null;
+			}
+		}
+	},
+
+	renderMarker: function() {
+		this.$marker.css('left', this.markerValue*this.valueWidth);
+	},
+
+	mouseMove: function(event) {
+		this.updateKnob(event.pageX - this.$element.offset().left);
+	},
+
+	mouseLeave: function(event) {
+		this.updateKnob(this.markerValue*this.valueWidth);
+	},
+
+	touchDown: function(touch) {
+		this.updateMarker(touch.localPoint.x);
+	},
+
+	touchMove: function(touch) {
+		this.updateMarker(touch.localPoint.x);
+	},
+
+	touchUp: function(touch) {
+		this.updateMarker(touch.localPoint.x);
+		if (touch.wasTap) {
+			this.bounce();
+		}
+	},
+
+	bounce: function () {
+		if (this.bounceTimer === null) {
+			this.bounceTimer = setInterval($.proxy(this.renderKnob, this), 20);
+			this.bounceProgress = 0;
+		}
 	}
 };
 
