@@ -8,24 +8,41 @@ module.exports = function(output) {
 			this.canvas = canvas;
 			this.context = canvas.getContext('2d');
 			this.context.save();
+			this.reset();
 		},
 		reset: function() {
+			this.state = null;
 			this.context.restore();
 			this.context.save();
-			this.context.beginPath();
+			this.callPath('beginPath', []);
+		},
+		callPath: function(name, args) {
+			this.state = null;
+			if (name === 'beginPath') {
+				this.path = [];
+			}
+			this.path.push({name: name, args: args});
+			return this.context[name].apply(this.context, args);
 		},
 		set: function(name, value) {
+			this.state = null;
 			this.context[name] = value;
 		},
 		getState: function() {
-			return {
+			if (this.state === null) this.state = {
 				strokeStyle: this.context.strokeStyle,
-				fillStyle: this.context.fillStyle
+				fillStyle: this.context.fillStyle,
+				path: this.path.slice()
 			};
+			return this.state;
 		},
 		setState: function(state) {
+			this.state = null;
 			this.context.strokeStyle = state.strokeStyle;
 			this.context.fillStyle = state.fillStyle;
+			for (var i=0; i<state.path.length; i++) {
+				this.context[state.path[i].name].apply(this.context, state.path[i].args);
+			}
 		}
 	};
 
@@ -90,42 +107,42 @@ module.exports = function(output) {
 		},
 
 		functions: {
-			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', draws: true, mirror: true},
-			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', draws: true, mirror: true},
-			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', draws: true, mirror: true},
-			// beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', draws: false, mirror: true},
-			// closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', draws: false, mirror: true},
-			// fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', draws: true, mirror: true},
-			// stroke: {type: 'function', argsMin: 0, argsMax: 0, example: 'stroke()', draws: true, mirror: true},
-			// clip: {type: 'function', argsMin: 0, argsMax: 0, example: 'clip()', draws: false, mirror: true},
-			// moveTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', draws: false, mirror: true},
-			// lineTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', draws: false, mirror: true},
-			// quadraticCurveTo: {type: 'function', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', draws: false, mirror: true},
-			// bezierCurveTo: {type: 'function', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', draws: false, mirror: true},
-			// arcTo: {type: 'function', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', draws: false, mirror: true},
-			// arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', draws: false, mirror: true},
-			// rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', draws: false, mirror: true},
-			// scale: {type: 'function', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', draws: true, mirror: true},
-			// rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', draws: true, mirror: true},
-			// translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', draws: true, mirror: true},
-			// transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', draws: true, mirror: true},
-			// fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', draws: true, mirror: true},
-			// strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', draws: true, mirror: true},
-			// isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', draws: false, mirror: true},
-			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"', draws: false, mirror: false},
-			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"', draws: false, mirror: false},
-			// shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10', draws: false, mirror: true},
-			// shadowOffsetY: {type: 'variable', example: 'shadowOffsetY = 10', draws: false, mirror: true},
-			// shadowBlur: {type: 'variable', example: 'shadowBlur = 5', draws: false, mirror: false},
-			// shadowColor: {type: 'variable', example: 'shadowColor = "#3a3"', draws: false, mirror: false},
-			// globalAlpha: {type: 'variable', example: 'globalAlpha = 0.5', draws: false, mirror: false},
-			// lineWidth: {type: 'variable', example: 'lineWidth = 3', draws: false, mirror: false},
-			// lineCap: {type: 'variable', example: 'lineCap = "round"', draws: false, mirror: true},
-			// lineJoin: {type: 'variable', example: 'lineJoin = "bevel"', draws: false, mirror: true},
-			// miterLimit: {type: 'variable', example: 'miterLimit = 3', draws: false, mirror: true},
-			// font: {type: 'variable', example: 'font = "40pt Calibri"', draws: false, mirror: true},
-			// textAlign: {type: 'variable', example: 'textAlign = "center"', draws: false, mirror: true},
-			// textBaseline: {type: 'variable', example: 'textBaseline = "top"', draws: false, mirror: true}
+			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', path: false},
+			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', path: false},
+			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', path: false},
+			beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', path: true},
+			closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', path: true},
+			fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', path: false},
+			stroke: {type: 'function', argsMin: 0, argsMax: 0, example: 'stroke()', path: false},
+			// clip: {type: 'function', argsMin: 0, argsMax: 0, example: 'clip()', path: true},
+			moveTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', path: true},
+			lineTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', path: true},
+			quadraticCurveTo: {type: 'function', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', path: true},
+			bezierCurveTo: {type: 'function', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', path: true},
+			arcTo: {type: 'function', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', path: true},
+			arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', path: true},
+			rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', path: true},
+			// scale: {type: 'function', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', path: false},
+			// rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', path: false},
+			// translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', path: false},
+			// transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', path: false},
+			// fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false},
+			// strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false},
+			// isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false},
+			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"'},
+			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"'},
+			// shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10'},
+			// shadowOffsetY: {type: 'variable', example: 'shadowOffsetY = 10'},
+			// shadowBlur: {type: 'variable', example: 'shadowBlur = 5'},
+			// shadowColor: {type: 'variable', example: 'shadowColor = "#3a3"'},
+			// globalAlpha: {type: 'variable', example: 'globalAlpha = 0.5'},
+			// lineWidth: {type: 'variable', example: 'lineWidth = 3'},
+			// lineCap: {type: 'variable', example: 'lineCap = "round"'},
+			// lineJoin: {type: 'variable', example: 'lineJoin = "bevel"'},
+			// miterLimit: {type: 'variable', example: 'miterLimit = 3'},
+			// font: {type: 'variable', example: 'font = "40pt Calibri"'},
+			// textAlign: {type: 'variable', example: 'textAlign = "center"'},
+			// textBaseline: {type: 'variable', example: 'textBaseline = "top"'e}
 		},
 
 		getAugmentedObject: function() {
@@ -205,8 +222,12 @@ module.exports = function(output) {
 			} else if (args.length > max) {
 				throw '<var>' + name + '</var> accepts no more than <var>' + max + '</var> arguments';
 			}
-			this.currentEvent.calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
-			return this.context[name].apply(this.context, args);
+			if (this.functions[name].path) {
+				return this.wrapper.callPath(name, args);
+			} else {
+				this.currentEvent.calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+				return this.context[name].apply(this.context, args);
+			}
 		},
 
 		handleAttributeGet: function(name) {
