@@ -60,8 +60,12 @@ module.exports = function(jsmm) {
 			this.updateEventStep();
 		},
 
+		canReceiveEvents: function() {
+			return this.enabled && !this.paused && !this.isStepping();
+		},
+
 		addEvent: function(funcName, args) {
-			if (!this.enabled || this.paused || this.isStepping()) {
+			if (!this.canReceiveEvents()) {
 				return false;
 			} else {
 				var event = new jsmm.Event(this, funcName, args);
@@ -172,15 +176,9 @@ module.exports = function(jsmm) {
 		},
 
 		restart: function() {
-			if (this.eventNum === 0) {
-				if (this.stepNum === Infinity) {
-					this.updateEditor();
-				} else {
-					this.stepNum = Infinity;
-					this.updateEventStep();
-				}
+			if (this.stepNum === Infinity) {
+				this.updateEditor();
 			} else {
-				this.eventNum = 0;
 				this.stepNum = Infinity;
 				this.updateEventStep();
 			}
