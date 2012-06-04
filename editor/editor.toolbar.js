@@ -343,7 +343,7 @@ module.exports = function(editor) {
 			this.$stepBarContainer.append('<div class="editor-toolbar-run-step-bar-arrow"></div>');
 			this.$div.append(this.$stepBarContainer);
 
-			this.$stepBarIcon = $('<i class="editor-toolbar-run-step-bar-icon icon-keyboard icon-white"></i>');
+			this.$stepBarIcon = $('<i></i>');
 			this.$stepBarContainer.append(this.$stepBarIcon);
 
 			var $stepBar = $('<div class="btn-group editor-toolbar-run-step-bar"></div>');
@@ -394,6 +394,13 @@ module.exports = function(editor) {
 						this.playPauseAnimation.setFraction(this.runner.getEventNum()/(this.runner.getEventTotal()-1));
 						this.stepBar.update(runner);
 						this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*180/this.maxHistory);
+						this.$stepBarIcon.removeClass();
+						this.$stepBarIcon.addClass('editor-toolbar-run-step-bar-icon icon-white icon-' + {
+							base: 'stop',
+							keyboard: 'keyboard',
+							mouse: 'mouse',
+							interval: 'time'
+						}[this.runner.getStepType()]);
 					} else {
 						this.hideSlider();
 					}

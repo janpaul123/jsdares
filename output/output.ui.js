@@ -72,12 +72,12 @@ module.exports = function(output) {
 				keyCode: event.keyCode
 			};
 			if (this.onkeydown !== null) {
-				this.editor.addEvent(this.onkeydown, [e]);
+				this.editor.addEvent('keyboard', this.onkeydown, [e]);
 			}
 		},
 
 		doInterval: function() {
-			this.editor.addEvent(this.intervalName, []);
+			this.editor.addEvent('interval', this.intervalName, []);
 		}
 	};
 

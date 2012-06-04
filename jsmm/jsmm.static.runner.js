@@ -6,8 +6,9 @@ module.exports = function(jsmm) {
 	
 	jsmm.Event = function() { return this.init.apply(this, arguments); };
 	jsmm.Event.prototype = {
-		init: function(runner, funcName, args) {
+		init: function(runner, type, funcName, args) {
 			this.runner = runner;
+			this.type = type;
 			this.funcName = funcName || null;
 			this.args = args || [];
 			this.context = null;
@@ -35,7 +36,7 @@ module.exports = function(jsmm) {
 			this.maxHistory = maxHistory || 50;
 
 			this.tree = null;
-			this.baseEvent = new jsmm.Event(this);
+			this.baseEvent = new jsmm.Event(this, 'base');
 			this.events = [this.baseEvent];
 			this.eventNum = 0;
 			this.stepNum = Infinity;
@@ -64,11 +65,11 @@ module.exports = function(jsmm) {
 			return this.enabled && !this.paused && !this.isStepping();
 		},
 
-		addEvent: function(funcName, args) {
+		addEvent: function(type, funcName, args) {
 			if (!this.canReceiveEvents()) {
 				return false;
 			} else {
-				var event = new jsmm.Event(this, funcName, args);
+				var event = new jsmm.Event(this, type, funcName, args);
 				event.run(new jsmm.RunContext(this.tree, this.runScope));
 				this.runScope = event.context.scope.getVars();
 
@@ -226,6 +227,14 @@ module.exports = function(jsmm) {
 				this.updateEventStep();
 			} else {
 				this.updateEditor();
+			}
+		},
+
+		getStepType: function() {
+			if (this.eventNum < 0) {
+				return '';
+			} else {
+				return this.events[this.eventNum].type;
 			}
 		},
 

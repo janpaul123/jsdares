@@ -508,8 +508,8 @@ module.exports = function(editor) {
 		},
 
 
-		addEvent: function(funcName, args) {
-			return this.runner.addEvent(funcName, args);
+		addEvent: function(type, funcName, args) {
+			return this.runner.addEvent(type, funcName, args);
 		},
 
 		makeInteractive: function() {
