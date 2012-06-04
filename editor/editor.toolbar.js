@@ -233,19 +233,26 @@ module.exports = function(editor) {
 
 	editor.RunBar = function() { return this.init.apply(this, arguments); };
 	editor.RunBar.prototype = {
-		init: function($div) {
+		init: function($div, maxHistory) {
 			this.runner = null;
 			this.$div = $div;
+			this.maxHistory = maxHistory;
 			//this.stepBar = new editor.StepBar()
 
 			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
+			this.$playPauseIcon = $('<i class="icon-play icon-white"></i>');
+			this.$playPause.append(this.$playPauseIcon);
+
+			this.$playPauseAnimationBlock = $('<div class="editor-toolbar-run-playpause-animation-block"></div>');
+			this.$playPause.append($('<div class="editor-toolbar-run-playpause-animation-container"></div>').append(this.$playPauseAnimationBlock));
+
 			this.$sliderContainer = $('<div class="editor-toolbar-run-slider-container"></div>');
 			this.$sliderButton = $('<div class="btn btn-primary editor-toolbar-run-slider-button"></div>');
 			this.$slider = $('<div class="editor-toolbar-run-slider"></div>');
-			this.slider = new clayer.Slider(this.$slider, this, 20);
+			this.slider = new clayer.Slider(this.$slider, this, 180/this.maxHistory);
 			this.$sliderButton.append(this.$slider);
 			this.$sliderContainer.append(this.$sliderButton);
 			this.$div.append(this.$sliderContainer);
@@ -279,12 +286,13 @@ module.exports = function(editor) {
 				this.$div.removeClass('editor-toolbar-run-disabled');
 
 				if (this.runner.isPaused()) {
-					this.$playPause.html('<i class="icon-play icon-white"></i>');
+					this.$playPauseIcon.addClass('icon-play');
+					this.$playPauseIcon.removeClass('icon-pause');
 					if (this.runner.hasEvents()) {
 						if (this.$div.hasClass('editor-toolbar-run-slider-disabled')) {
 							this.$div.removeClass('editor-toolbar-run-slider-disabled');
 							this.$div.addClass('editor-toolbar-run-slider-enabled');
-							this.$slider.width(this.runner.getEventTotal()*20);
+							this.$slider.width(this.runner.getEventTotal()*180/this.maxHistory);
 							this.slider.setValue(this.runner.getEventNum());
 							this.$sliderButton.css('margin-left', '');
 						}
@@ -292,7 +300,8 @@ module.exports = function(editor) {
 						this.hideSlider();
 					}
 				} else {
-					this.$playPause.html('<i class="icon-pause icon-white"></i>');
+					this.$playPauseIcon.addClass('icon-pause');
+					this.$playPauseIcon.removeClass('icon-play');
 					this.hideSlider();
 				}
 			} else {
@@ -350,7 +359,7 @@ module.exports = function(editor) {
 			this.$div.append($editHighlightGroup);
 
 			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
-			this.runBar = new editor.RunBar($runBar, this.$div);
+			this.runBar = new editor.RunBar($runBar, 50);
 			this.$div.append($runBar);
 
 			this.$checkKeys = $.proxy(this.checkKeys, this);

@@ -20,6 +20,8 @@ module.exports = function(output) {
 			this.editor = editor;
 			this.editor.addOutput(this);
 			this.editor.addInput(this);
+
+			this.interval = null;
 		},
 
 		getAugmentedObject: function() {
@@ -31,6 +33,13 @@ module.exports = function(output) {
 					example: 'onkeydown("Hello World!")',
 					get: $.proxy(this.handleAttributeGet, this),
 					set: $.proxy(this.handleAttributeSet, this)
+				},
+				setInterval: {
+					name: 'setInterval',
+					info: 'document.setInterval',
+					type: 'function',
+					example: 'setInterval(func, 30)',
+					func: $.proxy(this.handleAttributeCall, this)
 				}
 			};
 		},
@@ -41,6 +50,14 @@ module.exports = function(output) {
 
 		handleAttributeSet: function(context, name, value) {
 			this.onkeydown = value.name;
+			this.editor.makeInteractive();
+		},
+
+		handleAttributeCall: function(context, name, args) {
+			clearInterval(this.interval);
+			this.intervalName = args[0].name;
+			//console.log(this.intervalName);
+			setInterval($.proxy(this.doInterval, this), args[1]);
 			this.editor.makeInteractive();
 		},
 
@@ -57,6 +74,10 @@ module.exports = function(output) {
 			if (this.onkeydown !== null) {
 				this.editor.addEvent(this.onkeydown, [e]);
 			}
+		},
+
+		doInterval: function() {
+			this.editor.addEvent(this.intervalName, []);
 		}
 	};
 

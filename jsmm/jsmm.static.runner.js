@@ -32,7 +32,7 @@ module.exports = function(jsmm) {
 			this.scope = scope;
 			this.outputs = outputs;
 			this.inputs = inputs;
-			this.maxHistory = maxHistory || 10;
+			this.maxHistory = maxHistory || 50;
 
 			this.tree = null;
 			this.baseEvent = new jsmm.Event(this);

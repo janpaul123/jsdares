@@ -345,15 +345,19 @@ clayer.Slider.prototype = {
 		this.markerValue = 0;
 		this.knobValue = 0;
 
+		this.$container = $('<div class="clayer-slider-container"></div>');
+		this.$element.append(this.$container);
+
 		this.$bar = $('<div class="clayer-slider-bar"></div>');
-		this.$element.append(this.$bar);
+		this.$container.append(this.$bar);
 
 		this.$marker = $('<div class="clayer-slider-marker"></div>');
-		//this.$marker.width(this.valueWidth);
+		this.markerWidth = Math.min(this.valueWidth, 10);
+		this.$marker.width(this.markerWidth);
 		this.$bar.append(this.$marker);
 
 		this.$knob = $('<div class="clayer-slider-knob"></div>');
-		this.$bar.append(this.$knob);
+		this.$container.append(this.$knob);
 
 		this.$element.on('mousemove', $.proxy(this.mouseMove, this));
 		this.$element.on('mouseleave', $.proxy(this.mouseLeave, this));
@@ -371,6 +375,7 @@ clayer.Slider.prototype = {
 		this.$marker.remove();
 		this.$knob.remove();
 		this.$bar.remove();
+		this.$container.remove();
 	},
 
 	setValue: function(value) {
@@ -384,25 +389,23 @@ clayer.Slider.prototype = {
 	},
 
 	updateKnob: function(x) {
-		if (x >= 0 && x <= this.$element.width()) {
-			var knobValue = Math.floor(x/this.valueWidth);
-			if (this.knobValue !== knobValue) {
-					this.knobValue = knobValue;
-					this.renderKnob();
-					this.changed();
-			}
+		x = Math.max(0, Math.min(this.$element.width()-1, x));
+		var knobValue = Math.floor(x/this.valueWidth);
+		if (this.knobValue !== knobValue) {
+				this.knobValue = knobValue;
+				this.renderKnob();
+				this.changed();
 		}
 	},
 
 	updateMarker: function(x) {
-		if (x >= 0 && x <= this.$element.width()) {
-			var markerValue = Math.floor(x/this.valueWidth);
-			if (this.markerValue !== markerValue) {
-				this.knobValue = this.markerValue = markerValue;
-				this.renderKnob();
-				this.renderMarker();
-				this.changed();
-			}
+		x = Math.max(0, Math.min(this.$element.width()-1, x));
+		var markerValue = Math.floor(x/this.valueWidth);
+		if (this.markerValue !== markerValue) {
+			this.knobValue = this.markerValue = markerValue;
+			this.renderKnob();
+			this.renderMarker();
+			this.changed();
 		}
 	},
 
@@ -422,7 +425,7 @@ clayer.Slider.prototype = {
 	},
 
 	renderMarker: function() {
-		this.$marker.css('left', (this.markerValue+0.5)*this.valueWidth);
+		this.$marker.css('left', (this.markerValue+0.5)*this.valueWidth - this.markerWidth/2);
 	},
 
 	mouseMove: function(event) {
