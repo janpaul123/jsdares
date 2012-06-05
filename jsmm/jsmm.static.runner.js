@@ -61,7 +61,7 @@ module.exports = function(jsmm) {
 		},
 
 		canReceiveEvents: function() {
-			return this.enabled && !this.paused && !this.isStepping();
+			return this.enabled && !this.paused && !this.isStepping() && !this.hasError();
 		},
 
 		addEvent: function(type, funcName, args) {
@@ -79,7 +79,9 @@ module.exports = function(jsmm) {
 					this.eventNum--;
 					this.callOutputs('outputPopFront');
 				}
-				this.updateEditor();
+				if (event.context.hasError()) {
+					this.updateEditor();
+				}
 				return true;
 			}
 		},
