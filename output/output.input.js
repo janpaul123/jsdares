@@ -48,7 +48,7 @@ module.exports = function(output) {
 			return {
 				setInterval: {
 					name: 'setInterval',
-					info: 'document.setInterval',
+					info: 'window.setInterval',
 					type: 'function',
 					example: 'setInterval(func, 30)',
 					func: $.proxy(this.handleTimeCall, this)

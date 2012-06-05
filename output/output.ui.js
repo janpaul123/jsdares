@@ -10,9 +10,12 @@ module.exports = function(output) {
 	output.UI = function() { return this.init.apply(this, arguments); };
 	output.UI.prototype = {
 		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
+		outputs: ['robot', 'console', 'canvas', 'info', 'dare', 'input', 'math', 'editor'],
 
 		init: function() {
-			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = this.input = null;
+			for (var i=0; i<this.outputs.length; i++) {
+				this[this.outputs[i]] = null;
+			}
 
 			this.$main = $('#main');
 			this.initTabs();
@@ -39,33 +42,11 @@ module.exports = function(output) {
 		},
 
 		removeAll: function() {
-			if (this.robot !== null) {
-				this.robot.remove();
-				this.robot = null;
-			}
-			if (this.console !== null) {
-				this.console.remove();
-				this.console = null;
-			}
-			if (this.canvas !== null) {
-				this.canvas.remove();
-				this.canvas = null;
-			}
-			if (this.info !== null) {
-				this.info.remove();
-				this.info = null;
-			}
-			if (this.dare !== null) {
-				this.dare.remove();
-				this.dare = null;
-			}
-			if (this.input !== null) {
-				this.input.remove();
-				this.input = null;
-			}
-			if (this.editor !== null) {
-				this.editor.remove();
-				this.editor = null;
+			for (var i=0; i<this.outputs.length; i++) {
+				if (this[this.outputs[i]] !== null) {
+					this[this.outputs[i]].remove();
+					this[this.outputs[i]] = null;
+				}
 			}
 			this.scope = {};
 			this.$tabs.children('li').remove();
@@ -145,6 +126,13 @@ module.exports = function(output) {
 			return this.input;
 		},
 
+		addMath: function() {
+			this.math = new output.Math();
+			this.scope.Math = this.math.getAugmentedObject();
+			this.editor.setScope(this.scope);
+			return this.math;
+		},
+
 		finish: function() {
 			this.selectTab(this.tabs[0]);
 		},
@@ -165,6 +153,7 @@ module.exports = function(output) {
 			this.addCanvas();
 			this.addInfo();
 			this.addInput();
+			this.addMath();
 
 			/*
 			if (window.localStorage.getItem('initial-robot') !== null) {
