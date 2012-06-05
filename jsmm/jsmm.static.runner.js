@@ -28,11 +28,10 @@ module.exports = function(jsmm) {
 
 	jsmm.Runner = function() { return this.init.apply(this, arguments); };
 	jsmm.Runner.prototype = {
-		init: function(editor, scope, outputs, inputs, maxHistory) {
+		init: function(editor, scope, outputs, maxHistory) {
 			this.editor = editor;
 			this.scope = scope;
 			this.outputs = outputs;
-			this.inputs = inputs;
 			this.maxHistory = maxHistory || 50;
 
 			this.tree = null;
@@ -307,13 +306,12 @@ module.exports = function(jsmm) {
 				this.eventNum = -1;
 			} else {
 				if (this.eventNum < 0 || this.eventNum >= this.events.length) {
-					throw 'Event number invalid';
+					this.eventNum = this.events.length;
 				} else if (this.stepNum < 0 ||
 						(this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length)) {
-					throw 'Step number invalid';
-				} else {
-					this.callOutputs('outputSetEventStep', this.eventNum, this.stepNum);
+					this.stepNum = Infinity;
 				}
+				this.callOutputs('outputSetEventStep', this.eventNum, this.stepNum);
 			}
 			this.updateEditor();
 		},

@@ -368,7 +368,7 @@ module.exports = function(editor) {
 		},
 
 		setEditing: function(editing) {
-			//this.bubbleValue.setEditing(editing);
+			this.stepBar.setEditing(editing);
 		},
 
 		update: function(runner) {

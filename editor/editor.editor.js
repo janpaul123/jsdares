@@ -14,7 +14,6 @@ module.exports = function(editor) {
 			this.toolbar = new editor.Toolbar($toolbar, this);
 			this.scope = {};
 			this.outputs = [];
-			this.inputs = [];
 			this.updateRunner();
 
 			this.editables = [];
@@ -34,7 +33,7 @@ module.exports = function(editor) {
 		},
 
 		updateRunner: function() {
-			this.runner = new this.language.Runner(this, this.scope, this.outputs, this.inputs);
+			this.runner = new this.language.Runner(this, this.scope, this.outputs);
 		},
 
 		remove: function() {
@@ -63,14 +62,6 @@ module.exports = function(editor) {
 
 		addOutput: function(output) {
 			this.outputs.push(output);
-			this.updateRunner();
-			if (!this.tree.hasError()) {
-				this.run();
-			}
-		},
-
-		addInput: function(input) {
-			this.inputs.push(input);
 			this.updateRunner();
 			if (!this.tree.hasError()) {
 				this.run();

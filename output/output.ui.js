@@ -8,84 +8,11 @@ var info = require('../info');
 
 module.exports = function(output) {
 	output.UI = function() { return this.init.apply(this, arguments); };
-
-	output.Document = function() { return this.init.apply(this, arguments); };
-
-	output.Document.prototype = {
-		init: function(editor) {
-			this.onkeydown = null;
-			this.contexts = [];
-			$(document).on('keydown', $.proxy(this.handleKeyDownEvent, this));
-
-			this.editor = editor;
-			this.editor.addOutput(this);
-			this.editor.addInput(this);
-
-			this.interval = null;
-		},
-
-		getAugmentedObject: function() {
-			return {
-				onkeydown: {
-					name: 'onkeydown',
-					info: 'document.onkeydown',
-					type: 'variable',
-					example: 'onkeydown("Hello World!")',
-					get: $.proxy(this.handleAttributeGet, this),
-					set: $.proxy(this.handleAttributeSet, this)
-				},
-				setInterval: {
-					name: 'setInterval',
-					info: 'document.setInterval',
-					type: 'function',
-					example: 'setInterval(func, 30)',
-					func: $.proxy(this.handleAttributeCall, this)
-				}
-			};
-		},
-
-		handleAttributeGet: function(name) {
-
-		},
-
-		handleAttributeSet: function(context, name, value) {
-			this.onkeydown = value.name;
-			this.editor.makeInteractive();
-		},
-
-		handleAttributeCall: function(context, name, args) {
-			clearInterval(this.interval);
-			this.intervalName = args[0].name;
-			//console.log(this.intervalName);
-			setInterval($.proxy(this.doInterval, this), args[1]);
-			this.editor.makeInteractive();
-		},
-
-		handleKeyDownEvent: function(event) {
-			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
-			// block these as they are only keyboard shortcuts
-			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) >= 0) {
-				return;
-			}
-			
-			var e = {
-				keyCode: event.keyCode
-			};
-			if (this.onkeydown !== null) {
-				this.editor.addEvent('keyboard', this.onkeydown, [e]);
-			}
-		},
-
-		doInterval: function() {
-			this.editor.addEvent('interval', this.intervalName, []);
-		}
-	};
-
 	output.UI.prototype = {
 		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
 
 		init: function() {
-			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = null;
+			this.editor = this.robot = this.console = this.canvas = this.info = this.dare = this.input = null;
 
 			this.$main = $('#main');
 			this.initTabs();
@@ -131,6 +58,10 @@ module.exports = function(output) {
 			if (this.dare !== null) {
 				this.dare.remove();
 				this.dare = null;
+			}
+			if (this.input !== null) {
+				this.input.remove();
+				this.input = null;
 			}
 			if (this.editor !== null) {
 				this.editor.remove();
@@ -206,6 +137,14 @@ module.exports = function(output) {
 			return this.dare;
 		},
 
+		addInput: function() {
+			this.input = new output.Input(this.editor);
+			this.scope.document = this.input.getAugmentedDocumentObject();
+			this.scope.window = this.input.getAugmentedWindowObject();
+			this.editor.setScope(this.scope);
+			return this.input;
+		},
+
 		finish: function() {
 			this.selectTab(this.tabs[0]);
 		},
@@ -225,10 +164,8 @@ module.exports = function(output) {
 			this.addConsole();
 			this.addCanvas();
 			this.addInfo();
+			this.addInput();
 
-			this.document = new output.Document(this.editor);
-			this.scope.document = this.document.getAugmentedObject();
-			this.editor.setScope(this.scope);
 			/*
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
@@ -250,10 +187,6 @@ module.exports = function(output) {
 
 		getCanvas: function() {
 			return this.canvas;
-		},
-
-		textChanged: function(code) {
-			window.localStorage.setItem('program-3', code.text);
 		}
 	};
 };
