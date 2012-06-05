@@ -190,7 +190,7 @@ module.exports = function(jsmm) {
 			} catch (error) {
 				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
 				if (typeof error === 'string') {
-					throw new jsmm.msg.Error(this, error);
+					throw new jsmm.msg.Error(node, error);
 				} else {
 					throw error;
 				}
