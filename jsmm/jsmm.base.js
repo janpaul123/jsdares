@@ -203,13 +203,14 @@ module.exports = function(jsmm) {
 			this.id = this.tree.getNewId();
 			this.tree.nodes[this.id] = this;
 			for (var i=0; i<this.statements.length; i++) {
-				if (this.statements[i].type !== 'FunctionDeclaration') {
-					this.statements[i].makeId();
-				}
+				this.statements[i].makeId();
 			}
 			for (i=0; i<this.statements.length; i++) {
 				if (this.statements[i].type === 'FunctionDeclaration') {
-					this.statements[i].makeId();
+					var children = this.statements[i].getChildren();
+					for (var j=0; j<children.length; j++) {
+						children[j].makeId();
+					}
 				}
 			}
 		}
@@ -401,6 +402,10 @@ module.exports = function(jsmm) {
 		getCode: function() {
 			var output = 'function ' + this.name + this.getArgList() + '{\n' + this.statementList.getCode() + '}';
 			return output;
+		},
+		makeId: function() {
+			this.id = this.tree.getNewId();
+			this.tree.nodes[this.id] = this;
 		}
 	});
 };
