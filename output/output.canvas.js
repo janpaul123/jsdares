@@ -251,23 +251,48 @@ module.exports = function(output) {
 			this.wrapper.set(name, value);
 		},
 
-		outputStartEvent: function(context) {
-			if (this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize] === undefined) {
-				this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize] = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
-			} else {
-				this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize][0].getContext('2d').clearRect(0, 0, this.size, this.size);
-			}
-			this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize][0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
-			// var imageBuffer = new Image();
-			//imageBuffer.src = this.$canvas[0].toDataURL();
+		setCanvasState: function(position) {
+			this.wrapper.reset();
+			this.context.clearRect(0, 0, this.size, this.size);
 
+			var start = (position-this.buffer[position].lastOriginalOffset+this.bufferSize)%this.bufferSize;
+			this.context.drawImage(this.buffer[start].$originalCanvas[0], 0, 0);
+			this.wrapper.setState(this.buffer[start].state);
+
+			for (var i=start; i !== position; i=(i+1)%this.bufferSize) {
+				for (var j=0; j<this.buffer[i].calls.length; j++) {
+					var call = this.buffer[i].calls[j];
+					this.wrapper.setState(call.state);
+					this.context[call.name].apply(this.context, call.args);
+				}
+			}
+		},
+
+		outputStartEvent: function(context) {
+			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
 			this.currentEvent = {
-				$originalCanvas: this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize],
+				//$originalCanvas: this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize],
 				// $originalCanvas: this.$canvas,
 				// imageBuffer: this.context.getImageData(0, 0, this.size, this.size),
+				position: position,
 				state: this.wrapper.getState(),
 				calls: []
 			};
+
+			if ((position % 30) === 0) {
+				if (this.$originalCanvas[position] === undefined) {
+					this.$originalCanvas[position] = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
+				} else {
+					this.$originalCanvas[position][0].getContext('2d').clearRect(0, 0, this.size, this.size);
+				}
+				this.$originalCanvas[position][0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
+				this.currentEvent.$originalCanvas = this.$originalCanvas[position];
+				this.lastOriginalPosition = position;
+			}
+			this.currentEvent.lastOriginalOffset = (position-this.lastOriginalPosition+this.bufferSize)%this.bufferSize;
+			// var imageBuffer = new Image();
+			//imageBuffer.src = this.$canvas[0].toDataURL();
+
 			// this.events.push(this.currentEvent);
 			this.buffer[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize] = this.currentEvent;
 			this.bufferPosLength++;
@@ -298,12 +323,11 @@ module.exports = function(output) {
 		},
 
 		outputClearToStart: function() {
-			this.wrapper.reset();
-			this.context.clearRect(0, 0, this.size, this.size);
+			// this.wrapper.reset();
+			// this.context.clearRect(0, 0, this.size, this.size);
 			// this.context.drawImage(this.events[0].$originalCanvas[0], 0, 0);
 			// this.wrapper.setState(this.events[0].state);
-			this.context.drawImage(this.buffer[this.bufferPosStart].$originalCanvas[0], 0, 0);
-			this.wrapper.setState(this.buffer[this.bufferPosStart].state);
+			this.setCanvasState(this.bufferPosStart);
 
 			// this.events = [];
 			this.bufferPosLength = 0;
@@ -315,12 +339,11 @@ module.exports = function(output) {
 		},
 
 		outputClearEventsFrom: function(eventNum) {
-			this.wrapper.reset();
-			this.context.clearRect(0, 0, this.size, this.size);
+			// this.wrapper.reset();
+			// this.context.clearRect(0, 0, this.size, this.size);
 			// this.context.drawImage(this.events[eventNum].$originalCanvas[0], 0, 0);
 			// this.wrapper.setState(this.events[eventNum].state);
-			this.context.drawImage(this.buffer[(this.bufferPosStart+eventNum)%this.bufferSize].$originalCanvas[0], 0, 0);
-			this.wrapper.setState(this.buffer[(this.bufferPosStart+eventNum)%this.bufferSize].state);
+			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
 
 			// this.events = this.events.slice(0, eventNum);
 			this.bufferPosLength = eventNum;
@@ -359,10 +382,11 @@ module.exports = function(output) {
 		},
 
 		render: function(highlightEvent) {
-			this.wrapper.reset();
-			this.context.clearRect(0, 0, this.size, this.size);
-			this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
-			this.wrapper.setState(this.currentEvent.state);
+			// this.wrapper.reset();
+			// this.context.clearRect(0, 0, this.size, this.size);
+			// this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
+			// this.wrapper.setState(this.currentEvent.state);
+			this.setCanvasState(this.currentEvent.position);
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];
