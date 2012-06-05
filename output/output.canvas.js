@@ -91,6 +91,8 @@ module.exports = function(output) {
 
 			this.$targetCanvas = null;
 
+			this.$originalCanvas = [];
+
 			//this.debugToBrowser = true;
 			this.highlighting = false;
 			this.highlightCallTarget = 0;
@@ -250,13 +252,17 @@ module.exports = function(output) {
 		},
 
 		outputStartEvent: function(context) {
-			var $originalCanvas = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
-			$originalCanvas[0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
+			if (this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize] === undefined) {
+				this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize] = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
+			} else {
+				this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize][0].getContext('2d').clearRect(0, 0, this.size, this.size);
+			}
+			this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize][0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
 			// var imageBuffer = new Image();
 			//imageBuffer.src = this.$canvas[0].toDataURL();
 
 			this.currentEvent = {
-				$originalCanvas: $originalCanvas,
+				$originalCanvas: this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize],
 				// $originalCanvas: this.$canvas,
 				// imageBuffer: this.context.getImageData(0, 0, this.size, this.size),
 				state: this.wrapper.getState(),
