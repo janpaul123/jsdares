@@ -46,11 +46,13 @@ module.exports = function(jsmm) {
 				this.vars[name] = {type: 'local', value: vars[name]};
 			}
 			this.parent = parent || null;
+			/*
 			if (this.parent === null) {
 				this.level = 0;
 			} else {
 				this.level = this.parent.level + 1;
 			}
+			*/
 		},
 		find: function(name) {
 			var scope = this;

@@ -140,6 +140,10 @@ module.exports = function(editor) {
 			return !this.hasCriticalError() && !this.autoCompletionEnabled;
 		},
 
+		canHighlight: function() {
+			return !this.hasCriticalError() && !this.runner.hasError() && this.runner.isStatic();
+		},
+
 		updateRunnerOutput: function(runner) {
 			if (!this.autoCompletionEnabled) {
 				this.surface.hideAutoCompleteBox();

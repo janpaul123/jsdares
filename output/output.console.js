@@ -146,12 +146,14 @@ module.exports = function(output) {
 			this.$mirror.html('');
 			this.$old.html('');
 			this.$old.show();
+			this.oldLinesStashed = true;
 			this.$lines.children().remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
 		stashOldLines: function() {
-			if (this.events.length > 0) {
+			if (!this.oldLinesStashed) {
+				this.oldLinesStashed = true;
 				this.$old.html(this.events[0].oldHtml);
 				if (this.events[0].$firstElement !== null) {
 					this.events[0].$firstElement.prevAll().remove();
@@ -164,7 +166,7 @@ module.exports = function(output) {
 
 		outputPopFront: function() {
 			var event = this.events.shift();
-			this.stashOldLines();
+			this.oldLinesStashed = false;
 		},
 
 		outputClearToStart: function() {
@@ -173,6 +175,7 @@ module.exports = function(output) {
 			this.$mirror.html(this.events[0].oldHtml);
 			this.$old.html(this.events[0].oldHtml);
 			this.$old.show();
+			this.oldLinesStashed = true;
 			this.$lines.children().remove(); // prevent $.data leaks
 			this.events = [];
 		},
@@ -180,11 +183,14 @@ module.exports = function(output) {
 		outputClearToEnd: function() {
 			this.$old.html(this.$mirror.html());
 			this.$old.show();
+			this.oldLinesStashed = true;
 			this.$lines.children().remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
 		outputClearEventsFrom: function(eventNum) {
+			this.stashOldLines();
+
 			this.text = this.events[eventNum].text;
 			this.color = this.events[eventNum].color;
 			for (var i=eventNum; i<this.events.length; i++) {
@@ -208,6 +214,7 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
+			this.stashOldLines();
 			this.currentEvent = this.events[eventNum];
 
 			this.$old.show();

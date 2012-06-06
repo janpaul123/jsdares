@@ -57,7 +57,7 @@ module.exports = function(jsmm) {
 			if (data.type === 'assignment') {
 				var obj = data.scope.find(data.name);
 				if (obj !== undefined) {
-					if (data.scope.level === 0 || data.scope.vars[data.name] === undefined) {
+					if (data.scope.parent === null || data.scope.vars[data.name] === undefined) {
 						this.addAssignment(stepNum, node, 0, data.name, obj.value, true);
 					} else {
 						this.addAssignment(stepNum, node, this.scopes.length-1, data.name, obj.value, true);

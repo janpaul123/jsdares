@@ -61,7 +61,11 @@ module.exports = function(jsmm) {
 		},
 
 		canReceiveEvents: function() {
-			return this.enabled && !this.paused && !this.isStepping() && !this.hasError();
+			return this.enabled && !this.isStatic() && !this.hasError();
+		},
+
+		isStatic: function() {
+			return !this.interactive || this.paused || this.isStepping();
 		},
 
 		addEvent: function(type, funcName, args) {

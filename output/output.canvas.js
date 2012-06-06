@@ -352,9 +352,11 @@ module.exports = function(output) {
 		},
 
 		highlightCallNodes: function(nodeIds) {
-			this.render(true);
+			this.render();
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
 				var call = this.buffer[this.bufferPosition].calls[i];
+				if (call.stepNum > this.stepNum) break;
+
 				if (nodeIds.indexOf(call.nodeId) >= 0) {
 					this.wrapper.setState(call.state);
 					this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
@@ -365,7 +367,7 @@ module.exports = function(output) {
 			}
 		},
 
-		render: function(highlightEvent) {
+		render: function() {
 			this.setCanvasState(this.bufferPosition);
 
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
@@ -373,7 +375,7 @@ module.exports = function(output) {
 				if (call.stepNum > this.stepNum) break;
 				this.wrapper.setState(call.state);
 
-				if (highlightEvent) {
+				if (this.highlighting) {
 					this.context[call.name].apply(this.context, call.args);
 					this.context.strokeStyle = 'rgba(0, 150, 250, 0.25)';
 					this.context.fillStyle = 'rgba(0, 150, 250, 0.25)';
@@ -382,12 +384,18 @@ module.exports = function(output) {
 
 				this.context[call.name].apply(this.context, call.args);
 			}
+
+			if (this.highlighting) {
+				this.drawMirror();
+			}
 		},
 
 		drawMirror: function() {
 			this.clearMirror();
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
 				var call = this.buffer[this.bufferPosition].calls[i];
+				if (call.stepNum > this.stepNum) break;
+
 				this.mirrorWrapper.setState(call.state);
 
 				var highlightId = (highlightMult*(i+1))%highlightPrime;
@@ -411,8 +419,7 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
-			this.render(true);
-			this.drawMirror();
+			this.render();
 		},
 
 		disableHighlighting: function() {
@@ -420,7 +427,7 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
-			this.render(false);
+			this.render();
 			this.clearMirror();
 		},
 
@@ -464,7 +471,7 @@ module.exports = function(output) {
 
 					if (this.highlightCallIndex < 0) {
 						this.editor.highlightNode(null);
-						this.render(true); // == this.highlightCallNodes([]);
+						this.render(); // == this.highlightCallNodes([]);
 					} else {
 						this.editor.highlightNodeId(this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId);
 						this.highlightCallNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
