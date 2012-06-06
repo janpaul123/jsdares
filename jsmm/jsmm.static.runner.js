@@ -223,7 +223,7 @@ module.exports = function(jsmm) {
 
 		setStepNum: function(stepNum) {
 			if (stepNum >= 0 && stepNum < this.events[this.eventNum].context.steps.length) {
-				this.paused = true;
+				// this.paused = true;
 				this.stepNum = stepNum;
 				this.updateEventStep();
 			} else {
@@ -284,14 +284,7 @@ module.exports = function(jsmm) {
 		},
 
 		getExamples: function(text) {
-			return null;
-			/*
-			var scope = this.context === null ? new jsmm.func.Scope(this.scope) : this.context.scope;
-			if (scope === null) return null;
-			else {
-				return jsmm.editor.autocompletion.getExamples(scope, text);
-			}
-			*/
+			return jsmm.editor.autocompletion.getExamples(new jsmm.func.Scope(this.runScope || this.scope), text);
 		},
 
 		/// INTERNAL FUNCTIONS ///

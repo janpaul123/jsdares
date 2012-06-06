@@ -38,7 +38,7 @@ module.exports = function(output) {
 		},
 
 		remove: function() {
-			this.$lines.children('.console-line').remove();
+			this.$lines.children().remove();
 			this.$container.remove();
 			this.$mirror.remove();
 			this.$div.removeClass('output console');
@@ -109,7 +109,7 @@ module.exports = function(output) {
 			this.color = '';
 			this.$mirror.html('');
 			this.$old.hide();
-			this.$lines.children('.console-line').hide();
+			this.$lines.children().hide();
 
 			this.currentEvent.calls.push({
 				clear: true,
@@ -146,7 +146,7 @@ module.exports = function(output) {
 			this.$mirror.html('');
 			this.$old.html('');
 			this.$old.show();
-			this.$lines.children('.console-line').remove(); // prevent $.data leaks
+			this.$lines.children().remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
@@ -157,6 +157,8 @@ module.exports = function(output) {
 				if (this.events[0].$firstElement !== null) {
 					this.events[0].$firstElement.prevAll().remove();
 					this.events[0].$firstMirrorElement.prevAll().remove();
+				} else {
+					this.$lines.children().remove();
 				}
 			}
 		},
@@ -167,14 +169,14 @@ module.exports = function(output) {
 			this.$mirror.html(this.events[0].oldHtml);
 			this.$old.html(this.events[0].oldHtml);
 			this.$old.show();
-			this.$lines.children('.console-line').remove(); // prevent $.data leaks
+			this.$lines.children().remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
 		outputClearToEnd: function() {
 			this.$old.html(this.$mirror.html());
 			this.$old.show();
-			this.$lines.children('.console-line').remove(); // prevent $.data leaks
+			this.$lines.children().remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
@@ -205,15 +207,16 @@ module.exports = function(output) {
 			this.currentEvent = this.events[eventNum];
 
 			this.$old.show();
-			this.$lines.children('.console-line').hide();
+			this.$lines.children().hide();
 			for (var i=0; i<this.events.length; i++) {
 				if (i > eventNum) break;
 				for (var j=0; j<this.events[i].calls.length; j++) {
 					var call = this.events[i].calls[j];
+					if (i === eventNum && call.stepNum > stepNum) break;
 
 					if (call.clear) {
 						this.$old.hide();
-						this.$lines.children('.console-line').hide();
+						this.$lines.children().hide();
 					} else {
 						call.$element.show();
 					}

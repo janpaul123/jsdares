@@ -21,8 +21,8 @@ module.exports = function(editor) {
 			this.editablesEnabled = false;
 
 			this.highlightingEnabled = false;
-
 			this.autoCompletionEnabled = false;
+			this.wasStepping = false;
 
 			this.updateTimeout = null;
 			this.runTimeout = null;
@@ -142,7 +142,7 @@ module.exports = function(editor) {
 
 		updateRunnerOutput: function(runner) {
 			if (!this.autoCompletionEnabled) {
-				//this.surface.hideAutoCompleteBox();
+				this.surface.hideAutoCompleteBox();
 				if (runner.hasError()) {
 					this.handleError(runner.getError());
 				} else {
@@ -178,13 +178,18 @@ module.exports = function(editor) {
 			for (var i=0; i<messages.length; i++) {
 				if (messages[i].type === 'Inline') {
 					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
+					this.surface.scrollToLine(messages[i].loc.line);
 					shown = true;
 					// this.callOutputs('setCallNr', this.runner.getContext(), messages[i].callNr);
 				}
 			}
 			if (!shown) {
 				this.surface.hideStepMessage();
+				this.wasStepping = false;
 				// this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
+			} else if (!this.wasStepping) {
+				this.wasStepping = true;
+				this.surface.openStepMessage();
 			}
 		},
 
@@ -479,7 +484,7 @@ module.exports = function(editor) {
 
 			var text = this.surface.getText();
 			this.runTemp(text.substring(0, offset1) + example + text.substring(offset2));
-			this.toolbar.previewing();
+			this.toolbar.disable();
 		},
 
 		insertExample: function(offset1, offset2, example) { // callback

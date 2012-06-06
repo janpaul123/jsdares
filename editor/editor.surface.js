@@ -67,9 +67,9 @@ module.exports = function(editor) {
 		showAtLocation: function(location, html) {
 			if (!this.visible) {
 				this.visible = true;
-				this.$marginIcon.css('top', this.surface.lineToY(location.line));
 				this.$marginIcon.fadeIn(150);
 			}
+			this.$marginIcon.css('top', this.surface.lineToY(location.line));
 			this.location = location;
 			this.html = html;
 			this.updateMessage();
