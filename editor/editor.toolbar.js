@@ -7,6 +7,7 @@ module.exports = function(editor) {
 	editor.BubbleValue = function() { return this.init.apply(this, arguments); };
 	editor.BubbleValue.prototype = {
 		init: function($div, delegate) {
+			this.delegate = delegate;
 			this.$body = $('body');
 
 			this.$stepBubble = $('<div class="editor-toolbar-step-bubble"><div class="editor-toolbar-step-bubble-arrow"></div></div>');
@@ -21,7 +22,7 @@ module.exports = function(editor) {
 			this.hasTooltip = false;
 			this.touchable = new clayer.Touchable(this.$stepNum, this);
 			this.setEditing(false);
-			this.delegate = delegate;
+			this.enabled = false;
 		},
 
 		remove: function() {
@@ -33,7 +34,10 @@ module.exports = function(editor) {
 		},
 
 		setStepInfo: function(stepNum, stepTotal) {
-			this.$stepBubble.fadeIn(150);
+			if (!this.enabled) {
+				this.enabled = true;
+				this.$stepBubble.fadeIn(150);
+			}
 			this.value = stepNum;
 			this.total = stepTotal;
 			this.$stepNum.text(stepNum);
@@ -42,7 +46,10 @@ module.exports = function(editor) {
 		},
 
 		disable: function() {
-			this.$stepBubble.fadeOut(150);
+			if (this.enabled) {
+				this.enabled = false;
+				this.$stepBubble.fadeOut(150);
+			}
 		},
 
 		setEditing: function(editing) {
@@ -350,6 +357,8 @@ module.exports = function(editor) {
 			this.stepBar = new editor.StepBar($stepBar, this.$stepBarContainer, false);
 			this.$stepBarContainer.append($stepBar);
 
+			this.sliderEnabled = true;
+			this.$stepBarContainer.hide(); // hacky fix
 			this.disable();
 		},
 
@@ -383,8 +392,9 @@ module.exports = function(editor) {
 				if (this.runner.isPaused()) {
 					this.playPauseAnimation.pause();
 					if (this.runner.hasEvents()) {
-						this.$stepBarContainer.fadeIn(150);
-						if (this.$div.hasClass('editor-toolbar-run-slider-disabled')) {
+						if (!this.sliderEnabled) {
+							this.sliderEnabled = true;
+							this.$stepBarContainer.fadeIn(150);
 							this.$div.removeClass('editor-toolbar-run-slider-disabled');
 							this.$div.addClass('editor-toolbar-run-slider-enabled');
 							this.$slider.width(this.runner.getEventTotal()*200/this.maxHistory);
@@ -415,10 +425,13 @@ module.exports = function(editor) {
 		},
 
 		hideSlider: function() {
-			this.$div.addClass('editor-toolbar-run-slider-disabled');
-			this.$div.removeClass('editor-toolbar-run-slider-enabled');
-			this.$sliderButton.css('margin-left', -this.$slider.width()-20);
-			this.$stepBarContainer.fadeOut(150);
+			if (this.sliderEnabled) {
+				this.sliderEnabled = false;
+				this.$div.addClass('editor-toolbar-run-slider-disabled');
+				this.$div.removeClass('editor-toolbar-run-slider-enabled');
+				this.$sliderButton.css('margin-left', -this.$slider.width()-20);
+				this.$stepBarContainer.fadeOut(150);
+			}
 		},
 
 		playPause: function() {

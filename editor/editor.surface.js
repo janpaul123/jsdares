@@ -62,13 +62,16 @@ module.exports = function(editor) {
 			this.messageOpen = false;
 			this.location = null;
 			this.html = '';
+			this.isCurrentlyShown = false;
 		},
 		showAtLocation: function(location, html) {
-			this.$marginIcon.css('top', this.surface.lineToY(location.line));
-			this.$marginIcon.fadeIn(150);
+			if (!this.visible) {
+				this.visible = true;
+				this.$marginIcon.css('top', this.surface.lineToY(location.line));
+				this.$marginIcon.fadeIn(150);
+			}
 			this.location = location;
 			this.html = html;
-			this.visible = true;
 			this.updateMessage();
 		},
 		openMessage: function() {
@@ -80,8 +83,10 @@ module.exports = function(editor) {
 			this.updateMessage();
 		},
 		hide: function() {
-			this.visible = false;
-			this.$marginIcon.fadeOut(150);
+			if (this.visible) {
+				this.visible = false;
+				this.$marginIcon.fadeOut(150);
+			}
 			this.updateMessage();
 		},
 		remove: function() {
@@ -96,13 +101,19 @@ module.exports = function(editor) {
 		},
 		updateMessage: function() {
 			if (this.visible && this.messageOpen && this.location !== null) {
-				this.$marking.fadeIn(150);
-				this.box.$element.fadeIn(150);
+				if (!this.isCurrentlyShown) {
+					this.isCurrentlyShown = true;
+					this.$marking.fadeIn(150);
+					this.box.$element.fadeIn(150);
+				}
 				this.surface.setElementLocationRange(this.$marking, this.location.line, this.location.column, this.location.line2, this.location.column2);
 				this.box.html(this.html);
 			} else {
-				this.$marking.fadeOut(150);
-				this.box.$element.fadeOut(150);
+				if (this.isCurrentlyShown) {
+					this.isCurrentlyShown = false;
+					this.$marking.fadeOut(150);
+					this.box.$element.fadeOut(150);
+				}
 			}
 		}
 	};
