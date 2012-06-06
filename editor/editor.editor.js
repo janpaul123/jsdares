@@ -104,9 +104,7 @@ module.exports = function(editor) {
 				if (this.tree.hasError()) {
 					this.handleCriticalError(this.tree.getError());
 				} else {
-					if (this.highlightingEnabled) {
-						this.refreshHighlights();
-					}
+					this.updateHighlighting();
 					this.run();
 				}
 			}
@@ -123,12 +121,14 @@ module.exports = function(editor) {
 			this.runTimeout = null;
 			this.runner.enable();
 			this.runner.newTree(this.tree);
+			this.updateHighlighting();
 		},
 
 		runTemp: function(text) {
 			this.tree = new this.language.Tree(text);
 			if (!this.tree.hasError()) {
 				this.runner.newTree(this.tree);
+				this.updateHighlighting();
 			}
 		},
 
@@ -141,10 +141,10 @@ module.exports = function(editor) {
 		},
 
 		canHighlight: function() {
-			return !this.hasCriticalError() && !this.runner.hasError() && this.runner.isStatic();
+			return !this.hasCriticalError() && this.runner.isStatic();
 		},
 
-		updateRunnerOutput: function(runner) {
+		updateRunnerOutput: function(runner) { // runner callback
 			if (!this.autoCompletionEnabled) {
 				this.surface.hideAutoCompleteBox();
 				if (runner.hasError()) {
@@ -152,6 +152,7 @@ module.exports = function(editor) {
 				} else {
 					this.handleMessages(runner.getMessages());
 				}
+				this.updateHighlighting();
 				this.toolbar.update(runner);
 			}
 		},
@@ -160,12 +161,10 @@ module.exports = function(editor) {
 			if (this.editablesEnabled) {
 				this.disableEditables();
 			}
-			if (this.highlightingEnabled) {
-				this.disableHighlighting();
-			}
 			this.handleError(error);
 			this.runner.disable();
 			this.toolbar.disable();
+			this.updateHighlighting();
 		},
 
 		handleError: function(error) {
@@ -294,8 +293,29 @@ module.exports = function(editor) {
 		},
 
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
+		updateHighlighting: function() {
+			if (this.highlightingEnabled) {
+				if (!this.canHighlight()) {
+					this.disableHighlighting();
+				} else {
+					var node = this.tree.getNodeByLine(this.currentHighlightLine);
+					if (node !== this.currentHighlightNode) {
+						this.currentHighlightNode = node;
+						if (node !== null) {
+							var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
+							this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
+							this.callOutputs('highlightCallNodes', this.runner.getCallNodesByRange(line1, line2));
+						} else {
+							this.surface.hideHighlight();
+							this.callOutputs('highlightCallNodes', []);
+						}
+					}
+				}
+			}
+		},
+
 		enableHighlighting: function() {
-			if (this.canRun()) {
+			if (this.canHighlight()) {
 				this.surface.enableMouse();
 				this.surface.enableHighlighting();
 				this.highlightingEnabled = true;
@@ -344,33 +364,17 @@ module.exports = function(editor) {
 		},
 
 		// internal method
-		refreshHighlights: function() {
-			var node = this.tree.getNodeByLine(this.currentHighlightLine);
-			
-			if (node !== this.currentHighlightNode) {
-				this.currentHighlightNode = node;
-				if (node !== null) {
-					var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
-					this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
-					this.callOutputs('highlightCallNodes', this.runner.getCallNodesByRange(line1, line2));
-				} else {
-					this.surface.hideHighlight();
-					this.callOutputs('highlightCallNodes', []);
-				}
-			}
-		},
-
 		mouseMove: function(event, line, column) { // callback
 			if (this.highlightingEnabled && this.currentHighlightLine !== line) {
 				this.currentHighlightLine = line;
-				this.refreshHighlights();
+				this.updateHighlighting();
 			}
 		},
 
 		mouseLeave: function(event) { //callback
 			if (this.highlightingEnabled) {
 				this.currentHighlightLine = 0;
-				this.refreshHighlights();
+				this.updateHighlighting();
 			}
 		},
 
@@ -482,9 +486,9 @@ module.exports = function(editor) {
 			if (this.editablesEnabled) {
 				this.disableEditables();
 			}
-			if (this.highlightingEnabled) {
-				this.disableHighlighting();
-			}
+			// if (this.highlightingEnabled) {
+				// this.disableHighlighting();
+			// }
 
 			var text = this.surface.getText();
 			this.runTemp(text.substring(0, offset1) + example + text.substring(offset2));

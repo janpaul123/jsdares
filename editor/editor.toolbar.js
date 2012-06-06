@@ -523,7 +523,11 @@ module.exports = function(editor) {
 		},
 
 		update: function(runner) {
-			this.$highlight.removeClass('disabled');
+			if (runner.isStatic()) {
+				this.$highlight.removeClass('disabled');
+			} else {
+				this.$highlight.addClass('disabled');
+			}
 			this.$edit.removeClass('disabled');
 			this.baseStepBar.update(runner);
 			this.runBar.update(runner);
