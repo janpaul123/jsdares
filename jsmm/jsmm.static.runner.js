@@ -49,11 +49,13 @@ module.exports = function(jsmm) {
 		},
 
 		selectBaseEvent: function() {
+			if (this.events.length !== 1 || this.eventNum !== 0 || this.events[0] !== this.baseEvent) {
+				this.events = [this.baseEvent];
+				this.eventNum = 0;
+				this.stepNum = Infinity;
+			}
 			this.interactive = false;
 			this.paused = false;
-			this.events = [this.baseEvent];
-			this.eventNum = 0;
-			this.stepNum = Infinity;
 			this.callOutputs('outputClearAll');
 			this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
 			this.runScope = this.baseEvent.context.scope.getVars();

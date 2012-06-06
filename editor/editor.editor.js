@@ -183,13 +183,11 @@ module.exports = function(editor) {
 					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
 					this.surface.scrollToLine(messages[i].loc.line);
 					shown = true;
-					// this.callOutputs('setCallNr', this.runner.getContext(), messages[i].callNr);
 				}
 			}
 			if (!shown) {
 				this.surface.hideStepMessage();
 				this.wasStepping = false;
-				// this.callOutputs('setCallNr', this.runner.getContext(), Infinity);
 			} else if (!this.wasStepping) {
 				this.wasStepping = true;
 				this.surface.openStepMessage();
@@ -217,7 +215,6 @@ module.exports = function(editor) {
 			if (this.editablesEnabled) {
 				this.refreshEditables();
 			}
-			//window.localStorage.setItem('1', this.code.text);
 		},
 
 		outputRequestsRerun: function() { //callback
@@ -486,9 +483,9 @@ module.exports = function(editor) {
 			if (this.editablesEnabled) {
 				this.disableEditables();
 			}
-			// if (this.highlightingEnabled) {
-				// this.disableHighlighting();
-			// }
+			if (this.highlightingEnabled) {
+				this.disableHighlighting();
+			}
 
 			var text = this.surface.getText();
 			this.runTemp(text.substring(0, offset1) + example + text.substring(offset2));
