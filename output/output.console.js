@@ -150,8 +150,7 @@ module.exports = function(output) {
 			this.events = [];
 		},
 
-		outputPopFront: function() {
-			var event = this.events.shift();
+		stashOldLines: function() {
 			if (this.events.length > 0) {
 				this.$old.html(this.events[0].oldHtml);
 				if (this.events[0].$firstElement !== null) {
@@ -161,6 +160,11 @@ module.exports = function(output) {
 					this.$lines.children().remove();
 				}
 			}
+		},
+
+		outputPopFront: function() {
+			var event = this.events.shift();
+			this.stashOldLines();
 		},
 
 		outputClearToStart: function() {

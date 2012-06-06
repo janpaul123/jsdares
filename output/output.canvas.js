@@ -91,7 +91,10 @@ module.exports = function(output) {
 
 			this.$targetCanvas = null;
 
-			this.$originalCanvas = [];
+			this.$originalCanvasBuffer = [];
+			for (var i=0; i<30; i++) {
+				this.$originalCanvasBuffer[i] = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
+			}
 
 			//this.debugToBrowser = true;
 			this.highlighting = false;
@@ -236,7 +239,7 @@ module.exports = function(output) {
 			if (this.functions[name].path) {
 				return this.wrapper.callPath(name, args);
 			} else {
-				this.currentEvent.calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+				this.buffer[this.bufferPosition].calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
 				return this.context[name].apply(this.context, args);
 			}
 		},
@@ -246,16 +249,18 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(context, name, value) {
-			//this.currentEvent.calls.push({type: 'variable', name: name, value: value, stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+			//this.buffer[this.bufferPosition].calls.push({type: 'variable', name: name, value: value, stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
 			//this.context[name] = value;
 			this.wrapper.set(name, value);
 		},
 
 		setCanvasState: function(position) {
+			position = position%this.bufferSize;
+
 			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 
-			var start = (position-this.buffer[position].lastOriginalOffset+this.bufferSize)%this.bufferSize;
+			var start = this.buffer[position].originalPosition;
 			this.context.drawImage(this.buffer[start].$originalCanvas[0], 0, 0);
 			this.wrapper.setState(this.buffer[start].state);
 
@@ -270,45 +275,25 @@ module.exports = function(output) {
 		},
 
 		outputStartEvent: function(context) {
-			/*
-			var log = '';
-			for (var i=0; i<this.bufferSize; i++) {
-				var buffer = this.buffer[i];
-				if (buffer !== undefined && buffer.lastOriginalOffset !== undefined) {
-					log += buffer.lastOriginalOffset + ' ';
-				} else {
-					log += '/ ';
-				}
-			}
-			console.log(log);
-			*/
-
 			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
-			this.currentEvent = {
-				//$originalCanvas: this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize],
-				// $originalCanvas: this.$canvas,
-				// imageBuffer: this.context.getImageData(0, 0, this.size, this.size),
-				position: position,
-				state: this.wrapper.getState(),
-				calls: []
-			};
+			var $originalCanvas = null;
 
 			if ((position % 30) === 0) {
-				if (this.$originalCanvas[position] === undefined) {
-					this.$originalCanvas[position] = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
-				} else {
-					this.$originalCanvas[position][0].getContext('2d').clearRect(0, 0, this.size, this.size);
-				}
-				this.$originalCanvas[position][0].getContext('2d').drawImage(this.$canvas[0], 0, 0); // expensive bottleneck!
-				this.currentEvent.$originalCanvas = this.$originalCanvas[position];
+				$originalCanvas = this.$originalCanvasBuffer[Math.floor(position/30)];
+				$originalCanvas[0].getContext('2d').clearRect(0, 0, this.size, this.size);
+				$originalCanvas[0].getContext('2d').drawImage(this.$canvas[0], 0, 0);
 				this.lastOriginalPosition = position;
 			}
-			this.currentEvent.lastOriginalOffset = (position-this.lastOriginalPosition+this.bufferSize)%this.bufferSize;
-			// var imageBuffer = new Image();
-			//imageBuffer.src = this.$canvas[0].toDataURL();
 
-			// this.events.push(this.currentEvent);
-			this.buffer[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize] = this.currentEvent;
+			var event = {
+				state: this.wrapper.getState(),
+				calls: [],
+				originalPosition: this.lastOriginalPosition,
+				$originalCanvas: $originalCanvas
+			};
+
+			this.bufferPosition = position;
+			this.buffer[position] = event;
 			this.bufferPosLength++;
 		},
 
@@ -319,8 +304,6 @@ module.exports = function(output) {
 			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 
-			// this.events = [];
-
 			this.buffer = [];
 			this.bufferSize = 300;
 			this.bufferPosStart = 0;
@@ -328,39 +311,26 @@ module.exports = function(output) {
 		},
 
 		outputPopFront: function() {
-			// var event = this.events.shift();
-
 			if (this.bufferPosLength > 0) {
-				this.bufferPosStart = (this.bufferPosStart+1)%this.bufferSize;
+				this.bufferPosStart++;
+				this.bufferPosStart %= this.bufferSize;
 				this.bufferPosLength--;
 			}
 		},
 
 		outputClearToStart: function() {
-			// this.wrapper.reset();
-			// this.context.clearRect(0, 0, this.size, this.size);
-			// this.context.drawImage(this.events[0].$originalCanvas[0], 0, 0);
-			// this.wrapper.setState(this.events[0].state);
 			this.setCanvasState(this.bufferPosStart);
-
-			// this.events = [];
 			this.bufferPosLength = 0;
 		},
 
 		outputClearToEnd: function() {
-			// this.events = [];
-			this.bufferPosStart = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
+			this.bufferPosStart += this.bufferPosLength;
+			this.bufferPosStart %= this.bufferSize;
 			this.bufferPosLength = 0;
 		},
 
 		outputClearEventsFrom: function(eventNum) {
-			// this.wrapper.reset();
-			// this.context.clearRect(0, 0, this.size, this.size);
-			// this.context.drawImage(this.events[eventNum].$originalCanvas[0], 0, 0);
-			// this.wrapper.setState(this.events[eventNum].state);
 			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
-
-			// this.events = this.events.slice(0, eventNum);
 			this.bufferPosLength = eventNum;
 		},
 
@@ -373,10 +343,9 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			// if (this.currentEvent !== this.events[eventNum] || this.stepNum !== stepNum) {
-				// this.currentEvent = this.events[eventNum];
-			if (this.currentEvent !== this.buffer[(this.bufferPosStart+eventNum)%this.bufferSize] || this.stepNum !== stepNum) {
-				this.currentEvent = this.buffer[(this.bufferPosStart+eventNum)%this.bufferSize];
+			var position = (this.bufferPosStart+eventNum)%this.bufferSize;
+			if (this.bufferPosition !== position || this.stepNum !== stepNum) {
+				this.bufferPosition = position;
 				this.stepNum = stepNum;
 				this.render();
 			}
@@ -384,8 +353,8 @@ module.exports = function(output) {
 
 		highlightCallNodes: function(nodeIds) {
 			this.render(true);
-			for (var i=0; i<this.currentEvent.calls.length; i++) {
-				var call = this.currentEvent.calls[i];
+			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
+				var call = this.buffer[this.bufferPosition].calls[i];
 				if (nodeIds.indexOf(call.nodeId) >= 0) {
 					this.wrapper.setState(call.state);
 					this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
@@ -397,14 +366,10 @@ module.exports = function(output) {
 		},
 
 		render: function(highlightEvent) {
-			// this.wrapper.reset();
-			// this.context.clearRect(0, 0, this.size, this.size);
-			// this.context.drawImage(this.currentEvent.$originalCanvas[0], 0, 0);
-			// this.wrapper.setState(this.currentEvent.state);
-			this.setCanvasState(this.currentEvent.position);
+			this.setCanvasState(this.bufferPosition);
 
-			for (var i=0; i<this.currentEvent.calls.length; i++) {
-				var call = this.currentEvent.calls[i];
+			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
+				var call = this.buffer[this.bufferPosition].calls[i];
 				if (call.stepNum > this.stepNum) break;
 				this.wrapper.setState(call.state);
 
@@ -421,8 +386,8 @@ module.exports = function(output) {
 
 		drawMirror: function() {
 			this.clearMirror();
-			for (var i=0; i<this.currentEvent.calls.length; i++) {
-				var call = this.currentEvent.calls[i];
+			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
+				var call = this.buffer[this.bufferPosition].calls[i];
 				this.mirrorWrapper.setState(call.state);
 
 				var highlightId = (highlightMult*(i+1))%highlightPrime;
@@ -438,7 +403,7 @@ module.exports = function(output) {
 		clearMirror: function() {
 			this.mirrorWrapper.reset();
 			this.mirrorContext.clearRect(0, 0, this.size, this.size);
-			this.mirrorWrapper.setState(this.currentEvent.state);
+			this.mirrorWrapper.setState(this.buffer[this.bufferPosition].state);
 		},
 
 		enableHighlighting: function() {
@@ -455,7 +420,7 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
-			this.render();
+			this.render(false);
 			this.clearMirror();
 		},
 
@@ -486,7 +451,7 @@ module.exports = function(output) {
 				var highlightId = (pixel[3] < 255 ? 0 : (pixel[0]*65536 + pixel[1]*256 + pixel[2]) % 16777213);
 
 				var highlightCallIndex = -1;
-				for (var i=0; i<this.currentEvent.calls.length; i++) {
+				for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
 					var highlightIdMatch = (highlightMult*(i+1))%highlightPrime;
 					if (highlightId === highlightIdMatch) {
 						highlightCallIndex = i;
@@ -501,11 +466,24 @@ module.exports = function(output) {
 						this.editor.highlightNode(null);
 						this.render(true); // == this.highlightCallNodes([]);
 					} else {
-						this.editor.highlightNodeId(this.currentEvent.calls[this.highlightCallIndex].nodeId);
-						this.highlightCallNodes([this.currentEvent.calls[this.highlightCallIndex].nodeId]);
+						this.editor.highlightNodeId(this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId);
+						this.highlightCallNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
 					}
 				}
 			}
+		},
+
+		debugOriginalPositions: function() {
+			var log = '';
+			for (var i=0; i<this.bufferSize; i++) {
+				var buffer = this.buffer[i];
+				if (buffer !== undefined && buffer.originalPosition !== undefined) {
+					log += buffer.originalPosition + ' ';
+				} else {
+					log += '/ ';
+				}
+			}
+			return log;
 		}
 	};
 };

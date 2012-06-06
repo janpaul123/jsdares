@@ -32,7 +32,7 @@ module.exports = function(jsmm) {
 			this.editor = editor;
 			this.scope = scope;
 			this.outputs = outputs;
-			this.maxHistory = maxHistory || 50;
+			this.maxHistory = maxHistory || 80;
 
 			this.tree = null;
 			this.baseEvent = new jsmm.Event(this, 'base');
@@ -223,7 +223,6 @@ module.exports = function(jsmm) {
 
 		setStepNum: function(stepNum) {
 			if (stepNum >= 0 && stepNum < this.events[this.eventNum].context.steps.length) {
-				// this.paused = true;
 				this.stepNum = stepNum;
 				this.updateEventStep();
 			} else {
