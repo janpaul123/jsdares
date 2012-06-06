@@ -270,6 +270,7 @@ module.exports = function(output) {
 		},
 
 		outputStartEvent: function(context) {
+			/*
 			var log = '';
 			for (var i=0; i<this.bufferSize; i++) {
 				var buffer = this.buffer[i];
@@ -280,6 +281,7 @@ module.exports = function(output) {
 				}
 			}
 			console.log(log);
+			*/
 
 			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
 			this.currentEvent = {

@@ -108,6 +108,8 @@ module.exports = function(output) {
 			this.text = '';
 			this.color = '';
 			this.$mirror.html('');
+			this.$old.hide();
+			this.$lines.children('.console-line').hide();
 
 			this.currentEvent.calls.push({
 				clear: true,
@@ -128,7 +130,7 @@ module.exports = function(output) {
 				color: this.color,
 				$firstElement: null,
 				$firstMirrorElement: null,
-				oldHtml: this.$old.html() + this.$mirror.html(),
+				oldHtml: this.$mirror.html(),
 				calls: []
 			};
 			this.events.push(this.currentEvent);
@@ -143,6 +145,7 @@ module.exports = function(output) {
 			this.color = '';
 			this.$mirror.html('');
 			this.$old.html('');
+			this.$old.show();
 			this.$lines.children('.console-line').remove(); // prevent $.data leaks
 			this.events = [];
 		},
@@ -161,15 +164,16 @@ module.exports = function(output) {
 		outputClearToStart: function() {
 			this.text = this.events[0].text;
 			this.color = this.events[0].color;
-			this.$mirror.html('');
+			this.$mirror.html(this.events[0].oldHtml);
 			this.$old.html(this.events[0].oldHtml);
+			this.$old.show();
 			this.$lines.children('.console-line').remove(); // prevent $.data leaks
 			this.events = [];
 		},
 
 		outputClearToEnd: function() {
-			this.$old.append(this.$mirror.html());
-			this.$mirror.html('');
+			this.$old.html(this.$mirror.html());
+			this.$old.show();
 			this.$lines.children('.console-line').remove(); // prevent $.data leaks
 			this.events = [];
 		},
