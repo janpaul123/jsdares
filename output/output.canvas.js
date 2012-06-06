@@ -266,9 +266,21 @@ module.exports = function(output) {
 					this.context[call.name].apply(this.context, call.args);
 				}
 			}
+			this.lastOriginalPosition = start;
 		},
 
 		outputStartEvent: function(context) {
+			var log = '';
+			for (var i=0; i<this.bufferSize; i++) {
+				var buffer = this.buffer[i];
+				if (buffer !== undefined && buffer.lastOriginalOffset !== undefined) {
+					log += buffer.lastOriginalOffset + ' ';
+				} else {
+					log += '/ ';
+				}
+			}
+			console.log(log);
+
 			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
 			this.currentEvent = {
 				//$originalCanvas: this.$originalCanvas[(this.bufferPosStart+this.bufferPosLength)%this.bufferSize],
@@ -335,6 +347,7 @@ module.exports = function(output) {
 
 		outputClearToEnd: function() {
 			// this.events = [];
+			this.bufferPosStart = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
 			this.bufferPosLength = 0;
 		},
 
