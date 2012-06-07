@@ -43,10 +43,10 @@ module.exports = function(output) {
 
 		playAnimation: function(number) {
 			this.playing = true;
-			var animation = this.animationQueue[number];
-			this.number = number;
-			this.setInitial(animation);
 			this.clearTimeout();
+			this.number = number;
+			var animation = this.animationQueue[this.number];
+			this.setInitial(animation);
 
 			if (animation.type === 'wall') {
 				this.setLight(animation.wall ? 'red' : 'green');
@@ -59,20 +59,28 @@ module.exports = function(output) {
 		},
 
 		play: function(start, end) {
-			if (start >= 0 && start < this.animationQueue.length) {
+			console.log(start, end);
+			if (start >= 0 && this.animationQueue.length > 0) {
 				if (end > start) {
 					this.lastNumber = end;
 					this.playAnimation(start);
 				} else {
-					var animation = this.animationQueue[start];
-					this.setPosition(animation.x2 || animation.x, animation.y2 || animation.y);
-					this.setOrientation(animation.angle2 || animation.angle);
-					this.setLight('default');
+					this.playing = false;
+					if (start < this.animationQueue.length) {
+						this.setInitial(this.animationQueue[start]);
+					} else {
+						var animation = this.animationQueue[this.animationQueue.length-1];
+						this.resetRobot();
+						this.setPosition(animation.x2 || animation.x, animation.y2 || animation.y);
+						this.setOrientation(animation.angle2 || animation.angle);
+						this.setLight('default');
+					}
 					this.clearTimeout();
 				}
 			} else {
 				this.playing = false;
 				this.clearTimeout();
+				this.resetRobot();
 				this.$robot.hide();
 			}
 		},

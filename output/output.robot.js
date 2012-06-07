@@ -144,7 +144,7 @@ module.exports = function(output) {
 
 		outputEndEvent: function() {
 			this.updateEventHighlight();
-			this.robot.animationManager.playAll();
+			this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 		},
 
 		outputClearAll: function() {
@@ -212,6 +212,7 @@ module.exports = function(output) {
 				}
 
 				if (this.stepNum === Infinity) {
+					console.log('play entire event', this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 				} else {
 					var lastAnimNum = null;
@@ -219,18 +220,18 @@ module.exports = function(output) {
 						var call = this.events[this.eventPosition].calls[i];
 						if (call.stepNum > this.stepNum) break;
 
-						lastAnimNum = i;
+						lastAnimNum = call.animNum;
 						if (call.stepNum === this.stepNum) {
-							this.robot.animationManager.play(i, i+1);
+							this.robot.animationManager.play(call.animNum, call.animNum+1);
 							lastAnimNum = false;
 							break;
 						}
 					}
 
 					if (lastAnimNum === null) {
-						this.robot.animationManager.play(-1);
+						this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].startAnimNum);
 					} else if (lastAnimNum !== false) {
-						this.robot.animationManager.play(lastAnimNum, lastAnimNum);
+						this.robot.animationManager.play(lastAnimNum+1, lastAnimNum+1);
 					}
 				}
 			}
@@ -272,7 +273,7 @@ module.exports = function(output) {
 		},
 
 		setFocus: function() {
-			this.robot.animationManager.playAll();
+			this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 		},
 
 		highlightCallNodes: function(nodeIds) {
@@ -312,6 +313,7 @@ module.exports = function(output) {
 				animNum: this.robot.animation.getLength()-1
 				//anim: this.robot.lastAnim
 			});
+			this.events[this.eventPosition].endAnimNum = this.robot.animation.getLength();
 		},
 
 		updateInterface: function() {

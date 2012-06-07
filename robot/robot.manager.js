@@ -20,16 +20,6 @@ module.exports = function(output) {
 			return this.insertingAnimation;
 		},
 		
-		playAll: function() {
-			if (this.useNewAnimation() || this.start !== 0 || this.end !== Infinity) {
-				this.start = 0;
-				this.end = Infinity;
-				this.runningAnimation.play(0, Infinity);
-			} else if (!this.runningAnimation.playing) {
-				this.runningAnimation.play(this.runningAnimation.number+1, Infinity);
-			}
-		},
-
 		play: function(start, end) {
 			if (this.useNewAnimation() || this.start !== start || this.end !== end) {
 				this.start = start;
