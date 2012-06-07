@@ -25,7 +25,6 @@ module.exports = function(editor) {
 			this.wasStepping = false;
 
 			this.updateTimeout = null;
-			this.runTimeout = null;
 
 			this.textChangeCallback = function(){};
 
@@ -111,14 +110,7 @@ module.exports = function(editor) {
 			this.textChangeCallback(this.code.text);
 		},
 
-		delayedRun: function() {
-			if (this.runTimeout === null) {
-				this.runTimeout = setTimeout($.proxy(this.run, this), 5);
-			}
-		},
-
 		run: function() {
-			this.runTimeout = null;
 			this.runner.enable();
 			this.runner.newTree(this.tree);
 			this.updateHighlighting();
@@ -168,9 +160,9 @@ module.exports = function(editor) {
 		},
 
 		handleError: function(error) {
-			this.surface.hideStepMessage();
 			this.surface.hideAutoCompleteBox();
 			this.surface.showErrorMessage(this.makeMessageLoc(error), error.getHTML());
+			this.surface.hideStepMessage();
 			this.callOutputs('outputSetError', true);
 		},
 
@@ -219,7 +211,7 @@ module.exports = function(editor) {
 
 		outputRequestsRerun: function() { //callback
 			if (this.canRun()) {
-				this.delayedRun();
+				this.runner.selectBaseEvent();
 				return true;
 			} else {
 				return false;
@@ -468,6 +460,7 @@ module.exports = function(editor) {
 					if (match !== null) {
 						var examples = this.runner.getExamples(match[0]);
 						if (examples !== null) {
+							this.autoCompletionEnabled = true;
 							var addSemicolon = line.substring(pos.column).replace(' ', '').length <= 0;
 							this.surface.showAutoCompleteBox(pos.line, pos.column-examples.width, offset-examples.width, examples, addSemicolon);
 							return;

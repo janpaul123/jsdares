@@ -109,7 +109,7 @@ module.exports = function(jsmm) {
 							this.runScope = this.baseEvent.context.scope.getVars();
 							start = 1;
 						} else {
-							this.callOutputs('outputClearToStart');
+							this.callOutputs('outputClearEventsFrom', 0);
 							this.runScope = this.events[0].context.startScope.getVars();
 							this.tree.programNode.getFunctionFunction()(this.runScope);
 							start = 0;

@@ -157,7 +157,6 @@ module.exports = function(output) {
 				this.$old.html(this.events[0].oldHtml);
 				if (this.events[0].$firstElement !== null) {
 					this.events[0].$firstElement.prevAll().remove();
-					this.events[0].$firstMirrorElement.prevAll().remove();
 				} else {
 					this.$lines.children().remove();
 				}
@@ -167,25 +166,6 @@ module.exports = function(output) {
 		outputPopFront: function() {
 			var event = this.events.shift();
 			this.oldLinesStashed = false;
-		},
-
-		outputClearToStart: function() {
-			this.text = this.events[0].text;
-			this.color = this.events[0].color;
-			this.$mirror.html(this.events[0].oldHtml);
-			this.$old.html(this.events[0].oldHtml);
-			this.$old.show();
-			this.oldLinesStashed = true;
-			this.$lines.children().remove(); // prevent $.data leaks
-			this.events = [];
-		},
-
-		outputClearToEnd: function() {
-			this.$old.html(this.$mirror.html());
-			this.$old.show();
-			this.oldLinesStashed = true;
-			this.$lines.children().remove(); // prevent $.data leaks
-			this.events = [];
 		},
 
 		outputClearEventsFrom: function(eventNum) {
@@ -203,6 +183,14 @@ module.exports = function(output) {
 				}
 			}
 			this.events = this.events.slice(0, eventNum);
+		},
+
+		outputClearToEnd: function() {
+			this.$old.html(this.$mirror.html());
+			this.$old.show();
+			this.oldLinesStashed = true;
+			this.$lines.children().remove(); // prevent $.data leaks
+			this.events = [];
 		},
 
 		outputSetError: function(error) {

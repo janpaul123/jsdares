@@ -318,20 +318,15 @@ module.exports = function(output) {
 			}
 		},
 
-		outputClearToStart: function() {
-			this.setCanvasState(this.bufferPosStart);
-			this.bufferPosLength = 0;
+		outputClearEventsFrom: function(eventNum) {
+			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
+			this.bufferPosLength = eventNum;
 		},
 
 		outputClearToEnd: function() {
 			this.bufferPosStart += this.bufferPosLength;
 			this.bufferPosStart %= this.bufferSize;
 			this.bufferPosLength = 0;
-		},
-
-		outputClearEventsFrom: function(eventNum) {
-			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
-			this.bufferPosLength = eventNum;
 		},
 
 		outputSetError: function(error) {

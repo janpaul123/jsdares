@@ -22,8 +22,6 @@ module.exports = function(editor) {
 			this.$element.append(this.$message);
 		},
 		updatePosition: function() {
-			//console.log(this.$marking.offset().left);
-			//this.surface.setElementCenterPosition(this.$element, this.$marking.position().left+this.$marking.outerWidth()/2, this.$marking.position().top+this.$marking.outerHeight());
 			var left = this.$marking.position().left+this.$marking.outerWidth()/2;
 			var newLeft = Math.max(-8, left-this.$element.outerWidth()/2);
 			this.$element.css('left', newLeft);
@@ -50,7 +48,7 @@ module.exports = function(editor) {
 			this.surface = surface;
 			this.$marginIcon = $('<div class="editor-margin-icon editor-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
-			this.$marginIcon.hide();
+			this.$marginIcon.css('opacity', 0);
 			this.$marking = $('<div class="editor-marking"></div>');
 			this.surface.addElement(this.$marking);
 			this.$marking.hide();
@@ -67,7 +65,7 @@ module.exports = function(editor) {
 		showAtLocation: function(location, html) {
 			if (!this.visible) {
 				this.visible = true;
-				this.$marginIcon.fadeIn(150);
+				this.$marginIcon.stop(true, true).animate({opacity: 1}, 150);
 			}
 			this.$marginIcon.css('top', this.surface.lineToY(location.line));
 			this.location = location;
@@ -85,7 +83,7 @@ module.exports = function(editor) {
 		hide: function() {
 			if (this.visible) {
 				this.visible = false;
-				this.$marginIcon.fadeOut(150);
+				this.$marginIcon.stop(true, true).animate({opacity: 0}, 150);
 			}
 			this.updateMessage();
 		},
@@ -103,16 +101,16 @@ module.exports = function(editor) {
 			if (this.visible && this.messageOpen && this.location !== null) {
 				if (!this.isCurrentlyShown) {
 					this.isCurrentlyShown = true;
-					this.$marking.fadeIn(150);
-					this.box.$element.fadeIn(150);
+					this.$marking.hide().fadeIn(150);
+					this.box.$element.hide().fadeIn(150);
 				}
 				this.surface.setElementLocationRange(this.$marking, this.location.line, this.location.column, this.location.line2, this.location.column2);
 				this.box.html(this.html);
 			} else {
 				if (this.isCurrentlyShown) {
 					this.isCurrentlyShown = false;
-					this.$marking.fadeOut(150);
-					this.box.$element.fadeOut(150);
+					this.$marking.show().fadeOut(150);
+					this.box.$element.show().fadeOut(150);
 				}
 			}
 		}

@@ -179,6 +179,10 @@
 			background-color: #333;
 		}
 
+		&.robot-path-highlight-event .robot-path-line-inside {
+			background-color: @event-color;
+		}
+
 		&.robot-path-highlight .robot-path-line-inside {
 			background-color: rgba(5, 195, 5, 0.85);
 		}
@@ -211,6 +215,17 @@
 				width: @robot-path-point-arrow-size;
 				height: 2px;
 				background-color: #333;
+			}
+		}
+
+		&.robot-path-highlight-event {
+			z-index: 17;
+			.robot-path-point-inside {
+				background-color: @event-color;
+
+				.robot-path-point-arrow {
+					background-color: @event-color;
+				}
 			}
 		}
 

@@ -132,8 +132,13 @@ module.exports = function(output) {
 			this.$lastElement = null;
 		},
 
-		removeHighlights: function() {
+		removePathHighlights: function() {
 			this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
+		},
+
+		removeAllHighlights: function() {
+			this.$path.children('.robot-path-highlight-event').removeClass('robot-path-highlight-event');
+			this.removePathHighlights();
 		},
 
 		highlightVisitedGoal: function(goal) {

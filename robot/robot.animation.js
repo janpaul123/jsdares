@@ -19,7 +19,6 @@ module.exports = function(output) {
 			this.rotationFactor = 0.75;
 			this.detectWallLength = 40000;
 			this.animationQueue = [];
-			this.animationLength = 0;
 			this.duration = 0.006;
 			this.animateTimeout = null;
 			this.blinkTimeouts = [];
@@ -33,34 +32,19 @@ module.exports = function(output) {
 				var dx = (anim.x2-anim.x)*this.blockSize, dy = (anim.y2-anim.y)*this.blockSize;
 				anim.length = Math.sqrt(dx*dx + dy*dy);
 				if (anim.length <= 0) return;
-				this.animationLength += anim.length;
-
-				if (anim.goals !== null) {
-					for (var i=0; i<anim.goals.length; i++) {
-						this.animationString += 'G' + anim.goals[i].loc + '/' + anim.goals[i].amount + ',';
-					}
-				}
 			} else if (anim.type === 'rotation') {
 				anim.length = Math.abs(anim.angle2-anim.angle);
 				if (anim.length <= 0) return;
-				this.animationLength += anim.length*this.rotationFactor;
-			} else if (anim.type === 'delay') {
-				this.animationLength += anim.length;
-			} else { // anim.type === 'wall'
-				this.animationLength += this.detectWallLength;
 			}
 			this.animationQueue.push(anim);
-			this.animationString += anim.type + ',' + anim.x + ',' + anim.y + ',' + anim.x2 + ',' + anim.y2 + ',' + anim.angle + ',' + anim.angle2 + ',';
+			this.addAnimationString(anim);
 		},
 
 		playAnimation: function(number) {
 			var animation = this.animationQueue[number];
 			this.number = number;
 			this.setInitial(animation);
-
-			if (this.animateTimeout !== null) {
-				clearTimeout(this.animateTimeout);
-			}
+			this.clearTimeout();
 
 			if (animation.type === 'wall') {
 				this.setLight(animation.wall ? 'red' : 'green');
@@ -118,14 +102,30 @@ module.exports = function(output) {
 		},
 
 		remove: function() {
-			if (this.animateTimeout !== null) {
-				clearTimeout(this.animateTimeout);
-			}
+			this.clearTimeout();
 			this.resetRobot();
 			this.$robot.hide();
 		},
 
+		removeFromAnimNum: function(animNum) {
+			this.clearTimeout();
+			this.animationQueue = this.animationQueue.slice(0, animNum);
+			this.animationString = '';
+			for (var i=0; i<this.animationQueue.length; i++) {
+				this.addAnimationString(this.animationQueue[i]);
+			}
+		},
+
 		/// INTERNAL FUNCTIONS ///
+		addAnimationString: function(anim) {
+			if (anim.goals) {
+				for (var i=0; i<anim.goals.length; i++) {
+					this.animationString += 'G' + anim.goals[i].loc + '/' + anim.goals[i].amount + ',';
+				}
+			}
+			this.animationString += anim.type + ',' + anim.x + ',' + anim.y + ',' + anim.x2 + ',' + anim.y2 + ',' + anim.angle + ',' + anim.angle2 + ',';
+		},
+
 		resetRobot: function() {
 			this.$robot.show();
 			clayer.setCss3(this.$robot, 'transition', '');
@@ -198,6 +198,12 @@ module.exports = function(output) {
 				this.$robot.addClass('robot-red');
 			} else if (state === 'green') {
 				this.$robot.addClass('robot-green');
+			}
+		},
+
+		clearTimeout: function() {
+			if (this.animateTimeout !== null) {
+				clearTimeout(this.animateTimeout);
 			}
 		}
 	};

@@ -148,21 +148,19 @@ module.exports = function(output) {
 		loadInitial: function() {
 			this.removeAll();
 			this.addEditor();
-			//this.addRobot();
+			this.addRobot();
 			this.addConsole();
 			this.addCanvas();
 			this.addInfo();
 			this.addInput();
 			this.addMath();
 
-			/*
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
 			}
 			this.robot.setStateChangedCallback(function(state) {
 				window.localStorage.setItem('initial-robot', state);
 			});
-			*/
 			this.editor.setText(window.localStorage.getItem('initial-code') || '');
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem('initial-code', text);

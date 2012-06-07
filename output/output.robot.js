@@ -19,11 +19,8 @@ module.exports = function(output) {
 			this.$div.append(this.$container);
 			this.robot = new robot.Robot(this.$container, this.readOnly, blockSize, columns || 8, rows || 8);
 
-			this.callNr = Infinity;
 			this.highlighting = false;
-			this.animation = null;
 			this.stateChangedCallback = null;
-			this.calls = [];
 
 			if (!this.readOnly) {
 				this.robot.$initial.on('mousedown', $.proxy(this.initialMouseDown, this));
@@ -132,28 +129,141 @@ module.exports = function(output) {
 			};
 		},
 
+		outputStartEvent: function(context) {
+			var event = {
+				robotX: this.robot.robotX,
+				robotY: this.robot.robotY,
+				robotAngle: this.robot.robotAngle,
+				calls: []
+			};
+			this.eventPosition = this.events.length;
+			this.events.push(event);
+		},
+
+		outputEndEvent: function() {
+			this.updateEventHighlight();
+		},
+
+		outputClearAll: function() {
+			this.robot.clear();
+			this.eventStart = 0;
+			this.eventPosition = 0;
+			this.events = [];
+			this.callCounter = 0;
+		},
+
+		outputPopFront: function() {
+			this.eventStart++;
+		},
+
+		outputClearEventsFrom: function(eventNum) {
+			var position = this.eventStart+eventNum;
+			this.robot.robotX = this.events[position].robotX;
+			this.robot.robotY = this.events[position].robotY;
+			this.robot.robotAngle = this.events[position].robotAngle;
+			var animNum = null;
+			for (var i=position; i<this.events.length; i++) {
+				for (var j=0; j<this.events[i].calls.length; j++) {
+					var call = this.events[i].calls[j];
+					this.callCounter--;
+					if (call.$element !== null) {
+						call.$element.remove();
+					}
+					if (animNum === null) {
+						animNum = call.animNum;
+					}
+				}
+			}
+			if (animNum !== null) {
+				this.robot.animation.removeFromAnimNum(animNum);
+			}
+			this.events = this.events.slice(0, eventNum);
+		},
+
+		outputClearToEnd: function() {
+			this.eventStart = this.events.length;
+		},
+
+		outputSetError: function(error) {
+			if (error) {
+				this.$container.addClass('robot-error');
+				this.robot.stop();
+			} else {
+				this.$container.removeClass('robot-error');
+			}
+		},
+
+		outputSetEventStep: function(eventNum, stepNum) {
+			if (this.eventPosition !== this.eventStart + eventNum || this.stepNum !== stepNum) {
+				this.eventPosition = this.eventStart + eventNum;
+				this.stepNum = stepNum;
+
+				if (this.eventPosition+eventNum === this.events.length-1 && this.stepNum === Infinity) {
+					this.robot.$path.children('.robot-path-line, .robot-path-point').show();
+					this.robot.animationManager.playAll();
+				} else {
+					this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
+					
+					var lastCall = null;
+					for (var i=0; i<this.events.length; i++) {
+						for (var j=0; j<this.events[i].calls.length; j++) {
+							var call = this.events[i].calls[j];
+							if (i === this.eventPosition+eventNum && call.stepNum > this.stepNum) {
+								break;
+							}
+
+							lastCall = call;
+							if (call.$element !== null) {
+								call.$element.show();
+							}
+
+							if (i === this.eventPosition+eventNum && call.stepNum === this.stepNum) {
+								this.robot.animationManager.playAnimNum(call.animNum);
+								lastCall = false;
+								break;
+							}
+						}
+					}
+
+					if (lastCall === null) {
+						this.robot.animationManager.playNone();
+					} else if (lastCall !== false) {
+						this.robot.animationManager.setAnimNumEnd(lastCall.animNum);
+					}
+				}
+				
+				if (this.highlighting) {
+					this.updateEventHighlight();
+				}
+			} else {
+				this.robot.animationManager.playAll();
+			}
+		},
+
 		enableHighlighting: function() {
 			this.highlighting = true;
 			this.$container.removeClass('robot-not-highlighting');
 			this.$container.addClass('robot-highlighting');
+			this.updateEventHighlight();
 		},
 
 		disableHighlighting: function() {
 			this.highlighting = false;
 			this.$container.removeClass('robot-highlighting');
 			this.$container.addClass('robot-not-highlighting');
-			this.robot.removeHighlights();
+			this.robot.removeAllHighlights();
 		},
 
-		startRun: function() {
-			this.robot.clear();
-			this.calls = [];
-			this.$container.removeClass('robot-error');
-		},
-
-		hasError: function() {
-			this.$container.addClass('robot-error');
-			this.robot.stop();
+		updateEventHighlight: function() {
+			this.robot.removeAllHighlights();
+			if (this.highlighting) {
+				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+					var call = this.events[this.eventPosition].calls[i];
+					if (call.$element !== null) {
+						call.$element.addClass('robot-path-highlight-event');
+					}
+				}
+			}
 		},
 
 		setState: function(state) {
@@ -169,36 +279,11 @@ module.exports = function(output) {
 			this.robot.animationManager.playAll();
 		},
 
-		setCallNr: function(context, callNr) {
-			this.callNr = callNr;
-			if (this.callNr === Infinity) {
-				this.robot.$path.children('.robot-path-line, .robot-path-point').show();
-				this.robot.animationManager.playAll();
-			} else {
-				this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
-				var call;
-				for (var i=0; i<this.calls.length; i++) {
-					if (this.calls[i].callNr > this.callNr) break;
-					call = this.calls[i];
-					if (call.$element !== null) call.$element.show();
-				}
-				if (call !== undefined) {
-					if (call.callNr === this.callNr) {
-						this.robot.animationManager.playAnimNum(call.animNum);
-					} else {
-						this.robot.animationManager.setAnimNumEnd(call.animNum);
-					}
-				} else {
-					this.robot.animationManager.playNone();
-				}
-			}
-		},
-
-		highlightCalls: function(calls) {
-			this.robot.removeHighlights();
-			for (var i=0; i<this.calls.length; i++) {
-				var call = this.calls[i];
-				if (calls.indexOf(call.callNr) >= 0 && call.$element !== null) {
+		highlightCallNodes: function(nodeIds) {
+			this.robot.removePathHighlights();
+			for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+				var call = this.events[this.eventPosition].calls[i];
+				if (nodeIds.indexOf(call.nodeId) >= 0 && call.$element !== null) {
 					call.$element.addClass('robot-path-highlight');
 				}
 			}
@@ -214,16 +299,17 @@ module.exports = function(output) {
 
 		/// INTERNAL FUNCTIONS ///
 		addCall: function(context) {
-			if (this.calls.length > 300) {
+			if (this.callCounter++ > 300) {
 				throw 'Program takes too long to run';
 			}
 			var $element = this.robot.$lastElement;
 			if ($element !== null) {
-				$element.data('index', this.calls.length);
+				$element.data('eventPosition', this.eventPosition);
+				$element.data('index', this.events[this.eventPosition].calls.length);
 				$element.on('mousemove', $.proxy(this.pathMouseMove, this));
 				$element.on('mouseleave', $.proxy(this.pathMouseLeave, this));
 			}
-			this.calls.push({callNr: context.getCallNr(), node: context.getCallNode(), $element: $element, animNum: this.robot.animation.getLength()-1});
+			this.events[this.eventPosition].calls.push({stepNum: context.getStepNum(), nodeId: context.getCallNodeId(), $element: $element, animNum: this.robot.animation.getLength()-1});
 		},
 
 		updateInterface: function() {
@@ -265,23 +351,24 @@ module.exports = function(output) {
 		pathMouseMove: function(event) {
 			if (this.highlighting) {
 				var $target = $(event.delegateTarget);
-				if (this.calls[$target.data('index')] !== undefined) {
+				if ($target.data('eventPosition') === this.eventPosition &&
+						this.events[this.eventPosition].calls[$target.data('index')] !== undefined) {
 					if (!$target.hasClass('robot-path-highlight')) {
-						this.robot.removeHighlights();
+						this.robot.removePathHighlights();
 						$target.addClass('robot-path-highlight');
-						this.editor.highlightNode(this.calls[$target.data('index')].node);
+						this.editor.highlightNodeId(this.events[this.eventPosition].calls[$target.data('index')].nodeId);
 					}
 				} else {
 					this.robot.removeHighlights();
-					this.editor.highlightNode(null);
+					this.editor.highlightNodeId(0);
 				}
 			}
 		},
 
 		pathMouseLeave: function(event) {
 			if (this.highlighting) {
-				this.robot.removeHighlights();
-				this.editor.highlightNode(null);
+				this.robot.removePathHighlights();
+				this.editor.highlightNodeId(0);
 			}
 		},
 
