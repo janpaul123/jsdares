@@ -84,6 +84,12 @@ module.exports = function(output) {
 			}
 		},
 
+		stop: function() {
+			this.clearTimeout();
+			this.resetRobot();
+			this.$robot.hide();
+		},
+
 		getLength: function() {
 			return this.animationQueue.length;
 		},

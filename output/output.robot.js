@@ -182,6 +182,7 @@ module.exports = function(output) {
 		},
 
 		outputSetError: function(error) {
+			console.log('error:' + error);
 			if (error) {
 				this.$container.addClass('robot-error');
 				this.robot.stop();

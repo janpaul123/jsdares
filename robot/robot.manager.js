@@ -31,6 +31,14 @@ module.exports = function(output) {
 			}
 		},
 
+		stop: function() {
+			this.start = -1;
+			this.end = -1;
+			if (this.runningAnimation !== null) {
+				this.runningAnimation.stop();
+			}
+		},
+
 		remove: function() {
 			if (this.runningAnimation !== null) {
 				this.runningAnimation.remove();

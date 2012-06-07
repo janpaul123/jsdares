@@ -310,7 +310,7 @@ module.exports = function(output) {
 		},
 
 		stop: function() {
-			this.animationManager.remove();
+			this.animationManager.stop();
 		},
 
 		/// INTERNAL FUNCTIONS ///
