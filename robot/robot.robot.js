@@ -306,7 +306,7 @@ module.exports = function(output) {
 		},
 
 		playAll: function() {
-			this.animationManager.playAll();
+			this.animationManager.play(0, Infinity);
 		},
 
 		stop: function() {

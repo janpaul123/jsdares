@@ -21,7 +21,8 @@ module.exports = function(output) {
 		},
 		
 		play: function(start, end) {
-			if (this.useNewAnimation() || this.start !== start || this.end !== end) {
+			var newAnim = this.useNewAnimation();
+			if (newAnim || this.start !== start || this.end !== end) {
 				this.start = start;
 				this.end = end;
 				if (this.runningAnimation !== null) {
