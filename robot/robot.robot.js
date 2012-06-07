@@ -149,7 +149,6 @@ module.exports = function(output) {
 			this.$maze.children('.robot-maze-block-goal-blink').removeClass('robot-maze-block-goal-blink');
 			if (goal !== null) {
 				this.$blocks[goal%this.columns][Math.floor(goal/this.columns)].addClass('robot-maze-block-goal-blink');
-				console.log(this.$blocks[goal%this.columns][Math.floor(goal/this.columns)]);
 			}
 		},
 

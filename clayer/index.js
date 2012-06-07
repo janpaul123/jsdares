@@ -390,11 +390,14 @@ clayer.Slider.prototype = {
 
 	updateKnob: function(x) {
 		x = Math.max(0, Math.min(this.$element.width()-1, x));
-		var knobValue = Math.floor(x/this.valueWidth);
+		this.updateKnobValue(Math.floor(x/this.valueWidth));
+	},
+
+	updateKnobValue: function(knobValue) {
 		if (this.knobValue !== knobValue) {
-				this.knobValue = knobValue;
-				this.renderKnob();
-				this.changed();
+			this.knobValue = knobValue;
+			this.renderKnob();
+			this.changed();
 		}
 	},
 
@@ -407,6 +410,10 @@ clayer.Slider.prototype = {
 			this.renderMarker();
 			this.changed();
 		}
+	},
+
+	updateMarkerValue: function(markerValue) {
+		
 	},
 
 	renderKnob: function() {
@@ -433,7 +440,7 @@ clayer.Slider.prototype = {
 	},
 
 	mouseLeave: function(event) {
-		this.updateKnob(this.markerValue*this.valueWidth);
+		this.updateKnobValue(this.markerValue);
 	},
 
 	touchDown: function(touch) {

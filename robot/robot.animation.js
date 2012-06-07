@@ -59,7 +59,6 @@ module.exports = function(output) {
 		},
 
 		play: function(start, end) {
-			console.log(start, end);
 			if (start >= 0 && this.animationQueue.length > 0) {
 				if (end > start) {
 					this.lastNumber = end;

@@ -212,7 +212,6 @@ module.exports = function(output) {
 				}
 
 				if (this.stepNum === Infinity) {
-					console.log('play entire event', this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 				} else {
 					var lastAnimNum = null;
