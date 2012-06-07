@@ -98,9 +98,9 @@ module.exports = function(info) {
 			this.$scope.remove();
 		},
 
-		update: function(scopeTracker, callNr) {
+		update: function(scopeTracker, stepNum) {
 			this.scopeTracker = scopeTracker;
-			var state = this.scopeTracker.getState(callNr);
+			var state = this.scopeTracker.getState(stepNum);
 			this.clear();
 			var enabled = true;
 			for (var i=state.length-1; i>0; i--) {
@@ -198,16 +198,16 @@ module.exports = function(info) {
 				var $target = $(event.delegateTarget);
 				if ($target.data('id') !== undefined) {
 					$target.addClass('info-scope-variable-highlight');
-					this.info.editor.highlightNodes(this.scopeTracker.getHighlightNodesById($target.data('id')));
+					this.info.editor.highlightNodeIds(this.scopeTracker.getHighlightNodeIdsById($target.data('id')));
 				} else {
-					this.info.editor.highlightNode(null);
+					this.info.editor.highlightNodeId(0);
 				}
 			}
 		},
 
 		mouseLeave: function(event) {
 			this.removeHighlights();
-			this.info.editor.highlightNode(null);
+			this.info.editor.highlightNodeId(0);
 		}
 	};
 
@@ -317,9 +317,9 @@ module.exports = function(info) {
 				var $target = $(event.delegateTarget);
 				if ($target.data('command') !== undefined) {
 					$target.addClass('info-table-item-highlight');
-					this.info.editor.highlightNodes(this.commandTracker.getHighlightNodesById($target.data('command').id));
+					this.info.editor.highlightNodeIds(this.commandTracker.getHighlightNodeIdsById($target.data('command').id));
 				} else {
-					this.info.editor.highlightNode(null);
+					this.info.editor.highlightNodeId(0);
 				}
 			}
 		},
@@ -327,7 +327,7 @@ module.exports = function(info) {
 		mouseLeave: function(event) {
 			if (this.highlighting) {
 				this.removeHighlights();
-				this.info.editor.highlightNode(null);
+				this.info.editor.highlightNodeId(0);
 			}
 		}
 	};
@@ -336,16 +336,47 @@ module.exports = function(info) {
 		init: function($div, editor, commandFilter) {
 			this.$div = $div;
 			this.$div.addClass('output info');
-			this.editor = editor;
-			this.editor.addOutput(this);
-
+			
 			this.scope = new info.InfoScope(this.$div, this);
 			this.table = new info.InfoTable(this.$div, this);
 			this.table.addCommands(this.filterCommands(commandFilter));
+
+			this.editor = editor;
+			this.editor.addOutput(this);
 		},
 
 		remove: function() {
 			this.$div.removeClass('output info');
+		},
+
+		outputClearAll: function() {
+			this.events = [];
+		},
+
+		outputStartEvent: function(context) {
+			this.currentEvent = {
+				scopeTracker: context.getScopeTracker(),
+				commandTracker: context.getCommandTracker()
+			};
+			this.events.push(this.currentEvent);
+		},
+
+		outputPopFront: function() {
+			this.events.shift();
+		},
+
+		outputClearEventsFrom: function(eventNum) {
+			this.events = this.events.slice(0, eventNum);
+		},
+
+		outputClearToEnd: function() {
+			this.events = [];
+		},
+
+		outputSetEventStep: function(eventNum, stepNum) {
+			this.currentEvent = this.events[eventNum];
+			this.scope.update(this.currentEvent.scopeTracker, stepNum);
+			this.table.update(this.currentEvent.commandTracker);
 		},
 
 		highlightCodeLine: function(line) {
@@ -363,11 +394,6 @@ module.exports = function(info) {
 			this.$div.removeClass('info-highlighting');
 			this.scope.disableHighlighting();
 			this.table.disableHighlighting();
-		},
-
-		setCallNr: function(context, callNr) {
-			this.scope.update(context.getScopeTracker(), callNr);
-			this.table.update(context.getCommandTracker());
 		},
 
 		/// INTERNAL FUNCTIONS ///

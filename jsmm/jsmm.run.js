@@ -25,23 +25,23 @@ module.exports = function(jsmm) {
 	jsmm.CommandTracker.prototype = {
 		init: function() {
 			this.idsByLine = {};
-			this.nodesById = {};
+			this.nodeIdsById = {};
 		},
 
 		addCommand: function(node, id) {
 			this.idsByLine[node.lineLoc.line] = this.idsByLine[node.lineLoc.line] || [];
 			this.idsByLine[node.lineLoc.line].push(id);
 
-			this.nodesById[id] = this.nodesById[id] || [];
-			if (this.nodesById[id].indexOf(node) < 0) this.nodesById[id].push(node);
+			this.nodeIdsById[id] = this.nodeIdsById[id] || [];
+			if (this.nodeIdsById[id].indexOf(node.id) < 0) this.nodeIdsById[id].push(node.id);
 		},
 
 		getHighlightIdsByLine: function(line) {
 			return this.idsByLine[line] || [];
 		},
 
-		getHighlightNodesById: function(id) {
-			return this.nodesById[id] || [];
+		getHighlightNodeIdsById: function(id) {
+			return this.nodeIdsById[id] || [];
 		}
 	};
 
@@ -64,10 +64,10 @@ module.exports = function(jsmm) {
 					}
 				}
 			} else if (data.type === 'return') {
-				this.calls.push({type: 'return', stepNum: stepNum, node: node});
+				this.calls.push({type: 'return', stepNum: stepNum});
 			} else { // data.type === 'enter'
 				this.scopes.push({});
-				this.calls.push({type: 'enter', stepNum: stepNum, node: node, name: data.name, position: this.scopes.length-1});
+				this.calls.push({type: 'enter', stepNum: stepNum, name: data.name, position: this.scopes.length-1});
 
 				for (var name in data.scope.vars) {
 					this.addAssignment(stepNum, node, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
@@ -99,7 +99,7 @@ module.exports = function(jsmm) {
 			return stack;
 		},
 
-		getHighlightNodesById: function(id) {
+		getHighlightNodeIdsById: function(id) {
 			var split = id.split('-');
 			if (split.length < 2) return [];
 			var scope = this.scopes[split[0]];
@@ -115,13 +115,13 @@ module.exports = function(jsmm) {
 		addAssignment: function(stepNum, node, position, name, value, highlight) {
 			if (highlight) {
 				this.scopes[position][name] = this.scopes[position][name] || [];
-				if (this.scopes[position][name].indexOf(node) < 0) this.scopes[position][name].push(node);
+				if (this.scopes[position][name].indexOf(node.id) < 0) this.scopes[position][name].push(node.id);
 
 				this.lines[node.lineLoc.line] = this.lines[node.lineLoc.line] || [];
 				this.lines[node.lineLoc.line].push(position + '-' + name);
 			}
 
-			this.calls.push({type: 'assignment', stepNum: stepNum, node: node, position: position, name: name, value: stringify(value)});
+			this.calls.push({type: 'assignment', stepNum: stepNum, position: position, name: name, value: stringify(value)});
 		}
 	};
 

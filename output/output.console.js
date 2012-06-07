@@ -164,7 +164,7 @@ module.exports = function(output) {
 		},
 
 		outputPopFront: function() {
-			var event = this.events.shift();
+			this.events.shift();
 			this.oldLinesStashed = false;
 		},
 
