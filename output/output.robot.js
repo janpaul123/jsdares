@@ -173,7 +173,8 @@ module.exports = function(output) {
 					}
 				}
 			}
-			this.events = this.events.slice(0, eventNum);
+			this.robot.animation.removeFromAnimNum(this.events[position].startAnimNum+1);
+			this.events = this.events.slice(0, position);
 		},
 
 		outputClearToEnd: function() {
@@ -362,7 +363,7 @@ module.exports = function(output) {
 						this.editor.highlightNodeId(this.events[this.eventPosition].calls[$target.data('index')].nodeId);
 					}
 				} else {
-					this.robot.removeHighlights();
+					this.robot.removePathHighlights();
 					this.editor.highlightNodeId(0);
 				}
 			}

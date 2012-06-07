@@ -24,7 +24,9 @@ module.exports = function(output) {
 			if (this.useNewAnimation() || this.start !== start || this.end !== end) {
 				this.start = start;
 				this.end = end;
-				this.runningAnimation.play(this.start, this.end);
+				if (this.runningAnimation !== null) {
+					this.runningAnimation.play(this.start, this.end);
+				}
 			}
 		},
 
