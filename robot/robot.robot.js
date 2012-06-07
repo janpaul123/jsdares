@@ -42,6 +42,7 @@ module.exports = function(output) {
 			this.clear();
 			this.$container.children('.robot-maze-block .robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
 			this.animationManager.remove();
+			this.lastAnim = null;
 			this.$lastElement = null;
 
 			this.$maze.remove();
@@ -56,6 +57,8 @@ module.exports = function(output) {
 			this.$path.children('.robot-path-line, .robot-path-point').remove();
 			this.animation = this.animationManager.newAnimation();
 			this.visitedGoals = [];
+			this.lastAnim = null;
+			this.$lastElement = null;
 		},
 
 		drive: function(amount) {
@@ -114,21 +117,22 @@ module.exports = function(output) {
 
 		detectWall: function() {
 			var wall = this.isWall(this.robotX, this.robotY, this.robotAngle);
-			var anim = {type: 'wall', x: this.robotX, y: this.robotY, angle: this.robotAngle, wall: wall};
-			this.animation.add(anim);
+			this.lastAnim = {type: 'wall', x: this.robotX, y: this.robotY, angle: this.robotAngle, wall: wall};
+			this.animation.add(this.lastAnim);
 			this.$lastElement = null;
 			return wall;
 		},
 
 		detectGoal: function(node, name, args) {
+			this.lastAnim = null;
 			this.$lastElement = null;
 			if (this.mazeObjects <= 0) return false;
 			else return this.blockGoal[this.robotX][this.robotY];
 		},
 
 		insertDelay: function(delay) {
-			var anim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
-			this.animation.add(anim);
+			this.lastAnim = {type: 'delay', x: this.robotX, y: this.robotY, angle: this.robotAngle, length: delay};
+			this.animation.add(this.lastAnim);
 			this.$lastElement = null;
 		},
 
@@ -351,8 +355,8 @@ module.exports = function(output) {
 			this.robotX = toX;
 			this.robotY = toY;
 
-			var anim = {type: 'movement', x: fromX, y: fromY, x2: toX, y2: toY, angle: this.robotAngle, goals: goals};
-			this.animation.add(anim);
+			this.lastAnim = {type: 'movement', x: fromX, y: fromY, x2: toX, y2: toY, angle: this.robotAngle, goals: goals};
+			this.animation.add(this.lastAnim);
 
 			this.$lastElement = $line;
 		},
@@ -371,8 +375,8 @@ module.exports = function(output) {
 
 			this.robotAngle = (toAngle%360+360)%360;
 
-			var anim = {type: 'rotation', x: this.robotX, y: this.robotY, angle: fromAngle, angle2: toAngle};
-			this.animation.add(anim);
+			this.lastAnim = {type: 'rotation', x: this.robotX, y: this.robotY, angle: fromAngle, angle2: toAngle};
+			this.animation.add(this.lastAnim);
 
 			this.$lastElement = $point;
 		}

@@ -11,6 +11,8 @@ module.exports = function(output) {
 			this.blockSize = blockSize;
 			this.runningAnimation = null;
 			this.insertingAnimation = null;
+			this.start = -1;
+			this.end = -1;
 		},
 
 		newAnimation: function() {
@@ -19,19 +21,21 @@ module.exports = function(output) {
 		},
 		
 		playAll: function() {
-			this.execFunc('playAll');
+			if (this.useNewAnimation() || this.start !== 0 || this.end !== Infinity) {
+				this.start = 0;
+				this.end = Infinity;
+				this.runningAnimation.play(0, Infinity);
+			} else if (!this.runningAnimation.playing) {
+				this.runningAnimation.play(this.runningAnimation.number+1, Infinity);
+			}
 		},
 
-		playNone: function() {
-			this.execFunc('playNone');
-		},
-
-		playAnimNum: function(num) {
-			this.execFunc('playAnimNum', num);
-		},
-
-		setAnimNumEnd: function(num) {
-			this.execFunc('setAnimNumEnd', num);
+		play: function(start, end) {
+			if (this.useNewAnimation() || this.start !== start || this.end !== end) {
+				this.start = start;
+				this.end = end;
+				this.runningAnimation.play(this.start, this.end);
+			}
 		},
 
 		remove: function() {
@@ -46,20 +50,20 @@ module.exports = function(output) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		execFunc: function(name, arg) {
-			if (this.runningAnimation === null && this.insertingAnimation === null) {
-				// nothing
-			} else if (this.runningAnimation === null && this.insertingAnimation !== null) {
-				this.runningAnimation = this.insertingAnimation;
-				this.runningAnimation[name](arg);
-			} else if (this.runningAnimation !== null && this.insertingAnimation === null) {
-				this.runningAnimation[name](arg);
-			} else if (this.insertingAnimation.animationString !== this.runningAnimation.animationString) {
-				this.runningAnimation.remove();
-				this.runningAnimation = this.insertingAnimation;
-				this.runningAnimation[name](arg);
+		useNewAnimation: function() {
+			if (this.insertingAnimation !== null) {
+				if (this.runningAnimation === null) {
+					this.runningAnimation = this.insertingAnimation;
+					this.insertingAnimation = null;
+					return true;
+				} else if (this.insertingAnimation.animationString !== this.runningAnimation.animationString) {
+					this.runningAnimation.remove();
+					this.runningAnimation = this.insertingAnimation;
+					this.insertingAnimation = null;
+					return true;
+				}
 			}
-			this.insertingAnimation = null;
+			return false;
 		}
 	};
 };

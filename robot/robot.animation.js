@@ -25,6 +25,7 @@ module.exports = function(output) {
 			this.currentAnimation = null;
 			this.lastNumber = 0;
 			this.animationString = '';
+			this.playing = false;
 		},
 
 		add: function(anim) {
@@ -41,6 +42,7 @@ module.exports = function(output) {
 		},
 
 		playAnimation: function(number) {
+			this.playing = true;
 			var animation = this.animationQueue[number];
 			this.number = number;
 			this.setInitial(animation);
@@ -56,44 +58,22 @@ module.exports = function(output) {
 			}
 		},
 
-		playNone: function() {
-			if (this.animationQueue.length > 0) {
-				this.setInitial(this.animationQueue[0]);
-			}
-		},
-
-		playAll: function() {
-			if (this.animationQueue.length > 0) {
-				this.lastNumber = this.animationQueue.length-1;
-				this.playAnimation(0);
-			}
-		},
-
-		playLast: function() {
-			if (this.animationQueue.length > 0) {
-				this.lastNumber = this.animationQueue.length-1;
-				this.playAnimation(this.lastNumber);
-			}
-		},
-
-		playAnimNum: function(num) {
-			if (this.animationQueue.length > 0 && this.animationQueue.length > num) {
-				this.lastNumber = num;
-				this.playAnimation(this.lastNumber);
-			}
-		},
-
-		setAnimNumEnd: function(num) {
-			if (this.animationQueue.length > 0) {
-				if (num+1 < this.animationQueue.length) {
-					this.setInitial(this.animationQueue[num+1]);
-				} else if (num < this.animationQueue.length) {
-					this.resetRobot();
-					var animation = this.animationQueue[num];
+		play: function(start, end) {
+			if (start >= 0 && start < this.animationQueue.length) {
+				if (end > start) {
+					this.lastNumber = end;
+					this.playAnimation(start);
+				} else {
+					var animation = this.animationQueue[start];
 					this.setPosition(animation.x2 || animation.x, animation.y2 || animation.y);
 					this.setOrientation(animation.angle2 || animation.angle);
 					this.setLight('default');
+					this.clearTimeout();
 				}
+			} else {
+				this.playing = false;
+				this.clearTimeout();
+				this.$robot.hide();
 			}
 		},
 
@@ -175,11 +155,13 @@ module.exports = function(output) {
 		},
 
 		animationEnd: function() {
-			this.animateTimeout = null;
+			this.clearTimeout();
 			this.setLight('default');
 
-			if (this.number < this.lastNumber) {
+			if (this.number+1 < this.lastNumber && this.number < this.animationQueue.length-1) {
 				this.playAnimation(this.number+1);
+			} else {
+				this.playing = false;
 			}
 		},
 
@@ -204,6 +186,7 @@ module.exports = function(output) {
 		clearTimeout: function() {
 			if (this.animateTimeout !== null) {
 				clearTimeout(this.animateTimeout);
+				this.animateTimeout = null;
 			}
 		}
 	};

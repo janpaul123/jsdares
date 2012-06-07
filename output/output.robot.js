@@ -134,6 +134,8 @@ module.exports = function(output) {
 				robotX: this.robot.robotX,
 				robotY: this.robot.robotY,
 				robotAngle: this.robot.robotAngle,
+				startAnimNum: this.robot.animation.animationQueue.length,
+				endAnimNum: this.robot.animation.animationQueue.length,
 				calls: []
 			};
 			this.eventPosition = this.events.length;
@@ -142,6 +144,7 @@ module.exports = function(output) {
 
 		outputEndEvent: function() {
 			this.updateEventHighlight();
+			this.robot.animationManager.playAll();
 		},
 
 		outputClearAll: function() {
@@ -161,7 +164,6 @@ module.exports = function(output) {
 			this.robot.robotX = this.events[position].robotX;
 			this.robot.robotY = this.events[position].robotY;
 			this.robot.robotAngle = this.events[position].robotAngle;
-			var animNum = null;
 			for (var i=position; i<this.events.length; i++) {
 				for (var j=0; j<this.events[i].calls.length; j++) {
 					var call = this.events[i].calls[j];
@@ -169,13 +171,7 @@ module.exports = function(output) {
 					if (call.$element !== null) {
 						call.$element.remove();
 					}
-					if (animNum === null) {
-						animNum = call.animNum;
-					}
 				}
-			}
-			if (animNum !== null) {
-				this.robot.animation.removeFromAnimNum(animNum);
 			}
 			this.events = this.events.slice(0, eventNum);
 		},
@@ -198,45 +194,45 @@ module.exports = function(output) {
 				this.eventPosition = this.eventStart + eventNum;
 				this.stepNum = stepNum;
 
-				if (this.eventPosition+eventNum === this.events.length-1 && this.stepNum === Infinity) {
-					this.robot.$path.children('.robot-path-line, .robot-path-point').show();
-					this.robot.animationManager.playAll();
-				} else {
-					this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
-					
-					var lastCall = null;
-					for (var i=0; i<this.events.length; i++) {
-						for (var j=0; j<this.events[i].calls.length; j++) {
-							var call = this.events[i].calls[j];
-							if (i === this.eventPosition+eventNum && call.stepNum > this.stepNum) {
-								break;
-							}
+				this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
+				for (var i=0; i<this.events.length; i++) {
+					if (i > this.eventPosition) break;
+					for (var j=0; j<this.events[i].calls.length; j++) {
+						var call = this.events[i].calls[j];
+						if (i === this.eventPosition && call.stepNum > this.stepNum) break;
 
-							lastCall = call;
-							if (call.$element !== null) {
-								call.$element.show();
-							}
-
-							if (i === this.eventPosition+eventNum && call.stepNum === this.stepNum) {
-								this.robot.animationManager.playAnimNum(call.animNum);
-								lastCall = false;
-								break;
-							}
+						if (call.$element !== null) {
+							call.$element.show();
 						}
 					}
-
-					if (lastCall === null) {
-						this.robot.animationManager.playNone();
-					} else if (lastCall !== false) {
-						this.robot.animationManager.setAnimNumEnd(lastCall.animNum);
-					}
 				}
-				
+
 				if (this.highlighting) {
 					this.updateEventHighlight();
 				}
-			} else {
-				this.robot.animationManager.playAll();
+
+				if (this.stepNum === Infinity) {
+					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
+				} else {
+					var lastAnimNum = null;
+					for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+						var call = this.events[this.eventPosition].calls[i];
+						if (call.stepNum > this.stepNum) break;
+
+						lastAnimNum = i;
+						if (call.stepNum === this.stepNum) {
+							this.robot.animationManager.play(i, i+1);
+							lastAnimNum = false;
+							break;
+						}
+					}
+
+					if (lastAnimNum === null) {
+						this.robot.animationManager.play(-1);
+					} else if (lastAnimNum !== false) {
+						this.robot.animationManager.play(lastAnimNum, lastAnimNum);
+					}
+				}
 			}
 		},
 
@@ -309,7 +305,13 @@ module.exports = function(output) {
 				$element.on('mousemove', $.proxy(this.pathMouseMove, this));
 				$element.on('mouseleave', $.proxy(this.pathMouseLeave, this));
 			}
-			this.events[this.eventPosition].calls.push({stepNum: context.getStepNum(), nodeId: context.getCallNodeId(), $element: $element, animNum: this.robot.animation.getLength()-1});
+			this.events[this.eventPosition].calls.push({
+				stepNum: context.getStepNum(),
+				nodeId: context.getCallNodeId(),
+				$element: $element,
+				animNum: this.robot.animation.getLength()-1
+				//anim: this.robot.lastAnim
+			});
 		},
 
 		updateInterface: function() {
