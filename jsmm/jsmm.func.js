@@ -92,7 +92,7 @@ module.exports = function(jsmm) {
 		}
 	};
 
-	jsmm.nodes.Program.prototype.runFunc = function(context, scope, variable, symbol) {
+	jsmm.nodes.Program.prototype.runFunc = function(context, scope) {
 		context.callScope(this, {type: 'enter', scope: scope, name: 'global'});
 	};
 	

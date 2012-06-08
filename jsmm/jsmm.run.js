@@ -58,9 +58,9 @@ module.exports = function(jsmm) {
 				var obj = data.scope.find(data.name);
 				if (obj !== undefined) {
 					if (data.scope.parent === null || data.scope.vars[data.name] === undefined) {
-						this.addAssignment(stepNum, node.id, 0, data.name, obj.value, true);
+						this.addAssignment(stepNum, node, 0, data.name, obj.value, true);
 					} else {
-						this.addAssignment(stepNum, node.id, this.scopes.length-1, data.name, obj.value, true);
+						this.addAssignment(stepNum, node, this.scopes.length-1, data.name, obj.value, true);
 					}
 				}
 			} else if (data.type === 'return') {
@@ -70,7 +70,7 @@ module.exports = function(jsmm) {
 				this.calls.push({type: 'enter', stepNum: stepNum, name: data.name, position: this.scopes.length-1});
 
 				for (var name in data.scope.vars) {
-					this.addAssignment(stepNum, node.id, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
+					this.addAssignment(stepNum, node, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
 				}
 			}
 		},
@@ -112,13 +112,14 @@ module.exports = function(jsmm) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addAssignment: function(stepNum, nodeId, position, name, value, highlight) {
+		addAssignment: function(stepNum, node, position, name, value, highlight) {
 			if (highlight) {
 				this.scopes[position][name] = this.scopes[position][name] || [];
-				if (this.scopes[position][name].indexOf(nodeId) < 0) this.scopes[position][name].push(nodeId);
+				if (this.scopes[position][name].indexOf(node.id) < 0) this.scopes[position][name].push(node.id);
 
-				this.nodeIds[nodeId] = this.nodeIds[nodeId] || [];
-				this.nodeIds[nodeId].push(position + '-' + name);
+				var topNodeId = node.getTopNode().id;
+				this.nodeIds[topNodeId] = this.nodeIds[topNodeId] || [];
+				this.nodeIds[topNodeId].push(position + '-' + name);
 			}
 
 			this.calls.push({type: 'assignment', stepNum: stepNum, position: position, name: name, value: stringify(value)});
@@ -146,6 +147,7 @@ module.exports = function(jsmm) {
 			this.run(this.tree.programNode.getRunFunction(), null);
 		},
 		runFunction: function(funcName, args) {
+			this.callScope(this.tree.programNode, {type: 'enter', scope: this.scope, name: 'global'});
 			this.run(this.scope.find(funcName).value.func, args);
 		},
 		run: function(func, args) {
