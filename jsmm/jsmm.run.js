@@ -178,7 +178,7 @@ module.exports = function(jsmm) {
 		},
 		externalCall: function(node, funcValue, args) {
 			this.callNodeId = node.id;
-			for (var i=1; i<this.callStack.length; i++) {
+			for (var i=0; i<this.callStack.length; i++) {
 				var nodeId = this.callStack[i].getTopNode().id;
 				if (this.callNodesByNodes[nodeId] === undefined) {
 					this.callNodesByNodes[nodeId] = [];
@@ -331,7 +331,7 @@ module.exports = function(jsmm) {
 		var output = '';
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type !== 'FunctionDeclaration' || functionNames.indexOf(this.statements[i].name) >= 0) {
-				output += this.statements[i].getRunCode() + '\n\n';
+				output += this.statements[i].getCode() + '\n\n';
 			} else {
 				output += '/* function ' + this.statements[i].name + this.statements[i].getArgList() + ' */\n\n';
 			}
