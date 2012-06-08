@@ -104,6 +104,8 @@ module.exports = function(jsmm) {
 			this.tree = jsmm.parser.yy.tree;
 			this.tree.nodesByType[type].push(this);
 			this.type = type;
+			this.id = this.tree.getNewId();
+			this.tree.nodes[this.id] = this;
 			this.lineLoc = {line: _$.first_line, column: _$.first_column, column2 : (column2 || _$.last_column)};
 			this.blockLoc = {line: _$.first_line, line2: _$.last_line};
 			this.textLoc = {line: _$.first_line, column: _$.first_column, line2: _$.last_line, column2: _$.last_column};
@@ -145,24 +147,24 @@ module.exports = function(jsmm) {
 			};
 		}
 
-		if (node.makeId === undefined) {
-			node.makeId = function() {
-				this.id = this.tree.getNewId();
-				this.tree.nodes[this.id] = this;
-				var children = this.getChildren();
-				for (var i=0; i<children.length; i++) {
-					children[i].makeId();
-				}
-			};
-		}
+		// if (node.makeId === undefined) {
+		// 	node.makeId = function() {
+		// 		this.id = this.tree.getNewId();
+		// 		this.tree.nodes[this.id] = this;
+		// 		var children = this.getChildren();
+		// 		for (var i=0; i<children.length; i++) {
+		// 			children[i].makeId();
+		// 		}
+		// 	};
+		// }
 
 		return node;
 	};
 
 	jsmm.nodes.Program.prototype = jsmm.addCommonNodeMethods('Program', {statementList: true}, false, {
-		init: function() {
-			this.makeId();
-		},
+		// init: function() {
+			// this.makeId();
+		// },
 		getCode: function() {
 			return this.statementList.getCode();
 		},
@@ -199,22 +201,22 @@ module.exports = function(jsmm) {
 		},
 		getChildren: function() {
 			return this.statements;
-		},
-		makeId: function() {
-			this.id = this.tree.getNewId();
-			this.tree.nodes[this.id] = this;
-			for (var i=0; i<this.statements.length; i++) {
-				this.statements[i].makeId();
-			}
-			for (i=0; i<this.statements.length; i++) {
-				if (this.statements[i].type === 'FunctionDeclaration') {
-					var children = this.statements[i].getChildren();
-					for (var j=0; j<children.length; j++) {
-						children[j].makeId();
-					}
-				}
-			}
-		}
+		}//,
+		// makeId: function() {
+		// 	this.id = this.tree.getNewId();
+		// 	this.tree.nodes[this.id] = this;
+		// 	for (var i=0; i<this.statements.length; i++) {
+		// 		this.statements[i].makeId();
+		// 	}
+		// 	for (i=0; i<this.statements.length; i++) {
+		// 		if (this.statements[i].type === 'FunctionDeclaration') {
+		// 			var children = this.statements[i].getChildren();
+		// 			for (var j=0; j<children.length; j++) {
+		// 				children[j].makeId();
+		// 			}
+		// 		}
+		// 	}
+		// }
 	});
 
 	jsmm.nodes.CommonSimpleStatement.prototype = jsmm.addCommonNodeMethods('CommonSimpleStatement', {statement: true}, true, {
@@ -402,10 +404,10 @@ module.exports = function(jsmm) {
 		getCode: function() {
 			var output = 'function ' + this.name + this.getArgList() + '{\n' + this.statementList.getCode() + '}';
 			return output;
-		},
-		makeId: function() {
-			this.id = this.tree.getNewId();
-			this.tree.nodes[this.id] = this;
-		}
+		}//,
+		// makeId: function() {
+		// 	this.id = this.tree.getNewId();
+		// 	this.tree.nodes[this.id] = this;
+		// }
 	});
 };
