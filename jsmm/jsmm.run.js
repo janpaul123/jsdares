@@ -24,20 +24,20 @@ module.exports = function(jsmm) {
 	jsmm.CommandTracker = function() { return this.init.apply(this, arguments); };
 	jsmm.CommandTracker.prototype = {
 		init: function() {
-			this.idsByLine = {};
+			this.idsByNodeId = {};
 			this.nodeIdsById = {};
 		},
 
 		addCommand: function(node, id) {
-			this.idsByLine[node.lineLoc.line] = this.idsByLine[node.lineLoc.line] || [];
-			this.idsByLine[node.lineLoc.line].push(id);
+			this.idsByNodeId[node.getTopNode().id] = this.idsByNodeId[node.getTopNode().id] || [];
+			this.idsByNodeId[node.getTopNode().id].push(id);
 
 			this.nodeIdsById[id] = this.nodeIdsById[id] || [];
 			if (this.nodeIdsById[id].indexOf(node.id) < 0) this.nodeIdsById[id].push(node.id);
 		},
 
-		getHighlightIdsByLine: function(line) {
-			return this.idsByLine[line] || [];
+		getHighlightIdsByNodeId: function(line) {
+			return this.idsByNodeId[line] || [];
 		},
 
 		getHighlightNodeIdsById: function(id) {
@@ -49,7 +49,7 @@ module.exports = function(jsmm) {
 	jsmm.ScopeTracker.prototype = {
 		init: function() {
 			this.scopes = [];
-			this.lines = {};
+			this.nodeIds = {};
 			this.calls = [];
 		},
 
@@ -58,9 +58,9 @@ module.exports = function(jsmm) {
 				var obj = data.scope.find(data.name);
 				if (obj !== undefined) {
 					if (data.scope.parent === null || data.scope.vars[data.name] === undefined) {
-						this.addAssignment(stepNum, node, 0, data.name, obj.value, true);
+						this.addAssignment(stepNum, node.id, 0, data.name, obj.value, true);
 					} else {
-						this.addAssignment(stepNum, node, this.scopes.length-1, data.name, obj.value, true);
+						this.addAssignment(stepNum, node.id, this.scopes.length-1, data.name, obj.value, true);
 					}
 				}
 			} else if (data.type === 'return') {
@@ -70,7 +70,7 @@ module.exports = function(jsmm) {
 				this.calls.push({type: 'enter', stepNum: stepNum, name: data.name, position: this.scopes.length-1});
 
 				for (var name in data.scope.vars) {
-					this.addAssignment(stepNum, node, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
+					this.addAssignment(stepNum, node.id, this.scopes.length-1, name, data.scope.vars[name].value, data.name !== 'global');
 				}
 			}
 		},
@@ -107,18 +107,18 @@ module.exports = function(jsmm) {
 			return scope[split[1]] || [];
 		},
 
-		getHighlightIdsByLine: function(line) {
-			return this.lines[line] || [];
+		getHighlightIdsByNodeId: function(nodeId) {
+			return this.nodeIds[nodeId] || [];
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		addAssignment: function(stepNum, node, position, name, value, highlight) {
+		addAssignment: function(stepNum, nodeId, position, name, value, highlight) {
 			if (highlight) {
 				this.scopes[position][name] = this.scopes[position][name] || [];
-				if (this.scopes[position][name].indexOf(node.id) < 0) this.scopes[position][name].push(node.id);
+				if (this.scopes[position][name].indexOf(nodeId) < 0) this.scopes[position][name].push(nodeId);
 
-				this.lines[node.lineLoc.line] = this.lines[node.lineLoc.line] || [];
-				this.lines[node.lineLoc.line].push(position + '-' + name);
+				this.nodeIds[nodeId] = this.nodeIds[nodeId] || [];
+				this.nodeIds[nodeId].push(position + '-' + name);
 			}
 
 			this.calls.push({type: 'assignment', stepNum: stepNum, position: position, name: name, value: stringify(value)});
@@ -176,7 +176,7 @@ module.exports = function(jsmm) {
 		},
 		externalCall: function(node, funcValue, args) {
 			this.callNodeId = node.id;
-			for (var i=0; i<this.callStack.length; i++) {
+			for (var i=1; i<this.callStack.length; i++) {
 				var nodeId = this.callStack[i].getTopNode().id;
 				if (this.callNodesByNodes[nodeId] === undefined) {
 					this.callNodesByNodes[nodeId] = [];
@@ -238,10 +238,13 @@ module.exports = function(jsmm) {
 			var nodeIds = [];
 			for (var line=line1; line<=line2; line++) {
 				var node = this.tree.getNodeByLine(line);
-				if (node !== null && this.callNodesByNodes[node.id] !== undefined) {
-					for (var i=0; i<this.callNodesByNodes[node.id].length; i++) {
-						if (nodeIds.indexOf(this.callNodesByNodes[node.id][i]) < 0) {
-							nodeIds.push(this.callNodesByNodes[node.id][i]);
+				if (node !== null) {
+					nodeIds.push(node.id);
+					if (this.callNodesByNodes[node.id] !== undefined) {
+						for (var i=0; i<this.callNodesByNodes[node.id].length; i++) {
+							if (nodeIds.indexOf(this.callNodesByNodes[node.id][i]) < 0) {
+								nodeIds.push(this.callNodesByNodes[node.id][i]);
+							}
 						}
 					}
 				}

@@ -121,13 +121,15 @@ module.exports = function(info) {
 			this.removeHighlights();
 		},
 
-		highlightLine: function(line) {
+		highlightCallNodes: function(nodeIds) {
 			this.removeHighlights();
 			if (this.scopeTracker !== null) {
-				var ids = this.scopeTracker.getHighlightIdsByLine(line);
-				for (var i=0; i<ids.length; i++) {
-					if (this.$variables[ids[i]] !== undefined) {
-						this.$variables[ids[i]].addClass('info-scope-variable-highlight');
+				for (var i=0; i<nodeIds.length; i++) {
+					var ids = this.scopeTracker.getHighlightIdsByNodeId(nodeIds[i]);
+					for (var j=0; j<ids.length; j++) {
+						if (this.$variables[ids[j]] !== undefined) {
+							this.$variables[ids[j]].addClass('info-scope-variable-highlight');
+						}
 					}
 				}
 			}
@@ -255,15 +257,16 @@ module.exports = function(info) {
 			this.commandTracker = commandTracker;
 		},
 
-		highlightLine: function(line) {
+		highlightCallNodes: function(nodeIds) {
 			if (this.commandTracker !== null) {
-				var ids = this.commandTracker.getHighlightIdsByLine(line);
 				this.removeHighlights();
-				for (var i=0; i<ids.length; i++) {
-					var id = ids[i];
-					if (this.commands[id] !== undefined) {
-						//this.commands[id].$item.click();
-						this.commands[id].$item.addClass('info-table-item-highlight');
+				console.log(nodeIds);
+				for (var i=0; i<nodeIds.length; i++) {
+					var ids = this.commandTracker.getHighlightIdsByNodeId(nodeIds[i]);
+					for (var j=0; j<ids.length; j++) {
+						if (this.commands[ids[j]] !== undefined) {
+							this.commands[ids[j]].$item.addClass('info-table-item-highlight');
+						}
 					}
 				}
 			}
@@ -379,9 +382,9 @@ module.exports = function(info) {
 			this.table.update(this.currentEvent.commandTracker);
 		},
 
-		highlightCodeLine: function(line) {
-			this.scope.highlightLine(line);
-			this.table.highlightLine(line);
+		highlightCallNodes: function(nodeIds) {
+			this.scope.highlightCallNodes(nodeIds);
+			this.table.highlightCallNodes(nodeIds);
 		},
 
 		enableHighlighting: function() {

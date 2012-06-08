@@ -125,11 +125,12 @@ module.exports = function(jsmm) {
 		};
 
 		node.getTopNode = function() {
-			var node = this;
-			while (node !== null && !node.topNode) {
-				node = node.parent;
-			}
-			return node;
+			return this.tree.nodesByLine[this.lineLoc.line];
+			// var node = this;
+			// while (node !== null && !node.topNode) {
+			// 	node = node.parent;
+			// }
+			// return node;
 		};
 
 		if (node.getChildren === undefined) {
@@ -353,12 +354,11 @@ module.exports = function(jsmm) {
 		}
 	});
 
-	jsmm.nodes.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {expression: true, statementList: true, elseBlock: true}, false, {
+	jsmm.nodes.IfBlock.prototype = jsmm.addCommonNodeMethods('IfBlock', {expression: true, statementList: true, elseBlock: true}, true, {
 		init: function() {
 			if (this.elseBlock !== null) {
 				this.blockLoc.line2 = this.elseBlock.blockLoc.line-1;
 			}
-			this.tree.nodesByLine[this.lineLoc.line] = this;
 		},
 		getCode: function() {
 			var output = 'if (' + this.expression.getCode() + ') {\n' + this.statementList.getCode() + '}';
