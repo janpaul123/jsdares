@@ -352,6 +352,10 @@ module.exports = function(editor) {
 			}
 		},
 
+		click: function(event, line, column) { // callback
+			this.disableAutoCompletion();
+		},
+
 		// internal method
 		mouseMove: function(event, line, column) { // callback
 			if (this.highlightingEnabled && this.currentHighlightLine !== line) {

@@ -589,8 +589,8 @@ module.exports = function(editor) {
 			}
 		},
 
-		click: function() {
-			this.delegate.disableAutoCompletion();
+		click: function(event) {
+			this.delegate.click(event, this.pageYToLine(event.pageY), this.pageXToColumn(event.pageX));
 		},
 
 		mouseMove: function(event) {
