@@ -260,7 +260,6 @@ module.exports = function(info) {
 		highlightCallNodes: function(nodeIds) {
 			if (this.commandTracker !== null) {
 				this.removeHighlights();
-				console.log(nodeIds);
 				for (var i=0; i<nodeIds.length; i++) {
 					var ids = this.commandTracker.getHighlightIdsByNodeId(nodeIds[i]);
 					for (var j=0; j<ids.length; j++) {

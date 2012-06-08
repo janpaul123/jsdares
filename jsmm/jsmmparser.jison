@@ -26,7 +26,7 @@ reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new
 "true"										return "TRUE";
 "false"										return "FALSE";
 "if"										return "IF";
-{newlines}?"else"							return "ELSE";
+"else"										return "ELSE";
 "while"										return "WHILE";
 "for"										return "FOR";
 "var"										return "VAR";
