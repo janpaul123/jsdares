@@ -59,7 +59,9 @@ module.exports = function(jsmm) {
 			return this.error !== null;
 		},
 		compareMain: function(context) {
+			console.log('called functions', context.getCalledFunctions(), context.tree.programNode.getCompareCode(context.getCalledFunctions()), this.programNode.getCompareCode(context.getCalledFunctions()));
 			if (this.hasError() || context.tree.hasError() || context.hasError()) {
+				console.log('some error');
 				return false;
 			} else {
 				return context.tree.programNode.getCompareCode(context.getCalledFunctions()) === this.programNode.getCompareCode(context.getCalledFunctions());

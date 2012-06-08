@@ -225,4 +225,15 @@ module.exports = function(jsmm) {
 			return '"' + color + '"';
 		}
 	};
+
+	jsmm.editor.timeHighlights = {
+		getTimeHighlights: function(tree) {
+			var nodes = tree.getNodesByType('FunctionDeclaration');
+			var result = {};
+			for (var i=0; i<nodes.length; i++) {
+				result[nodes[i].name] = nodes[i].blockLoc;
+			}
+			return result;
+		}
+	};
 };

@@ -6,7 +6,6 @@ module.exports = function(output) {
 	output.Input.prototype = {
 		init: function(editor) {
 			this.editor = editor;
-			this.editor.addOutput(this);
 
 			this.keyDown = $.proxy(this.keyDownHandler, this);
 			this.keyUp = $.proxy(this.keyUpHandler, this);

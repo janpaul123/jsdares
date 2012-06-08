@@ -262,6 +262,7 @@ module.exports = function(editor) {
 			this.text = '';
 			this.userChangedText = false;
 			this.autoCompleteBox = null;
+			this.$timeHighlights = [];
 		},
 
 		remove: function() {
@@ -269,6 +270,7 @@ module.exports = function(editor) {
 			//this.$highlightMarking.remove();
 			this.errorMessage.remove();
 			this.stepMessage.remove();
+			this.$surface.children('.editor-time-highlight').remove();
 			this.$margin.remove();
 			this.$surface.remove();
 			this.$textarea.remove();
@@ -369,6 +371,37 @@ module.exports = function(editor) {
 
 		hideHighlight: function() {
 			this.removeHighlights();
+		},
+
+		showTimeHighlights: function(timeHighlights) {
+			for (var name in timeHighlights) {
+				if (this.$timeHighlights[name] === undefined)  {
+					this.$timeHighlights[name] = $('<div class="editor-time-highlight editor-time-highlight-inactive"></div>');
+					this.addElementToMargin(this.$timeHighlights[name]);
+				}
+				var y = this.lineToY(timeHighlights[name].line);
+				this.$timeHighlights[name].css('top', y);
+				this.$timeHighlights[name].height(this.lineToY(timeHighlights[name].line2+1) - y);
+				this.$timeHighlights[name].click($.proxy(this.timeHighlightClick, this));
+				this.$timeHighlights[name].data('name', name);
+				this.$timeHighlights[name].show();
+			}
+		},
+
+		timeHighlightClick: function(event) {
+			var $target = $(event.delegateTarget);
+			$target.removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-active');
+			this.delegate.timeHighlightSelect($target.data('name'));
+		},
+
+		removeTimeHighlight: function(name) {
+			if (this.$timeHighlights[name] !== undefined) {
+				this.$timeHighlights[name].remove();
+			}
+		},
+
+		hideInactiveTimeHighlights: function() {
+			this.$surface.children('.editor-time-highlight-inactive').hide();
 		},
 
 		scrollToLine: function(line) {

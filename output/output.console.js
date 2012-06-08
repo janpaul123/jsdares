@@ -32,7 +32,6 @@ module.exports = function(output) {
 			this.highlightNextLines = false;
 			this.autoScroll = false;
 			this.editor = editor;
-			this.editor.addOutput(this);
 
 			this.refreshAutoScroll();
 		},
@@ -43,7 +42,6 @@ module.exports = function(output) {
 			this.$mirror.remove();
 			this.$div.removeClass('output console');
 			this.$div.off('scroll mousemove mouseleave');
-			this.editor.removeOutput(this);
 		},
 
 		getAugmentedObject: function() {
@@ -140,7 +138,7 @@ module.exports = function(output) {
 			this.updateEventHighlight();
 		},
 
-		outputClearAll: function() {
+		outputClearAllEvents: function() {
 			this.text = '';
 			this.color = '';
 			this.$mirror.html('');
@@ -163,7 +161,7 @@ module.exports = function(output) {
 			}
 		},
 
-		outputPopFront: function() {
+		outputPopFirstEvent: function() {
 			this.events.shift();
 			this.oldLinesStashed = false;
 		},
@@ -185,7 +183,7 @@ module.exports = function(output) {
 			this.events = this.events.slice(0, eventNum);
 		},
 
-		outputClearToEnd: function() {
+		outputClearEventsToEnd: function() {
 			this.$old.html(this.$mirror.html());
 			this.$old.show();
 			this.oldLinesStashed = true;

@@ -344,14 +344,13 @@ module.exports = function(info) {
 			this.table.addCommands(this.filterCommands(commandFilter));
 
 			this.editor = editor;
-			this.editor.addOutput(this);
 		},
 
 		remove: function() {
 			this.$div.removeClass('output info');
 		},
 
-		outputClearAll: function() {
+		outputClearAllEvents: function() {
 			this.events = [];
 		},
 
@@ -371,7 +370,7 @@ module.exports = function(info) {
 			this.events = this.events.slice(0, eventNum);
 		},
 
-		outputClearToEnd: function() {
+		outputClearEventsToEnd: function() {
 			this.events = [];
 		},
 

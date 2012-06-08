@@ -102,7 +102,6 @@ module.exports = function(output) {
 			// this.calls = [];
 			// this.stepNum = Infinity;
 			this.editor = editor;
-			this.editor.addOutput(this);
 
 			//this.clear();
 		},
@@ -117,7 +116,6 @@ module.exports = function(output) {
 
 			this.$div.removeClass('output canvas');
 			this.$div.off('mousemove');
-			this.editor.removeOutput(this);
 		},
 
 		functions: {
@@ -300,7 +298,7 @@ module.exports = function(output) {
 		outputEndEvent: function() {
 		},
 
-		outputClearAll: function() {
+		outputClearAllEvents: function() {
 			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 
@@ -310,7 +308,7 @@ module.exports = function(output) {
 			this.bufferPosLength = 0;
 		},
 
-		outputPopFront: function() {
+		outputPopFirstEvent: function() {
 			if (this.bufferPosLength > 0) {
 				this.bufferPosStart++;
 				this.bufferPosStart %= this.bufferSize;
@@ -323,7 +321,7 @@ module.exports = function(output) {
 			this.bufferPosLength = eventNum;
 		},
 
-		outputClearToEnd: function() {
+		outputClearEventsToEnd: function() {
 			this.bufferPosStart += this.bufferPosLength;
 			this.bufferPosStart %= this.bufferSize;
 			this.bufferPosLength = 0;
@@ -346,8 +344,26 @@ module.exports = function(output) {
 			}
 		},
 
+		highlightTimeNodes: function(nodeIds) {
+			for (var i=0; i<this.bufferPosLength; i++) {
+				var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
+				for (var j=0; j<event.calls.length; j++) {
+					var call = event.calls[j];
+
+					if (nodeIds.indexOf(call.nodeId) >= 0) {
+						this.wrapper.setState(call.state);
+						this.context.strokeStyle = 'rgba(0, 150, 250, 0.10)';
+						this.context.fillStyle = 'rgba(0, 150, 250, 0.10)';
+						this.context.shadowColor = 'rgba(0, 150, 250, 0.10)';
+						this.context[call.name].apply(this.context, call.args);
+					}
+				}
+			}
+		},
+
 		highlightCallNodes: function(nodeIds) {
 			this.render();
+
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
 				var call = this.buffer[this.bufferPosition].calls[i];
 				if (call.stepNum > this.stepNum) break;

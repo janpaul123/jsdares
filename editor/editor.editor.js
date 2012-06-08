@@ -12,33 +12,36 @@ module.exports = function(editor) {
 			this.language = language;
 			this.surface = new editor.Surface($div, this);
 			this.toolbar = new editor.Toolbar($toolbar, this);
-			this.scope = {};
-			this.outputs = [];
-			this.updateRunner();
 
 			this.editables = [];
 			this.editablesByLine = [];
 			this.editablesEnabled = false;
 
 			this.highlightingEnabled = false;
+			// this.timeHighlightingEnabled = false;
+			// this.timeHighlights = [];
+
 			this.autoCompletionEnabled = false;
 			this.wasStepping = false;
 
 			this.updateTimeout = null;
 
+			this.runner = null;
 			this.textChangeCallback = function(){};
 
-			this.setText('');
-		},
-
-		updateRunner: function() {
-			this.runner = new this.language.Runner(this, this.scope, this.outputs);
+			this.surface.setText('');
 		},
 
 		remove: function() {
 			this.removeEditables();
 			this.surface.remove();
 			this.toolbar.remove();
+		},
+
+		updateSettings: function(scope, outputs) {
+			this.scope = scope;
+			this.outputs = outputs;
+			this.runner = new this.language.Runner(this, this.scope, this.outputs);
 		},
 
 		getText: function() {
@@ -51,31 +54,8 @@ module.exports = function(editor) {
 			this.update();
 		},
 
-		setScope: function(scope) {
-			this.scope = scope;
-			this.updateRunner();
-			if (!this.tree.hasError()) {
-				this.run();
-			}
-		},
-
-		addOutput: function(output) {
-			this.outputs.push(output);
-			this.updateRunner();
-			if (!this.tree.hasError()) {
-				this.run();
-			}
-		},
-
 		setTextChangeCallback: function(callback) {
 			this.textChangeCallback = callback;
-		},
-
-		removeOutput: function(output) {
-			var index = this.outputs.indexOf(output);
-			if (index >= 0) {
-				this.outputs.splice(index, 1);
-			}
 		},
 
 		callOutputs: function(funcName) {
@@ -133,20 +113,11 @@ module.exports = function(editor) {
 		},
 
 		canHighlight: function() {
-			return !this.hasCriticalError() && this.runner.isStatic();
+			return this.runner.isStatic() && !this.hasCriticalError();
 		},
 
-		updateRunnerOutput: function(runner) { // runner callback
-			if (!this.autoCompletionEnabled) {
-				this.surface.hideAutoCompleteBox();
-				if (runner.hasError()) {
-					this.handleError(runner.getError());
-				} else {
-					this.handleMessages(runner.getMessages());
-				}
-				this.updateHighlighting();
-				this.toolbar.update(runner);
-			}
+		canHighlightTime: function() {
+			return this.runner.isInteractive() && this.canHighlight();
 		},
 
 		handleCriticalError: function(error) {
@@ -220,6 +191,45 @@ module.exports = function(editor) {
 
 		getContentLines: function() {
 			return this.tree.getNodeLines();
+		},
+
+		/// RUNNER CALLBACKS ///
+		startEvent: function(context) {
+			this.callOutputs('outputStartEvent', context);
+		},
+
+		endEvent: function(context) {
+			this.callOutputs('outputEndEvent', context);
+		},
+
+		clearAllEvents: function() {
+			this.callOutputs('outputClearAllEvents');
+		},
+
+		popFirstEvent: function() {
+			this.callOutputs('outputPopFirstEvent');
+		},
+
+		clearEventToEnd: function() {
+			this.callOutputs('outputClearEventsToEnd');
+		},
+
+		clearEventsFrom: function(context) {
+			this.callOutputs('outputClearEventsFrom', context);
+		},
+
+		runnerChanged: function() { // runner callback
+			if (!this.autoCompletionEnabled) {
+				this.surface.hideAutoCompleteBox();
+				if (this.runner.hasError()) {
+					this.handleError(this.runner.getError());
+				} else {
+					this.handleMessages(this.runner.getMessages());
+				}
+				this.updateHighlighting();
+				this.toolbar.update(this.runner);
+			}
+			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
@@ -301,6 +311,16 @@ module.exports = function(editor) {
 					}
 				}
 			}
+		},
+
+		updateTimeHighlighting: function() {
+			console.log('updating highlights');
+			this.surface.showTimeHighlights(this.language.editor.timeHighlights.getTimeHighlights(this.tree));
+			this.surface.hideInactiveTimeHighlights();
+		},
+
+		timeHighlightSelect: function(name) {
+
 		},
 
 		enableHighlighting: function() {

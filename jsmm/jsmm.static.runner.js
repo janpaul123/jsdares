@@ -16,20 +16,20 @@ module.exports = function(jsmm) {
 
 		run: function(context) {
 			this.context = context;
-			this.runner.callOutputs('outputStartEvent', this.context);
+			this.runner.delegate.startEvent(this.context);
 			if (this.funcName === null) {
 				this.context.runProgram();
 			} else {
 				this.context.runFunction(this.funcName, this.args);
 			}
-			this.runner.callOutputs('outputEndEvent', this.context);
+			this.runner.delegate.endEvent(this.context);
 		}
 	};
 
 	jsmm.Runner = function() { return this.init.apply(this, arguments); };
 	jsmm.Runner.prototype = {
-		init: function(editor, scope, outputs, maxHistory) {
-			this.editor = editor;
+		init: function(delegate, scope, outputs, maxHistory) {
+			this.delegate = delegate;
 			this.scope = scope;
 			this.outputs = outputs;
 			this.maxHistory = maxHistory || 80;
@@ -44,22 +44,20 @@ module.exports = function(jsmm) {
 			this.paused = false;
 			this.interactive = false;
 			this.enabled = false;
-
-			this.newTree(new jsmm.Tree(''));
 		},
 
 		selectBaseEvent: function() {
 			if (this.events.length !== 1 || this.eventNum !== 0 || this.events[0] !== this.baseEvent) {
 				this.events = [this.baseEvent];
-				this.eventNum = 0;
 				this.stepNum = Infinity;
 			}
+			this.eventNum = 0;
 			this.interactive = false;
 			this.paused = false;
-			this.callOutputs('outputClearAll');
+			this.delegate.clearAllEvents();
 			this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
 			this.runScope = this.baseEvent.context.scope.getVars();
-			this.updateEventStep();
+			this.delegate.runnerChanged();
 		},
 
 		canReceiveEvents: function() {
@@ -83,10 +81,10 @@ module.exports = function(jsmm) {
 				if (this.events.length > this.maxHistory) {
 					this.events.shift();
 					this.eventNum--;
-					this.callOutputs('outputPopFront');
+					this.delegate.popFirstEvent();
 				}
 				if (event.context.hasError()) {
-					this.updateEditor();
+					this.delegate.runnerChanged();
 				}
 				return true;
 			}
@@ -97,19 +95,20 @@ module.exports = function(jsmm) {
 			if (this.baseEvent.context !== null && this.tree.compareMain(this.baseEvent.context)) {
 				if (this.interactive && !this.tree.compareAll(this.baseEvent.context)) {
 					if (!this.paused || this.eventNum < 0) {
-						this.callOutputs('outputClearToEnd');
+						this.delegate.clearEventToEnd();
 						this.events = [];
 						this.eventNum = -1;
+						this.stepNum = Infinity;
 						this.tree.programNode.getFunctionFunction()(this.runScope);
 					} else {
 						var start;
 						if (this.events[0] === this.baseEvent) {
-							this.callOutputs('outputClearAll');
+							this.delegate.clearAllEvents();
 							this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
 							this.runScope = this.baseEvent.context.scope.getVars();
 							start = 1;
 						} else {
-							this.callOutputs('outputClearEventsFrom', 0);
+							this.delegate.clearEventsFrom(0);
 							this.runScope = this.events[0].context.startScope.getVars();
 							this.tree.programNode.getFunctionFunction()(this.runScope);
 							start = 0;
@@ -118,12 +117,14 @@ module.exports = function(jsmm) {
 							this.events[i].run(new jsmm.RunContext(this.tree, this.runScope));
 							this.runScope = this.events[i].context.scope.getVars();
 						}
+
+						if (this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length) {
+							this.stepNum = Infinity;
+						}
 					}
-					this.updateEventStep();
-				} else {
-					this.updateEditor();
 				}
 				this.baseEvent.context.tree = this.tree;
+				this.delegate.runnerChanged();
 			} else {
 				this.selectBaseEvent();
 			}
@@ -134,18 +135,16 @@ module.exports = function(jsmm) {
 			this.paused = false;
 			if (this.eventNum < this.events.length-1) {
 				this.events = this.events.slice(0, this.eventNum+1);
-				this.callOutputs('outputClearEventsFrom', this.eventNum+1);
+				this.delegate.clearEventsFrom(this.eventNum+1);
 				this.stepNum = Infinity;
 				this.runScope = this.events[this.eventNum].context.scope.getVars();
-				this.updateEventStep();
-			} else {
-				this.updateEditor();
 			}
+			this.delegate.runnerChanged();
 		},
 
 		pause: function() {
 			this.paused = true;
-			this.updateEditor();
+			this.delegate.runnerChanged();
 		},
 
 		isPaused: function() {
@@ -168,10 +167,8 @@ module.exports = function(jsmm) {
 			if (eventNum >= 0 && eventNum < this.events.length) {
 				this.eventNum = eventNum;
 				this.step = Infinity;
-				this.updateEventStep();
-			} else {
-				this.updateEditor();
 			}
+			this.delegate.runnerChanged();
 		},
 
 		isBaseEventSelected: function() {
@@ -184,39 +181,32 @@ module.exports = function(jsmm) {
 		},
 
 		restart: function() {
-			if (this.stepNum === Infinity) {
-				this.updateEditor();
-			} else {
+			if (this.stepNum !== Infinity) {
 				this.stepNum = Infinity;
-				this.updateEventStep();
 			}
+			this.delegate.runnerChanged();
 		},
 
 		stepForward: function() {
-			if (this.eventNum < 0) {
-				this.updateEditor();
-			} else if (this.stepNum < this.events[this.eventNum].context.steps.length-1) {
-				this.stepNum++;
-				this.updateEventStep();
-			} else if (this.stepNum === Infinity) {
-				this.stepNum = 0;
-				this.updateEventStep();
-			} else {
-				this.stepNum = Infinity;
-				this.updateEventStep();
+			if (this.eventNum >= 0) {
+				if (this.stepNum < this.events[this.eventNum].context.steps.length-1) {
+					this.stepNum++;
+				} else if (this.stepNum === Infinity) {
+					this.stepNum = 0;
+				} else {
+					this.stepNum = Infinity;
+				}
 			}
+			this.delegate.runnerChanged();
 		},
 
 		stepBackward: function() {
 			if (this.stepNum < Infinity && this.stepNum > 0) {
 				this.stepNum--;
-				this.updateEventStep();
 			} else if (this.stepNum < Infinity) {
 				this.stepNum = Infinity;
-				this.updateEventStep();
-			} else {
-				this.updateEditor();
 			}
+			this.delegate.runnerChanged();
 		},
 
 		getStepTotal: function() {
@@ -230,10 +220,8 @@ module.exports = function(jsmm) {
 		setStepNum: function(stepNum) {
 			if (stepNum >= 0 && stepNum < this.events[this.eventNum].context.steps.length) {
 				this.stepNum = stepNum;
-				this.updateEventStep();
-			} else {
-				this.updateEditor();
 			}
+			this.delegate.runnerChanged();
 		},
 
 		getStepType: function() {
@@ -290,34 +278,6 @@ module.exports = function(jsmm) {
 
 		getExamples: function(text) {
 			return jsmm.editor.autocompletion.getExamples(new jsmm.func.Scope(this.runScope || this.scope), text);
-		},
-
-		/// INTERNAL FUNCTIONS ///
-		callOutputs: function(funcName) {
-			for (var i=0; i<this.outputs.length; i++) {
-				if (this.outputs[i][funcName] !== undefined) {
-					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
-				}
-			}
-		},
-
-		updateEventStep: function() {
-			if (this.events.length <= 0) {
-				this.eventNum = -1;
-			} else {
-				if (this.eventNum < 0 || this.eventNum >= this.events.length) {
-					this.eventNum = this.events.length;
-				} else if (this.stepNum < 0 ||
-						(this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length)) {
-					this.stepNum = Infinity;
-				}
-				this.callOutputs('outputSetEventStep', this.eventNum, this.stepNum);
-			}
-			this.updateEditor();
-		},
-
-		updateEditor: function() {
-			this.editor.updateRunnerOutput(this);
 		}
 	};
 };

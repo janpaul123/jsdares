@@ -29,13 +29,11 @@ module.exports = function(output) {
 			}
 
 			this.editor = editor;
-			this.editor.addOutput(this);
 		},
 
 		remove: function() {
 			this.robot.remove();
 			this.$div.removeClass('output robot');
-			this.editor.removeOutput(this);
 		},
 
 		drive: function(context, name, args) {
@@ -147,7 +145,7 @@ module.exports = function(output) {
 			this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 		},
 
-		outputClearAll: function() {
+		outputClearAllEvents: function() {
 			this.robot.clear();
 			this.eventStart = 0;
 			this.eventPosition = 0;
@@ -155,7 +153,7 @@ module.exports = function(output) {
 			this.callCounter = 0;
 		},
 
-		outputPopFront: function() {
+		outputPopFirstEvent: function() {
 			this.eventStart++;
 		},
 
@@ -177,7 +175,7 @@ module.exports = function(output) {
 			this.events = this.events.slice(0, position);
 		},
 
-		outputClearToEnd: function() {
+		outputClearEventsToEnd: function() {
 			this.eventStart = this.events.length;
 		},
 
@@ -273,7 +271,7 @@ module.exports = function(output) {
 		},
 
 		setFocus: function() {
-			this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
+			//this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 		},
 
 		highlightCallNodes: function(nodeIds) {

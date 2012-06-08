@@ -10,11 +10,11 @@ module.exports = function(output) {
 	output.UI = function() { return this.init.apply(this, arguments); };
 	output.UI.prototype = {
 		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
-		outputs: ['robot', 'console', 'canvas', 'info', 'dare', 'input', 'math', 'editor'],
+		outputNames: ['robot', 'console', 'canvas', 'info', 'dare', 'input', 'math', 'editor'],
 
 		init: function() {
-			for (var i=0; i<this.outputs.length; i++) {
-				this[this.outputs[i]] = null;
+			for (var i=0; i<this.outputNames.length; i++) {
+				this[this.outputNames[i]] = null;
 			}
 
 			this.$main = $('#main');
@@ -42,13 +42,14 @@ module.exports = function(output) {
 		},
 
 		removeAll: function() {
-			for (var i=0; i<this.outputs.length; i++) {
-				if (this[this.outputs[i]] !== null) {
-					this[this.outputs[i]].remove();
-					this[this.outputs[i]] = null;
+			for (var i=0; i<this.outputNames.length; i++) {
+				if (this[this.outputNames[i]] !== null) {
+					this[this.outputNames[i]].remove();
+					this[this.outputNames[i]] = null;
 				}
 			}
 			this.scope = {};
+			this.outputs = [];
 			this.$tabs.children('li').remove();
 			this.$content.children('div').remove();
 			this.$main.removeClass('ui-dares-active');
@@ -83,30 +84,31 @@ module.exports = function(output) {
 		addRobot: function(readOnly, width, height) {
 			this.addTab('robot');
 			this.robot = new output.Robot($('#robot'), this.editor, readOnly, width, height);
+			this.outputs.push(this.robot);
 			this.scope.robot = this.robot.getAugmentedObject();
-			this.editor.setScope(this.scope);
 			return this.robot;
 		},
 
 		addConsole: function() {
 			this.addTab('console');
 			this.console = new output.Console($('#console'), this.editor);
+			this.outputs.push(this.console);
 			this.scope.console = this.console.getAugmentedObject();
-			this.editor.setScope(this.scope);
 			return this.console;
 		},
 
 		addCanvas: function(size) {
 			this.addTab('canvas');
 			this.canvas = new output.Canvas($('#canvas'), this.editor, size || 540);
+			this.outputs.push(this.canvas);
 			this.scope.canvas = this.canvas.getAugmentedObject();
-			this.editor.setScope(this.scope);
 			return this.canvas;
 		},
 
 		addInfo: function(commandFilter) {
 			this.addTab('info');
 			this.info = new info.Info($('#info'), this.editor, commandFilter);
+			this.outputs.push(this.info);
 			return this.robot;
 		},
 
@@ -120,20 +122,21 @@ module.exports = function(output) {
 
 		addInput: function() {
 			this.input = new output.Input(this.editor);
+			this.outputs.push(this.input);
 			this.scope.document = this.input.getAugmentedDocumentObject();
 			this.scope.window = this.input.getAugmentedWindowObject();
-			this.editor.setScope(this.scope);
 			return this.input;
 		},
 
 		addMath: function() {
 			this.math = new output.Math();
+			this.outputs.push(this.math);
 			this.scope.Math = this.math.getAugmentedObject();
-			this.editor.setScope(this.scope);
 			return this.math;
 		},
 
 		finish: function() {
+			this.editor.updateSettings(this.scope, this.outputs);
 			this.selectTab(this.tabs[0]);
 		},
 
@@ -154,6 +157,7 @@ module.exports = function(output) {
 			this.addInfo();
 			this.addInput();
 			this.addMath();
+			this.finish();
 
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
@@ -165,7 +169,6 @@ module.exports = function(output) {
 			this.editor.setTextChangeCallback(function(text) {
 				window.localStorage.setItem('initial-code', text);
 			});
-			this.finish();
 		},
 
 		hideDares: function() {
