@@ -306,6 +306,7 @@ module.exports = function(output) {
 			this.bufferSize = 300;
 			this.bufferPosStart = 0;
 			this.bufferPosLength = 0;
+			this.timeNodes = [];
 		},
 
 		outputPopFirstEvent: function() {
@@ -345,20 +346,8 @@ module.exports = function(output) {
 		},
 
 		highlightTimeNodes: function(nodeIds) {
-			for (var i=0; i<this.bufferPosLength; i++) {
-				var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
-				for (var j=0; j<event.calls.length; j++) {
-					var call = event.calls[j];
-
-					if (nodeIds.indexOf(call.nodeId) >= 0) {
-						this.wrapper.setState(call.state);
-						this.context.strokeStyle = 'rgba(0, 150, 250, 0.10)';
-						this.context.fillStyle = 'rgba(0, 150, 250, 0.10)';
-						this.context.shadowColor = 'rgba(0, 150, 250, 0.10)';
-						this.context[call.name].apply(this.context, call.args);
-					}
-				}
-			}
+			this.timeNodes = nodeIds;
+			this.render();
 		},
 
 		highlightCallNodes: function(nodeIds) {
@@ -381,6 +370,7 @@ module.exports = function(output) {
 		render: function() {
 			this.setCanvasState(this.bufferPosition);
 
+
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
 				var call = this.buffer[this.bufferPosition].calls[i];
 				if (call.stepNum > this.stepNum) break;
@@ -394,6 +384,23 @@ module.exports = function(output) {
 				}
 
 				this.context[call.name].apply(this.context, call.args);
+			}
+
+			if (this.timeNodes.length > 0) {
+				for (var i=0; i<this.bufferPosLength; i++) {
+					var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
+					for (var j=0; j<event.calls.length; j++) {
+						var call = event.calls[j];
+
+						if (this.timeNodes.indexOf(call.nodeId) >= 0) {
+							this.wrapper.setState(call.state);
+							this.context.strokeStyle = 'rgba(0, 150, 250, 0.10)';
+							this.context.fillStyle = 'rgba(0, 150, 250, 0.10)';
+							this.context.shadowColor = 'rgba(0, 150, 250, 0.10)';
+							this.context[call.name].apply(this.context, call.args);
+						}
+					}
+				}
 			}
 
 			if (this.highlighting) {

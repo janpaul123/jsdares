@@ -322,7 +322,9 @@ module.exports = function(editor) {
 		enableTimeHighlighting: function() {
 			if (!this.timeHighlightingEnabled && this.canHighlightTime()) {
 				this.timeHighlightingEnabled = true;
-				this.updateTimeHighlighting();
+				if (this.updateTimeHighlighting()) {
+					this.updateActiveTimeHighlights();
+				}
 			}
 		},
 
@@ -330,11 +332,13 @@ module.exports = function(editor) {
 			if (this.timeHighlightingEnabled) {
 				this.timeHighlightingEnabled = false;
 				this.surface.hideTimeHighlights();
+				this.callOutputs('highlightTimeNodes', []);
 			}
 		},
 
 		updateTimeHighlighting: function() {
 			console.log('updating highlights');
+			var changed = false;
 			if (!this.canHighlightTime()) {
 				this.disableTimeHighlighting();
 			} else {
@@ -342,27 +346,44 @@ module.exports = function(editor) {
 				for (var name in this.activeTimeHighlights) {
 					if (timeHighlights[name] === undefined) {
 						delete this.activeTimeHighlights[name];
+						changed = true;
 					}
 				}
 				this.surface.showTimeHighlights(timeHighlights);
+				this.updateActiveTimeHighlights();
 				if (!this.highlightingEnabled) {
 					this.surface.hideInactiveTimeHighlights();
 				}
 			}
+			return changed;
+		},
+
+		updateActiveTimeHighlights: function() {
+			var nodes = [];
+			for (var name in this.activeTimeHighlights) {
+				var timeHighlight = this.activeTimeHighlights[name];
+				var currentNodes = this.runner.getCallNodesByRange(timeHighlight.line, timeHighlight.line2);
+				for (var i=0; i<currentNodes.length; i++) {
+					if (nodes.indexOf(currentNodes[i]) < 0) {
+						nodes.push(currentNodes[i]);
+					}
+				}
+			}
+			this.callOutputs('highlightTimeNodes', nodes);
 		},
 
 		timeHighlightClick: function(name) {
-			console.log(name, this.activeTimeHighlights[name]);
 			if (this.activeTimeHighlights[name] === undefined) {
 				this.activeTimeHighlights[name] = this.language.editor.timeHighlights.getTimeHighlights(this.tree)[name];
 				this.surface.timeHighlightActivate(name);
 			} else {
-				this.activeTimeHighlights[name] = undefined;
+				delete this.activeTimeHighlights[name];
 				this.surface.timeHighlightDeactivate(name);
 				if (!this.highlightingEnabled) {
 					this.surface.hideInactiveTimeHighlights();
 				}
 			}
+			this.updateActiveTimeHighlights();
 		},
 
 		enableHighlighting: function() {
