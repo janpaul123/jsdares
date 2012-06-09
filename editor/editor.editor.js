@@ -232,6 +232,7 @@ module.exports = function(editor) {
 			}
 			if (this.canHighlightTime()) {
 				this.enableTimeHighlighting();
+				this.updateActiveTimeHighlights();
 			} else {
 				this.disableTimeHighlighting();
 			}
@@ -322,9 +323,8 @@ module.exports = function(editor) {
 		enableTimeHighlighting: function() {
 			if (!this.timeHighlightingEnabled && this.canHighlightTime()) {
 				this.timeHighlightingEnabled = true;
-				if (this.updateTimeHighlighting()) {
-					this.updateActiveTimeHighlights();
-				}
+				this.updateTimeHighlighting();
+				this.updateActiveTimeHighlights();
 			}
 		},
 
@@ -338,7 +338,6 @@ module.exports = function(editor) {
 
 		updateTimeHighlighting: function() {
 			console.log('updating highlights');
-			var changed = false;
 			if (!this.canHighlightTime()) {
 				this.disableTimeHighlighting();
 			} else {
@@ -346,16 +345,13 @@ module.exports = function(editor) {
 				for (var name in this.activeTimeHighlights) {
 					if (timeHighlights[name] === undefined) {
 						delete this.activeTimeHighlights[name];
-						changed = true;
 					}
 				}
 				this.surface.showTimeHighlights(timeHighlights);
-				this.updateActiveTimeHighlights();
 				if (!this.highlightingEnabled) {
 					this.surface.hideInactiveTimeHighlights();
 				}
 			}
-			return changed;
 		},
 
 		updateActiveTimeHighlights: function() {

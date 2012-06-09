@@ -38,10 +38,10 @@ module.exports = function(editor) {
 				this.enabled = true;
 				this.$stepBubble.fadeIn(150);
 			}
-			this.value = stepNum;
+			this.value = Math.min(stepNum, stepTotal);
 			this.total = stepTotal;
-			this.$stepNum.text(stepNum);
-			this.$stepTotal.text('/' + stepTotal);
+			this.$stepNum.text(this.value);
+			this.$stepTotal.text('/' + this.total);
 			this.$stepBubble.css('margin-left', -this.$stepBubble.outerWidth());
 		},
 
