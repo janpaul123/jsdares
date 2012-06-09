@@ -374,34 +374,42 @@ module.exports = function(editor) {
 		},
 
 		showTimeHighlights: function(timeHighlights) {
+			this.$margin.children('.editor-time-highlight').addClass('editor-time-highlight-remove');
 			for (var name in timeHighlights) {
 				if (this.$timeHighlights[name] === undefined)  {
 					this.$timeHighlights[name] = $('<div class="editor-time-highlight editor-time-highlight-inactive"></div>');
+					this.$timeHighlights[name].click($.proxy(this.timeHighlightClick, this));
+					this.$timeHighlights[name].data('name', name);
 					this.addElementToMargin(this.$timeHighlights[name]);
 				}
+				this.$timeHighlights[name].removeClass('editor-time-highlight-remove');
 				var y = this.lineToY(timeHighlights[name].line);
 				this.$timeHighlights[name].css('top', y);
 				this.$timeHighlights[name].height(this.lineToY(timeHighlights[name].line2+1) - y);
-				this.$timeHighlights[name].click($.proxy(this.timeHighlightClick, this));
-				this.$timeHighlights[name].data('name', name);
 				this.$timeHighlights[name].show();
 			}
+			this.$margin.children('.editor-time-highlight-remove').remove();
 		},
 
 		timeHighlightClick: function(event) {
 			var $target = $(event.delegateTarget);
-			$target.removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-active');
-			this.delegate.timeHighlightSelect($target.data('name'));
+			this.delegate.timeHighlightClick($target.data('name'));
 		},
 
-		removeTimeHighlight: function(name) {
-			if (this.$timeHighlights[name] !== undefined) {
-				this.$timeHighlights[name].remove();
-			}
+		timeHighlightActivate: function(name) {
+			this.$timeHighlights[name].removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-active');
+		},
+
+		timeHighlightDeactivate: function(name) {
+			this.$timeHighlights[name].removeClass('editor-time-highlight-active').addClass('editor-time-highlight-inactive');
+		},
+
+		hideTimeHighlights: function() {
+			this.$margin.children('.editor-time-highlight').hide();
 		},
 
 		hideInactiveTimeHighlights: function() {
-			this.$surface.children('.editor-time-highlight-inactive').hide();
+			this.$margin.children('.editor-time-highlight-inactive').hide();
 		},
 
 		scrollToLine: function(line) {

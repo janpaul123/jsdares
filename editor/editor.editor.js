@@ -18,8 +18,8 @@ module.exports = function(editor) {
 			this.editablesEnabled = false;
 
 			this.highlightingEnabled = false;
-			// this.timeHighlightingEnabled = false;
-			// this.timeHighlights = [];
+			this.timeHighlightingEnabled = false;
+			this.activeTimeHighlights = {};
 
 			this.autoCompletionEnabled = false;
 			this.wasStepping = false;
@@ -87,6 +87,7 @@ module.exports = function(editor) {
 					this.run();
 				}
 			}
+			this.updateTimeHighlighting();
 			this.textChangeCallback(this.code.text);
 		},
 
@@ -229,6 +230,11 @@ module.exports = function(editor) {
 				this.updateHighlighting();
 				this.toolbar.update(this.runner);
 			}
+			if (this.canHighlightTime()) {
+				this.enableTimeHighlighting();
+			} else {
+				this.disableTimeHighlighting();
+			}
 			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 		},
 
@@ -313,14 +319,50 @@ module.exports = function(editor) {
 			}
 		},
 
-		updateTimeHighlighting: function() {
-			console.log('updating highlights');
-			this.surface.showTimeHighlights(this.language.editor.timeHighlights.getTimeHighlights(this.tree));
-			this.surface.hideInactiveTimeHighlights();
+		enableTimeHighlighting: function() {
+			if (!this.timeHighlightingEnabled && this.canHighlightTime()) {
+				this.timeHighlightingEnabled = true;
+				this.updateTimeHighlighting();
+			}
 		},
 
-		timeHighlightSelect: function(name) {
+		disableTimeHighlighting: function() {
+			if (this.timeHighlightingEnabled) {
+				this.timeHighlightingEnabled = false;
+				this.surface.hideTimeHighlights();
+			}
+		},
 
+		updateTimeHighlighting: function() {
+			console.log('updating highlights');
+			if (!this.canHighlightTime()) {
+				this.disableTimeHighlighting();
+			} else {
+				var timeHighlights = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
+				for (var name in this.activeTimeHighlights) {
+					if (timeHighlights[name] === undefined) {
+						delete this.activeTimeHighlights[name];
+					}
+				}
+				this.surface.showTimeHighlights(timeHighlights);
+				if (!this.highlightingEnabled) {
+					this.surface.hideInactiveTimeHighlights();
+				}
+			}
+		},
+
+		timeHighlightClick: function(name) {
+			console.log(name, this.activeTimeHighlights[name]);
+			if (this.activeTimeHighlights[name] === undefined) {
+				this.activeTimeHighlights[name] = this.language.editor.timeHighlights.getTimeHighlights(this.tree)[name];
+				this.surface.timeHighlightActivate(name);
+			} else {
+				this.activeTimeHighlights[name] = undefined;
+				this.surface.timeHighlightDeactivate(name);
+				if (!this.highlightingEnabled) {
+					this.surface.hideInactiveTimeHighlights();
+				}
+			}
 		},
 
 		enableHighlighting: function() {
@@ -330,6 +372,7 @@ module.exports = function(editor) {
 				this.highlightingEnabled = true;
 				this.toolbar.highlightingEnabled();
 				this.callOutputs('enableHighlighting');
+				this.updateTimeHighlighting();
 			}
 		},
 
@@ -341,6 +384,7 @@ module.exports = function(editor) {
 			this.highlightingEnabled = false;
 			this.toolbar.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
+			this.updateTimeHighlighting();
 		},
 
 		highlightNode: function(node) { // callback
