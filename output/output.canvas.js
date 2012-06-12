@@ -121,28 +121,28 @@ module.exports = function(output) {
 		},
 
 		functions: {
-			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', path: false},
-			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', path: false},
-			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', path: false},
-			beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', path: true},
-			closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', path: true},
-			fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', path: false},
-			stroke: {type: 'function', argsMin: 0, argsMax: 0, example: 'stroke()', path: false},
-			// clip: {type: 'function', argsMin: 0, argsMax: 0, example: 'clip()', path: true},
-			moveTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', path: true},
-			lineTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', path: true},
-			quadraticCurveTo: {type: 'function', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', path: true},
-			bezierCurveTo: {type: 'function', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', path: true},
-			arcTo: {type: 'function', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', path: true},
-			arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', path: true},
-			rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', path: true},
-			// scale: {type: 'function', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', path: false},
-			// rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', path: false},
-			// translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', path: false},
-			// transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', path: false},
-			fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false},
-			strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false},
-			isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false},
+			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', path: false, highlight: false},
+			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', path: false, highlight: true},
+			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', path: false, highlight: true},
+			beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', path: true, highlight: true},
+			closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', path: true, highlight: true},
+			fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', path: false, highlight: true},
+			stroke: {type: 'function', argsMin: 0, argsMax: 0, example: 'stroke()', path: false, highlight: true},
+			// clip: {type: 'function', argsMin: 0, argsMax: 0, example: 'clip()', path: true, highlight: true},
+			moveTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', path: true, highlight: true},
+			lineTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'lineTo(100, 100)', path: true, highlight: true},
+			quadraticCurveTo: {type: 'function', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', path: true, highlight: true},
+			bezierCurveTo: {type: 'function', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', path: true, highlight: true},
+			arcTo: {type: 'function', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', path: true, highlight: true},
+			arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', path: true, highlight: true},
+			rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', path: true, highlight: true},
+			// scale: {type: 'function', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', path: false, highlight: true},
+			// rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', path: false, highlight: true},
+			// translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', path: false, highlight: true},
+			// transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', path: false, highlight: true},
+			fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false, highlight: true},
+			strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false, highlight: true},
+			isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false, highlight: true},
 			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"'},
 			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"'},
 			shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10'},
@@ -382,9 +382,9 @@ module.exports = function(output) {
 
 				if (this.highlighting) {
 					this.context[call.name].apply(this.context, call.args);
-					this.context.strokeStyle = 'rgba(0, 150, 250, 0.25)';
-					this.context.fillStyle = 'rgba(0, 150, 250, 0.25)';
-					this.context.shadowColor = 'rgba(0, 150, 250, 0.25)';
+					this.context.strokeStyle = 'rgba(0, 110, 220, 0.50)';
+					this.context.fillStyle = 'rgba(0, 110, 220, 0.50)';
+					this.context.shadowColor = 'rgba(0, 110, 220, 0.50)';
 				}
 
 				this.context[call.name].apply(this.context, call.args);
@@ -397,11 +397,11 @@ module.exports = function(output) {
 					for (var j=0; j<event.calls.length; j++) {
 						var call = event.calls[j];
 
-						if (this.timeNodes[i].indexOf(call.nodeId) >= 0) {
+						if (this.timeNodes[i].indexOf(call.nodeId) >= 0 && this.functions[call.name].highlight) {
 							this.wrapper.setState(call.state);
-							this.context.strokeStyle = 'rgba(0, 150, 250, 0.10)';
-							this.context.fillStyle = 'rgba(0, 150, 250, 0.10)';
-							this.context.shadowColor = 'rgba(0, 150, 250, 0.10)';
+							this.context.strokeStyle = 'rgba(0, 110, 220, 0.30)';
+							this.context.fillStyle = 'rgba(0, 110, 220, 0.30)';
+							this.context.shadowColor = 'rgba(0, 110, 220, 0.30)';
 							this.context[call.name].apply(this.context, call.args);
 						}
 					}
@@ -413,7 +413,7 @@ module.exports = function(output) {
 					var call = this.buffer[this.bufferPosition].calls[i];
 					if (call.stepNum > this.stepNum) break;
 
-					if (this.callNodes.indexOf(call.nodeId) >= 0) {
+					if (this.callNodes.indexOf(call.nodeId) >= 0 && this.functions[call.name].highlight) {
 						this.wrapper.setState(call.state);
 						this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
 						this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
@@ -521,7 +521,7 @@ module.exports = function(output) {
 						this.render(); // == this.callNodes([]);
 					} else {
 						this.editor.highlightNodeId(this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId);
-						this.callNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
+						this.highlightCallNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
 					}
 				}
 			}
