@@ -309,6 +309,7 @@ module.exports = function(output) {
 			this.bufferSize = 300;
 			this.bufferPosStart = 0;
 			this.bufferPosLength = 0;
+			this.callNodes = [];
 			this.timeNodes = [];
 		},
 
@@ -359,22 +360,10 @@ module.exports = function(output) {
 			this.render();
 		},
 
-		highlightCallNodes: function(nodeIds) {
+		highlightCallNodes: function(callNodes) {
 			console.log('canvas highlightCallNodes');
+			this.callNodes = callNodes;
 			this.render();
-
-			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
-				var call = this.buffer[this.bufferPosition].calls[i];
-				if (call.stepNum > this.stepNum) break;
-
-				if (nodeIds.indexOf(call.nodeId) >= 0) {
-					this.wrapper.setState(call.state);
-					this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
-					this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
-					this.context.shadowColor = 'rgba(5, 195, 5, 0.85)';
-					this.context[call.name].apply(this.context, call.args);
-				}
-			}
 		},
 
 		render: function() {
@@ -409,6 +398,21 @@ module.exports = function(output) {
 							this.context.shadowColor = 'rgba(0, 150, 250, 0.10)';
 							this.context[call.name].apply(this.context, call.args);
 						}
+					}
+				}
+			}
+
+			if (this.callNodes.length > 0) {
+				for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
+					var call = this.buffer[this.bufferPosition].calls[i];
+					if (call.stepNum > this.stepNum) break;
+
+					if (this.callNodes.indexOf(call.nodeId) >= 0) {
+						this.wrapper.setState(call.state);
+						this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
+						this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
+						this.context.shadowColor = 'rgba(5, 195, 5, 0.85)';
+						this.context[call.name].apply(this.context, call.args);
 					}
 				}
 			}
@@ -457,6 +461,7 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
+			this.callNodes = [];
 			if (this.bufferPosLength > 0) {
 				this.render();
 				this.clearMirror();
@@ -503,10 +508,10 @@ module.exports = function(output) {
 
 					if (this.highlightCallIndex < 0) {
 						this.editor.highlightNode(null);
-						this.render(); // == this.highlightCallNodes([]);
+						this.render(); // == this.callNodes([]);
 					} else {
 						this.editor.highlightNodeId(this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId);
-						this.highlightCallNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
+						this.callNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
 					}
 				}
 			}
