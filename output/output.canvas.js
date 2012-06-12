@@ -273,6 +273,7 @@ module.exports = function(output) {
 		},
 
 		outputStartEvent: function(context) {
+			console.log('canvas outputStartEvent');
 			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
 			var $originalCanvas = null;
 
@@ -296,9 +297,11 @@ module.exports = function(output) {
 		},
 
 		outputEndEvent: function() {
+			console.log('canvas outputEndEvent');
 		},
 
 		outputClearAllEvents: function() {
+			console.log('canvas outputClearAllEvents');
 			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 
@@ -310,6 +313,7 @@ module.exports = function(output) {
 		},
 
 		outputPopFirstEvent: function() {
+			console.log('canvas outputPopFirstEvent');
 			if (this.bufferPosLength > 0) {
 				this.bufferPosStart++;
 				this.bufferPosStart %= this.bufferSize;
@@ -318,17 +322,20 @@ module.exports = function(output) {
 		},
 
 		outputClearEventsFrom: function(eventNum) {
+			console.log('canvas outputClearEventsFrom');
 			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
 			this.bufferPosLength = eventNum;
 		},
 
 		outputClearEventsToEnd: function() {
+			console.log('canvas outputClearEventsToEnd');
 			this.bufferPosStart += this.bufferPosLength;
 			this.bufferPosStart %= this.bufferSize;
 			this.bufferPosLength = 0;
 		},
 
 		outputSetError: function(error) {
+			console.log('canvas outputSetError');
 			if (error) {
 				this.$canvas.addClass('canvas-error');
 			} else {
@@ -337,6 +344,7 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
+			console.log('canvas outputSetEventStep');
 			var position = (this.bufferPosStart+eventNum)%this.bufferSize;
 			if (this.bufferPosition !== position || this.stepNum !== stepNum) {
 				this.bufferPosition = position;
@@ -345,12 +353,14 @@ module.exports = function(output) {
 			}
 		},
 
-		highlightTimeNodes: function(nodeIds) {
-			this.timeNodes = nodeIds;
+		highlightTimeNodes: function(timeNodes) {
+			console.log('canvas highlightTimeNodes', timeNodes);
+			this.timeNodes = timeNodes;
 			this.render();
 		},
 
 		highlightCallNodes: function(nodeIds) {
+			console.log('canvas highlightCallNodes');
 			this.render();
 
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
@@ -370,7 +380,6 @@ module.exports = function(output) {
 		render: function() {
 			this.setCanvasState(this.bufferPosition);
 
-
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
 				var call = this.buffer[this.bufferPosition].calls[i];
 				if (call.stepNum > this.stepNum) break;
@@ -386,13 +395,14 @@ module.exports = function(output) {
 				this.context[call.name].apply(this.context, call.args);
 			}
 
+			//console.log(this.timeNodes)
 			if (this.timeNodes.length > 0) {
 				for (var i=0; i<this.bufferPosLength; i++) {
 					var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
 					for (var j=0; j<event.calls.length; j++) {
 						var call = event.calls[j];
 
-						if (this.timeNodes.indexOf(call.nodeId) >= 0) {
+						if (this.timeNodes[i].indexOf(call.nodeId) >= 0) {
 							this.wrapper.setState(call.state);
 							this.context.strokeStyle = 'rgba(0, 150, 250, 0.10)';
 							this.context.fillStyle = 'rgba(0, 150, 250, 0.10)';
@@ -437,7 +447,9 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
-			this.render();
+			if (this.bufferPosLength > 0) {
+				this.render();
+			}
 		},
 
 		disableHighlighting: function() {
@@ -445,8 +457,10 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
-			this.render();
-			this.clearMirror();
+			if (this.bufferPosLength > 0) {
+				this.render();
+				this.clearMirror();
+			}
 		},
 
 		getImageData: function() {

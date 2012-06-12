@@ -14,6 +14,7 @@ module.exports = function(output) {
 
 			this.intervalId = null;
 			this.start = true;
+			this.outputClearAll();
 		},
 
 		remove: function() {

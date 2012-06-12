@@ -276,6 +276,14 @@ module.exports = function(jsmm) {
 			}
 		},
 
+		getAllCallNodesByRange: function(line1, line2) {
+			var nodes = [];
+			for (var i=0; i<this.events.length; i++) {
+				nodes[i] = this.events[i].context.getCallNodesByRange(line1, line2);
+			}
+			return nodes;
+		},
+
 		getExamples: function(text) {
 			return jsmm.editor.autocompletion.getExamples(new jsmm.func.Scope(this.runScope || this.scope), text);
 		}

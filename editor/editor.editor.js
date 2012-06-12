@@ -236,7 +236,9 @@ module.exports = function(editor) {
 			} else {
 				this.disableTimeHighlighting();
 			}
-			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
+			if (this.runner.isStatic()) {
+				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
+			}
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
@@ -358,10 +360,15 @@ module.exports = function(editor) {
 			var nodes = [];
 			for (var name in this.activeTimeHighlights) {
 				var timeHighlight = this.activeTimeHighlights[name];
-				var currentNodes = this.runner.getCallNodesByRange(timeHighlight.line, timeHighlight.line2);
-				for (var i=0; i<currentNodes.length; i++) {
-					if (nodes.indexOf(currentNodes[i]) < 0) {
-						nodes.push(currentNodes[i]);
+				var nodesPerContext = this.runner.getAllCallNodesByRange(timeHighlight.line, timeHighlight.line2);
+				for (var i=0; i<nodesPerContext.length; i++) {
+					if (nodes[i] === undefined) {
+						nodes[i] = [];
+					}
+					for (var j=0; j<nodesPerContext[i].length; j++) {
+						if (nodes[i].indexOf(nodesPerContext[i][j]) < 0) {
+							nodes[i].push(nodesPerContext[i][j]);
+						}
 					}
 				}
 			}
