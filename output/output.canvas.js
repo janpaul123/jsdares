@@ -26,6 +26,7 @@ module.exports = function(output) {
 			return this.context[name].apply(this.context, args);
 		},
 		set: function(name, value) {
+			console.log('set', name, value);
 			this.state = null;
 			this.context[name] = value;
 		},
@@ -39,6 +40,7 @@ module.exports = function(output) {
 			return this.state;
 		},
 		setState: function(state) {
+			console.log('setState', state);
 			this.state = state;
 			for (var i=0; i<this.properties.length; i++) {
 				this.context[this.properties[i]] = this.state[this.properties[i]];
@@ -86,8 +88,8 @@ module.exports = function(output) {
 				'shadowOffsetX', 'shadowOffsetY', 'shadowBlur', 'shadowColor', 'globalAlpha', 'lineWidth',
 				'lineCap', 'lineJoin', 'miterLimit', 'font', 'textAlign', 'textBaseline']);
 
-			this.mirrorWrapper = new output.CanvasWrapper(this.$mirrorCanvas[0], ['strokeStyle', 'fillStyle',
-				'lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'font', 'textAlign', 'textBaseline']);
+			this.mirrorWrapper = new output.CanvasWrapper(this.$mirrorCanvas[0], ['lineWidth', 'lineCap',
+				'lineJoin', 'miterLimit', 'font', 'textAlign', 'textBaseline']);
 
 			this.$targetCanvas = null;
 
@@ -237,6 +239,7 @@ module.exports = function(output) {
 			if (this.functions[name].path) {
 				return this.wrapper.callPath(name, args);
 			} else {
+				console.log(this.wrapper.getState());
 				this.buffer[this.bufferPosition].calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
 				return this.context[name].apply(this.context, args);
 			}
@@ -297,6 +300,8 @@ module.exports = function(output) {
 		},
 
 		outputEndEvent: function() {
+			var position = (this.bufferPosStart+this.bufferPosLength-1)%this.bufferSize;
+			this.buffer[position].endState = this.wrapper.getState();
 			console.log('canvas outputEndEvent');
 		},
 
@@ -367,6 +372,7 @@ module.exports = function(output) {
 		},
 
 		render: function() {
+			console.log('render');
 			this.setCanvasState(this.bufferPosition);
 
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
@@ -420,6 +426,8 @@ module.exports = function(output) {
 			if (this.highlighting) {
 				this.drawMirror();
 			}
+
+			this.wrapper.setState(this.buffer[this.bufferPosition].endState);
 		},
 
 		drawMirror: function() {
@@ -447,6 +455,7 @@ module.exports = function(output) {
 		},
 
 		enableHighlighting: function() {
+			console.log('enableHighlighting');
 			this.highlighting = true;
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
@@ -457,6 +466,7 @@ module.exports = function(output) {
 		},
 
 		disableHighlighting: function() {
+			console.log('disableHighlighting');
 			this.highlighting = false;
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
