@@ -26,7 +26,6 @@ module.exports = function(output) {
 			return this.context[name].apply(this.context, args);
 		},
 		set: function(name, value) {
-			console.log('set', name, value);
 			this.state = null;
 			this.context[name] = value;
 		},
@@ -40,7 +39,6 @@ module.exports = function(output) {
 			return this.state;
 		},
 		setState: function(state) {
-			console.log('setState', state);
 			this.state = state;
 			for (var i=0; i<this.properties.length; i++) {
 				this.context[this.properties[i]] = this.state[this.properties[i]];
@@ -239,7 +237,6 @@ module.exports = function(output) {
 			if (this.functions[name].path) {
 				return this.wrapper.callPath(name, args);
 			} else {
-				console.log(this.wrapper.getState());
 				this.buffer[this.bufferPosition].calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
 				return this.context[name].apply(this.context, args);
 			}
@@ -276,7 +273,6 @@ module.exports = function(output) {
 		},
 
 		outputStartEvent: function(context) {
-			console.log('canvas outputStartEvent');
 			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
 			var $originalCanvas = null;
 
@@ -302,11 +298,9 @@ module.exports = function(output) {
 		outputEndEvent: function() {
 			var position = (this.bufferPosStart+this.bufferPosLength-1)%this.bufferSize;
 			this.buffer[position].endState = this.wrapper.getState();
-			console.log('canvas outputEndEvent');
 		},
 
 		outputClearAllEvents: function() {
-			console.log('canvas outputClearAllEvents');
 			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 
@@ -319,7 +313,6 @@ module.exports = function(output) {
 		},
 
 		outputPopFirstEvent: function() {
-			console.log('canvas outputPopFirstEvent');
 			if (this.bufferPosLength > 0) {
 				this.bufferPosStart++;
 				this.bufferPosStart %= this.bufferSize;
@@ -328,20 +321,17 @@ module.exports = function(output) {
 		},
 
 		outputClearEventsFrom: function(eventNum) {
-			console.log('canvas outputClearEventsFrom');
 			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
 			this.bufferPosLength = eventNum;
 		},
 
 		outputClearEventsToEnd: function() {
-			console.log('canvas outputClearEventsToEnd');
 			this.bufferPosStart += this.bufferPosLength;
 			this.bufferPosStart %= this.bufferSize;
 			this.bufferPosLength = 0;
 		},
 
 		outputSetError: function(error) {
-			console.log('canvas outputSetError');
 			if (error) {
 				this.$canvas.addClass('canvas-error');
 			} else {
@@ -350,7 +340,6 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			console.log('canvas outputSetEventStep');
 			var position = (this.bufferPosStart+eventNum)%this.bufferSize;
 			if (this.bufferPosition !== position || this.stepNum !== stepNum) {
 				this.bufferPosition = position;
@@ -360,19 +349,16 @@ module.exports = function(output) {
 		},
 
 		highlightTimeNodes: function(timeNodes) {
-			console.log('canvas highlightTimeNodes', timeNodes);
 			this.timeNodes = timeNodes;
 			this.render();
 		},
 
 		highlightCallNodes: function(callNodes) {
-			console.log('canvas highlightCallNodes');
 			this.callNodes = callNodes;
 			this.render();
 		},
 
 		render: function() {
-			console.log('render');
 			this.setCanvasState(this.bufferPosition);
 
 			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
@@ -390,7 +376,6 @@ module.exports = function(output) {
 				this.context[call.name].apply(this.context, call.args);
 			}
 
-			//console.log(this.timeNodes)
 			if (this.timeNodes.length > 0) {
 				for (var i=0; i<this.bufferPosLength; i++) {
 					var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
@@ -455,7 +440,6 @@ module.exports = function(output) {
 		},
 
 		enableHighlighting: function() {
-			console.log('enableHighlighting');
 			this.highlighting = true;
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
@@ -466,7 +450,6 @@ module.exports = function(output) {
 		},
 
 		disableHighlighting: function() {
-			console.log('disableHighlighting');
 			this.highlighting = false;
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
@@ -518,7 +501,7 @@ module.exports = function(output) {
 
 					if (this.highlightCallIndex < 0) {
 						this.editor.highlightNode(null);
-						this.render(); // == this.callNodes([]);
+						this.highlightCallNodes([]);
 					} else {
 						this.editor.highlightNodeId(this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId);
 						this.highlightCallNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);

@@ -23,11 +23,19 @@ module.exports = function(output) {
 		play: function(start, end) {
 			var newAnim = this.useNewAnimation();
 			if (newAnim || this.start !== start || this.end !== end) {
-				this.start = start;
-				this.end = end;
-				if (this.runningAnimation !== null) {
-					this.runningAnimation.play(this.start, this.end);
-				}
+				this.forcePlay(start, end);
+			}
+		},
+
+		forcePlay: function(start, end) {
+			this.start = start;
+			this.end = end;
+			this.replay();
+		},
+
+		replay: function() {
+			if (this.runningAnimation !== null) {
+				this.runningAnimation.play(this.start, this.end);
 			}
 		},
 

@@ -59,6 +59,7 @@ module.exports = function(editor) {
 		},
 
 		callOutputs: function(funcName) {
+			console.log(funcName);
 			for (var i=0; i<this.outputs.length; i++) {
 				if (this.outputs[i][funcName] !== undefined) {
 					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
@@ -339,7 +340,6 @@ module.exports = function(editor) {
 		},
 
 		updateTimeHighlighting: function() {
-			console.log('updating highlights');
 			if (!this.canHighlightTime()) {
 				this.disableTimeHighlighting();
 			} else {

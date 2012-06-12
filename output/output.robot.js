@@ -189,48 +189,46 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			if (this.eventPosition !== this.eventStart + eventNum || this.stepNum !== stepNum) {
-				this.eventPosition = this.eventStart + eventNum;
-				this.stepNum = stepNum;
+			this.eventPosition = this.eventStart + eventNum;
+			this.stepNum = stepNum;
 
-				this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
-				for (var i=0; i<this.events.length; i++) {
-					if (i > this.eventPosition) break;
-					for (var j=0; j<this.events[i].calls.length; j++) {
-						var call = this.events[i].calls[j];
-						if (i === this.eventPosition && call.stepNum > this.stepNum) break;
+			this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
+			for (var i=0; i<this.events.length; i++) {
+				if (i > this.eventPosition) break;
+				for (var j=0; j<this.events[i].calls.length; j++) {
+					var call = this.events[i].calls[j];
+					if (i === this.eventPosition && call.stepNum > this.stepNum) break;
 
-						if (call.$element !== null) {
-							call.$element.show();
-						}
+					if (call.$element !== null) {
+						call.$element.show();
+					}
+				}
+			}
+
+			if (this.highlighting) {
+				this.updateEventHighlight();
+			}
+
+			if (this.stepNum === Infinity) {
+				this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
+			} else {
+				var lastAnimNum = null;
+				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+					var call = this.events[this.eventPosition].calls[i];
+					if (call.stepNum > this.stepNum) break;
+
+					lastAnimNum = call.animNum;
+					if (call.stepNum === this.stepNum) {
+						this.robot.animationManager.play(call.animNum, call.animNum+1);
+						lastAnimNum = false;
+						break;
 					}
 				}
 
-				if (this.highlighting) {
-					this.updateEventHighlight();
-				}
-
-				if (this.stepNum === Infinity) {
-					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
-				} else {
-					var lastAnimNum = null;
-					for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
-						var call = this.events[this.eventPosition].calls[i];
-						if (call.stepNum > this.stepNum) break;
-
-						lastAnimNum = call.animNum;
-						if (call.stepNum === this.stepNum) {
-							this.robot.animationManager.play(call.animNum, call.animNum+1);
-							lastAnimNum = false;
-							break;
-						}
-					}
-
-					if (lastAnimNum === null) {
-						this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].startAnimNum);
-					} else if (lastAnimNum !== false) {
-						this.robot.animationManager.play(lastAnimNum+1, lastAnimNum+1);
-					}
+				if (lastAnimNum === null) {
+					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].startAnimNum);
+				} else if (lastAnimNum !== false) {
+					this.robot.animationManager.play(lastAnimNum+1, lastAnimNum+1);
 				}
 			}
 		},

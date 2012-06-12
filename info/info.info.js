@@ -375,7 +375,6 @@ module.exports = function(info) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			console.log(eventNum, stepNum);
 			this.currentEvent = this.events[eventNum];
 			this.scope.update(this.currentEvent.scopeTracker, stepNum);
 			this.table.update(this.currentEvent.commandTracker);
