@@ -40,6 +40,7 @@ module.exports = function(jsmm) {
 			this.eventNum = 0;
 			this.stepNum = Infinity;
 			this.runScope = null;
+			this.errorEventNums = [];
 
 			this.paused = false;
 			this.interactive = false;
@@ -54,9 +55,11 @@ module.exports = function(jsmm) {
 			this.eventNum = 0;
 			this.interactive = false;
 			this.paused = false;
+			this.errorEventNums = [];
 			this.delegate.clearAllEvents();
 			this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
 			this.runScope = this.baseEvent.context.scope.getVars();
+			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 			this.delegate.runnerChanged();
 		},
 
@@ -84,6 +87,7 @@ module.exports = function(jsmm) {
 					this.delegate.popFirstEvent();
 				}
 				if (event.context.hasError()) {
+					this.errorEventNums.push(this.events.length-1);
 					this.delegate.runnerChanged();
 				}
 				return true;
@@ -94,6 +98,7 @@ module.exports = function(jsmm) {
 			this.tree = tree;
 			if (this.baseEvent.context !== null && this.tree.compareMain(this.baseEvent.context)) {
 				if (this.interactive && !this.tree.compareAll(this.baseEvent.context)) {
+					this.errorEventNums = [];
 					if (!this.paused || this.eventNum < 0) {
 						this.delegate.clearEventToEnd();
 						this.events = [];
@@ -106,6 +111,7 @@ module.exports = function(jsmm) {
 							this.delegate.clearAllEvents();
 							this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
 							this.runScope = this.baseEvent.context.scope.getVars();
+							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 							start = 1;
 						} else {
 							this.delegate.clearEventsFrom(0);
@@ -116,6 +122,7 @@ module.exports = function(jsmm) {
 						for (var i=start; i<this.events.length; i++) {
 							this.events[i].run(new jsmm.RunContext(this.tree, this.runScope));
 							this.runScope = this.events[i].context.scope.getVars();
+							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
 						}
 
 						if (this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length) {
@@ -260,6 +267,10 @@ module.exports = function(jsmm) {
 
 		getError: function() {
 			return this.events[this.eventNum].context.getError();
+		},
+
+		getErrorEventNums: function() {
+			return this.errorEventNums;
 		},
 
 		getMessages: function() {

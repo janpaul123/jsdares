@@ -400,6 +400,7 @@ module.exports = function(editor) {
 							this.$slider.width(this.runner.getEventTotal()*140/this.maxHistory);
 							this.slider.setValue(this.runner.getEventNum());
 							this.$sliderButton.css('margin-left', '');
+							this.setSliderErrors(runner);
 						}
 						this.playPauseAnimation.setFraction(this.runner.getEventNum()/(this.runner.getEventTotal()-1));
 						this.stepBar.update(runner);
@@ -422,6 +423,19 @@ module.exports = function(editor) {
 				this.$div.addClass('editor-toolbar-run-disabled');
 				this.hideSlider();
 			}
+		},
+
+		setSliderErrors: function(runner) {
+			var errorEventNums = runner.getErrorEventNums();
+			var segments = [];
+			for (var i=0; i<errorEventNums.length;) {
+				var start = i, end = i++;
+				while(i<errorEventNums.length && errorEventNums[i] === errorEventNums[i-1]+1) {
+					end = i++;
+				}
+				segments.push({start: errorEventNums[start], end: errorEventNums[end], color: 'rgba(255, 0, 0, 0.7)'});
+			}
+			this.slider.setSegments(segments);
 		},
 
 		hideSlider: function() {
