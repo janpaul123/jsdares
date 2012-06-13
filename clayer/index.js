@@ -351,6 +351,9 @@ clayer.Slider.prototype = {
 		this.$bar = $('<div class="clayer-slider-bar"></div>');
 		this.$container.append(this.$bar);
 
+		this.$segmentContainer = $('<div class="clayer-slider-segment-container"></div>');
+		this.$bar.append(this.$segmentContainer);
+
 		this.$marker = $('<div class="clayer-slider-marker"></div>');
 		this.markerWidth = Math.min(this.valueWidth, 10);
 		this.$marker.width(this.markerWidth);
@@ -372,10 +375,24 @@ clayer.Slider.prototype = {
 	remove: function() {
 		this.touchable.setTouchable(false);
 		this.$element.off('mousemove mouseleave');
+		this.$segmentContainer.remove();
 		this.$marker.remove();
 		this.$knob.remove();
 		this.$bar.remove();
 		this.$container.remove();
+	},
+
+	setSegments: function(ranges) {
+		this.$segmentContainer.html('');
+		for (var i=0; i<ranges.length; i++) {
+			var range = ranges[i];
+			var $segment = $('<div class="clayer-slider-segment"></div>');
+			this.$segmentContainer.append($segment);
+
+			$segment.css('left', range.start*this.valueWidth);
+			$segment.width((range.end - range.start + 1)*this.valueWidth);
+			$segment.css('background-color', range.color);
+		}
 	},
 
 	setValue: function(value) {
@@ -410,10 +427,6 @@ clayer.Slider.prototype = {
 			this.renderMarker();
 			this.changed();
 		}
-	},
-
-	updateMarkerValue: function(markerValue) {
-		
 	},
 
 	renderKnob: function() {
