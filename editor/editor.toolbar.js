@@ -326,9 +326,10 @@ module.exports = function(editor) {
 
 	editor.RunBar = function() { return this.init.apply(this, arguments); };
 	editor.RunBar.prototype = {
-		init: function($div, maxHistory) {
+		init: function($div, ed, maxHistory) {
 			this.runner = null;
 			this.$div = $div;
+			this.editor = ed;
 			this.maxHistory = maxHistory;
 			//this.stepBar = new editor.StepBar()
 
@@ -350,12 +351,17 @@ module.exports = function(editor) {
 			this.$stepBarContainer.append('<div class="editor-toolbar-run-step-bar-arrow"></div>');
 			this.$div.append(this.$stepBarContainer);
 
+
 			this.$stepBarIcon = $('<i></i>');
 			this.$stepBarContainer.append(this.$stepBarIcon);
 
 			var $stepBar = $('<div class="btn-group editor-toolbar-run-step-bar"></div>');
 			this.stepBar = new editor.StepBar($stepBar, this.$stepBarContainer, false);
 			this.$stepBarContainer.append($stepBar);
+
+			this.$stepBarErrorIcon = $('<img class="editor-toolbar-run-step-bar-error-icon" src="img/margin-message-icon-error.png"/>');
+			this.$stepBarErrorIcon.on('click', $.proxy(this.errorIconClick, this));
+			this.$stepBarContainer.append(this.$stepBarErrorIcon);
 
 			this.sliderEnabled = true;
 			this.$stepBarContainer.hide(); // hacky fix
@@ -364,6 +370,9 @@ module.exports = function(editor) {
 
 		remove: function() {
 			this.slider.remove();
+			this.stepBar.remove();
+			this.$stepBarErrorIcon.remove();
+			this.$stepBarContainer.remove();
 			this.$playPause.remove();
 			this.$slider.remove();
 			this.$sliderContainer.remove();
@@ -412,6 +421,11 @@ module.exports = function(editor) {
 							mouse: 'mouse',
 							interval: 'time'
 						}[this.runner.getStepType()]);
+						if (this.runner.hasError()) {
+							this.$stepBarContainer.addClass('editor-toolbar-run-step-bar-error');
+						} else {
+							this.$stepBarContainer.removeClass('editor-toolbar-run-step-bar-error');
+						}
 					} else {
 						this.hideSlider();
 					}
@@ -462,6 +476,10 @@ module.exports = function(editor) {
 			if (this.runner.isPaused()) {
 				this.runner.setEventNum(value);
 			}
+		},
+
+		errorIconClick: function() {
+			this.editor.scrollToError();
 		}
 	};
 
@@ -491,7 +509,7 @@ module.exports = function(editor) {
 			this.$div.append($editHighlightGroup);
 
 			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
-			this.runBar = new editor.RunBar($runBar, 50);
+			this.runBar = new editor.RunBar($runBar, this.editor, 50);
 			this.$div.append($runBar);
 
 			this.$checkKeys = $.proxy(this.checkKeys, this);

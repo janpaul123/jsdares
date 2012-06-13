@@ -356,11 +356,12 @@ div.colorpicker div.circle.lightness {
 		}
 	}
 
+	@editor-toolbar-run-step-bar-margin: -170px/2 + 10px/2 + 2;
 	.editor-toolbar-run-step-bar-container {
 		position: absolute;
 		top: 26px;
 		width: 170px;
-		margin-left: -170px/2 + 10px/2 + 2;
+		margin-left: @editor-toolbar-run-step-bar-margin;
 		height: 28px;
 		background-color: @editor-box-background-color;
 		z-index: 60;
@@ -378,15 +379,35 @@ div.colorpicker div.circle.lightness {
 		}
 
 		.editor-toolbar-run-step-bar-icon {
-			float: left;
-			line-height: 28px;
-			margin-top: 8px;
-			margin-right: 10px;
-			margin-left: 5px;
+			position: absolute;
+			left: 12px;
+			top: 12px;
+		}
+
+		.editor-toolbar-run-step-bar {
+			position: absolute;
+			left: 35px;
+			top: 6px;
 		}
 
 		.editor-toolbar-step-bubble {
 			top: 7px;
+		}
+
+		.editor-toolbar-run-step-bar-error-icon {
+			display: none;
+			position: absolute;
+			left: 181px;
+			top: 12px;
+			cursor: pointer;
+		}
+
+		&.editor-toolbar-run-step-bar-error {
+			.editor-toolbar-run-step-bar-error-icon {
+				display: block;
+			}
+			width: 170px + 25px;
+			margin-left: @editor-toolbar-run-step-bar-margin - 25px/2 - 1;
 		}
 	}
 }

@@ -175,6 +175,11 @@ module.exports = function(editor) {
 			return loc;
 		},
 
+		scrollToError: function() { // callback
+			this.surface.scrollToLine(this.runner.getError().loc.line);
+			this.surface.openErrorMessage();
+		},
+
 		userChangedText: function() { // callback
 			this.update(); // refreshEditables uses this.tree
 			if (this.editablesEnabled) {

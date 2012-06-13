@@ -318,6 +318,10 @@ module.exports = function(editor) {
 			this.$div.off('mousemove mouseleave');
 		},
 
+		openErrorMessage: function() {
+			this.errorMessage.openMessage();
+		},
+
 		showErrorMessage: function(location, html) {
 			this.errorMessage.showAtLocation(location, html);
 			this.$textarea.addClass('editor-error');
