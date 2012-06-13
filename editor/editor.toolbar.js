@@ -262,7 +262,6 @@ module.exports = function(editor) {
 		},
 
 		animate: function(animate) {
-			console.log('animate', animate);
 			if (animate !== this.animating) {
 				this.animating = animate;
 				if (this.animating) {
