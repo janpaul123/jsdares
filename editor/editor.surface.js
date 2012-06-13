@@ -378,7 +378,11 @@ module.exports = function(editor) {
 			for (var name in timeHighlights) {
 				if (this.$timeHighlights[name] === undefined)  {
 					this.$timeHighlights[name] = $('<div class="editor-time-highlight editor-time-highlight-inactive"></div>');
-					this.$timeHighlights[name].click($.proxy(this.timeHighlightClick, this));
+					this.$timeHighlights[name].on({
+						click: $.proxy(this.timeHighlightClick, this),
+						mousemove: $.proxy(this.timeHighlightMouseMove, this),
+						mouseleave: $.proxy(this.timeHighlightMouseLeave, this)
+					});
 					this.$timeHighlights[name].data('name', name);
 					this.addElementToMargin(this.$timeHighlights[name]);
 				}
@@ -391,17 +395,41 @@ module.exports = function(editor) {
 			this.$margin.children('.editor-time-highlight-remove').remove();
 		},
 
+		timeHighlightMouseMove: function(event) {
+			var $target = $(event.delegateTarget);
+			if ($target.hasClass('editor-time-highlight-inactive')) {
+				$target.removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-hover');
+				this.delegate.timeHighlightActivate($target.data('name'));
+			}
+		},
+
+		timeHighlightMouseLeave: function(event) {
+			var $target = $(event.delegateTarget);
+			if ($target.hasClass('editor-time-highlight-hover')) {
+				$target.removeClass('editor-time-highlight-hover').addClass('editor-time-highlight-inactive');
+				this.delegate.timeHighlightDeactivate($target.data('name'));
+			}
+		},
+
 		timeHighlightClick: function(event) {
 			var $target = $(event.delegateTarget);
-			this.delegate.timeHighlightClick($target.data('name'));
+			if ($target.hasClass('editor-time-highlight-active')) {
+				$target.removeClass('editor-time-highlight-active').addClass('editor-time-highlight-hover');
+			} else if ($target.hasClass('editor-time-highlight-hover')) {
+				$target.removeClass('editor-time-highlight-hover').addClass('editor-time-highlight-active');
+			} else {
+				$target.removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-active');
+				this.delegate.timeHighlightActivate($target.data('name'));
+			}
 		},
 
-		timeHighlightActivate: function(name) {
-			this.$timeHighlights[name].removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-active');
-		},
-
-		timeHighlightDeactivate: function(name) {
-			this.$timeHighlights[name].removeClass('editor-time-highlight-active').addClass('editor-time-highlight-inactive');
+		disableHoverTimeHighlights: function() {
+			for (var name in this.$timeHighlights) {
+				if (this.$timeHighlights[name].hasClass('editor-time-highlight-hover')) {
+					this.$timeHighlights[name].removeClass('editor-time-highlight-hover').addClass('editor-time-highlight-inactive');
+					this.delegate.timeHighlightDeactivate(name);
+				}
+			}
 		},
 
 		hideTimeHighlights: function() {

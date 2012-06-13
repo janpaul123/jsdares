@@ -19,7 +19,7 @@ module.exports = function(editor) {
 
 			this.highlightingEnabled = false;
 			this.timeHighlightingEnabled = false;
-			this.activeTimeHighlights = {};
+			this.activeTimeHighlights = [];
 
 			this.autoCompletionEnabled = false;
 			this.wasStepping = false;
@@ -233,7 +233,9 @@ module.exports = function(editor) {
 			}
 			if (this.canHighlightTime()) {
 				this.enableTimeHighlighting();
-				this.updateActiveTimeHighlights();
+				if (this.activeTimeHighlights.length > 0) {
+					this.updateActiveTimeHighlights();
+				}
 			} else {
 				this.disableTimeHighlighting();
 			}
@@ -327,7 +329,6 @@ module.exports = function(editor) {
 			if (!this.timeHighlightingEnabled && this.canHighlightTime()) {
 				this.timeHighlightingEnabled = true;
 				this.updateTimeHighlighting();
-				this.updateActiveTimeHighlights();
 			}
 		},
 
@@ -344,9 +345,9 @@ module.exports = function(editor) {
 				this.disableTimeHighlighting();
 			} else {
 				var timeHighlights = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
-				for (var name in this.activeTimeHighlights) {
-					if (timeHighlights[name] === undefined) {
-						delete this.activeTimeHighlights[name];
+				for (var i=0; i<this.activeTimeHighlights.length; i++) {
+					if (timeHighlights[this.activeTimeHighlights[i].name] === undefined) {
+						this.activeTimeHighlights.splice(i--, 1);
 					}
 				}
 				this.surface.showTimeHighlights(timeHighlights);
@@ -358,35 +359,48 @@ module.exports = function(editor) {
 
 		updateActiveTimeHighlights: function() {
 			var nodes = [];
-			for (var name in this.activeTimeHighlights) {
-				var timeHighlight = this.activeTimeHighlights[name];
+			for (var i=0; i<this.activeTimeHighlights.length; i++) {
+				var timeHighlight = this.activeTimeHighlights[i];
 				var nodesPerContext = this.runner.getAllCallNodesByRange(timeHighlight.line, timeHighlight.line2);
-				for (var i=0; i<nodesPerContext.length; i++) {
-					if (nodes[i] === undefined) {
-						nodes[i] = [];
+				for (var j=0; j<nodesPerContext.length; j++) {
+					if (nodes[j] === undefined) {
+						nodes[j] = [];
 					}
-					for (var j=0; j<nodesPerContext[i].length; j++) {
-						if (nodes[i].indexOf(nodesPerContext[i][j]) < 0) {
-							nodes[i].push(nodesPerContext[i][j]);
+					for (var k=0; k<nodesPerContext[j].length; k++) {
+						if (nodes[j].indexOf(nodesPerContext[j][k]) < 0) {
+							nodes[j].push(nodesPerContext[j][k]);
 						}
 					}
 				}
 			}
+			console.log(nodes);
 			this.callOutputs('highlightTimeNodes', nodes);
 		},
 
-		timeHighlightClick: function(name) {
-			if (this.activeTimeHighlights[name] === undefined) {
-				this.activeTimeHighlights[name] = this.language.editor.timeHighlights.getTimeHighlights(this.tree)[name];
-				this.surface.timeHighlightActivate(name);
-			} else {
-				delete this.activeTimeHighlights[name];
-				this.surface.timeHighlightDeactivate(name);
+		timeHighlightActivate: function(name) {
+			var highlight = this.language.editor.timeHighlights.getTimeHighlights(this.tree)[name];
+			highlight.name = name;
+			this.activeTimeHighlights.push(highlight);
+			this.updateActiveTimeHighlights();
+		},
+		
+		timeHighlightDeactivate: function(name) {
+			console.log('deactivate', name);
+			var position = -1;
+			for (var i=0; i<this.activeTimeHighlights.length; i++) {
+				if (this.activeTimeHighlights[i].name === name) {
+					position = i;
+					break;
+				}
+			}
+
+			if (position > -1) {
+				this.activeTimeHighlights.splice(position, 1);
 				if (!this.highlightingEnabled) {
 					this.surface.hideInactiveTimeHighlights();
 				}
+				this.updateActiveTimeHighlights();
 			}
-			this.updateActiveTimeHighlights();
 		},
 
 		enableHighlighting: function() {
@@ -408,6 +422,7 @@ module.exports = function(editor) {
 			this.highlightingEnabled = false;
 			this.toolbar.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
+			this.surface.disableHoverTimeHighlights();
 			this.updateTimeHighlighting();
 		},
 
