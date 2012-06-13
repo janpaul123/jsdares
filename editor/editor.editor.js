@@ -378,8 +378,13 @@ module.exports = function(editor) {
 					}
 				}
 			}
-			console.log(nodes);
 			this.callOutputs('highlightTimeNodes', nodes);
+		},
+
+		timeHighlightHover: function(name) {
+			if (!this.highlightingEnabled) {
+				this.surface.hideInactiveTimeHighlights();
+			}
 		},
 
 		timeHighlightActivate: function(name) {
@@ -390,7 +395,6 @@ module.exports = function(editor) {
 		},
 		
 		timeHighlightDeactivate: function(name) {
-			console.log('deactivate', name);
 			var position = -1;
 			for (var i=0; i<this.activeTimeHighlights.length; i++) {
 				if (this.activeTimeHighlights[i].name === name) {
@@ -427,7 +431,6 @@ module.exports = function(editor) {
 			this.highlightingEnabled = false;
 			this.toolbar.highLightingDisabled();
 			this.callOutputs('disableHighlighting');
-			this.surface.disableHoverTimeHighlights();
 			this.updateTimeHighlighting();
 		},
 
@@ -466,6 +469,9 @@ module.exports = function(editor) {
 
 		// internal method
 		mouseMove: function(event, line, column) { // callback
+			if (column < -1) {
+				line = 0;
+			}
 			if (this.highlightingEnabled && this.currentHighlightLine !== line) {
 				this.currentHighlightLine = line;
 				this.updateHighlighting();

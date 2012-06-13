@@ -48,7 +48,7 @@ module.exports = function(editor) {
 			this.surface = surface;
 			this.$marginIcon = $('<div class="editor-margin-icon editor-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
-			this.$marginIcon.css('opacity', 0);
+			this.$marginIcon.css('opacity', 0).css('right', 25);
 			this.$marking = $('<div class="editor-marking"></div>');
 			this.surface.addElement(this.$marking);
 			this.$marking.hide();
@@ -65,7 +65,7 @@ module.exports = function(editor) {
 		showAtLocation: function(location, html) {
 			if (!this.visible) {
 				this.visible = true;
-				this.$marginIcon.stop(true, true).animate({opacity: 1}, 150);
+				this.$marginIcon.css('opacity', 1).css('right', 5);
 			}
 			this.$marginIcon.css('top', this.surface.lineToY(location.line));
 			this.location = location;
@@ -83,7 +83,7 @@ module.exports = function(editor) {
 		hide: function() {
 			if (this.visible) {
 				this.visible = false;
-				this.$marginIcon.stop(true, true).animate({opacity: 0}, 150);
+				this.$marginIcon.css('opacity', 0).css('right', 25);
 			}
 			this.updateMessage();
 		},
@@ -262,7 +262,7 @@ module.exports = function(editor) {
 			this.text = '';
 			this.userChangedText = false;
 			this.autoCompleteBox = null;
-			this.$timeHighlights = [];
+			this.$timeHighlights = {};
 		},
 
 		remove: function() {
@@ -396,13 +396,20 @@ module.exports = function(editor) {
 				this.$timeHighlights[name].height(this.lineToY(timeHighlights[name].line2+1) - y);
 				this.$timeHighlights[name].show();
 			}
-			this.$margin.children('.editor-time-highlight-remove').remove();
+
+			var $timeHighlights = this.$timeHighlights;
+			this.$margin.children('.editor-time-highlight-remove').each(function(){
+				var $this = $(this);
+				delete $timeHighlights[$this.data('name')];
+				$this.remove();
+			});
 		},
 
 		timeHighlightMouseMove: function(event) {
 			var $target = $(event.delegateTarget);
 			if ($target.hasClass('editor-time-highlight-inactive')) {
 				$target.removeClass('editor-time-highlight-inactive').addClass('editor-time-highlight-hover');
+				this.delegate.timeHighlightHover($target.data('name'));
 				this.delegate.timeHighlightActivate($target.data('name'));
 			}
 		},
@@ -419,6 +426,7 @@ module.exports = function(editor) {
 			var $target = $(event.delegateTarget);
 			if ($target.hasClass('editor-time-highlight-active')) {
 				$target.removeClass('editor-time-highlight-active').addClass('editor-time-highlight-hover');
+				this.delegate.timeHighlightHover($target.data('name'));
 			} else if ($target.hasClass('editor-time-highlight-hover')) {
 				$target.removeClass('editor-time-highlight-hover').addClass('editor-time-highlight-active');
 			} else {
@@ -427,20 +435,17 @@ module.exports = function(editor) {
 			}
 		},
 
-		disableHoverTimeHighlights: function() {
+		hideTimeHighlights: function() {
+			this.$margin.children('.editor-time-highlight').hide();
+		},
+
+		hideInactiveTimeHighlights: function() {
 			for (var name in this.$timeHighlights) {
 				if (this.$timeHighlights[name].hasClass('editor-time-highlight-hover')) {
 					this.$timeHighlights[name].removeClass('editor-time-highlight-hover').addClass('editor-time-highlight-inactive');
 					this.delegate.timeHighlightDeactivate(name);
 				}
 			}
-		},
-
-		hideTimeHighlights: function() {
-			this.$margin.children('.editor-time-highlight').hide();
-		},
-
-		hideInactiveTimeHighlights: function() {
 			this.$margin.children('.editor-time-highlight-inactive').hide();
 		},
 

@@ -262,6 +262,7 @@ module.exports = function(editor) {
 		},
 
 		animate: function(animate) {
+			console.log('animate', animate);
 			if (animate !== this.animating) {
 				this.animating = animate;
 				if (this.animating) {
@@ -300,6 +301,7 @@ module.exports = function(editor) {
 
 		/// INTERNAL FUNCTIONS ///
 		startAnimation: function() {
+			this.stopTimeout();
 			var time = (this.max-this.position)/this.speed;
 			clayer.setCss3(this.$playPauseAnimationBlock, 'transition', 'left ' + time + 'ms linear');
 			this.$playPauseAnimationBlock.css('left', this.start+this.max);
@@ -313,7 +315,7 @@ module.exports = function(editor) {
 			this.$playPauseAnimationBlock.css('left', this.start);
 			this.position = 0;
 			this.lastAnimationTime = (new Date()).getTime();
-			setTimeout($.proxy(this.startAnimation, this), this.start+this.max);
+			this.restartTimeout = setTimeout($.proxy(this.startAnimation, this), this.start+this.max);
 		},
 
 		stopTimeout: function() {
