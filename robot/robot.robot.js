@@ -140,9 +140,12 @@ module.exports = function(output) {
 			this.$path.children('.robot-path-highlight').removeClass('robot-path-highlight');
 		},
 
-		removeAllHighlights: function() {
+		removeEventHighlights: function() {
 			this.$path.children('.robot-path-highlight-event').removeClass('robot-path-highlight-event');
-			this.removePathHighlights();
+		},
+
+		removeTimeHighlights: function() {
+			this.$path.children('.robot-path-highlight-time').removeClass('robot-path-highlight-time');
 		},
 
 		highlightVisitedGoal: function(goal) {

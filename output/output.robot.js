@@ -192,7 +192,7 @@ module.exports = function(output) {
 			this.eventPosition = this.eventStart + eventNum;
 			this.stepNum = stepNum;
 
-			this.robot.$path.children('.robot-path-line, .robot-path-point').hide();
+			this.robot.$path.children('.robot-path-line, .robot-path-point').addClass('robot-path-hidden');
 			for (var i=0; i<this.events.length; i++) {
 				if (i > this.eventPosition) break;
 				for (var j=0; j<this.events[i].calls.length; j++) {
@@ -200,14 +200,14 @@ module.exports = function(output) {
 					if (i === this.eventPosition && call.stepNum > this.stepNum) break;
 
 					if (call.$element !== null) {
-						call.$element.show();
+						call.$element.removeClass('robot-path-hidden');
 					}
 				}
 			}
 
-			if (this.highlighting) {
-				this.updateEventHighlight();
-			}
+			// if (this.highlighting) {
+			// 	this.updateEventHighlight();
+			// }
 
 			if (this.stepNum === Infinity) {
 				this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
@@ -244,16 +244,32 @@ module.exports = function(output) {
 			this.highlighting = false;
 			this.$container.removeClass('robot-highlighting');
 			this.$container.addClass('robot-not-highlighting');
-			this.robot.removeAllHighlights();
+			this.robot.removeEventHighlights();
+			this.robot.removePathHighlights();
 		},
 
 		updateEventHighlight: function() {
-			this.robot.removeAllHighlights();
+			this.robot.removeEventHighlights();
 			if (this.highlighting) {
 				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
 					var call = this.events[this.eventPosition].calls[i];
 					if (call.$element !== null) {
 						call.$element.addClass('robot-path-highlight-event');
+					}
+				}
+			}
+		},
+
+		highlightTimeNodes: function(timeNodes) {
+			this.robot.removeTimeHighlights();
+			if (timeNodes !== null) {
+				for (var i=0; i<this.events.length; i++) {
+					for (var j=0; j<this.events[i].calls.length; j++) {
+						var call = this.events[i].calls[j];
+
+						if (timeNodes[i].indexOf(call.nodeId) >= 0 && call.$element !== null) {
+							call.$element.addClass('robot-path-highlight-time');
+						}
 					}
 				}
 			}

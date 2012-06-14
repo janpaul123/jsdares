@@ -341,7 +341,7 @@ module.exports = function(editor) {
 			if (this.timeHighlightingEnabled) {
 				this.timeHighlightingEnabled = false;
 				this.surface.hideTimeHighlights();
-				this.callOutputs('highlightTimeNodes', []);
+				this.callOutputs('highlightTimeNodes', null);
 			}
 		},
 
@@ -363,22 +363,28 @@ module.exports = function(editor) {
 		},
 
 		updateActiveTimeHighlights: function() {
-			var nodes = [];
-			for (var i=0; i<this.activeTimeHighlights.length; i++) {
-				var timeHighlight = this.activeTimeHighlights[i];
-				var nodesPerContext = this.runner.getAllCallNodesByRange(timeHighlight.line, timeHighlight.line2);
-				for (var j=0; j<nodesPerContext.length; j++) {
-					if (nodes[j] === undefined) {
-						nodes[j] = [];
-					}
-					for (var k=0; k<nodesPerContext[j].length; k++) {
-						if (nodes[j].indexOf(nodesPerContext[j][k]) < 0) {
-							nodes[j].push(nodesPerContext[j][k]);
+			if (this.activeTimeHighlights.length > 0) {
+				var nodes = [];
+				var size = this.runner.getEventTotal();
+				for (var i=0; i<size; i++) {
+					nodes[i] = [];
+				}
+
+				for (i=0; i<this.activeTimeHighlights.length; i++) {
+					var timeHighlight = this.activeTimeHighlights[i];
+					var nodesPerContext = this.runner.getAllCallNodesByRange(timeHighlight.line, timeHighlight.line2);
+					for (var j=0; j<nodesPerContext.length; j++) {
+						for (var k=0; k<nodesPerContext[j].length; k++) {
+							if (nodes[j].indexOf(nodesPerContext[j][k]) < 0) {
+								nodes[j].push(nodesPerContext[j][k]);
+							}
 						}
 					}
 				}
+				this.callOutputs('highlightTimeNodes', nodes);
+			} else {
+				this.callOutputs('highlightTimeNodes', null);
 			}
-			this.callOutputs('highlightTimeNodes', nodes);
 		},
 
 		timeHighlightHover: function(name) {

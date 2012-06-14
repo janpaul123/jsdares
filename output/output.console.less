@@ -37,12 +37,27 @@
 	resize: none;
 	white-space: pre-wrap;
 	word-wrap: break-word;
+	display: none;
 }
 
-.console-highlight-event {
-	background-color: @event-color;
+.console-line-visible {
+	display: block;
 }
 
-.console-highlight-line {
+.console-line-highlight-time {
+	background-color: rgba(0, 110, 220, 0.30);
+	.opacity(40);
+	display: block;
+
+	&.console-line-visible {
+		.opacity(100);
+	}
+}
+
+.console-line-highlight-event {
+	background-color: rgba(0, 110, 220, 0.50);
+}
+
+.console-line-highlight-line {
 	background-color: @highlight-color;
 }

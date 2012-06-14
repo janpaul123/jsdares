@@ -83,7 +83,7 @@ module.exports = function(output) {
 			$element.css('color', this.color);
 			$element.data('index', this.currentEvent.calls.length);
 			$element.data('event', this.currentEvent);
-
+			$element.addClass('console-line-visible');
 			this.$lines.append($element);
 
 			var $mirrorElement = $element.clone();
@@ -94,6 +94,7 @@ module.exports = function(output) {
 				stepNum: context.getStepNum(),
 				nodeId: context.getCallNodeId()
 			});
+			
 			if (this.currentEvent.$firstElement === null) {
 				this.currentEvent.$firstElement = $element;
 				this.currentEvent.$firstMirrorElement = $mirrorElement;
@@ -107,7 +108,7 @@ module.exports = function(output) {
 			this.color = '';
 			this.$mirror.html('');
 			this.$old.hide();
-			this.$lines.children().hide();
+			this.$lines.children('.console-line-visible').removeClass('console-line-visible');
 
 			this.currentEvent.calls.push({
 				clear: true,
@@ -204,7 +205,7 @@ module.exports = function(output) {
 			this.currentEvent = this.events[eventNum];
 
 			this.$old.show();
-			this.$lines.children().hide();
+			this.$lines.children('.console-line-visible').removeClass('console-line-visible');
 			for (var i=0; i<this.events.length; i++) {
 				if (i > eventNum) break;
 				for (var j=0; j<this.events[i].calls.length; j++) {
@@ -213,9 +214,9 @@ module.exports = function(output) {
 
 					if (call.clear) {
 						this.$old.hide();
-						this.$lines.children().hide();
+						this.$lines.children('.console-line-visible').removeClass('console-line-visible');
 					} else {
-						call.$element.show();
+						call.$element.addClass('console-line-visible');
 					}
 				}
 			}
@@ -228,19 +229,34 @@ module.exports = function(output) {
 		},
 
 		highlightCallNodes: function(nodeIds) {
-			this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
+			this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];
 				if (nodeIds.indexOf(call.nodeId) >= 0 && !call.clear) {
-					call.$element.addClass('console-highlight-line');
+					call.$element.addClass('console-line-highlight-line');
 				}
 			}
 
-			var $last = this.$lines.children('.console-highlight-line').last();
+			var $last = this.$lines.children('.console-line-highlight-line').last();
 			if ($last.length > 0) {
 				// the offset is weird since .position().top changes when scrolling
 				this.scrollToY($last.position().top, true);
+			}
+		},
+
+		highlightTimeNodes: function(timeNodes) {
+			this.$lines.children('.console-line-highlight-time').removeClass('console-line-highlight-time');
+			if (timeNodes !== null) {
+				for (var i=0; i<this.events.length; i++) {
+					for (var j=0; j<this.events[i].calls.length; j++) {
+						var call = this.events[i].calls[j];
+
+						if (timeNodes[i].indexOf(call.nodeId) >= 0 && !call.clear) {
+							call.$element.addClass('console-line-highlight-time');
+						}
+					}
+				}
 			}
 		},
 
@@ -256,7 +272,7 @@ module.exports = function(output) {
 
 		disableHighlighting: function() {
 			this.highlighting = false;
-			this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
+			this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
 			this.updateEventHighlight();
 			this.$div.removeClass('console-highlighting');
 			this.$div.off('mousemove mouseleave');
@@ -264,13 +280,17 @@ module.exports = function(output) {
 		},
 
 		updateEventHighlight: function() {
-			this.$lines.find('.console-highlight-event').removeClass('console-highlight-event');
+			this.$lines.children('.console-line-highlight-event').removeClass('console-line-highlight-event');
 			if (this.highlighting) {
 				for (var i=0; i<this.currentEvent.calls.length; i++) {
-					this.currentEvent.calls[i].$element.addClass('console-highlight-event');
+					if (!this.currentEvent.calls[i].clear) {
+						this.currentEvent.calls[i].$element.addClass('console-line-highlight-event');
+					}
 				}
 			}
 		},
+
+
 
 		
 
@@ -311,13 +331,13 @@ module.exports = function(output) {
 			if (this.highlighting) {
 				var $target = $(event.target);
 				if ($target.data('event') === this.currentEvent && this.currentEvent.calls[$target.data('index')] !== undefined) {
-					if (!$target.hasClass('console-highlight-line')) {
-						this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
-						$target.addClass('console-highlight-line');
+					if (!$target.hasClass('console-line-highlight-line')) {
+						this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
+						$target.addClass('console-line-highlight-line');
 						this.editor.highlightNodeId(this.currentEvent.calls[$target.data('index')].nodeId);
 					}
 				} else {
-					this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
+					this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
 					this.editor.highlightNodeId(0);
 				}
 			}
@@ -325,7 +345,7 @@ module.exports = function(output) {
 
 		mouseLeave: function(event) {
 			if (this.highlighting) {
-				this.$lines.children('.console-highlight-line').removeClass('console-highlight-line');
+				this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
 				this.editor.highlightNodeId(0);
 			}
 		},

@@ -164,6 +164,15 @@
 	left: 0px;
 	top: 0px;
 
+	.robot-path-hidden {
+		display: none;
+
+		&.robot-path-highlight-time {
+			display: block;
+			.opacity(40);
+		}
+	}
+
 	.robot-path-line {
 		position: absolute;
 		height: 2px;
@@ -179,8 +188,12 @@
 			background-color: #333;
 		}
 
+		&.robot-path-highlight-time .robot-path-line-inside {
+			background-color: rgba(0, 110, 220, 0.50);
+		}
+
 		&.robot-path-highlight-event .robot-path-line-inside {
-			background-color: @event-color;
+			background-color: rgba(0, 110, 220, 1);
 		}
 
 		&.robot-path-highlight .robot-path-line-inside {
@@ -218,19 +231,29 @@
 			}
 		}
 
+		&.robot-path-highlight-time {
+			.robot-path-point-inside {
+				background-color: rgba(0, 110, 220, 0.50);
+
+				.robot-path-point-arrow {
+					background-color: rgba(0, 110, 220, 0.50);
+				}
+			}
+		}
+
 		&.robot-path-highlight-event {
 			z-index: 17;
 			.robot-path-point-inside {
-				background-color: @event-color;
+				background-color: rgba(0, 110, 220, 1);
 
 				.robot-path-point-arrow {
-					background-color: @event-color;
+					background-color: rgba(0, 110, 220, 1);
 				}
 			}
 		}
 
 		&.robot-path-highlight {
-			z-index: 17;
+			z-index: 18;
 			.robot-path-point-inside {
 				background-color: rgba(5, 195, 5, 0.85);
 

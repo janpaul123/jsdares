@@ -309,7 +309,7 @@ module.exports = function(output) {
 			this.bufferPosStart = 0;
 			this.bufferPosLength = 0;
 			this.callNodes = [];
-			this.timeNodes = [];
+			this.timeNodes = null;
 		},
 
 		outputPopFirstEvent: function() {
@@ -376,7 +376,7 @@ module.exports = function(output) {
 				this.context[call.name].apply(this.context, call.args);
 			}
 
-			if (this.timeNodes.length > 0) {
+			if (this.timeNodes !== null) {
 				for (var i=0; i<this.bufferPosLength; i++) {
 					var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
 					for (var j=0; j<event.calls.length; j++) {
