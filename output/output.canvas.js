@@ -96,17 +96,15 @@ module.exports = function(output) {
 				this.$originalCanvasBuffer[i] = $('<canvas width="' + this.size + '" height="' + this.size + '"></canvas>');
 			}
 
-			//this.debugToBrowser = true;
 			this.highlighting = false;
 			this.highlightCallTarget = 0;
-			// this.calls = [];
-			// this.stepNum = Infinity;
 			this.editor = editor;
-
-			//this.clear();
 		},
 
 		remove: function() {
+			for (var i=0; i<30; i++) {
+				this.$originalCanvasBuffer[i].remove();
+			}
 			this.$canvas.remove();
 			this.$mirrorCanvas.remove();
 			if (this.$targetCanvas !== null) {
@@ -237,7 +235,7 @@ module.exports = function(output) {
 			if (this.functions[name].path) {
 				return this.wrapper.callPath(name, args);
 			} else {
-				this.buffer[this.bufferPosition].calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+				this.events[this.eventPosition].calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
 				return this.context[name].apply(this.context, args);
 			}
 		},
@@ -247,33 +245,11 @@ module.exports = function(output) {
 		},
 
 		handleAttributeSet: function(context, name, value) {
-			//this.buffer[this.bufferPosition].calls.push({type: 'variable', name: name, value: value, stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
-			//this.context[name] = value;
 			this.wrapper.set(name, value);
 		},
 
-		setCanvasState: function(position) {
-			position = position%this.bufferSize;
-
-			this.wrapper.reset();
-			this.context.clearRect(0, 0, this.size, this.size);
-
-			var start = this.buffer[position].originalPosition;
-			this.context.drawImage(this.buffer[start].$originalCanvas[0], 0, 0);
-			this.wrapper.setState(this.buffer[start].state);
-
-			for (var i=start; i !== position; i=(i+1)%this.bufferSize) {
-				for (var j=0; j<this.buffer[i].calls.length; j++) {
-					var call = this.buffer[i].calls[j];
-					this.wrapper.setState(call.state);
-					this.context[call.name].apply(this.context, call.args);
-				}
-			}
-			this.lastOriginalPosition = start;
-		},
-
 		outputStartEvent: function(context) {
-			var position = (this.bufferPosStart+this.bufferPosLength)%this.bufferSize;
+			var position = (this.eventsPosStart+this.eventsPosLength)%this.eventsSize;
 			var $originalCanvas = null;
 
 			if ((position % 30) === 0) {
@@ -290,45 +266,45 @@ module.exports = function(output) {
 				$originalCanvas: $originalCanvas
 			};
 
-			this.bufferPosition = position;
-			this.buffer[position] = event;
-			this.bufferPosLength++;
+			this.eventPosition = position;
+			this.events[position] = event;
+			this.eventsPosLength++;
 		},
 
 		outputEndEvent: function() {
-			var position = (this.bufferPosStart+this.bufferPosLength-1)%this.bufferSize;
-			this.buffer[position].endState = this.wrapper.getState();
+			var position = (this.eventsPosStart+this.eventsPosLength-1)%this.eventsSize;
+			this.events[position].endState = this.wrapper.getState();
 		},
 
 		outputClearAllEvents: function() {
 			this.wrapper.reset();
 			this.context.clearRect(0, 0, this.size, this.size);
 
-			this.buffer = [];
-			this.bufferSize = 300;
-			this.bufferPosStart = 0;
-			this.bufferPosLength = 0;
+			this.events = [];
+			this.eventsSize = 300;
+			this.eventsPosStart = 0;
+			this.eventsPosLength = 0;
 			this.callNodes = [];
 			this.timeNodes = null;
 		},
 
 		outputPopFirstEvent: function() {
-			if (this.bufferPosLength > 0) {
-				this.bufferPosStart++;
-				this.bufferPosStart %= this.bufferSize;
-				this.bufferPosLength--;
+			if (this.eventsPosLength > 0) {
+				this.eventsPosStart++;
+				this.eventsPosStart %= this.eventsSize;
+				this.eventsPosLength--;
 			}
 		},
 
 		outputClearEventsFrom: function(eventNum) {
-			this.setCanvasState((this.bufferPosStart+eventNum)%this.bufferSize);
-			this.bufferPosLength = eventNum;
+			this.setCanvasState((this.eventsPosStart+eventNum)%this.eventsSize);
+			this.eventsPosLength = eventNum;
 		},
 
 		outputClearEventsToEnd: function() {
-			this.bufferPosStart += this.bufferPosLength;
-			this.bufferPosStart %= this.bufferSize;
-			this.bufferPosLength = 0;
+			this.eventsPosStart += this.eventsPosLength;
+			this.eventsPosStart %= this.eventsSize;
+			this.eventsPosLength = 0;
 		},
 
 		outputSetError: function(error) {
@@ -340,9 +316,9 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			var position = (this.bufferPosStart+eventNum)%this.bufferSize;
-			if (this.bufferPosition !== position || this.stepNum !== stepNum) {
-				this.bufferPosition = position;
+			var position = (this.eventsPosStart+eventNum)%this.eventsSize;
+			if (this.eventPosition !== position || this.stepNum !== stepNum) {
+				this.eventPosition = position;
 				this.stepNum = stepNum;
 				this.render();
 			}
@@ -359,10 +335,10 @@ module.exports = function(output) {
 		},
 
 		render: function() {
-			this.setCanvasState(this.bufferPosition);
+			this.setCanvasState(this.eventPosition);
 
-			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
-				var call = this.buffer[this.bufferPosition].calls[i];
+			for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+				var call = this.events[this.eventPosition].calls[i];
 				if (call.stepNum > this.stepNum) break;
 				this.wrapper.setState(call.state);
 
@@ -377,8 +353,8 @@ module.exports = function(output) {
 			}
 
 			if (this.timeNodes !== null) {
-				for (var i=0; i<this.bufferPosLength; i++) {
-					var event = this.buffer[(this.bufferPosStart+i)%this.bufferSize];
+				for (var i=0; i<this.eventsPosLength; i++) {
+					var event = this.events[(this.eventsPosStart+i)%this.eventsSize];
 					for (var j=0; j<event.calls.length; j++) {
 						var call = event.calls[j];
 
@@ -393,9 +369,9 @@ module.exports = function(output) {
 				}
 			}
 
-			if (this.callNodes.length > 0) {
-				for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
-					var call = this.buffer[this.bufferPosition].calls[i];
+			if (this.callNodes !== null) {
+				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+					var call = this.events[this.eventPosition].calls[i];
 					if (call.stepNum > this.stepNum) break;
 
 					if (this.callNodes.indexOf(call.nodeId) >= 0 && this.functions[call.name].highlight) {
@@ -412,13 +388,13 @@ module.exports = function(output) {
 				this.drawMirror();
 			}
 
-			this.wrapper.setState(this.buffer[this.bufferPosition].endState);
+			this.wrapper.setState(this.events[this.eventPosition].endState);
 		},
 
 		drawMirror: function() {
 			this.clearMirror();
-			for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
-				var call = this.buffer[this.bufferPosition].calls[i];
+			for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+				var call = this.events[this.eventPosition].calls[i];
 				if (call.stepNum > this.stepNum) break;
 
 				this.mirrorWrapper.setState(call.state);
@@ -436,7 +412,7 @@ module.exports = function(output) {
 		clearMirror: function() {
 			this.mirrorWrapper.reset();
 			this.mirrorContext.clearRect(0, 0, this.size, this.size);
-			this.mirrorWrapper.setState(this.buffer[this.bufferPosition].state);
+			this.mirrorWrapper.setState(this.events[this.eventPosition].state);
 		},
 
 		enableHighlighting: function() {
@@ -444,7 +420,7 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', $.proxy(this.mouseMove, this));
-			if (this.bufferPosLength > 0) {
+			if (this.eventsPosLength > 0) {
 				this.render();
 			}
 		},
@@ -455,7 +431,7 @@ module.exports = function(output) {
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
 			this.callNodes = [];
-			if (this.bufferPosLength > 0) {
+			if (this.eventsPosLength > 0) {
 				this.render();
 				this.clearMirror();
 			}
@@ -478,6 +454,26 @@ module.exports = function(output) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
+		setCanvasState: function(position) {
+			position = position%this.eventsSize;
+
+			this.wrapper.reset();
+			this.context.clearRect(0, 0, this.size, this.size);
+
+			var start = this.events[position].originalPosition;
+			this.context.drawImage(this.events[start].$originalCanvas[0], 0, 0);
+			this.wrapper.setState(this.events[start].state);
+
+			for (var i=start; i !== position; i=(i+1)%this.eventsSize) {
+				for (var j=0; j<this.events[i].calls.length; j++) {
+					var call = this.events[i].calls[j];
+					this.wrapper.setState(call.state);
+					this.context[call.name].apply(this.context, call.args);
+				}
+			}
+			this.lastOriginalPosition = start;
+		},
+
 		mouseMove: function(event) {
 			if (this.highlighting) {
 				var offset = this.$canvas.offset();
@@ -488,7 +484,7 @@ module.exports = function(output) {
 				var highlightId = (pixel[3] < 255 ? 0 : (pixel[0]*65536 + pixel[1]*256 + pixel[2]) % 16777213);
 
 				var highlightCallIndex = -1;
-				for (var i=0; i<this.buffer[this.bufferPosition].calls.length; i++) {
+				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
 					var highlightIdMatch = (highlightMult*(i+1))%highlightPrime;
 					if (highlightId === highlightIdMatch) {
 						highlightCallIndex = i;
@@ -501,26 +497,13 @@ module.exports = function(output) {
 
 					if (this.highlightCallIndex < 0) {
 						this.editor.highlightNode(null);
-						this.highlightCallNodes([]);
+						this.highlightCallNodes(null);
 					} else {
-						this.editor.highlightNodeId(this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId);
-						this.highlightCallNodes([this.buffer[this.bufferPosition].calls[this.highlightCallIndex].nodeId]);
+						this.editor.highlightNodeId(this.events[this.eventPosition].calls[this.highlightCallIndex].nodeId);
+						this.highlightCallNodes([this.events[this.eventPosition].calls[this.highlightCallIndex].nodeId]);
 					}
 				}
 			}
-		},
-
-		debugOriginalPositions: function() {
-			var log = '';
-			for (var i=0; i<this.bufferSize; i++) {
-				var buffer = this.buffer[i];
-				if (buffer !== undefined && buffer.originalPosition !== undefined) {
-					log += buffer.originalPosition + ' ';
-				} else {
-					log += '/ ';
-				}
-			}
-			return log;
 		}
 	};
 };

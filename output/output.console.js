@@ -29,8 +29,7 @@ module.exports = function(output) {
 
 			//this.debugToBrowser = true;
 			this.highlighting = false;
-			this.highlightNextLines = false;
-			this.autoScroll = false;
+			this.autoScroll = true;
 			this.editor = editor;
 
 			this.refreshAutoScroll();
@@ -100,6 +99,10 @@ module.exports = function(output) {
 				this.currentEvent.$firstMirrorElement = $mirrorElement;
 			}
 
+			if (this.autoScroll) {
+				this.scrollToY(this.$content.height());
+			}
+
 			if (this.debugToBrowser && console && console.log) console.log(value);
 		},
 
@@ -139,17 +142,6 @@ module.exports = function(output) {
 			this.updateEventHighlight();
 		},
 
-		outputClearAllEvents: function() {
-			this.text = '';
-			this.color = '';
-			this.$mirror.html('');
-			this.$old.html('');
-			this.$old.show();
-			this.oldLinesStashed = true;
-			this.$lines.children().remove(); // prevent $.data leaks
-			this.events = [];
-		},
-
 		stashOldLines: function() {
 			if (!this.oldLinesStashed) {
 				this.oldLinesStashed = true;
@@ -160,6 +152,17 @@ module.exports = function(output) {
 					this.$lines.children().remove();
 				}
 			}
+		},
+
+		outputClearAllEvents: function() {
+			this.text = '';
+			this.color = '';
+			this.$mirror.html('');
+			this.$old.html('');
+			this.$old.show();
+			this.oldLinesStashed = true;
+			this.$lines.children().remove(); // prevent $.data leaks
+			this.events = [];
 		},
 
 		outputPopFirstEvent: function() {
@@ -290,10 +293,6 @@ module.exports = function(output) {
 			}
 		},
 
-
-
-		
-
 		getText: function() {
 			return this.text;
 		},
@@ -312,10 +311,10 @@ module.exports = function(output) {
 
 		setFocus: function() {
 			this.$content.css('min-height', this.$targetConsole.height());
+			this.refreshAutoScroll();
 		},
 
-		
-
+		/// INTERNAL FUNCTIONS ///
 		scrollToY: function(y, smooth) {
 			smooth = smooth || false;
 			y = Math.max(0, y - this.$div.height()/2);
@@ -352,7 +351,7 @@ module.exports = function(output) {
 
 		refreshAutoScroll: function() {
 			if (!this.highlighting) {
-				if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-4) {
+				if (this.$div.scrollTop() >= this.$content.outerHeight(true)-this.$div.height()-4 || this.$div.height() <= 0) {
 					this.$div.addClass('console-autoscroll');
 					this.autoScroll = true;
 				} else {

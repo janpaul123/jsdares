@@ -205,10 +205,6 @@ module.exports = function(output) {
 				}
 			}
 
-			// if (this.highlighting) {
-			// 	this.updateEventHighlight();
-			// }
-
 			if (this.stepNum === Infinity) {
 				this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
 			} else {
@@ -217,11 +213,12 @@ module.exports = function(output) {
 					var call = this.events[this.eventPosition].calls[i];
 					if (call.stepNum > this.stepNum) break;
 
-					lastAnimNum = call.animNum;
 					if (call.stepNum === this.stepNum) {
 						this.robot.animationManager.play(call.animNum, call.animNum+1);
 						lastAnimNum = false;
 						break;
+					} else {
+						lastAnimNum = call.animNum;
 					}
 				}
 
@@ -260,6 +257,18 @@ module.exports = function(output) {
 			}
 		},
 
+		highlightCallNodes: function(callNodes) {
+			this.robot.removePathHighlights();
+			if (callNodes !== null) {
+				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+					var call = this.events[this.eventPosition].calls[i];
+					if (callNodes.indexOf(call.nodeId) >= 0 && call.$element !== null) {
+						call.$element.addClass('robot-path-highlight');
+					}
+				}
+			}
+		},
+
 		highlightTimeNodes: function(timeNodes) {
 			this.robot.removeTimeHighlights();
 			if (timeNodes !== null) {
@@ -282,20 +291,6 @@ module.exports = function(output) {
 
 		setStateChangedCallback: function(callback) {
 			this.stateChangedCallback = callback;
-		},
-
-		setFocus: function() {
-			//this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
-		},
-
-		highlightCallNodes: function(nodeIds) {
-			this.robot.removePathHighlights();
-			for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
-				var call = this.events[this.eventPosition].calls[i];
-				if (nodeIds.indexOf(call.nodeId) >= 0 && call.$element !== null) {
-					call.$element.addClass('robot-path-highlight');
-				}
-			}
 		},
 
 		getVisitedGoals: function() {
@@ -323,7 +318,6 @@ module.exports = function(output) {
 				nodeId: context.getCallNodeId(),
 				$element: $element,
 				animNum: this.robot.animation.getLength()-1
-				//anim: this.robot.lastAnim
 			});
 			this.events[this.eventPosition].endAnimNum = this.robot.animation.getLength();
 		},
