@@ -6,12 +6,11 @@ module.exports = function(jsmm) {
 
 	jsmm.editor.autocompletion = {
 		// expected text format: someObject.someProperty.startOfAFunction
-		getExamples: function(scope, text) {
+		getExamples: function(vars, text) {
 			var split = text.split('.');
 
-			var obj = scope.find(split[0]);
+			var obj = vars[split[0]];
 			if (obj === undefined) return null;
-			obj = obj.value;
 			for (var i=1; i<split.length-1; i++) {
 				obj = obj[split[i]];
 				if (obj === undefined) return null;

@@ -290,7 +290,7 @@ module.exports = function(jsmm) {
 		},
 
 		getExamples: function(text) {
-			return jsmm.editor.autocompletion.getExamples(new jsmm.func.Scope(this.runScope || this.scope), text);
+			return jsmm.editor.autocompletion.getExamples(this.runScope || this.scope, text);
 		}
 	};
 };
