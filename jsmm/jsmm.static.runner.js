@@ -12,8 +12,8 @@ module.exports = function(jsmm) {
 			this.context = null;
 		},
 
-		run: function(tree, scope) {
-			this.context = new jsmm.Context(tree, scope);
+		run: function(tree, scope, limits) {
+			this.context = new jsmm.Context(tree, scope, limits);
 			this.runner.delegate.startEvent(this.context);
 			this.context.run(this.funcName, this.args);
 			this.runner.delegate.endEvent(this.context);
@@ -22,11 +22,22 @@ module.exports = function(jsmm) {
 
 	jsmm.Runner = function() { return this.init.apply(this, arguments); };
 	jsmm.Runner.prototype = {
-		init: function(delegate, scope, outputs, maxHistory) {
+		init: function(delegate, scope, limits) {
 			this.delegate = delegate;
 			this.scope = scope;
-			this.outputs = outputs;
-			this.maxHistory = maxHistory || 80;
+			this.limits = {
+				history: limits.history || 30,
+				base: limits.base || {
+					callStackDepth: 100,
+					executionCounter: 4000,
+					costCounter: 1000
+				},
+				event: limits.event || {
+					callStackDepth: 100,
+					executionCounter: 400,
+					costCounter: 100
+				}
+			};
 
 			this.tree = null;
 			this.baseEvent = new jsmm.Event(this, 'base');
@@ -51,7 +62,7 @@ module.exports = function(jsmm) {
 			this.paused = false;
 			this.errorEventNums = [];
 			this.delegate.clearAllEvents();
-			this.baseEvent.run(this.tree, this.scope);
+			this.baseEvent.run(this.tree, this.scope, this.limits.base);
 			this.runScope = this.baseEvent.context.scope.getVars();
 			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 			this.delegate.runnerChanged();
@@ -70,12 +81,12 @@ module.exports = function(jsmm) {
 				return false;
 			} else {
 				var event = new jsmm.Event(this, type, funcName, args);
-				event.run(this.tree, this.runScope);
+				event.run(this.tree, this.runScope, this.limits.event);
 				this.runScope = event.context.scope.getVars();
 
 				this.eventNum = this.events.length;
 				this.events.push(event);
-				if (this.events.length > this.maxHistory) {
+				if (this.events.length > this.limits.history) {
 					this.events.shift();
 					this.eventNum--;
 					this.delegate.popFirstEvent();
@@ -103,7 +114,7 @@ module.exports = function(jsmm) {
 						var start;
 						if (this.events[0] === this.baseEvent) {
 							this.delegate.clearAllEvents();
-							this.baseEvent.run(this.tree, this.scope);
+							this.baseEvent.run(this.tree, this.scope, this.limits.base);
 							this.runScope = this.baseEvent.context.scope.getVars();
 							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 							start = 1;
@@ -114,7 +125,7 @@ module.exports = function(jsmm) {
 							start = 0;
 						}
 						for (var i=start; i<this.events.length; i++) {
-							this.events[i].run(this.tree, this.runScope);
+							this.events[i].run(this.tree, this.runScope, this.limits.event);
 							this.runScope = this.events[i].context.scope.getVars();
 							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
 						}

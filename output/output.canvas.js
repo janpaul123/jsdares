@@ -117,12 +117,12 @@ module.exports = function(output) {
 		},
 
 		functions: {
-			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', path: false, highlight: false},
-			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', path: false, highlight: true},
-			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', path: false, highlight: true},
-			beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', path: true, highlight: true},
-			closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', path: true, highlight: true},
-			fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', path: false, highlight: true},
+			clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', path: false, highlight: false, cost: 0.3},
+			fillRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'fillRect(100, 100, 100, 100)', path: false, highlight: true, cost: 0.3},
+			strokeRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'strokeRect(100, 100, 100, 100)', path: false, highlight: true, cost: 0.3},
+			beginPath: {type: 'function', argsMin: 0, argsMax: 0, example: 'beginPath()', path: true, highlight: true, cost: 0.5},
+			closePath: {type: 'function', argsMin: 0, argsMax: 0, example: 'closePath()', path: true, highlight: true, cost: 0.3},
+			fill: {type: 'function', argsMin: 0, argsMax: 0, example: 'fill()', path: false, highlight: true, cost: 0.3},
 			stroke: {type: 'function', argsMin: 0, argsMax: 0, example: 'stroke()', path: false, highlight: true},
 			// clip: {type: 'function', argsMin: 0, argsMax: 0, example: 'clip()', path: true, highlight: true},
 			moveTo: {type: 'function', argsMin: 2, argsMax: 2, example: 'moveTo(100, 100)', path: true, highlight: true},
@@ -130,15 +130,15 @@ module.exports = function(output) {
 			quadraticCurveTo: {type: 'function', argsMin: 4, argsMax: 4, example: 'quadraticCurveTo(30, 80, 100, 100)', path: true, highlight: true},
 			bezierCurveTo: {type: 'function', argsMin: 6, argsMax: 6, example: 'bezierCurveTo(30, 80, 60, 40, 100, 100)', path: true, highlight: true},
 			arcTo: {type: 'function', argsMin: 5, argsMax: 5, example: 'arcTo(20, 20, 100, 100, 60)', path: true, highlight: true},
-			arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', path: true, highlight: true},
-			rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', path: true, highlight: true},
+			arc: {type: 'function', argsMin: 5, argsMax: 6, example: 'arc(100, 100, 30, 0, 360)', path: true, highlight: true, cost: 0.3},
+			rect: {type: 'function', argsMin: 4, argsMax: 4, example: 'rect(100, 100, 100, 100)', path: true, highlight: true, cost: 0.3},
 			// scale: {type: 'function', argsMin: 2, argsMax: 2, example: 'scale(2.0, 3.0)', path: false, highlight: true},
 			// rotate: {type: 'function', argsMin: 1, argsMax: 1, example: 'rotate(0.40)', path: false, highlight: true},
 			// translate: {type: 'function', argsMin: 2, argsMax: 2, example: 'translate(10, 30)', path: false, highlight: true},
 			// transform: {type: 'function', argsMin: 6, argsMax: 6, example: 'transform(0.8, 0.3, 0.5, 1.0, 10, 30)', path: false, highlight: true},
-			fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false, highlight: true},
-			strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false, highlight: true},
-			isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false, highlight: true},
+			fillText: {type: 'function', argsMin: 3, argsMax: 4, example: 'fillText("Hello World!", 100, 100)', path: false, highlight: true, cost: 0.3},
+			strokeText: {type: 'function', argsMin: 3, argsMax: 4, example: 'strokeText("Hello World!", 100, 100)', path: false, highlight: true, cost: 0.3},
+			isPointInPath: {type: 'function', argsMin: 2, argsMax: 2, example: 'isPointInPath(150, 150)', path: false, highlight: true, cost: 15},
 			fillStyle: {type: 'variable', example: 'fillStyle = "#a00"'},
 			strokeStyle: {type: 'variable', example: 'strokeStyle = "#a00"'},
 			shadowOffsetX: {type: 'variable', example: 'shadowOffsetX = 10'},
@@ -167,7 +167,8 @@ module.exports = function(output) {
 					}, this),
 					set: function() {
 						throw '<var>width</var> cannot be set';
-					}
+					},
+					cost: 0.2
 				},
 				height: {
 					name: 'height',
@@ -179,7 +180,8 @@ module.exports = function(output) {
 					}, this),
 					set: function() {
 						throw '<var>height</var> cannot be set';
-					}
+					},
+					cost: 0.2
 				},
 				getContext: {
 					name: 'getContext',
@@ -193,7 +195,8 @@ module.exports = function(output) {
 							throw 'Only the <var>2d</var> context is supported';
 						}
 						return this.getContextObject();
-					}, this)
+					}, this),
+					cost: 0.2
 				}
 			};
 		},
@@ -208,7 +211,8 @@ module.exports = function(output) {
 						info: 'context.' + name,
 						type: 'function',
 						func: $.proxy(this.handleMethod, this),
-						example: func.example
+						example: func.example,
+						cost: func.cost || 0.2
 					};
 				} else if (func.type === 'variable') {
 					obj[name] = {
@@ -217,7 +221,8 @@ module.exports = function(output) {
 						type: 'variable',
 						get: $.proxy(this.handleAttributeGet, this),
 						set: $.proxy(this.handleAttributeSet, this),
-						example: func.example
+						example: func.example,
+						cost: func.cost || 0.2
 					};
 				}
 			}

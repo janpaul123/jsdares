@@ -94,35 +94,40 @@ module.exports = function(output) {
 					info: 'robot.drive',
 					type: 'function',
 					example: 'drive(3)',
-					func: $.proxy(this.drive, this)
+					func: $.proxy(this.drive, this),
+					cost: 0.7
 				},
 				turnLeft: {
 					name: 'turnLeft',
 					info: 'robot.turnLeft',
 					type: 'function',
 					example: 'turnLeft()',
-					func: $.proxy(this.turn, this)
+					func: $.proxy(this.turn, this),
+					cost: 0.7
 				},
 				turnRight: {
 					name: 'turnRight',
 					info: 'robot.turnRight',
 					type: 'function',
 					example: 'turnRight()',
-					func: $.proxy(this.turn, this)
+					func: $.proxy(this.turn, this),
+					cost: 0.7
 				},
 				detectWall: {
 					name: 'detectWall',
 					info: 'robot.detectWall',
 					type: 'function',
 					example: 'detectWall()',
-					func: $.proxy(this.detectWall, this)
+					func: $.proxy(this.detectWall, this),
+					cost: 0.2
 				},
 				detectGoal: {
 					name: 'detectGoal',
 					info: 'robot.detectGoal',
 					type: 'function',
 					example: 'detectGoal()',
-					func: $.proxy(this.detectGoal, this)
+					func: $.proxy(this.detectGoal, this),
+					cost: 0.2
 				}
 			};
 		},
@@ -304,7 +309,7 @@ module.exports = function(output) {
 		/// INTERNAL FUNCTIONS ///
 		addCall: function(context) {
 			if (this.callCounter++ > 300) {
-				throw 'Program takes too long to run';
+				context.throwTimeout();
 			}
 			var $element = this.robot.$lastElement;
 			if ($element !== null) {

@@ -9,5 +9,6 @@ require('./output.canvas')(output);
 require('./output.input')(output);
 require('./output.math')(output);
 require('./output.ui')(output);
+require('./output.performance')(output);
 
 module.exports = output;

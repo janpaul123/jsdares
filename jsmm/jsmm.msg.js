@@ -17,7 +17,7 @@ module.exports = function(jsmm) {
 		msg.getLoc = function(tree) {
 			if (this.loc !== undefined) {
 				return this.loc;
-			} else if (this.nodeId !== null) {
+			} else if (this.nodeId > 0) {
 				return tree.getNodeById(this.nodeId)[this.locType];
 			} else {
 				return {line: 0, column: 0};
@@ -29,9 +29,9 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Inline = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(node, msg, locType) {
+		init: function(nodeId, msg, locType) {
 			this.type = 'Inline';
-			this.nodeId = node.id;
+			this.nodeId = nodeId;
 			this.msg = msg;
 			this.locType = locType || 'lineLoc';
 		}
@@ -39,9 +39,9 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Error = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Error.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(node, msg, orig, locType) {
+		init: function(nodeId, msg, orig, locType) {
 			this.type = 'Error';
-			this.nodeId = node ? node.id : null;
+			this.nodeId = nodeId ? nodeId : 0;
 			this.msg = msg;
 			this.locType = locType || 'lineLoc';
 			this.orig = orig || null;

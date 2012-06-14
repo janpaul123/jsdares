@@ -38,10 +38,9 @@ module.exports = function(editor) {
 			this.toolbar.remove();
 		},
 
-		updateSettings: function(scope, outputs) {
-			this.scope = scope;
+		updateSettings: function(runner, outputs) {
+			this.runner = runner;
 			this.outputs = outputs;
-			this.runner = new this.language.Runner(this, this.scope, this.outputs);
 		},
 
 		getText: function() {

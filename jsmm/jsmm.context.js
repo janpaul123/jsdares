@@ -146,17 +146,18 @@ module.exports = function(jsmm) {
 		}
 	};
 
-	var maxCallStackDepth = 100;
-	var maxExecutionCounter = 4000;
-
 	jsmm.Context = function() { return this.init.apply(this, arguments); };
 	jsmm.Context.prototype = {
-		init: function(tree, scope, funcName, args) {
+		init: function(tree, scope, limits, funcName, args) {
 			this.tree = tree;
 			this.startScopeVars = scope;
 			this.scope = new jsmm.Scope(scope);
 			this.scopeStack = [this.scope];
+
+			this.limits = limits;
 			this.executionCounter = 0;
+			this.costCounter = 0;
+
 			this.steps = [];
 			this.callStackNodes = [];
 			this.callNodesByNodes = {};
@@ -180,6 +181,10 @@ module.exports = function(jsmm) {
 			return this.scopeTracker;
 		},
 
+		throwTimeout: function(nodeId) {
+			throw new jsmm.msg.Error(nodeId || this.callNodeId, 'Program takes too long to run');
+		},
+
 		/// TREE/RUNNER FUNCTIONS ///
 		run: function(funcName, args) {
 			this.scopeTracker.logScope(0, this.tree.programNode, {type: 'enter', scope: this.scope, name: 'global'});
@@ -198,7 +203,7 @@ module.exports = function(jsmm) {
 					this.error = error;
 				} else {
 					//throw error;
-					this.error = new jsmm.msg.Error(null, 'An unknown error has occurred', error);
+					this.error = new jsmm.msg.Error(0, 'An unknown error has occurred', error);
 				}
 			}
 		},
@@ -240,8 +245,9 @@ module.exports = function(jsmm) {
 		/// JS-- PROGRAM FUNCTIONS ///
 		enterCall: function(node) {
 			this.callStackNodes.push(node);
-			if (this.callStackNodes.length > maxCallStackDepth) { // TODO
-				throw new jsmm.msg.Error(node, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
+			if (this.callStackNodes.length > this.limits.callStackDepth) {
+				//throw new jsmm.msg.Error(node.id, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
+				this.throwTimeout(node.id);
 			}
 		},
 
@@ -277,12 +283,18 @@ module.exports = function(jsmm) {
 					this.callNodesByNodes[nodeId].push(node.id);
 				}
 			}
+
+			this.costCounter += funcValue.cost || 1;
+			if (this.costCounter > this.limits.costCounter) {
+				this.throwTimeout(node.id);
+			}
+
 			try {
 				return funcValue.func.call(null, this, funcValue.name, args);
 			} catch (error) {
 				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
 				if (typeof error === 'string') {
-					throw new jsmm.msg.Error(node, error);
+					throw new jsmm.msg.Error(node.id, error);
 				} else {
 					throw error;
 				}
@@ -295,8 +307,8 @@ module.exports = function(jsmm) {
 
 		increaseExecutionCounter: function(node, amount) {
 			this.executionCounter += amount;
-			if (this.executionCounter > maxExecutionCounter) { // TODO
-				throw new jsmm.msg.Error(node, 'Program takes too long to run');
+			if (this.executionCounter > this.limits.executionCounter) {
+				this.throwTimeout(node.id);
 			}
 		},
 

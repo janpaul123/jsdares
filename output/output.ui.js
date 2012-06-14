@@ -136,7 +136,8 @@ module.exports = function(output) {
 		},
 
 		finish: function() {
-			this.editor.updateSettings(this.scope, this.outputs);
+			var runner = new jsmm.Runner(this.editor, this.scope, {});
+			this.editor.updateSettings(runner, this.outputs);
 			this.selectTab(this.tabs[0]);
 		},
 

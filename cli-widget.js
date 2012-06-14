@@ -3,6 +3,7 @@
 
 $(function() {
 	var output = require('./output');
+	window.output = output;
 
 	var ui = new output.UI();
 	window.ui = ui;
