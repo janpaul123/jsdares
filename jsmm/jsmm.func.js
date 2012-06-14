@@ -2,8 +2,6 @@
 "use strict";
 
 module.exports = function(jsmm) {
-	require('./jsmm.msg')(jsmm);
-	
 	jsmm.func = {};
 	jsmm.func.maxCallStackDepth = 100;
 	jsmm.func.maxExecutionCounter = 4000;
@@ -35,42 +33,6 @@ module.exports = function(jsmm) {
 		else if (typeof value === 'object') return '[object]';
 		else if (value === undefined) return 'undefined';
 		else return JSON.stringify(value);
-	};
-	
-	jsmm.func.Scope = function() { return this.init.apply(this, arguments); };
-
-	jsmm.func.Scope.prototype = {
-		init: function(vars, parent) {
-			this.vars = {};
-			for (var name in vars) {
-				this.vars[name] = {type: 'local', value: vars[name]};
-			}
-			this.parent = parent || null;
-			/*
-			if (this.parent === null) {
-				this.level = 0;
-			} else {
-				this.level = this.parent.level + 1;
-			}
-			*/
-		},
-		find: function(name) {
-			var scope = this;
-			do {
-				if (scope.vars[name] !== undefined) {
-					return scope.vars[name];
-				}
-				scope = scope.parent;
-			} while(scope !== null);
-			return undefined;
-		},
-		getVars: function() {
-			var vars = {};
-			for (var name in this.vars) {
-				vars[name] = this.vars[name].value;
-			}
-			return vars;
-		}
 	};
 
 	var setVariable = function(context, node, variableNode, variable, value) {
@@ -186,7 +148,6 @@ module.exports = function(jsmm) {
 		scope.vars[name] = {type: 'local', value: undefined};
 		if (this.assignment === null) {
 			context.callScope(this, {type: 'assignment', scope: scope, name: name});
-			//context.callScope(this, {type: 'declaration', scope: scope, name: name});
 			context.newStep([new jsmm.msg.Inline(this, '<var>' + this.name + '</var> = <var>undefined</var>')]);
 		}
 	};
@@ -324,7 +285,6 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.FunctionDeclaration.prototype.runFuncEnter = function(context, args) {
-		/*jshint loopfunc:true*/
 		if (args.length < this.nameArgs.length) {
 			throw new jsmm.msg.Error(this, 'Function expects <var>' + this.nameArgs.length + '</var> arguments, but got only <var>' + args.length + '</var> are given');
 		}
@@ -340,7 +300,7 @@ module.exports = function(jsmm) {
 			}
 		}
 		context.addCalledFunction(this.name);
-		var scope = new jsmm.func.Scope(scopeVars, context.scope);
+		var scope = new jsmm.Scope(scopeVars, context.scope);
 		var fullName = this.name + '(' + msgFuncArgs.join(', ') + ')';
 		context.callScope(this, {type: 'enter', scope: scope, name: fullName});
 		context.newStep([new jsmm.msg.Inline(this, 'entering <var>' + fullName + '</var>')]);
