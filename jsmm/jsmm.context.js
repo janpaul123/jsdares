@@ -216,6 +216,10 @@ module.exports = function(jsmm) {
 			return this.error;
 		},
 
+		getBaseScope: function() {
+			return this.scopeStack[0];
+		},
+
 		getStartScopeVars: function() {
 			return this.startScopeVars;
 		},

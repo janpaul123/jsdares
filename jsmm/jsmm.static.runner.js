@@ -63,7 +63,7 @@ module.exports = function(jsmm) {
 			this.errorEventNums = [];
 			this.delegate.clearAllEvents();
 			this.baseEvent.run(this.tree, this.scope, this.limits.base);
-			this.runScope = this.baseEvent.context.scope.getVars();
+			this.runScope = this.baseEvent.context.getBaseScope().getVars();
 			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 			this.delegate.runnerChanged();
 		},
@@ -82,7 +82,7 @@ module.exports = function(jsmm) {
 			} else {
 				var event = new jsmm.Event(this, type, funcName, args);
 				event.run(this.tree, this.runScope, this.limits.event);
-				this.runScope = event.context.scope.getVars();
+				this.runScope = event.context.getBaseScope().getVars();
 
 				this.eventNum = this.events.length;
 				this.events.push(event);
@@ -115,7 +115,7 @@ module.exports = function(jsmm) {
 						if (this.events[0] === this.baseEvent) {
 							this.delegate.clearAllEvents();
 							this.baseEvent.run(this.tree, this.scope, this.limits.base);
-							this.runScope = this.baseEvent.context.scope.getVars();
+							this.runScope = this.baseEvent.context.getBaseScope().getVars();
 							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 							start = 1;
 						} else {
@@ -126,7 +126,7 @@ module.exports = function(jsmm) {
 						}
 						for (var i=start; i<this.events.length; i++) {
 							this.events[i].run(this.tree, this.runScope, this.limits.event);
-							this.runScope = this.events[i].context.scope.getVars();
+							this.runScope = this.events[i].context.getBaseScope().getVars();
 							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
 						}
 
@@ -149,7 +149,7 @@ module.exports = function(jsmm) {
 				this.events = this.events.slice(0, this.eventNum+1);
 				this.delegate.clearEventsFrom(this.eventNum+1);
 				this.stepNum = Infinity;
-				this.runScope = this.events[this.eventNum].context.scope.getVars();
+				this.runScope = this.events[this.eventNum].context.getBaseScope().getVars();
 			}
 			this.delegate.runnerChanged();
 		},

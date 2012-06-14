@@ -410,8 +410,8 @@ module.exports = function(editor) {
 							this.$slider.width(this.runner.getEventTotal()*140/this.maxHistory);
 							this.slider.setValue(this.runner.getEventNum());
 							this.$sliderButton.css('margin-left', '');
-							this.setSliderErrors(runner);
 						}
+						this.setSliderErrors(runner);
 						this.playPauseAnimation.setFraction(this.runner.getEventNum()/(this.runner.getEventTotal()-1));
 						this.stepBar.update(runner);
 						this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*140/this.maxHistory);
