@@ -59,7 +59,7 @@ module.exports = function(editor) {
 		},
 
 		callOutputs: function(funcName) {
-			console.log(funcName);
+			// console.log(funcName);
 			for (var i=0; i<this.outputs.length; i++) {
 				if (this.outputs[i][funcName] !== undefined) {
 					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
@@ -146,7 +146,7 @@ module.exports = function(editor) {
 			for (var i=0; i<messages.length; i++) {
 				if (messages[i].type === 'Inline') {
 					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
-					this.surface.scrollToLine(messages[i].loc.line);
+					this.surface.scrollToLine(messages[i].getLoc(this.tree).line);
 					shown = true;
 				}
 			}
@@ -160,23 +160,23 @@ module.exports = function(editor) {
 		},
 
 		makeMessageLoc: function(message) {
-			var loc = {};
-			if (message.loc.line2 !== undefined) {
-				loc.line = message.loc.line;
-				loc.line2 = message.loc.line2+1;
-				loc.column = this.code.blockToLeftColumn(message.loc.line, message.loc.line2);
-				loc.column2 = this.code.blockToRightColumn(message.loc.line, message.loc.line2);
+			var loc = {}, msgLoc = message.getLoc(this.tree);
+			if (msgLoc.line2 !== undefined) {
+				loc.line = msgLoc.line;
+				loc.line2 = msgLoc.line2+1;
+				loc.column = this.code.blockToLeftColumn(msgLoc.line, msgLoc.line2);
+				loc.column2 = this.code.blockToRightColumn(msgLoc.line, msgLoc.line2);
 			} else {
-				loc.line = message.loc.line;
-				loc.line2 = message.loc.line+1;
-				loc.column = message.loc.column;
-				loc.column2 = message.loc.column2 || message.loc.column;
+				loc.line = msgLoc.line;
+				loc.line2 = msgLoc.line+1;
+				loc.column = msgLoc.column;
+				loc.column2 = msgLoc.column2 || msgLoc.column;
 			}
 			return loc;
 		},
 
 		scrollToError: function() { // callback
-			this.surface.scrollToLine(this.runner.getError().loc.line);
+			this.surface.scrollToLine(this.runner.getError().getLoc(this.tree).line);
 			this.surface.openErrorMessage();
 		},
 

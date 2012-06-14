@@ -156,7 +156,7 @@ module.exports = function(jsmm) {
 			try {
 				func(this, args);
 			} catch (error) {
-				if (error instanceof jsmm.msg.Error) {
+				if (error.type === 'Error') {
 					this.error = error;
 				} else {
 					throw error;

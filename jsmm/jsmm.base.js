@@ -47,11 +47,11 @@ module.exports = function(jsmm) {
 			try {
 				this.programNode = jsmm.parser.parse(code + '\n');
 			} catch (error) {
-				if (error instanceof jsmm.msg.Error) {
+				if (error.type === 'Error') {
 					this.error = error;
 				} else {
 					throw error;
-					this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
+					this.error = new jsmm.msg.Error(null, 'An unknown error has occurred', error);
 				}
 			}
 		},

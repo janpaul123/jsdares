@@ -42,11 +42,11 @@ module.exports = function(jsmm) {
 		
 		handleError: function(error) {
 			//console.log(error);
-			if (error instanceof jsmm.msg.Error) {
+			if (error.type === 'Error') {
 				this.error = error;
 			} else {
 				throw error;
-				this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
+				this.error = new jsmm.msg.Error(null, 'An unknown error has occurred', error);
 			}
 			//console.log(this.error);
 		},
@@ -200,26 +200,19 @@ module.exports = function(jsmm) {
 			
 			var ret = [];
 			try {
-				var cont;
-				do {
-					if (this.stack === null || !this.stack.hasNext()) return undefined;
-					
-					cont = false;
-					var msgs = this.stack.stepNext();
-					if (msgs.length <= 0) return undefined;
-					
-					for (var i=0; i<msgs.length; i++) {
-						if (msgs[i] instanceof jsmm.msg.Error) {
-							this.error = msgs[i];
-							return undefined;
-						} else if (msgs[i] instanceof jsmm.msg.Continue) {
-							cont = true;
-						} else {
-							// don't push jsmm.msg.Continue
-							ret.push(msgs[i]);
-						}
+				if (this.stack === null || !this.stack.hasNext()) return undefined;
+				
+				var msgs = this.stack.stepNext();
+				if (msgs.length <= 0) return undefined;
+				
+				for (var i=0; i<msgs.length; i++) {
+					if (msgs[i].type === 'Error') {
+						this.error = msgs[i];
+						return undefined;
+					} else {
+						ret.push(msgs[i]);
 					}
-				} while (cont === true);
+				}
 				this.stepPos++;
 				return ret;
 			} catch (error) {

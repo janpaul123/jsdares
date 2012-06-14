@@ -131,8 +131,8 @@ module.exports = function(jsmm) {
 			return true;
 		} else if (error1 === null || error2 === null) {
 			return false;
-		} else if (error1.orig !== null || error2.orig !== null) {
-			return false;
+		// } else if (error1.orig !== null || error2.orig !== null) {
+		// 	return false;
 		} else {
 			return error1.getHTML() === error2.getHTML();
 		}

@@ -318,7 +318,7 @@ module.exports = function(jsmm) {
 		} else {
 			scope.vars[name] = {type: 'local', value: {type: 'internalFunction', name: name, func: func}};
 			context.callScope(this, {type: 'assignment', scope: scope, name: name});
-			context.newStep([new jsmm.msg.Inline(this.blockLoc, 'declaring <var>' + this.name + this.getArgList() + '</var>')]);
+			context.newStep([new jsmm.msg.Inline(this, 'declaring <var>' + this.name + this.getArgList() + '</var>', 'blockLoc')]);
 			return scope.vars[name];
 		}
 	};
