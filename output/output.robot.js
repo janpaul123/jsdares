@@ -263,11 +263,11 @@ module.exports = function(output) {
 		highlightTimeNodes: function(timeNodes) {
 			this.robot.removeTimeHighlights();
 			if (timeNodes !== null) {
-				for (var i=0; i<this.events.length; i++) {
+				for (var i=this.eventStart; i<this.events.length; i++) {
 					for (var j=0; j<this.events[i].calls.length; j++) {
 						var call = this.events[i].calls[j];
 
-						if (timeNodes[i].indexOf(call.nodeId) >= 0 && call.$element !== null) {
+						if (timeNodes[i-this.eventStart].indexOf(call.nodeId) >= 0 && call.$element !== null) {
 							call.$element.addClass('robot-path-highlight-time');
 						}
 					}

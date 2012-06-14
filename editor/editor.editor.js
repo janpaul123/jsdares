@@ -351,7 +351,7 @@ module.exports = function(editor) {
 			} else {
 				var timeHighlights = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
 				for (var i=0; i<this.activeTimeHighlights.length; i++) {
-					if (timeHighlights[this.activeTimeHighlights[i].name] === undefined) {
+					if (timeHighlights[this.activeTimeHighlights[i]] === undefined) {
 						this.activeTimeHighlights.splice(i--, 1);
 					}
 				}
@@ -369,9 +369,10 @@ module.exports = function(editor) {
 				for (var i=0; i<size; i++) {
 					nodes[i] = [];
 				}
+				var highlightsFromTree = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
 
 				for (i=0; i<this.activeTimeHighlights.length; i++) {
-					var timeHighlight = this.activeTimeHighlights[i];
+					var timeHighlight = highlightsFromTree[this.activeTimeHighlights[i]];
 					var nodesPerContext = this.runner.getAllCallNodesByRange(timeHighlight.line, timeHighlight.line2);
 					for (var j=0; j<nodesPerContext.length; j++) {
 						for (var k=0; k<nodesPerContext[j].length; k++) {
@@ -394,16 +395,14 @@ module.exports = function(editor) {
 		},
 
 		timeHighlightActivate: function(name) {
-			var highlight = this.language.editor.timeHighlights.getTimeHighlights(this.tree)[name];
-			highlight.name = name;
-			this.activeTimeHighlights.push(highlight);
+			this.activeTimeHighlights.push(name);
 			this.updateActiveTimeHighlights();
 		},
 		
 		timeHighlightDeactivate: function(name) {
 			var position = -1;
 			for (var i=0; i<this.activeTimeHighlights.length; i++) {
-				if (this.activeTimeHighlights[i].name === name) {
+				if (this.activeTimeHighlights[i] === name) {
 					position = i;
 					break;
 				}

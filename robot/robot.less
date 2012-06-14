@@ -169,7 +169,7 @@
 
 		&.robot-path-highlight-time {
 			display: block;
-			.opacity(40);
+			.opacity(20);
 		}
 	}
 
@@ -177,7 +177,7 @@
 		position: absolute;
 		height: 2px;
 		margin-top: -1px;
-		z-index: 15;
+		z-index: 11;
 
 		.robot-path-line-inside {
 			position: absolute;
@@ -189,15 +189,21 @@
 		}
 
 		&.robot-path-highlight-time .robot-path-line-inside {
-			background-color: rgba(0, 110, 220, 0.50);
+			background-color: rgba(0, 110, 220, 0.30);
 		}
 
-		&.robot-path-highlight-event .robot-path-line-inside {
-			background-color: rgba(0, 110, 220, 1);
+		&.robot-path-highlight-event {
+			z-index: 13;
+			.robot-path-line-inside {
+				background-color: rgba(0, 110, 220, 1);
+			}
 		}
 
-		&.robot-path-highlight .robot-path-line-inside {
-			background-color: rgba(5, 195, 5, 0.85);
+		&.robot-path-highlight {
+			z-index: 15;
+			.robot-path-line-inside {
+				background-color: rgba(5, 195, 5, 0.85);
+			}
 		}
 	}
 
@@ -208,7 +214,7 @@
 		margin-left: -@robot-path-point-size/2 - @robot-path-point-arrow-hover/2;
 		margin-top: -@robot-path-point-size/2;
 		.border-radius(@robot-path-point-size);
-		z-index: 16;
+		z-index: 12;
 
 		.robot-path-point-inside {
 			position: absolute;
@@ -242,7 +248,7 @@
 		}
 
 		&.robot-path-highlight-event {
-			z-index: 17;
+			z-index: 14;
 			.robot-path-point-inside {
 				background-color: rgba(0, 110, 220, 1);
 
@@ -253,7 +259,7 @@
 		}
 
 		&.robot-path-highlight {
-			z-index: 18;
+			z-index: 16;
 			.robot-path-point-inside {
 				background-color: rgba(5, 195, 5, 0.85);
 
