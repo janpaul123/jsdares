@@ -2,26 +2,20 @@
 "use strict";
 
 module.exports = function(jsmm) {
-	require('./jsmm.msg')(jsmm);
-	
 	jsmm.Event = function() { return this.init.apply(this, arguments); };
 	jsmm.Event.prototype = {
 		init: function(runner, type, funcName, args) {
 			this.runner = runner;
 			this.type = type;
-			this.funcName = funcName || null;
+			this.funcName = funcName || undefined;
 			this.args = args || [];
 			this.context = null;
 		},
 
-		run: function(context) {
-			this.context = context;
+		run: function(tree, scope) {
+			this.context = new jsmm.Context(tree, scope);
 			this.runner.delegate.startEvent(this.context);
-			if (this.funcName === null) {
-				this.context.runProgram();
-			} else {
-				this.context.runFunction(this.funcName, this.args);
-			}
+			this.context.run(this.funcName, this.args);
 			this.runner.delegate.endEvent(this.context);
 		}
 	};
@@ -57,7 +51,7 @@ module.exports = function(jsmm) {
 			this.paused = false;
 			this.errorEventNums = [];
 			this.delegate.clearAllEvents();
-			this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
+			this.baseEvent.run(this.tree, this.scope);
 			this.runScope = this.baseEvent.context.scope.getVars();
 			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 			this.delegate.runnerChanged();
@@ -76,7 +70,7 @@ module.exports = function(jsmm) {
 				return false;
 			} else {
 				var event = new jsmm.Event(this, type, funcName, args);
-				event.run(new jsmm.RunContext(this.tree, this.runScope));
+				event.run(this.tree, this.runScope);
 				this.runScope = event.context.scope.getVars();
 
 				this.eventNum = this.events.length;
@@ -109,18 +103,18 @@ module.exports = function(jsmm) {
 						var start;
 						if (this.events[0] === this.baseEvent) {
 							this.delegate.clearAllEvents();
-							this.baseEvent.run(new jsmm.RunContext(this.tree, this.scope));
+							this.baseEvent.run(this.tree, this.scope);
 							this.runScope = this.baseEvent.context.scope.getVars();
 							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 							start = 1;
 						} else {
 							this.delegate.clearEventsFrom(0);
-							this.runScope = this.events[0].context.startScope.getVars();
+							this.runScope = this.events[0].context.getStartScopeVars();
 							this.tree.programNode.getFunctionFunction()(this.runScope);
 							start = 0;
 						}
 						for (var i=start; i<this.events.length; i++) {
-							this.events[i].run(new jsmm.RunContext(this.tree, this.runScope));
+							this.events[i].run(this.tree, this.runScope);
 							this.runScope = this.events[i].context.scope.getVars();
 							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
 						}

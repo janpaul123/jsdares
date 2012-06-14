@@ -6,16 +6,10 @@ module.exports = function(jsmm) {
 		return 'jsmmContext.tree.nodes[' + obj.id + ']';
 	};
 
-	var getScope = function() {
-		return '(jsmmScope || jsmmContext.scope)';
-	};
-
 	/* statementList */
 	jsmm.nodes.Program.prototype.getRunCode = function() {
 		var output = 'new function() {';
 		output += 'return function(jsmmContext) {';
-		output += 'var jsmmScope;\n';
-		output += getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ');\n';
 		output += this.statementList.getRunCode() + '}; }';
 		return output;
 	};
@@ -79,12 +73,12 @@ module.exports = function(jsmm) {
 	
 	/* identifier, symbol */
 	jsmm.nodes.PostfixStatement.prototype.getRunCode = function() {
-		return getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', ' + this.identifier.getRunCode() + ', "' + this.symbol + '")';
+		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.symbol + '")';
 	};
 	
 	/* identifier, symbol, expression */
 	jsmm.nodes.AssignmentStatement.prototype.getRunCode = function() {
-		return getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', ' + this.identifier.getRunCode() + ', "' + this.symbol + '", ' + this.expression.getRunCode() + ')';
+		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.symbol + '", ' + this.expression.getRunCode() + ')';
 	};
 	
 	/* items */
@@ -98,7 +92,7 @@ module.exports = function(jsmm) {
 	
 	/* name, assignment */
 	jsmm.nodes.VarItem.prototype.getRunCode = function() {
-		var output = getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', "' + this.name + '")';
+		var output = getNode(this) + '.runFunc(jsmmContext, "' + this.name + '")';
 		if (this.assignment !== null) {
 			// ; is invalid in for loops
 			// this should be possible in JS for normal statements as well
@@ -147,7 +141,7 @@ module.exports = function(jsmm) {
 	
 	/* name */
 	jsmm.nodes.NameIdentifier.prototype.getRunCode = function() {
-		return getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', "' + this.name + '")';
+		return getNode(this) + '.runFunc(jsmmContext, "' + this.name + '")';
 	};
 	
 	/* identifier, prop */
@@ -162,7 +156,7 @@ module.exports = function(jsmm) {
 	
 	/* identifier, expressionArgs */
 	jsmm.nodes.FunctionCall.prototype.getRunCode = function() {
-		var output = getNode(this) + '.runFunc(jsmmContext, ' + getScope() + ', ' + this.identifier.getRunCode() + ', [';
+		var output = getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', [';
 		if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getRunCode();
 		for (var i=1; i<this.expressionArgs.length; i++) {
 			output += ", " + this.expressionArgs[i].getRunCode();
@@ -209,9 +203,9 @@ module.exports = function(jsmm) {
 	
 	/* name, nameArgs, statementList */
 	jsmm.nodes.FunctionDeclaration.prototype.getRunCode = function() {
-		var output = getNode(this) + '.runFuncDecl(jsmmContext, ' + getScope() + ', "' + this.name + '", ';
+		var output = getNode(this) + '.runFuncDecl(jsmmContext, "' + this.name + '", ';
 		output += 'function (jsmmContext, args) {\n';
-		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
+		output += getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
 		output += '});';
@@ -221,7 +215,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.FunctionDeclaration.prototype.getFunctionCode = function() {
 		var output = 'jsmmScope["' + this.name + '"].func = ';
 		output += 'function (jsmmContext, args) {\n';
-		output += 'var jsmmScope = ' + getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
+		output += getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';
 		output += '};';

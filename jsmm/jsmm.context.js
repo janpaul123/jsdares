@@ -125,6 +125,7 @@ module.exports = function(jsmm) {
 			}
 			this.parent = parent || null;
 		},
+
 		find: function(name) {
 			var scope = this;
 			do {
@@ -135,6 +136,7 @@ module.exports = function(jsmm) {
 			} while(scope !== null);
 			return undefined;
 		},
+
 		getVars: function() {
 			var vars = {};
 			for (var name in this.vars) {
@@ -144,60 +146,130 @@ module.exports = function(jsmm) {
 		}
 	};
 
-	jsmm.RunContext = function() { return this.init.apply(this, arguments); };
-	jsmm.RunContext.prototype = {
-		init: function(tree, scope) {
+	var maxCallStackDepth = 100;
+	var maxExecutionCounter = 4000;
+
+	jsmm.Context = function() { return this.init.apply(this, arguments); };
+	jsmm.Context.prototype = {
+		init: function(tree, scope, funcName, args) {
 			this.tree = tree;
-			this.startScope = new jsmm.Scope(scope);
+			this.startScopeVars = scope;
 			this.scope = new jsmm.Scope(scope);
+			this.scopeStack = [this.scope];
 			this.executionCounter = 0;
 			this.steps = [];
-			this.callStack = [];
+			this.callStackNodes = [];
 			this.callNodesByNodes = {};
 			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
-			this.outputStates = {};
 			this.calledFunctions = [];
 			this.callNodeId = null;
 			this.error = null;
 		},
-		runProgram: function() {
-			this.run(this.tree.programNode.getRunFunction(), null);
+
+		/// OUTPUT FUNCTIONS ///
+		getCallNodeId: function() {
+			return this.callNodeId;
 		},
-		runFunction: function(funcName, args) {
-			this.callScope(this.tree.programNode, {type: 'enter', scope: this.scope, name: 'global'});
-			this.run(this.scope.find(funcName).value.func, args);
+
+		getCommandTracker: function() {
+			return this.commandTracker;
 		},
-		run: function(func, args) {
-			this.error = null;
-			
+
+		getScopeTracker: function() {
+			return this.scopeTracker;
+		},
+
+		/// TREE/RUNNER FUNCTIONS ///
+		run: function(funcName, args) {
+			this.scopeTracker.logScope(0, this.tree.programNode, {type: 'enter', scope: this.scope, name: 'global'});
+
+			var func;
+			if (funcName !== undefined) {
+				func = this.scope.find(funcName).value.func;
+			} else {
+				func = this.tree.programNode.getRunFunction();
+			}
+
 			try {
 				func(this, args);
 			} catch (error) {
 				if (error.type === 'Error') {
 					this.error = error;
 				} else {
-					throw error;
-					//this.error = new jsmm.msg.Error({}, 'An unknown error has occurred', '', error);
+					//throw error;
+					this.error = new jsmm.msg.Error(null, 'An unknown error has occurred', error);
 				}
 			}
 		},
+
 		hasError: function() {
 			return this.error !== null;
 		},
+
 		getError: function() {
 			return this.error;
 		},
-		setOutputState: function(output, state) {
-			this.outputStates[output] = state;
+
+		getStartScopeVars: function() {
+			return this.startScopeVars;
 		},
-		getOutputState: function(output) {
-			return this.outputStates[output];
+
+		getCalledFunctions: function() {
+			return this.calledFunctions;
 		},
+
+		getCallNodesByRange: function(line1, line2) {
+			var nodeIds = [];
+			for (var line=line1; line<=line2; line++) {
+				var node = this.tree.getNodeByLine(line);
+				if (node !== null) {
+					nodeIds.push(node.id);
+					if (this.callNodesByNodes[node.id] !== undefined) {
+						for (var i=0; i<this.callNodesByNodes[node.id].length; i++) {
+							if (nodeIds.indexOf(this.callNodesByNodes[node.id][i]) < 0) {
+								nodeIds.push(this.callNodesByNodes[node.id][i]);
+							}
+						}
+					}
+				}
+			}
+			return nodeIds;
+		},
+
+		/// JS-- PROGRAM FUNCTIONS ///
+		enterCall: function(node) {
+			this.callStackNodes.push(node);
+			if (this.callStackNodes.length > maxCallStackDepth) { // TODO
+				throw new jsmm.msg.Error(node, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
+			}
+		},
+
+		leaveCall: function() {
+			this.callStackNodes.pop();
+		},
+
+		enterFunction: function(node, vars, fullName) {
+			this.scope = new jsmm.Scope(vars, this.scopeStack[0]);
+			this.scopeStack.push(this.scope);
+			this.scopeTracker.logScope(this.getStepNum(), node, {type: 'enter', scope: this.scope, name: fullName});
+			this.calledFunctions.push(node.name);
+		},
+
+		leaveFunction: function(node) {
+			this.scopeStack.pop();
+			this.scope = this.scopeStack[this.scopeStack.length-1];
+			this.scopeTracker.logScope(this.getStepNum(), node, {type: 'return', scope: this.scope});
+		},
+
+		addAssignment: function(node, name) {
+			this.scopeTracker.logScope(this.getStepNum(), node, {type: 'assignment', scope: this.scope, name: name});
+		},
+
 		externalCall: function(node, funcValue, args) {
 			this.callNodeId = node.id;
-			for (var i=0; i<this.callStack.length; i++) {
-				var nodeId = this.callStack[i].getTopNode().id;
+			for (var i=0; i<this.callStackNodes.length; i++) {
+				var nodeId = this.callStackNodes[i].getTopNode().id;
 				if (this.callNodesByNodes[nodeId] === undefined) {
 					this.callNodesByNodes[nodeId] = [];
 				}
@@ -216,75 +288,32 @@ module.exports = function(jsmm) {
 				}
 			}
 		},
-		enterCall: function(node) {
-			// copy callstack
-			this.callStack = this.callStack.slice(0);
-			this.callStack.push(node);
 
-			if (this.callStack.length > jsmm.func.maxCallStackDepth) { // TODO
-				throw new jsmm.msg.Error(node, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
-			}
-		},
-		leaveCall: function() {
-			// copy callstack
-			this.callStack = this.callStack.slice(0);
-			this.callStack.pop();
-		},
 		inFunction: function() {
-			return this.callStack.length > 0;
+			return this.callStackNodes.length > 0;
 		},
+
 		increaseExecutionCounter: function(node, amount) {
 			this.executionCounter += amount;
-			if (this.executionCounter > jsmm.func.maxExecutionCounter) { // TODO
+			if (this.executionCounter > maxExecutionCounter) { // TODO
 				throw new jsmm.msg.Error(node, 'Program takes too long to run');
 			}
 		},
+
 		newStep: function(array) {
 			this.steps.push(array || []);
 		},
+
 		addToStep: function(msg) {
 			this.steps[this.steps.length-1].push(msg);
 		},
+
 		getStepNum: function() {
 			return this.steps.length;
 		},
+
 		addCommand: function(node, command) {
 			this.commandTracker.addCommand(node, command);
-		},
-		callScope: function(node, data) {
-			this.scopeTracker.logScope(this.getStepNum(), node, data);
-		},
-		getCallNodesByRange: function(line1, line2) {
-			var nodeIds = [];
-			for (var line=line1; line<=line2; line++) {
-				var node = this.tree.getNodeByLine(line);
-				if (node !== null) {
-					nodeIds.push(node.id);
-					if (this.callNodesByNodes[node.id] !== undefined) {
-						for (var i=0; i<this.callNodesByNodes[node.id].length; i++) {
-							if (nodeIds.indexOf(this.callNodesByNodes[node.id][i]) < 0) {
-								nodeIds.push(this.callNodesByNodes[node.id][i]);
-							}
-						}
-					}
-				}
-			}
-			return nodeIds;
-		},
-		getCallNodeId: function() {
-			return this.callNodeId;
-		},
-		getCommandTracker: function() {
-			return this.commandTracker;
-		},
-		getScopeTracker: function() {
-			return this.scopeTracker;
-		},
-		addCalledFunction: function(name) {
-			this.calledFunctions.push(name);
-		},
-		getCalledFunctions: function() {
-			return this.calledFunctions;
 		}
 	};
 };

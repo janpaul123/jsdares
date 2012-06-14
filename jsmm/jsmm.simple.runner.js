@@ -171,10 +171,17 @@ module.exports = function(jsmm) {
 		
 		runSafe: function() {
 			this.resetError();
-			if (!this.makeSafeFunc()) return false;
+			//if (!this.makeSafeFunc()) return false;
+			if (!this.parse()) return false;
 			
 			try {
-				this.safeFunc(new jsmm.RunContext(this.tree, this.scope));
+				//this.safeFunc(new jsmm.RunContext(this.tree, this.scope));
+				var context = new jsmm.Context(this.tree, this.scope);
+				context.run();
+				if (context.hasError()) {
+					this.handleError(context.getError());
+					return false;
+				}
 				return true;
 			} catch (error) {
 				this.handleError(error);
