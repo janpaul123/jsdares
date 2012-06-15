@@ -14,7 +14,7 @@ module.exports = function(output) {
 
 			this.intervalId = null;
 			this.start = true;
-			this.outputClearAll();
+			this.outputClearAllEvents();
 		},
 
 		remove: function() {
@@ -81,7 +81,7 @@ module.exports = function(output) {
 				throw 'Second argument to <var>setInterval</var> must be a number specifying the time in milliseconds, and cannot be smaller than 25';
 			}
 
-			clearInterval(this.intervalId);
+			this.clearInterval();
 			this.interval = args[0];
 			this.intervalId = setInterval($.proxy(this.doInterval, this), args[1]);
 			this.editor.makeInteractive();
@@ -113,26 +113,39 @@ module.exports = function(output) {
 			this.editor.addEvent('interval', this.interval.name, []);
 		},
 
+		clearInterval: function() {
+			if (this.intervalId !== null) {
+				clearInterval(this.intervalId);
+			}
+		},
+
 		checkStart: function() {
 			if (!this.start) {
 				throw 'You an only set events in the first run, not from another event';
 			}
 		},
 		
-		outputStartEvent: function(context) {
-			
-		},
-
 		outputEndEvent: function() {
 			this.first = false;
 		},
 
-		outputClearAll: function() {
+		outputClearAllEvents: function() {
+			this.clearInterval();
+			this.interval = null;
 			this.onkeydown = null;
 			this.onkeyup = null;
-			this.interval = null;
 			this.first = true;
-			clearInterval(this.intervalId);
+			this.popped = false;
+		},
+
+		outputPopFirstEvent: function() {
+			this.popped = true;
+		},
+
+		outputClearEventsFrom: function(eventNum) {
+			if (!this.popped && eventNum === 0) {
+				this.outputClearAllEvents();
+			}
 		}
 	};
 };

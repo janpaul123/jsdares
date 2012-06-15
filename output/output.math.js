@@ -24,7 +24,7 @@ module.exports = function(output) {
 			max: {type: 'function', argsMin: 2, argsMax: Infinity, example: 'max(x, y)'},
 			min: {type: 'function', argsMin: 2, argsMax: Infinity, example: 'min(x, y)'},
 			pow: {type: 'function', argsMin: 2, argsMax: 2, example: 'pow(x, y)'},
-			random: {type: 'function', argsMin: 0, argsMax: 0, example: 'random()'},
+			//random: {type: 'function', argsMin: 0, argsMax: 0, example: 'random()'},
 			round: {type: 'function', argsMin: 1, argsMax: 1, example: 'round(x)'},
 			sin: {type: 'function', argsMin: 1, argsMax: 1, example: 'sin(x)'},
 			sqrt: {type: 'function', argsMin: 1, argsMax: 1, example: 'sqrt(x)'},
