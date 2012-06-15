@@ -362,6 +362,11 @@ module.exports = function(info) {
 			this.events.push(this.currentEvent);
 		},
 
+		outputEndEvent: function(context) {
+			this.scope.update(this.currentEvent.scopeTracker, Infinity);
+			this.table.update(this.currentEvent.commandTracker);
+		},
+
 		outputPopFront: function() {
 			this.events.shift();
 		},

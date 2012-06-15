@@ -13,6 +13,8 @@ module.exports = function(output) {
 			$(document).on('keyup', this.$keyUp);
 
 			this.onmousemove = [];
+			this.onmousedown = [];
+			this.onmouseup = [];
 			this.intervalId = null;
 			this.start = true;
 			this.outputClearAllEvents();
@@ -20,7 +22,7 @@ module.exports = function(output) {
 
 		remove: function() {
 			this.clearInterval();
-			this.clearMouseMove();
+			this.clearMouse();
 			$(document).off('keydown', this.$keyDown);
 			$(document).off('keyup', this.$keyUp);
 		},
@@ -28,30 +30,39 @@ module.exports = function(output) {
 		addMouseEvents: function($element, name, obj) {
 			var current = this.onmousemove.length;
 			this.onmousemove.push({$element: $element, func: null, handle: null, timer: null});
+			this.onmousedown.push({$element: $element, func: null, handle: null});
+			this.onmouseup.push({$element: $element, func: null, handle: null});
 
-			obj.onmousemove = {
-				name: 'onmousemove',
-				info: name + '.onmousemove',
+			obj.onmousemove = this.getMouseObject(current, 'mousemove', 'mouseMove');
+			obj.onmousedown = this.getMouseObject(current, 'mousedown', 'mouseDown');
+			obj.onmouseup = this.getMouseObject(current, 'mouseup', 'mouseUp');
+		},
+
+		getMouseObject: function(current, type, niceType) {
+			var fullType = 'on' + type;
+			return {
+				name: fullType,
+				info: name + '.' + fullType,
 				type: 'variable',
-				example: 'onmousemove = mouseMove',
+				example: fullType + ' = ' + niceType,
 				get: $.proxy(function(name) {
-					return this.onmousemove[current].func;
-				}, this),
+							return this[fullType][current].func;
+					}, this),
 				set: $.proxy(function(context, name, value) {
-					this.checkStart();
-					if (value.type !== 'internalFunction') {
-						throw 'You can only set <var>' + name + '</var> to a function declared by you';
-					}
-					var onmousemove = this.onmousemove[current];
-					onmousemove.func = value;
-					if (onmousemove.handle === null) {
-						onmousemove.handle = $.proxy(function(event) {
-							this.mouseMove(current, event);
-						}, this);
-						this.onmousemove[current].$element.on('mousemove', onmousemove.handle);
-					}
-					this.editor.makeInteractive();
-				}, this)
+						this.checkStart();
+						if (value.type !== 'internalFunction') {
+							throw 'You can only set <var>' + name + '</var> to a function declared by you';
+						}
+						var info = this[fullType][current];
+						info.func = value;
+						if (info.handle === null) {
+							info.handle = $.proxy(function(event) {
+								this[niceType](current, event);
+							}, this);
+							this[fullType][current].$element.on(type, info.handle);
+						}
+						this.editor.makeInteractive();
+					}, this)
 			};
 		},
 
@@ -156,7 +167,7 @@ module.exports = function(output) {
 			if (this.onmousemove[num].timer !== null) {
 				onmousemove.lastEvent = event;
 			} else {
-				this.fireMouseEvent(num, event);
+				this.fireMouseEvent(this.onmousemove[num], event);
 				onmousemove.lastEvent = null;
 				onmousemove.timer = setTimeout($.proxy(function() {
 					onmousemove.timer = null;
@@ -167,9 +178,17 @@ module.exports = function(output) {
 			}
 		},
 
-		fireMouseEvent: function(num, event) {
-			var offset = this.onmousemove[num].$element.offset();
-			this.editor.addEvent('mouse', this.onmousemove[num].func.name, [{
+		mouseDown: function(num, event) {
+			this.fireMouseEvent(this.onmousedown[num], event);
+		},
+
+		mouseUp: function(num, event) {
+			this.fireMouseEvent(this.onmouseup[num], event);
+		},
+
+		fireMouseEvent: function(info, event) {
+			var offset = info.$element.offset();
+			this.editor.addEvent('mouse', info.func.name, [{
 				layerX: Math.round(event.pageX-offset.left),
 				layerY: Math.round(event.pageY-offset.top),
 				pageX: event.pageX,
@@ -177,10 +196,14 @@ module.exports = function(output) {
 			}]);
 		},
 
-		clearMouseMove: function() {
+		clearMouse: function() {
 			for (var i=0; i<this.onmousemove.length; i++) {
 				this.onmousemove[i].$element.off('mousemove', this.onmousemove[i].handle);
 				this.onmousemove[i].func = this.onmousemove[i].handle = this.onmousemove[i].timer = null;
+				this.onmousedown[i].$element.off('mousedown', this.onmousedown[i].handle);
+				this.onmousedown[i].func = this.onmousedown[i].handle = null;
+				this.onmouseup[i].$element.off('mouseup', this.onmouseup[i].handle);
+				this.onmouseup[i].func = this.onmouseup[i].handle = null;
 			}
 		},
 
@@ -196,7 +219,7 @@ module.exports = function(output) {
 
 		outputClearAllEvents: function() {
 			this.clearInterval();
-			this.clearMouseMove();
+			this.clearMouse();
 			this.interval = null;
 			this.onkeydown = null;
 			this.onkeyup = null;
