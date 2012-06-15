@@ -27,7 +27,7 @@ module.exports = function(output) {
 
 		addMouseEvents: function($element, name, obj) {
 			var current = this.onmousemove.length;
-			this.onmousemove.push({$element: $element, func: null, handle: null});
+			this.onmousemove.push({$element: $element, func: null, handle: null, timer: null});
 
 			obj.onmousemove = {
 				name: 'onmousemove',
@@ -152,6 +152,22 @@ module.exports = function(output) {
 		},
 
 		mouseMove: function(num, event) {
+			var onmousemove = this.onmousemove[num];
+			if (this.onmousemove[num].timer !== null) {
+				onmousemove.lastEvent = event;
+			} else {
+				this.fireMouseEvent(num, event);
+				onmousemove.lastEvent = null;
+				onmousemove.timer = setTimeout($.proxy(function() {
+					onmousemove.timer = null;
+					if (onmousemove.lastEvent !== null) {
+						this.mouseMove(num, onmousemove.lastEvent);
+					}
+				}, this), 24);
+			}
+		},
+
+		fireMouseEvent: function(num, event) {
 			var offset = this.onmousemove[num].$element.offset();
 			this.editor.addEvent('mouse', this.onmousemove[num].func.name, [{
 				layerX: Math.round(event.pageX-offset.left),
@@ -164,7 +180,7 @@ module.exports = function(output) {
 		clearMouseMove: function() {
 			for (var i=0; i<this.onmousemove.length; i++) {
 				this.onmousemove[i].$element.off('mousemove', this.onmousemove[i].handle);
-				this.onmousemove[i].func = this.onmousemove[i].handle = null;
+				this.onmousemove[i].func = this.onmousemove[i].handle = this.onmousemove[i].timer = null;
 			}
 		},
 

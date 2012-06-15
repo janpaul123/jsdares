@@ -74,10 +74,11 @@ module.exports = function(editor) {
 		},
 		getError: function() {
 			var msg = 'This line is too long, please split it into separate statements';
+			var loc = {line: this.errorLine, column: 60, column2: 60};
 			if (this.errorLine === null) return null;
 			else return {
 				type: 'Error',
-				loc: {line: this.errorLine, column: 60, column2: 60},
+				getLoc: function() { return loc; },
 				getMessage: function() { return msg; },
 				getHTML: function() { return msg; }
 			};
