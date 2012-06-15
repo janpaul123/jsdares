@@ -120,11 +120,18 @@ module.exports = function(output) {
 			return this.dare;
 		},
 
-		addInput: function() {
+		addInput: function(mouseObjects) {
 			this.input = new output.Input(this.editor);
 			this.outputs.push(this.input);
 			this.scope.document = this.input.getAugmentedDocumentObject();
 			this.scope.window = this.input.getAugmentedWindowObject();
+
+			mouseObjects = mouseObjects || [];
+			for (var i=0; i<mouseObjects.length; i++) {
+				var name = mouseObjects[i];
+				this.input.addMouseEvents(this[name].getMouseElement(), name, this.scope[name]);
+			}
+
 			return this.input;
 		},
 
@@ -156,7 +163,7 @@ module.exports = function(output) {
 			this.addConsole();
 			this.addCanvas();
 			this.addInfo();
-			this.addInput();
+			this.addInput(['robot', 'console', 'canvas']);
 			this.addMath();
 			this.finish();
 

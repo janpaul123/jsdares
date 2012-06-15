@@ -306,6 +306,10 @@ module.exports = function(output) {
 			this.robot.highlightVisitedGoal(goal);
 		},
 
+		getMouseElement: function() {
+			return this.$container;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		addCall: function(context) {
 			if (this.callCounter++ > 300) {

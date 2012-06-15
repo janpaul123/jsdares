@@ -317,6 +317,10 @@ module.exports = function(output) {
 			this.refreshAutoScroll();
 		},
 
+		getMouseElement: function() {
+			return this.$container;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		scrollToY: function(y, smooth) {
 			smooth = smooth || false;

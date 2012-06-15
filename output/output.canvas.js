@@ -458,6 +458,10 @@ module.exports = function(output) {
 			return this.size;
 		},
 
+		getMouseElement: function() {
+			return this.$canvas;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		setCanvasState: function(position) {
 			position = position%this.eventsSize;

@@ -7,20 +7,52 @@ module.exports = function(output) {
 		init: function(editor) {
 			this.editor = editor;
 
-			this.keyDown = $.proxy(this.keyDownHandler, this);
-			this.keyUp = $.proxy(this.keyUpHandler, this);
-			$(document).on('keydown', this.keyDown);
-			$(document).on('keyup', this.keyUp);
+			this.$keyDown = $.proxy(this.keyDown, this);
+			this.$keyUp = $.proxy(this.keyUp, this);
+			$(document).on('keydown', this.$keyDown);
+			$(document).on('keyup', this.$keyUp);
 
+			this.onmousemove = [];
 			this.intervalId = null;
 			this.start = true;
 			this.outputClearAllEvents();
 		},
 
 		remove: function() {
-			this.editor.removeOutput(this);
-			$(document).off('keydown', this.keyDown);
-			$(document).off('keyup', this.keyUp);
+			this.clearInterval();
+			this.clearMouseMove();
+			$(document).off('keydown', this.$keyDown);
+			$(document).off('keyup', this.$keyUp);
+		},
+
+		addMouseEvents: function($element, name, obj) {
+			var current = this.onmousemove.length;
+			this.onmousemove.push({$element: $element, func: null, handle: null});
+
+			obj.onmousemove = {
+				name: 'onmousemove',
+				info: name + '.onmousemove',
+				type: 'variable',
+				example: 'onmousemove = mouseMove',
+				get: $.proxy(function(name) {
+					return this.onmousemove[current].func;
+				}, this),
+				set: $.proxy(function(context, name, value) {
+					this.checkStart();
+					if (value.type !== 'internalFunction') {
+						throw 'You can only set <var>' + name + '</var> to a function declared by you';
+					}
+					var onmousemove = this.onmousemove[current];
+					onmousemove.func = value;
+					if (onmousemove.handle === null) {
+						onmousemove.handle = $.proxy(function(event) {
+							this.mouseMove(current, event);
+						}, this);
+						this.onmousemove[current].$element.on('mousemove', onmousemove.handle);
+					}
+					this.editor.makeInteractive();
+				}, this)
+			};
 		},
 
 		getAugmentedDocumentObject: function() {
@@ -29,7 +61,7 @@ module.exports = function(output) {
 					name: 'onkeydown',
 					info: 'document.onkeydown',
 					type: 'variable',
-					example: 'onkeydown = keyDownHandler',
+					example: 'onkeydown = keyDown',
 					get: $.proxy(this.handleKeyboardGet, this),
 					set: $.proxy(this.handleKeyboardSet, this)
 				},
@@ -37,7 +69,7 @@ module.exports = function(output) {
 					name: 'onkeyup',
 					info: 'document.onkeyup',
 					type: 'variable',
-					example: 'onkeyup = keyUpHandler',
+					example: 'onkeyup = keyUp',
 					get: $.proxy(this.handleKeyboardGet, this),
 					set: $.proxy(this.handleKeyboardSet, this)
 				}
@@ -87,7 +119,7 @@ module.exports = function(output) {
 			this.editor.makeInteractive();
 		},
 
-		keyDownHandler: function(event) {
+		keyDown: function(event) {
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
 			// block these as they are only keyboard shortcuts
 			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) >= 0) {
@@ -98,7 +130,7 @@ module.exports = function(output) {
 			}
 		},
 
-		keyUpHandler: function(event) {
+		keyUp: function(event) {
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
 			// block these as they are only keyboard shortcuts
 			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) >= 0) {
@@ -119,6 +151,23 @@ module.exports = function(output) {
 			}
 		},
 
+		mouseMove: function(num, event) {
+			var offset = this.onmousemove[num].$element.offset();
+			this.editor.addEvent('mouse', this.onmousemove[num].func.name, [{
+				layerX: Math.round(event.pageX-offset.left),
+				layerY: Math.round(event.pageY-offset.top),
+				pageX: event.pageX,
+				pageY: event.pageY
+			}]);
+		},
+
+		clearMouseMove: function() {
+			for (var i=0; i<this.onmousemove.length; i++) {
+				this.onmousemove[i].$element.off('mousemove', this.onmousemove[i].handle);
+				this.onmousemove[i].func = this.onmousemove[i].handle = null;
+			}
+		},
+
 		checkStart: function() {
 			if (!this.start) {
 				throw 'You an only set events in the first run, not from another event';
@@ -131,6 +180,7 @@ module.exports = function(output) {
 
 		outputClearAllEvents: function() {
 			this.clearInterval();
+			this.clearMouseMove();
 			this.interval = null;
 			this.onkeydown = null;
 			this.onkeyup = null;
