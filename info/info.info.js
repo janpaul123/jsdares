@@ -4,9 +4,9 @@
 var robot = require('../robot');
 
 module.exports = function(info) {
-	info.commands = [];
+	info.tables = [];
 
-	info.consoleExample = function($content, example, sampText) {
+	info.consoleExample = function(infoTable, $content, example, sampText) {
 		var $dfn = $('<dfn></dfn>');
 		$content.append($('<div class="info-table-content-wrapper"></div>').append($dfn));
 
@@ -17,22 +17,42 @@ module.exports = function(info) {
 		$dfn.append($code);
 
 		if (sampText === undefined) {
-			sampText = '';
 			var console = {
 				log: function(string) {
 					if (typeof string === 'object') string = '[object]';
-					sampText += string + '\n';
+					$samp.text($samp.text() + string + '\n');
 				},
 				clear: function() {
-					sampText = '';
+					$samp.text('');
 				}
 			};
-			eval(example);
+			var localDocument = {};
+			(function(document) { eval(example); })(localDocument);
+			if (localDocument.onkeydown !== undefined) {
+				infoTable.addGlobalEvent($(document), 'keydown', localDocument.onkeydown);
+			}
+			if (localDocument.onkeyup !== undefined) {
+				infoTable.addGlobalEvent($(document), 'keyup', localDocument.onkeyup);
+			}
+		} else {
+			$samp.text(sampText);
 		}
-		$samp.html(sampText);
 	};
 
-	info.canvasExample = function($content, example) {
+	var canvasEventWrapper = function($canvas, func) {
+		return function(e) {
+			e.stopPropagation();
+			var offset = $canvas.offset();
+			var event = {
+				layerX: e.pageX	- offset.left,
+				layerY: e.pageY - offset.top
+			};
+			func(event);
+			return false;
+		};
+	};
+
+	info.canvasExample = function(infoTable, $content, example) {
 		var $wrapper = $('<div class="info-table-content-wrapper"></div>');
 		$content.append($wrapper);
 
@@ -44,11 +64,32 @@ module.exports = function(info) {
 
 		$wrapper.append('<code>var context = canvas.getContext("2d");\n' + example + '</code>');
 
+		var canvas = {};
 		var context = $canvas[0].getContext('2d');
+		var interval = null;
+		var window = { setInterval: function(func, time) { interval = {func: func, time: time}; } };
+
 		eval(example);
+
+		if (canvas.onmousemove !== undefined) {
+			infoTable.addGlobalEvent($canvas, 'mousemove', canvasEventWrapper($canvas, canvas.onmousemove));
+		}
+		if (canvas.onmousedown !== undefined) {
+			infoTable.addGlobalEvent($canvas, 'mousedown', canvasEventWrapper($canvas, canvas.onmousedown));
+		}
+		if (canvas.onmouseup !== undefined) {
+			infoTable.addGlobalEvent($canvas, 'mouseup', canvasEventWrapper($canvas, canvas.onmouseup));
+		}
+		if (canvas.onmousedown !== undefined || canvas.onmouseup !== undefined) {
+			$canvas.addClass('info-table-content-clickable');
+			infoTable.addGlobalEvent($canvas, 'click', function(e) { e.stopPropagation(); });
+		}
+		if (interval !== null) {
+			infoTable.addGlobalEvent(null, 'interval', interval);
+		}
 	};
 
-	info.robotExample = function($content, example, state) {
+	info.robotExample = function(infoTable, $content, example, state) {
 		var $wrapper = $('<div class="info-table-content-wrapper"></div>');
 		$content.append($wrapper);
 
@@ -81,9 +122,6 @@ module.exports = function(info) {
 	};
 
 	info.InfoScope = function() { return this.init.apply(this, arguments); };
-	info.InfoTable = function() { return this.init.apply(this, arguments); };
-	info.Info = function() { return this.init.apply(this, arguments); };
-
 	info.InfoScope.prototype = {
 		init: function($div, info) {
 			this.info = info;
@@ -213,44 +251,60 @@ module.exports = function(info) {
 		}
 	};
 
+	info.InfoTable = function() { return this.init.apply(this, arguments); };
 	info.InfoTable.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
 		init: function($div, info) {
 			this.info = info;
-			this.$table = $('<div class="info-table">');
-			this.$table.on('mouseleave', $.proxy(this.mouseLeave, this));
-			$div.append(this.$table);
+			this.$tables = $('<div class="info-tables">');
+			this.$tables.on('mouseleave', $.proxy(this.mouseLeave, this));
+			$div.append(this.$tables);
 			this.commands = {};
 			this.highlighting = false;
 			this.commandTracker = null;
+			this.globalEvents = [];
 		},
 
-		addCommands: function(commands) {
-			for (var i=0; i<commands.length; i++) {
-				var command = commands[i];
+		addCommands: function(tables) {
+			for (var i=0; i<tables.length; i++) {
+				this.addTable(tables[i]);
+			}
+		},
 
-				var $item = $('<div class="info-table-item"></div>');
-				var $cell = $('<div class="info-table-cell"></div>');
-				this.makeCell(command, $cell);
-				$item.append($cell);
+		addTable: function(table) {
+			console.log(table);
+			if (table.list.length > 0) {
+				var $table = $('<div class="info-table"></div>');
+				$table.html(table.html);
+				this.$tables.append($table);
 
-				var $content = $('<div class="info-table-content"></div>');
-				$content.hide();
-				$item.append($content);
+				for (var i=0; i<table.list.length; i++) {
+					var command = table.list[i];
 
-				$item.data('command', command);
-				$item.on('click', $.proxy(this.itemClick, this));
-				$item.on('mousemove', $.proxy(this.mouseMove, this));
+					var $item = $('<div class="info-table-item"></div>');
+					var $cell = $('<div class="info-table-cell"></div>');
+					this.makeCell(command, $cell);
+					$item.append($cell);
 
-				this.$table.append($item);
-				this.commands[command.id] = {command: command, $item: $item};
+					var $content = $('<div class="info-table-content"></div>');
+					$content.hide();
+					$item.append($content);
+
+					$item.data('command', command);
+					$item.on('click', $.proxy(this.itemClick, this));
+					$item.on('mousemove', $.proxy(this.mouseMove, this));
+
+					$table.append($item);
+					this.commands[command.id] = {command: command, $item: $item};
+				}
 			}
 		},
 
 		remove: function() {
-			this.$table.children('.info-table-item').remove(); // to prevent $.data leaks
-			this.$table.remove();
+			this.removeGlobalEvents();
+			this.$tables.find('.info-table-item').remove(); // to prevent $.data leaks
+			this.$tables.remove();
 		},
 
 		update: function(commandTracker) {
@@ -280,6 +334,26 @@ module.exports = function(info) {
 			this.removeHighlights();
 		},
 
+		addGlobalEvent: function($element, type, func) {
+			if (type === 'interval') {
+				this.globalEvents.push({type: type, interval: window.setInterval(func.func, func.time)});
+			} else {
+				$element.on(type, func);
+				this.globalEvents.push({$element: $element, type: type, func: func});
+			}
+		},
+
+		removeGlobalEvents: function() {
+			for (var i=0; i<this.globalEvents.length; i++) {
+				var event = this.globalEvents[i];
+				if (event.type === 'interval') {
+					window.clearInterval(event.interval);
+				} else {
+					event.$element.off(event.type, event.func);
+				}
+			}
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		makeCell: function(command, $cell) {
 			var $arrow = $('<span class="info-table-cell-arrow"></span>');
@@ -296,13 +370,14 @@ module.exports = function(info) {
 			var $target = $(event.delegateTarget);
 			var command = $target.data('command');
 			var $content = $target.children('.info-table-content');
+			this.removeGlobalEvents();
 			if ($target.hasClass('info-table-item-active')) {
 				$target.removeClass('info-table-item-active');
 				$content.slideUp(200);
 			} else {
-				this.$table.children('.info-table-item-active').removeClass('info-table-item-active').children('.info-table-content').slideUp(200);
+				this.$tables.find('.info-table-item-active').removeClass('info-table-item-active').children('.info-table-content').slideUp(200);
 				$content.show();
-				command.makeContent($content);
+				command.makeContent(this, $content);
 				$target.addClass('info-table-item-active');
 				$content.hide();
 				$content.slideDown(200);
@@ -310,7 +385,7 @@ module.exports = function(info) {
 		},
 
 		removeHighlights: function() {
-			this.$table.children('.info-table-item-highlight').removeClass('info-table-item-highlight');
+			this.$tables.find('.info-table-item-highlight').removeClass('info-table-item-highlight');
 		},
 
 		mouseMove: function(event) {
@@ -334,6 +409,7 @@ module.exports = function(info) {
 		}
 	};
 
+	info.Info = function() { return this.init.apply(this, arguments); };
 	info.Info.prototype = {
 		init: function($div, editor, commandFilter) {
 			this.$div = $div;
@@ -405,18 +481,22 @@ module.exports = function(info) {
 		/// INTERNAL FUNCTIONS ///
 		filterCommands: function(filter) {
 			if (filter === undefined || filter === null) {
-				return info.commands;
+				return info.tables;
 			} else {
-				var commands = [];
-				for (var i=0; i<info.commands.length; i++) {
-					var command = info.commands[i];
-					for (var j=0; j<filter.length; j++) {
-						if (command.id.indexOf(filter[j]) === 0) {
-							commands[command.id] = command;
+				var tables = [];
+				for (var i=0; i<info.tables.length; i++) {
+					tables[i] = {html: info.tables[i].html, list: []};
+					for (var j=0; j<info.tables[i].list.length; j++) {
+						var command = info.tables[i].list[j];
+						for (var k=0; k<filter.length; k++) {
+							if (command.id.indexOf(filter[k]) === 0) {
+								tables[i].list.push(command);
+								break;
+							}
 						}
 					}
 				}
-				return commands;
+				return tables;
 			}
 		}
 	};

@@ -64,134 +64,141 @@
 	}
 }
 
-.info-table-item {
-	border-top: 1px solid #555;
-	padding: 5px;
-	cursor: pointer;
-	overflow: hidden;
-
-	.info-table-cell {
-		> span {
-			display: inline-block;
-			.ie7-inline-block();
-			font-size: 14px;
-		}
-
-		.info-table-cell-arrow {
-			#popoverArrow > .left(4px, white);
-			.rotate(0deg);
-			.transition(all 0.2s linear);
-			margin-right: 8px;
-		}
-
-		.info-table-cell-name {
-			width: 650-110-90-20px;
-			font-weight: bold;
-
-			small {
-				font-size: smaller;
-				margin-left: 5px;
-			}
-		}
-
-		.info-table-output {
-			font-weight: normal;
-			background-color: black;
-			.border-radius(10px);
-			font-size: 12px;
-			vertical-align: text-top;
-			line-height: 16px;
-			background-color: #111;
-			padding: 3px 5px;
-			margin-left: 3px;
-		}
+.info-tables {
+	.info-table-output {
+		.output-badge();
 	}
 
-	&:hover {
-		z-index: 11;
-		background-color: #555;
-		.box-shadow(0px 0px 2px #2a2a2a);
-	}
+	.info-table {
+		border-top: 1px solid #555;
+		padding-top: 10px;
+		margin-bottom: 2px;
 
-	&.info-table-item-active {
-		z-index: 12;
-		background-color: #555;
-		.box-shadow(0px 0px 5px #2a2a2a);
-		&:hover {
-			background-color: #666;
+		> p {
+			padding: 0px 2px;
 		}
-		.info-table-cell-arrow {
-			.rotate(90deg);
-		}
-	}
 
-	&.info-table-item-highlight {
-		background-color: @highlight-color !important;
-	}
-
-	.info-table-content {
-		overflow: auto;
-		z-index: 10;
-		padding: 5px 8px 0px;
-
-		p {
+		.info-table-item {
+			padding: 5px;
+			cursor: pointer;
 			overflow: hidden;
-		}
 
-		code {
-			.code-foreground();
-			white-space: pre;
-			padding: 5px 10px;
-			border: none;
-			background: none;
-		}
+			.info-table-cell {
+				> span {
+					display: inline-block;
+					.ie7-inline-block();
+					font-size: 14px;
+				}
 
-		dfn {
-			.code-well();
-			padding: 0px;
-			display: block;
-			position: relative;
-			overflow: auto;
-			width: 100%;
+				.info-table-cell-arrow {
+					#popoverArrow > .left(4px, white);
+					.rotate(0deg);
+					.transition(all 0.2s linear);
+					margin-right: 8px;
+				}
 
-			samp {
-				position: absolute;
-				left: 5px;
-				top: 5px;
-				white-space: pre;
+				.info-table-cell-name {
+					width: 650-110-90-20px;
+					font-weight: bold;
+
+					small {
+						font-size: smaller;
+						margin-left: 5px;
+					}
+				}
 			}
 
-			code {
-				float: right;
-				border-left: 1px solid #333;
-				min-width: 60%;
-			}
-		}
-
-		var {
-			.code-well();
-			padding: 2px 4px;
-		}
-
-		.info-table-content-wrapper {
-			overflow: auto;
-			padding-bottom: 5px;
-			margin-bottom: 5px;
-
-			.info-table-content-container {
-				width: 150px;
-				float: left;
-				margin-right: 15px;
+			&:hover {
+				z-index: 11;
+				background-color: #555;
+				.box-shadow(0px 0px 2px #2a2a2a);
 			}
 
-			dfn {
-				width: auto;
+			&.info-table-item-active {
+				z-index: 12;
+				background-color: #555;
+				.box-shadow(0px 0px 5px #2a2a2a);
+				&:hover {
+					background-color: #666;
+				}
+				.info-table-cell-arrow {
+					.rotate(90deg);
+				}
 			}
 
-			> code {
-				.code-well();
-				display: block;
-				float: left;
+			&.info-table-item-highlight {
+				background-color: @highlight-color !important;
+			}
+
+			.info-table-content {
+				overflow: auto;
+				z-index: 10;
+				padding: 5px 8px 0px;
+
+				p {
+					overflow: hidden;
+				}
+
+				code {
+					.code-foreground();
+					white-space: pre;
+					padding: 5px 10px;
+					border: none;
+					background: none;
+				}
+
+				dfn {
+					.code-well();
+					padding: 0px;
+					display: block;
+					position: relative;
+					overflow: hidden;
+					width: 100%;
+
+					samp {
+						position: absolute;
+						left: 5px;
+						top: 5px;
+						white-space: pre;
+					}
+
+					code {
+						float: right;
+						border-left: 1px solid #333;
+						min-width: 60%;
+					}
+				}
+
+				var {
+					.code-well();
+					padding: 2px 4px;
+				}
+
+				.info-table-content-wrapper {
+					overflow: auto;
+					padding-bottom: 5px;
+					margin-bottom: 5px;
+
+					.info-table-content-container {
+						width: 150px;
+						float: left;
+						margin-right: 15px;
+					}
+
+					dfn {
+						width: auto;
+					}
+
+					> code {
+						.code-well();
+						display: block;
+						float: left;
+					}
+				}
+
+				.info-table-content-clickable {
+					cursor: default;
+				}
 			}
 		}
 	}

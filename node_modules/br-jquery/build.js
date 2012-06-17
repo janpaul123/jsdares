@@ -1,9 +1,9 @@
 var request = require('request'),
     fs      = require('fs');
 
-function saveWrapped(url, file, headerFooter) {
-  request(url, function(error, response, body) {
-    var wrapped = headerFooter
+function saveWrapped(url, file, wrapper) {
+  request('http://code.jquery.com/' + url, function(err, resp, body) {
+    var wrapped = wrapper
       .toString()
       .split(/\s+\/\/--cut--\s+/)[1]
       .replace('//--jquery--', body);
@@ -11,13 +11,15 @@ function saveWrapped(url, file, headerFooter) {
   });
 }
 
-saveWrapped('http://code.jquery.com/jquery-1.7.2.js', 'browser.js', browserHeaderFooter);
-saveWrapped('http://code.jquery.com/jquery-1.7.2.min.js', 'browser.min.js', browserHeaderFooter);
-saveWrapped('http://code.jquery.com/jquery-1.7.2.js', 'jquery.js', nodeHeaderFooter);
+saveWrapped('jquery-1.6.4.js',     'browser-1.6.4.js',     browserWrapper);
+saveWrapped('jquery-1.6.4.min.js', 'browser-1.6.4.min.js', browserWrapper);
+saveWrapped('jquery-1.7.2.js',     'browser.js',           browserWrapper);
+saveWrapped('jquery-1.7.2.min.js', 'browser.min.js',       browserWrapper);
+saveWrapped('jquery-1.7.2.js',     'jquery.js',            nodeWrapper);
 
 // these are the headers and footers, taken from the *jquery* npm package
 
-function browserHeaderFooter() {
+function browserWrapper() {
 //--cut--
 
 (function () {
@@ -36,7 +38,7 @@ module.exports.create = create;
 //--cut--
 }
 
-function nodeHeaderFooter() {
+function nodeWrapper() {
 //--cut--
 
 (function () {

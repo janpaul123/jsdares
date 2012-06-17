@@ -39,7 +39,6 @@ exports.mkdirs = function (_path, mode, callback) {
           if (err.errno == 2 || err.errno == 34) {
             fs.mkdir(dir, m, function (erro) {
               if (erro && erro.errno != 17 && erro.errno != 34) {
-                assert(false)
                 return cb(erro);
               } else {
                 return walk(ds, acc, m, cb);
