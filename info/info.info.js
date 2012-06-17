@@ -41,7 +41,6 @@ module.exports = function(info) {
 
 	var canvasEventWrapper = function($canvas, func) {
 		return function(e) {
-			e.stopPropagation();
 			var offset = $canvas.offset();
 			var event = {
 				layerX: e.pageX	- offset.left,
@@ -424,6 +423,8 @@ module.exports = function(info) {
 
 		remove: function() {
 			this.$div.removeClass('output info');
+			this.scope.remove();
+			this.table.remove();
 		},
 
 		outputClearAllEvents: function() {

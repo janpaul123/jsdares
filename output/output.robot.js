@@ -307,7 +307,8 @@ module.exports = function(output) {
 		},
 
 		getMouseElement: function() {
-			return this.$container;
+			//return this.$container;
+			return null; // no support for now
 		},
 
 		/// INTERNAL FUNCTIONS ///
