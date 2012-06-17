@@ -327,13 +327,13 @@ module.exports = function(editor) {
 
 	editor.RunBar = function() { return this.init.apply(this, arguments); };
 	editor.RunBar.prototype = {
-		init: function($div, ed, maxHistory) {
+		init: function($div, ed) {
 			this.runner = null;
 			this.$div = $div;
 			this.editor = ed;
-			this.maxHistory = maxHistory;
 			//this.stepBar = new editor.StepBar()
 
+			this.$div.on('mouseenter', $.proxy(this.mouseEnter, this));
 			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
 
 			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
@@ -345,7 +345,7 @@ module.exports = function(editor) {
 			this.$sliderContainer = $('<div class="editor-toolbar-run-slider-container"></div>');
 			this.$sliderButton = $('<div class="btn btn-primary editor-toolbar-run-slider-button"></div>');
 			this.$slider = $('<div class="editor-toolbar-run-slider"></div>');
-			this.slider = new clayer.Slider(this.$slider, this, 140/this.maxHistory);
+			this.slider = new clayer.Slider(this.$slider, this, 3);
 			this.$sliderButton.append(this.$slider);
 			this.$sliderContainer.append(this.$sliderButton);
 			this.$div.append(this.$sliderContainer);
@@ -367,11 +367,13 @@ module.exports = function(editor) {
 			this.$stepBarContainer.append(this.$stepBarErrorIcon);
 
 			this.sliderEnabled = true;
+			this.stepBarEnabled = true;
 			this.$stepBarContainer.hide(); // hacky fix
 			this.disable();
 		},
 
 		remove: function() {
+			this.playPauseAnimation.animate(false);
 			this.slider.remove();
 			this.stepBar.remove();
 			this.$stepBarErrorIcon.remove();
@@ -409,14 +411,15 @@ module.exports = function(editor) {
 							this.$stepBarContainer.fadeIn(150);
 							this.$div.removeClass('editor-toolbar-run-slider-disabled');
 							this.$div.addClass('editor-toolbar-run-slider-enabled');
-							this.$slider.width(this.runner.getEventTotal()*140/this.maxHistory);
+							this.$slider.width(this.runner.getEventTotal()*3);
 							this.slider.setValue(this.runner.getEventNum());
 							this.$sliderButton.css('margin-left', '');
 						}
+						this.showStepBar();
 						this.setSliderErrors(runner);
 						this.playPauseAnimation.setFraction(this.runner.getEventNum()/(this.runner.getEventTotal()-1));
 						this.stepBar.update(runner);
-						this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*140/this.maxHistory);
+						this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*3);
 						this.$stepBarIcon.removeClass();
 						this.$stepBarIcon.addClass('editor-toolbar-run-step-bar-icon icon-white icon-' + {
 							base: 'stop',
@@ -461,8 +464,8 @@ module.exports = function(editor) {
 				this.$div.addClass('editor-toolbar-run-slider-disabled');
 				this.$div.removeClass('editor-toolbar-run-slider-enabled');
 				this.$sliderButton.css('margin-left', -this.$slider.width()-20);
-				this.$stepBarContainer.fadeOut(150);
 				this.editor.highlightFunctionNode(null);
+				this.hideStepBar();
 			}
 		},
 
@@ -483,8 +486,32 @@ module.exports = function(editor) {
 			}
 		},
 
+		showStepBar: function() {
+			if (!this.stepBarEnabled) {
+				this.$stepBarContainer.fadeIn(150);
+				this.stepBarEnabled = true;
+			}
+		},
+
+		hideStepBar: function() {
+			if (this.stepBarEnabled) {
+				this.$stepBarContainer.fadeOut(150);
+				this.stepBarEnabled = false;
+			}
+		},
+
+		mouseEnter: function(event) {
+			if (this.runner.isPaused()) {
+				this.editor.highlightFunctionNode(this.runner.getFunctionNode());
+				this.showStepBar();
+			}
+		},
+
 		mouseLeave: function(event) {
 			this.editor.highlightFunctionNode(null);
+			if (this.sliderEnabled && this.stepBarEnabled && !this.runner.isStepping()) {
+				this.hideStepBar();
+			}
 		},
 
 		errorIconClick: function() {
@@ -518,7 +545,7 @@ module.exports = function(editor) {
 			this.$div.append($editHighlightGroup);
 
 			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
-			this.runBar = new editor.RunBar($runBar, this.editor, 50);
+			this.runBar = new editor.RunBar($runBar, this.editor);
 			this.$div.append($runBar);
 
 			this.$checkKeys = $.proxy(this.checkKeys, this);
