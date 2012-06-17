@@ -21,6 +21,7 @@ module.exports = function(output) {
 			this.initTabs();
 			this.loadInitial();
 
+			/*
 			this.dares = new dares.Dares($('#dares-popup'), dares.getContent(this));
 
 			$('#start-dare, #switch-dare').click($.proxy(function() {
@@ -30,6 +31,7 @@ module.exports = function(output) {
 			$('#abort-dare').click($.proxy(function() {
 				this.loadInitial();
 			}, this));
+			*/
 		},
 
 		initTabs: function() {
