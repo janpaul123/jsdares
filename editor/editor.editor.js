@@ -129,6 +129,7 @@ module.exports = function(editor) {
 			this.runner.disable();
 			this.toolbar.disable();
 			this.updateHighlighting();
+			this.highlightFunctionNode(null);
 		},
 
 		handleError: function(error) {
@@ -159,19 +160,23 @@ module.exports = function(editor) {
 		},
 
 		makeMessageLoc: function(message) {
-			var loc = {}, msgLoc = message.getLoc(this.tree);
-			if (msgLoc.line2 !== undefined) {
-				loc.line = msgLoc.line;
-				loc.line2 = msgLoc.line2+1;
-				loc.column = this.code.blockToLeftColumn(msgLoc.line, msgLoc.line2);
-				loc.column2 = this.code.blockToRightColumn(msgLoc.line, msgLoc.line2);
+			return this.makeLoc(message.getLoc(this.tree));
+		},
+
+		makeLoc: function(loc) {
+			var output = {};
+			if (loc.line2 !== undefined) {
+				output.line = loc.line;
+				output.line2 = loc.line2+1;
+				output.column = this.code.blockToLeftColumn(loc.line, loc.line2);
+				output.column2 = this.code.blockToRightColumn(loc.line, loc.line2);
 			} else {
-				loc.line = msgLoc.line;
-				loc.line2 = msgLoc.line+1;
-				loc.column = msgLoc.column;
-				loc.column2 = msgLoc.column2 || msgLoc.column;
+				output.line = loc.line;
+				output.line2 = loc.line+1;
+				output.column = loc.column;
+				output.column2 = loc.column2 || loc.column;
 			}
-			return loc;
+			return output;
 		},
 
 		scrollToError: function() { // callback
@@ -317,9 +322,8 @@ module.exports = function(editor) {
 					if (node !== this.currentHighlightNode) {
 						this.currentHighlightNode = node;
 						if (node !== null) {
-							var line1 = node.blockLoc.line, line2 = node.blockLoc.line2;
-							this.surface.showHighlight(line1, this.code.blockToLeftColumn(line1, line2), line2+1, this.code.blockToRightColumn(line1, line2));
-							this.callOutputs('highlightCallNodes', this.runner.getCallNodesByRange(line1, line2));
+							this.surface.showHighlight(this.makeLoc(node.blockLoc));
+							this.callOutputs('highlightCallNodes', this.runner.getCallNodesByRange(node.blockLoc.line, node.blockLoc.line));
 						} else {
 							this.surface.hideHighlight();
 							this.callOutputs('highlightCallNodes', []);
@@ -440,7 +444,7 @@ module.exports = function(editor) {
 
 		highlightNode: function(node) { // callback
 			if (node !== null) {
-				this.surface.showHighlight(node.lineLoc.line, node.lineLoc.column, node.lineLoc.line+1, node.lineLoc.column2);
+				this.surface.showHighlight(this.makeLoc(node.lineLoc));
 				this.surface.scrollToLine(node.lineLoc.line);
 			} else {
 				this.surface.hideHighlight();
@@ -455,15 +459,24 @@ module.exports = function(editor) {
 			this.surface.removeHighlights();
 			for (var i=0; i<nodeIds.length; i++) {
 				var node = this.tree.getNodeById(nodeIds[i]);
-				this.surface.addHighlight(node.lineLoc.line, node.lineLoc.column, node.lineLoc.line+1, node.lineLoc.column2);
+				this.surface.addHighlight(this.makeLoc(node.lineLoc));
 			}
 		},
 
 		highlightContentLine: function(line) { // used for dare line count
 			if (line === null) {
-				this.highlightNode(0);
+				this.highlightNode(null);
 			} else {
 				this.highlightNode(this.tree.getNodeByLine(line));
+			}
+		},
+
+		highlightFunctionNode: function(node) { //this.runner.getFunctionNode()
+			if (node === null) {
+				this.surface.hideFunctionHighlight();
+			} else {
+				this.surface.showFunctionHighlight(this.makeLoc(node.blockLoc));
+				this.surface.scrollToLine(node.blockLoc.line);
 			}
 		},
 

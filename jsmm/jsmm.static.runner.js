@@ -302,6 +302,14 @@ module.exports = function(jsmm) {
 
 		getExamples: function(text) {
 			return jsmm.editor.autocompletion.getExamples(this.runScope || this.scope, text);
+		},
+
+		getFunctionNode: function() {
+			if (this.events[this.eventNum] === this.baseEvent) {
+				return null;
+			} else {
+				return this.tree.getFunctionNode(this.events[this.eventNum].funcName);
+			}
 		}
 	};
 };

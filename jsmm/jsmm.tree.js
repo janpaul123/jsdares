@@ -14,6 +14,7 @@ module.exports = function(jsmm) {
 				ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 			};
 			this.nodesByLine = {};
+			this.functionNodes = {};
 			this.error = null;
 			jsmm.parser.yy.tree = this;
 			try {
@@ -66,6 +67,10 @@ module.exports = function(jsmm) {
 		},
 		getNodeById: function(nodeId) {
 			if (this.nodes[nodeId] !== undefined) return this.nodes[nodeId];
+			else return null;
+		},
+		getFunctionNode: function(funcName) {
+			if (this.functionNodes[funcName] !== undefined) return this.functionNodes[funcName];
 			else return null;
 		}
 	};

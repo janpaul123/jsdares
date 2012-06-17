@@ -294,6 +294,9 @@ module.exports = function(jsmm) {
 
 	jsmm.nodes.FunctionDeclaration = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.FunctionDeclaration.prototype = addCommonNodeMethods('FunctionDeclaration', {name: false, nameArgs: false, statementList: true}, true, {
+		init: function() {
+			this.tree.functionNodes[this.name] = this;
+		},
 		getArgList: function() {
 			return '(' + this.nameArgs.join(', ') + ')';
 		},

@@ -104,7 +104,7 @@ module.exports = function(editor) {
 					this.$marking.hide().fadeIn(150);
 					this.box.$element.hide().fadeIn(150);
 				}
-				this.surface.setElementLocationRange(this.$marking, this.location.line, this.location.column, this.location.line2, this.location.column2);
+				this.surface.setElementLocationRange(this.$marking, this.location);
 				this.box.html(this.html);
 			} else {
 				if (this.isCurrentlyShown) {
@@ -208,9 +208,9 @@ module.exports = function(editor) {
 				// the offset is weird since .position().top changes when scrolling
 				var y = this.$lines[this.selected].position().top + this.$content.scrollTop();
 				y = Math.max(0, y - this.$content.height()/2);
-				this.$content.stop(true).animate({scrollTop : y}, 150);
+				this.$content.stop(true).animate({scrollTop : y}, 150, 'linear');
 			} else {
-				this.$content.stop(true).animate({scrollTop : 0}, 150);
+				this.$content.stop(true).animate({scrollTop : 0}, 150, 'linear');
 			}
 		},
 		insert: function(number) {
@@ -356,16 +356,16 @@ module.exports = function(editor) {
 			this.removeHighlights();
 		},
 
-		addHighlight: function(line, column, line2, column2) {
+		addHighlight: function(location) {
 			//this.$highlightMarking.show();
 			var $highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
 			this.addElement($highlightMarking);
-			this.setElementLocationRange($highlightMarking, line, column, line2, column2);
+			this.setElementLocationRange($highlightMarking, location);
 		},
 
-		showHighlight: function(line, column, line2, column2) {
+		showHighlight: function(location) {
 			this.removeHighlights();
-			this.addHighlight(line, column, line2, column2);
+			this.addHighlight(location);
 		},
 
 		removeHighlights: function() {
@@ -375,6 +375,17 @@ module.exports = function(editor) {
 
 		hideHighlight: function() {
 			this.removeHighlights();
+		},
+
+		showFunctionHighlight: function(location) {
+			this.hideFunctionHighlight();
+			var $highlightMarking = $('<div class="editor-marking editor-highlight-function"></div>');
+			this.addElement($highlightMarking);
+			this.setElementLocationRange($highlightMarking, location);
+		},
+
+		hideFunctionHighlight: function() {
+			this.$surface.children('.editor-highlight-function').remove();
 		},
 
 		showTimeHighlights: function(timeHighlights) {
@@ -458,12 +469,12 @@ module.exports = function(editor) {
 			$element.css('top', this.lineToY(line));
 		},
 
-		setElementLocationRange: function($element, line, column, line2, column2) {
-			var x = this.columnToX(column), y = this.lineToY(line);
+		setElementLocationRange: function($element, location) {
+			var x = this.columnToX(location.column), y = this.lineToY(location.line);
 			$element.css('left', x);
 			$element.css('top', y);
-			$element.width(this.columnToX(column2) - x);
-			$element.height(this.lineToY(line2) - y);
+			$element.width(this.columnToX(location.column2) - x);
+			$element.height(this.lineToY(location.line2) - y);
 		},
 
 		setElementCenterPosition: function($element, x, y) {
@@ -600,7 +611,7 @@ module.exports = function(editor) {
 
 		scrollToY: function(y) {
 			y = Math.max(0, y - this.$div.height()/2);
-			this.$div.stop(true).animate({scrollTop : y}, 150);
+			this.$div.stop(true).animate({scrollTop : y}, 150, 'linear');
 			//this.$div.scrollTop(y);
 		},
 

@@ -334,6 +334,8 @@ module.exports = function(editor) {
 			this.maxHistory = maxHistory;
 			//this.stepBar = new editor.StepBar()
 
+			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
+
 			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
@@ -460,6 +462,7 @@ module.exports = function(editor) {
 				this.$div.removeClass('editor-toolbar-run-slider-enabled');
 				this.$sliderButton.css('margin-left', -this.$slider.width()-20);
 				this.$stepBarContainer.fadeOut(150);
+				this.editor.highlightFunctionNode(null);
 			}
 		},
 
@@ -476,7 +479,12 @@ module.exports = function(editor) {
 		sliderChanged: function(value) {
 			if (this.runner.isPaused()) {
 				this.runner.setEventNum(value);
+				this.editor.highlightFunctionNode(this.runner.getFunctionNode());
 			}
+		},
+
+		mouseLeave: function(event) {
+			this.editor.highlightFunctionNode(null);
 		},
 
 		errorIconClick: function() {
