@@ -291,10 +291,12 @@ module.exports = function(editor) {
 		},
 
 		setFraction: function(fraction) {
-			if (!this.animating) {
-				this.position = fraction*this.max;
-				clayer.setCss3(this.$playPauseAnimationBlock, 'transition', '');
-				this.$playPauseAnimationBlock.css('left', this.start+this.position);
+			this.stopTimeout();
+			this.position = fraction*this.max;
+			clayer.setCss3(this.$playPauseAnimationBlock, 'transition', '');
+			this.$playPauseAnimationBlock.css('left', this.start+this.position);
+			if (this.animating) {
+				this.restartTimeout = setTimeout($.proxy(this.startAnimation, this), 0);
 			}
 		},
 
@@ -331,7 +333,6 @@ module.exports = function(editor) {
 			this.runner = null;
 			this.$div = $div;
 			this.editor = ed;
-			//this.stepBar = new editor.StepBar()
 
 			this.$div.on('mouseenter', $.proxy(this.mouseEnter, this));
 			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
@@ -353,7 +354,6 @@ module.exports = function(editor) {
 			this.$stepBarContainer = $('<div class="btn-group editor-toolbar-run-step-bar-container"></div>');
 			this.$stepBarContainer.append('<div class="editor-toolbar-run-step-bar-arrow"></div>');
 			this.$div.append(this.$stepBarContainer);
-
 
 			this.$stepBarIcon = $('<i></i>');
 			this.$stepBarContainer.append(this.$stepBarIcon);
@@ -438,6 +438,9 @@ module.exports = function(editor) {
 				} else {
 					this.playPauseAnimation.play();
 					this.hideSlider();
+					if (this.runner.isBaseEventSelected()) {
+						this.playPauseAnimation.setFraction(0);
+					}
 				}
 			} else {
 				this.$div.addClass('editor-toolbar-run-disabled');
