@@ -272,7 +272,6 @@ module.exports = function(info) {
 		},
 
 		addTable: function(table) {
-			console.log(table);
 			if (table.list.length > 0) {
 				var $table = $('<div class="info-table"></div>');
 				$table.html(table.html);
