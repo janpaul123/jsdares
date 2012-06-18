@@ -2,15 +2,6 @@
 "use strict";
 
 module.exports = function(jsmm) {
-	var stringify = function(value) { // TODO: remove double functionality
-		if (typeof value === 'function') return '[function]';
-		else if (typeof value === 'object' && value.type === 'function') return '[function]';
-		else if (Object.prototype.toString.call(value) === '[object Array]') return '[array]';
-		else if (typeof value === 'object') return '[object]';
-		else if (value === undefined) return 'undefined';
-		else return JSON.stringify(value);
-	};
-
 	jsmm.CommandTracker = function() { return this.init.apply(this, arguments); };
 	jsmm.CommandTracker.prototype = {
 		init: function() {
@@ -112,7 +103,7 @@ module.exports = function(jsmm) {
 				this.nodeIds[topNodeId].push(position + '-' + name);
 			}
 
-			this.calls.push({type: 'assignment', stepNum: stepNum, position: position, name: name, value: stringify(value)});
+			this.calls.push({type: 'assignment', stepNum: stepNum, position: position, name: name, value: jsmm.stringify(value)});
 		}
 	};
 
@@ -144,6 +135,12 @@ module.exports = function(jsmm) {
 			}
 			return vars;
 		}
+	};
+
+	jsmm.stringify = function(value) {
+		if (value === undefined) return 'undefined';
+		else if (typeof value === 'object') return value.string;
+		else return JSON.stringify(value);
 	};
 
 	jsmm.Context = function() { return this.init.apply(this, arguments); };
