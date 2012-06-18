@@ -24,7 +24,7 @@ module.exports = function(jsmm) {
 	jsmm.Runner.prototype = {
 		init: function(delegate, scope, limits) {
 			this.delegate = delegate;
-			this.scope = scope;
+			this.scope = new jsmm.Scope(scope);
 			this.limits = {
 				history: limits.history || 50,
 				base: limits.base || {
@@ -62,8 +62,8 @@ module.exports = function(jsmm) {
 			this.paused = false;
 			this.errorEventNums = [];
 			this.delegate.clearAllEvents();
-			this.baseEvent.run(this.tree, this.scope, this.limits.base);
-			this.runScope = this.baseEvent.context.getBaseScope().getVars();
+			this.baseEvent.run(this.tree, this.scope.getCopy(), this.limits.base);
+			this.runScope = this.baseEvent.context.getBaseScope().getCopy();
 			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 			this.delegate.runnerChanged();
 		},
@@ -82,7 +82,7 @@ module.exports = function(jsmm) {
 			} else {
 				var event = new jsmm.Event(this, type, funcName, args);
 				event.run(this.tree, this.runScope, this.limits.event);
-				this.runScope = event.context.getBaseScope().getVars();
+				this.runScope = event.context.getBaseScope().getCopy();
 
 				this.eventNum = this.events.length;
 				this.events.push(event);
@@ -115,18 +115,18 @@ module.exports = function(jsmm) {
 						if (this.events[0] === this.baseEvent) {
 							this.delegate.clearAllEvents();
 							this.baseEvent.run(this.tree, this.scope, this.limits.base);
-							this.runScope = this.baseEvent.context.getBaseScope().getVars();
+							this.runScope = this.baseEvent.context.getBaseScope().getCopy();
 							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 							start = 1;
 						} else {
 							this.delegate.clearEventsFrom(0);
-							this.runScope = this.events[0].context.getStartScopeVars();
+							this.runScope = this.events[0].context.getStartScope().getCopy();
 							this.tree.programNode.getFunctionFunction()(this.runScope);
 							start = 0;
 						}
 						for (var i=start; i<this.events.length; i++) {
 							this.events[i].run(this.tree, this.runScope, this.limits.event);
-							this.runScope = this.events[i].context.getBaseScope().getVars();
+							this.runScope = this.events[i].context.getBaseScope().getCopy();
 							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
 						}
 
@@ -149,7 +149,7 @@ module.exports = function(jsmm) {
 				this.events = this.events.slice(0, this.eventNum+1);
 				this.delegate.clearEventsFrom(this.eventNum+1);
 				this.stepNum = Infinity;
-				this.runScope = this.events[this.eventNum].context.getBaseScope().getVars();
+				this.runScope = this.events[this.eventNum].context.getBaseScope().getCopy();
 			}
 			this.delegate.runnerChanged();
 		},

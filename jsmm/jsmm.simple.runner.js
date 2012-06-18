@@ -176,7 +176,7 @@ module.exports = function(jsmm) {
 			
 			try {
 				//this.safeFunc(new jsmm.RunContext(this.tree, this.scope));
-				var context = new jsmm.Context(this.tree, this.scope, {
+				var context = new jsmm.Context(this.tree, new jsmm.Scope(this.scope), {
 					callStackDepth: 100,
 					executionCounter: 4000,
 					costCounter: 1000

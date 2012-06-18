@@ -6,22 +6,26 @@ module.exports = function(jsmm) {
 
 	jsmm.editor.autocompletion = {
 		// expected text format: someObject.someProperty.startOfAFunction
-		getExamples: function(vars, text) {
+		getExamples: function(scope, text) {
 			var split = text.split('.');
 
-			var obj = vars[split[0]];
-			if (typeof obj !== 'object' || obj.methods === undefined) return null;
+			var obj = scope.find(split[0]);
+			
+			if (obj === undefined || typeof obj.value !== 'object' || obj.value.properties === undefined) return null;
+			obj = obj.value;
 			for (var i=1; i<split.length-1; i++) {
-				obj = obj.methods[split[i]];
-				if (typeof obj !== 'object' || obj.methods === undefined) return null;
+				obj = obj.properties[split[i]];
+				if (typeof obj !== 'object' || obj.properties === undefined) return null;
 			}
+
+			console.log(obj);
 
 			var examples = [];
 			var start = split[split.length-1].toLowerCase();
-			for (var name in obj.methods) {
+			for (var name in obj.properties) {
 				var example;
-				if (typeof obj[name] === 'object' && obj[name].example !== undefined) {
-					example = obj[name].example;
+				if (typeof obj.properties[name] === 'object' && obj.properties[name].example !== undefined) {
+					example = obj.properties[name].example;
 				} else {
 					example = name;
 				}

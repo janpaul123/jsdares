@@ -40,11 +40,11 @@ module.exports = function(output) {
 		},
 
 		getAugmentedObject: function() {
-			var obj = {type: 'object', string: '[object Math]', methods: {}};
+			var obj = {type: 'object', string: '[object Math]', properties: {}};
 			for (var name in this.functions) {
 				var func = this.functions[name];
 				if (func.type === 'function') {
-					obj.methods[name] = {
+					obj.properties[name] = {
 						name: name,
 						info: 'Math.' + name,
 						type: 'function',
@@ -53,7 +53,7 @@ module.exports = function(output) {
 						func: $.proxy(this.handleMethod, this)
 					};
 				} else if (func.type === 'variable') {
-					obj.methods[name] = {
+					obj.properties[name] = {
 						name: name,
 						info: 'Math.' + name,
 						type: 'variable',

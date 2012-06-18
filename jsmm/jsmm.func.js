@@ -14,10 +14,10 @@ module.exports = function(jsmm) {
 			throw new jsmm.msg.Error(node.id, '<var>' + node.getCode() + '</var> is <var>null</var>');
 		} else if (typeof value === 'number' && !isFinite(value)) {
 			throw new jsmm.msg.Error(node.id, '<var>' + node.getCode() + '</var> is not a valid number');
-		} else if (typeof value === 'object' && value.type === 'variable') {
-			return value.get(value.name);
 		} else if (typeof value === 'object' && value.type === 'newArrayValue') {
 			throw new jsmm.msg.Error(node.id, '<var>' + node.getCode() + '</var> is <var>undefined</var>');
+		} else if (typeof value === 'object' && value.type === 'variable') {
+			return value.get(value.name);
 		} else {
 			return value;
 		}
@@ -84,6 +84,13 @@ module.exports = function(jsmm) {
 		},
 		setArrayValue: function(index, value) {
 			this.values[index] = {type: 'local', value: value};
+		},
+		getCopy: function() {
+			var values = [];
+			for (var i=0; i<this.values.length; i++) {
+				values[i] = this.values[i].value;
+			}
+			return new jsmm.Array(values);
 		}
 	};
 
@@ -243,12 +250,12 @@ module.exports = function(jsmm) {
 		var identifierValue = getValue(this.identifier, identifier);
 		var expressionValue = getValue(this.expression, expression);
 
-		if (typeof identifierValue !== 'object' || identifierValue.type !== 'array') {
+		if (typeof identifierValue !== 'object' || identifierValue.type !== 'arrayPointer') {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> is not an array');
 		} else if (typeof expressionValue !== 'number' && expressionValue % 1 !== 0) {
 			throw new jsmm.msg.Error(this.id, 'Index <var>' + this.expression.getCode() + '</var> is not an integer');
 		} else {
-			return identifierValue.getArrayValue(expressionValue);
+			return context.scope.getArray(identifierValue.id).getArrayValue(expressionValue);
 		}
 	};
 	
@@ -289,8 +296,8 @@ module.exports = function(jsmm) {
 		for (var i=0; i<this.expressions.length; i++) {
 			values[i] = getValue(this.expressions[i], expressions[i]);
 		}
-
-		return new jsmm.Array(values);
+		var array = new jsmm.Array(values);
+		return {type: 'arrayPointer', string: '[array]', id: context.scope.registerArray(array), properties: array.properties};
 	};
 	
 	jsmm.nodes.IfBlock.prototype.runFunc =

@@ -223,7 +223,7 @@ module.exports = function(jsmm) {
 	};
 
 	jsmm.nodes.FunctionDeclaration.prototype.getFunctionCode = function() {
-		var output = 'jsmmScope["' + this.name + '"].func = ';
+		var output = 'jsmmScope.vars["' + this.name + '"].value.func = ';
 		output += 'function (jsmmContext, args) {\n';
 		output += getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();

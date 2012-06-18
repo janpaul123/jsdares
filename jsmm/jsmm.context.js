@@ -109,12 +109,30 @@ module.exports = function(jsmm) {
 
 	jsmm.Scope = function() { return this.init.apply(this, arguments); };
 	jsmm.Scope.prototype = {
-		init: function(vars, parent) {
+		init: function(vars, parent, arrays) {
 			this.vars = {};
+			this.arrays = [];
 			for (var name in vars) {
 				this.vars[name] = {type: 'local', value: vars[name]};
+				if (typeof vars[name] === 'object' && vars[name].type === 'arrayPointer') {
+					this.addArrayItems(arrays, vars[name].id);
+				}
 			}
 			this.parent = parent || null;
+			this.topParent = this;
+			while (this.topParent.parent !== null) {
+				this.topParent = this.topParent.parent;
+			}
+		},
+
+		addArrayItems: function(arrays, id) {
+			this.arrays[id] = arrays[id];
+			for (var i=0; i<arrays[id].values.length; i++) {
+				var value = arrays[id].values[i];
+				if (value !== undefined && typeof value.value === 'object' && value.value.type === 'arrayPointer') {
+					this.addArrayItems(arrays, value.value.id);
+				}
+			}
 		},
 
 		find: function(name) {
@@ -128,12 +146,24 @@ module.exports = function(jsmm) {
 			return undefined;
 		},
 
-		getVars: function() {
-			var vars = {};
+		getCopy: function() {
+			var vars = {}, arrays = [];
 			for (var name in this.vars) {
 				vars[name] = this.vars[name].value;
 			}
-			return vars;
+			for (var i=0; i<this.arrays.length; i++) {
+				arrays[i] = this.arrays[i].getCopy();
+			}
+			return new jsmm.Scope(vars, this.parent, arrays);
+		},
+
+		registerArray: function(array) {
+			this.topParent.arrays.push(array);
+			return this.topParent.arrays.length-1;
+		},
+
+		getArray: function(id) {
+			return this.topParent.arrays[id];
 		}
 	};
 
@@ -147,9 +177,9 @@ module.exports = function(jsmm) {
 	jsmm.Context.prototype = {
 		init: function(tree, scope, limits, funcName, args) {
 			this.tree = tree;
-			this.startScopeVars = scope;
-			this.scope = new jsmm.Scope(scope);
+			this.scope = scope;
 			this.scopeStack = [this.scope];
+			this.startScope = scope.getCopy();
 
 			this.limits = limits;
 			this.executionCounter = 0;
@@ -217,8 +247,8 @@ module.exports = function(jsmm) {
 			return this.scopeStack[0];
 		},
 
-		getStartScopeVars: function() {
-			return this.startScopeVars;
+		getStartScope: function() {
+			return this.startScope;
 		},
 
 		getCalledFunctions: function() {

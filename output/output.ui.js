@@ -164,7 +164,7 @@ module.exports = function(output) {
 			this.addRobot();
 			this.addConsole();
 			this.addCanvas();
-			this.addInfo();
+			//this.addInfo();
 			this.addInput(['canvas']);
 			this.addMath();
 			this.finish();
