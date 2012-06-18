@@ -10,7 +10,7 @@ module.exports = function(jsmm) {
 			this.nodesByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
 				AssignmentStatement: [], VarStatement: [], VarItem: [], ReturnStatement: [], BinaryExpression: [],
 				UnaryExpression: [], ParenExpression: [], NumberLiteral: [], StringLiteral: [], BooleanLiteral: [], NameIdentifier: [],
-				ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], IfBlock: [], ElseIfBlock: [],
+				ObjectIdentifier: [], ArrayIdentifier: [], FunctionCall: [], ArrayDefinition: [], IfBlock: [], ElseIfBlock: [],
 				ElseBlock: [], WhileBlock: [], ForBlock: [], FunctionDeclaration: []
 			};
 			this.nodesByLine = {};

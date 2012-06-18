@@ -237,12 +237,32 @@ module.exports = function(jsmm) {
 			var output = this.identifier.getCode() + '(';
 			if (this.expressionArgs.length > 0) output += this.expressionArgs[0].getCode();
 			for (var i=1; i<this.expressionArgs.length; i++) {
-				output += ", " + this.expressionArgs[i].getCode();
+				output += ', ' + this.expressionArgs[i].getCode();
 			}
 			return output + ')';
 		},
 		getChildren: function() {
 			return this.expressionArgs.concat([this.identifier]);
+		}
+	});
+
+	jsmm.nodes.ArrayDefinition = function() { return this.build.apply(this, arguments); };
+	jsmm.nodes.ArrayDefinition.prototype = addCommonNodeMethods('ArrayDefinition', {expressions: false}, false, {
+		init: function() {
+			for (var i=0; i<this.expressions.length; i++) {
+				this.expressions[i].parent = this;
+			}
+		},
+		getCode: function() {
+			var output = this.identifier.getCode() + '[';
+			if (this.expressions.length > 0) output += this.expressions[0].getCode();
+			for (var i=1; i<this.expressions.length; i++) {
+				output += ', ' + this.expressions[i].getCode();
+			}
+			return output + ']';
+		},
+		getChildren: function() {
+			return this.expressions;
 		}
 	});
 

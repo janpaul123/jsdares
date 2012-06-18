@@ -131,9 +131,9 @@ module.exports = function(output) {
 		},
 
 		keyDown: function(event) {
-			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC
 			// block these as they are only keyboard shortcuts
-			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) >= 0) {
+			if ([17, 18, 91, 93, 224, 27].indexOf(event.keyCode) >= 0) {
 				return;
 			}
 			if (this.onkeydown !== null) {
@@ -142,9 +142,9 @@ module.exports = function(output) {
 		},
 
 		keyUp: function(event) {
-			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC
 			// block these as they are only keyboard shortcuts
-			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) >= 0) {
+			if ([17, 18, 91, 93, 224, 27].indexOf(event.keyCode) >= 0) {
 				return;
 			}
 			if (this.onkeyup !== null) {

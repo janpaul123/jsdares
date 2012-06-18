@@ -163,6 +163,16 @@ module.exports = function(jsmm) {
 		}
 		return output + '])';
 	};
+
+	/* identifier, expressions */
+	jsmm.nodes.ArrayDefinition.prototype.getRunCode = function() {
+		var output = getNode(this) + '.runFunc(jsmmContext, [';
+		if (this.expressions.length > 0) output += this.expressions[0].getRunCode();
+		for (var i=1; i<this.expressions.length; i++) {
+			output += ", " + this.expressions[i].getRunCode();
+		}
+		return output + '])';
+	};
 	
 	/* expression, statementList, elseBlock */
 	jsmm.nodes.IfBlock.prototype.getRunCode = function() {

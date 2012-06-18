@@ -338,6 +338,7 @@ module.exports = function(editor) {
 			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
 
 			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
+			this.$playPause.tooltip({title: '<strong>esc</strong>', placement: 'bottom'});
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
@@ -473,7 +474,7 @@ module.exports = function(editor) {
 		},
 
 		playPause: function() {
-			if (this.runner.isInteractive()) {
+			if (this.runner !== null && this.runner.isInteractive()) {
 				if (this.runner.isPaused()) {
 					this.runner.play();
 				} else {
@@ -631,7 +632,7 @@ module.exports = function(editor) {
 		},
 
 		keyDown: function(event) {
-			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC
 			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
 				this.editor.enableHighlighting();
 				this.highlightingKey = true;
@@ -641,6 +642,8 @@ module.exports = function(editor) {
 				this.editor.enableEditables();
 				this.editablesKey = true;
 				this.refreshCheckKeys();
+			} else if (event.keyCode === 27) {
+				this.runBar.playPause();
 			}
 		},
 

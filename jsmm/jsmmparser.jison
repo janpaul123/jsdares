@@ -149,9 +149,10 @@ unaryExpression
 ;
 
 primaryExpression
-	: identExpression
-	| literal
+	: literal
+	| identExpression
 	| callExpression
+	| arrayDefinition
 	| "(" expression ")"						{ $$ = new yy.nodes.ParenExpression(@$, undefined, $2); }
 ;
 
@@ -168,6 +169,7 @@ identExpression
 	| identExpression "[" expression "]"		{ $$ = new yy.nodes.ArrayIdentifier(@$, undefined, $1, $3); }
 ;
 
+
 callExpression
 	: identExpression "(" ")"					{ $$ = new yy.nodes.FunctionCall(@$, undefined, $1, []); }
 	| identExpression "(" callArguments ")"		{ $$ = new yy.nodes.FunctionCall(@$, undefined, $1, $3); }
@@ -176,6 +178,16 @@ callExpression
 callArguments
 	: expression								{ $$ = [$1]; }
 	| callArguments "," expression				{ $$ = $1; $$.push($3); }
+;
+
+arrayDefinition
+	: "[" "]"									{ $$ = new yy.nodes.ArrayDefinition(@$, undefined, []); }
+	| "[" arrayList "]"							{ $$ = new yy.nodes.ArrayDefinition(@$, undefined, $2); }
+;
+
+arrayList
+	: expression 								{ $$ = [$1]; }
+	| arrayList "," expression					{ $$ = $1; $$.push($3); }
 ;
 
 blockStatement

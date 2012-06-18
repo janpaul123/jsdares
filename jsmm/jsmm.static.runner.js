@@ -26,7 +26,7 @@ module.exports = function(jsmm) {
 			this.delegate = delegate;
 			this.scope = scope;
 			this.limits = {
-				history: limits.history || 30,
+				history: limits.history || 50,
 				base: limits.base || {
 					callStackDepth: 100,
 					executionCounter: 4000,

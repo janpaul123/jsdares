@@ -3,30 +3,30 @@
 
 module.exports = function(jsmm) {
 	var makeEdge = function(from, to) {
-		return from + "->" + to + ";";
+		return from + '->' + to + ';';
 	};
 	
 	var makeNode = function(id, label, shape) {
 		label = label.replace(/\"/g, '&quot;');
 		label = label.replace(/\\/g, '\\\\');
-		shape = shape || "";
+		shape = shape || '';
 		return id + '[label="' + label + '"shape="' + shape + '"];';
 	};
 	
 	/* statementList */
 	jsmm.nodes.Program.prototype.getDot = function() {
-		return 'digraph{graph[ordering="in"];' + makeNode(this.id, "PROGRAM") + this.statementList.getDot(this.id) + "}";
+		return 'digraph{graph[ordering='in'];' + makeNode(this.id, 'PROGRAM') + this.statementList.getDot(this.id) + '}';
 	};
 	
 	/* statements */
 	jsmm.nodes.StatementList.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += "subgraph cluster" + this.id + "{color=lightgrey;";
-		output += makeNode(this.id, "", "point");
+		output += 'subgraph cluster' + this.id + '{color=lightgrey;';
+		output += makeNode(this.id, '', 'point');
 		for (var i=0; i<this.statements.length; i++) {
 			output += this.statements[i].getDot(this.id);
 		}
-		output += "}";
+		output += '}';
 		return output;
 	};
 	
@@ -38,18 +38,18 @@ module.exports = function(jsmm) {
 	/* items */
 	jsmm.nodes.VarStatement.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += "subgraph cluster" + this.id + "{color=transparent;";
-		output += makeNode(this.id, "var");
+		output += 'subgraph cluster' + this.id + '{color=transparent;';
+		output += makeNode(this.id, 'var');
 		for (var i=0; i<this.items.length; i++) {
 			output += this.items[i].getDot(this.id);
 		}
-		output += "}";
+		output += '}';
 		return output;
 	};
 	
 	/* name, assignment */
 	jsmm.nodes.VarItem.prototype.getDot = function(fromId) {
-		var output = "";
+		var output = '';
 		if (this.assignment === null) {
 			output += makeEdge(fromId, this.id);
 			output += makeNode(this.id, this.name);
@@ -74,11 +74,21 @@ module.exports = function(jsmm) {
 	jsmm.nodes.FunctionCall.prototype.getDot = function(fromId) {
 		return makeEdge(fromId, this.id) + makeNode(this.id, this.getCode());
 	};
+
+	/* expressions */
+	jsmm.nodes.ArrayDefinition.prototype.getDot = function(fromId) {
+		var output = makeEdge(fromId, this.id);
+		output += makeNode(this.id, '[]');
+		for (var i=0; i<this.expressions.length; i++) {
+			output += this.expressions[i].getDot(this.id);
+		}
+		return output;
+	};
 	
 	/* expression, statementList, elseBlock */
 	jsmm.nodes.IfBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += makeNode(this.id, "if (" + this.expression.getCode() + ")", "box");
+		output += makeNode(this.id, 'if (' + this.expression.getCode() + ')', 'box');
 		output += this.statementList.getDot(this.id);
 		if (this.elseBlock !== null) {
 			output += this.elseBlock.getDot(this.id);
@@ -89,7 +99,7 @@ module.exports = function(jsmm) {
 	/* ifBlock */
 	jsmm.nodes.ElseIfBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += makeNode(this.id, "else", "box");
+		output += makeNode(this.id, 'else', 'box');
 		output += this.ifBlock.getDot(this.id);
 		return output;
 	};
@@ -97,7 +107,7 @@ module.exports = function(jsmm) {
 	/* statementList */
 	jsmm.nodes.ElseBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += makeNode(this.id, "else", "box");
+		output += makeNode(this.id, 'else', 'box');
 		output += this.statementList.getDot(this.id);
 		return output;
 	};
@@ -105,7 +115,7 @@ module.exports = function(jsmm) {
 	/* expression, statementList */
 	jsmm.nodes.WhileBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += makeNode(this.id, "while (" + this.expression.getCode() + ")", "box");
+		output += makeNode(this.id, 'while (' + this.expression.getCode() + ')', 'box');
 		output += this.statementList.getDot(this.id);
 		return output;
 	};
@@ -113,7 +123,7 @@ module.exports = function(jsmm) {
 	/* statement1, expression, statement2, statementList */
 	jsmm.nodes.ForBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += makeNode(this.id, "for ( ; " + this.expression.getCode() + " ; )", "box");
+		output += makeNode(this.id, 'for ( ; ' + this.expression.getCode() + ' ; )', 'box');
 		output += this.statement1.getDot(this.id);
 		output += this.statementList.getDot(this.id);
 		output += this.statement2.getDot(this.id);
@@ -123,7 +133,7 @@ module.exports = function(jsmm) {
 	/* name, nameArgs, statementList */
 	jsmm.nodes.FunctionDeclaration.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
-		output += makeNode(this.id, "function " + this.name + this.getArgList(), "octagon");
+		output += makeNode(this.id, 'function ' + this.name + this.getArgList(), 'octagon');
 		output += this.statementList.getDot(this.id);
 		return output;
 	};

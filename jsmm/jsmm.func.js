@@ -50,6 +50,17 @@ module.exports = function(jsmm) {
 		}
 	};
 
+	jsmm.Array = function() { return this.init.apply(this, arguments); };
+	jsmm.Array.prototype = {
+		init: function(values) {
+
+		}
+	};
+
+	var arr = {
+
+	};
+
 	jsmm.nodes.PostfixStatement.prototype.runFunc = function(context, variable, symbol) {
 		context.addCommand(this, '++');
 		var value = getValue(this.identifier, variable);
@@ -211,24 +222,6 @@ module.exports = function(jsmm) {
 		}
 	};
 	
-	jsmm.nodes.IfBlock.prototype.runFunc =
-	jsmm.nodes.WhileBlock.prototype.runFunc =
-	jsmm.nodes.ForBlock.prototype.runFunc = function(context, expression) {
-		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
-		context.addCommand(this, type);
-		var value = getValue(this.expression, expression);
-		if (typeof value !== 'boolean') {
-			throw new jsmm.msg.Error(this.id, '<var>' + type + '</var> is not possible since <var>' + stringify(value) + '</var> is not a boolean');
-		} else {
-			return value;
-		}
-	};
-
-	jsmm.nodes.ElseIfBlock.prototype.runFunc =
-	jsmm.nodes.ElseBlock.prototype.runFunc = function(context) {
-		context.addCommand(this, 'else');
-	};
-	
 	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, func, args) {
 		var funcValue = getValue(this.identifier, func), funcArgs = [], msgFuncArgs = [], appFunc;
 
@@ -259,6 +252,33 @@ module.exports = function(jsmm) {
 		}
 
 		return retVal;
+	};
+
+	jsmm.nodes.ArrayDefinition.prototype.runFunc = function(context, expressions) {
+		var values = [];
+		for (var i=0; i<this.expressions.length; i++) {
+			values[i] = getValue(this.expressions[i], expressions[i]);
+		}
+
+		return new jsmm.Array(values);
+	};
+	
+	jsmm.nodes.IfBlock.prototype.runFunc =
+	jsmm.nodes.WhileBlock.prototype.runFunc =
+	jsmm.nodes.ForBlock.prototype.runFunc = function(context, expression) {
+		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
+		context.addCommand(this, type);
+		var value = getValue(this.expression, expression);
+		if (typeof value !== 'boolean') {
+			throw new jsmm.msg.Error(this.id, '<var>' + type + '</var> is not possible since <var>' + stringify(value) + '</var> is not a boolean');
+		} else {
+			return value;
+		}
+	};
+
+	jsmm.nodes.ElseIfBlock.prototype.runFunc =
+	jsmm.nodes.ElseBlock.prototype.runFunc = function(context) {
+		context.addCommand(this, 'else');
 	};
 	
 	jsmm.nodes.FunctionDeclaration.prototype.runFuncDecl = function(context, name, func) {

@@ -620,9 +620,9 @@ module.exports = function(editor) {
 		},
 
 		keyDown: function(event) {
-			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC
 			// let these through for the keyboard shortcuts
-			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) < 0) {
+			if ([17, 18, 91, 93, 224, 27].indexOf(event.keyCode) < 0) {
 				event.stopPropagation();
 			}
 
@@ -650,9 +650,9 @@ module.exports = function(editor) {
 		},
 
 		keyUp: function(event) {
-			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC
 			// let these through for the keyboard shortcuts
-			if ([17, 18, 91, 93, 224].indexOf(event.keyCode) < 0) {
+			if ([17, 18, 91, 93, 224, 27].indexOf(event.keyCode) < 0) {
 				event.stopPropagation();
 			}
 			
