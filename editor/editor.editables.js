@@ -17,9 +17,12 @@ module.exports = function(editor) {
 			this.parseValue = parseValue;
 			this.makeValue = makeValue;
 
-			this.line = node.lineLoc.line;
-			this.column = node.lineLoc.column;
-			this.column2 = node.lineLoc.column2;
+			this.loc = {
+				line: node.lineLoc.line,
+				line2: node.lineLoc.line+1,
+				column: node.lineLoc.column,
+				column2: node.lineLoc.column2
+			};
 			this.text = delegate.getEditablesText(node);
 			this.finalText = this.text;
 			this.valid = this.parseValue(this.text);
@@ -32,10 +35,10 @@ module.exports = function(editor) {
 		};
 
 		editable.offsetColumn = function(column, amount) {
-			if (this.column2 > column) {
-				this.column2 += amount;
-				if (this.column > column) {
-					this.column += amount;
+			if (this.loc.column2 > column) {
+				this.loc.column2 += amount;
+				if (this.loc.column > column) {
+					this.loc.column += amount;
 				}
 				this.updateMarking();
 			}
@@ -45,11 +48,11 @@ module.exports = function(editor) {
 
 		editable.updateMarking = function() {
 			if (!this.valid) this.remove();
-			this.surface.setElementLocationRange(this.$marking, this.line, this.column, this.line+1, this.column2);
+			this.surface.setElementLocationRange(this.$marking, this.loc);
 		};
 
 		editable.updateValue = function() {
-			this.delegate.editableReplaceCode(this.line, this.column, this.column2, this.text);
+			this.delegate.editableReplaceCode(this.loc.line, this.loc.column, this.loc.column2, this.text);
 		};
 
 		return editable;

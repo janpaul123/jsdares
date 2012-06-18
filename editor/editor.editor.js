@@ -273,12 +273,13 @@ module.exports = function(editor) {
 				this.removeEditables();
 				this.editables = this.language.editor.editables.generate(this.tree, editor.editables, this.surface, this);
 				for (var i=0; i<this.editables.length; i++) {
-					var line = this.editables[i].line;
+					var line = this.editables[i].loc.line;
 					if (this.editablesByLine[line] === undefined) {
 						this.editablesByLine[line] = [];
 					}
 					this.editablesByLine[line].push(this.editables[i]);
 				}
+				console.log(this.editables);
 			}
 		},
 
