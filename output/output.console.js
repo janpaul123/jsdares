@@ -45,29 +45,32 @@ module.exports = function(output) {
 
 		getAugmentedObject: function() {
 			return {
-				log: {
-					name: 'log',
-					info: 'console.log',
-					type: 'function',
-					example: 'log("Hello World!")',
-					func: $.proxy(this.log, this),
-					cost: 3
-				},
-				clear: {
-					name: 'clear',
-					info: 'console.clear',
-					type: 'function',
-					example: 'clear()',
-					func: $.proxy(this.clear, this),
-					cost: 4
-				},
-				setColor: {
-					name: 'setColor',
-					info: 'console.setColor',
-					type: 'function',
-					example: 'setColor("#a00")',
-					func: $.proxy(this.setColor, this),
-					cost: 0.2
+				type: 'object',
+				methods: {
+					log: {
+						name: 'log',
+						info: 'console.log',
+						type: 'function',
+						example: 'log("Hello World!")',
+						func: $.proxy(this.log, this),
+						cost: 3
+					},
+					clear: {
+						name: 'clear',
+						info: 'console.clear',
+						type: 'function',
+						example: 'clear()',
+						func: $.proxy(this.clear, this),
+						cost: 4
+					},
+					setColor: {
+						name: 'setColor',
+						info: 'console.setColor',
+						type: 'function',
+						example: 'setColor("#a00")',
+						func: $.proxy(this.setColor, this),
+						cost: 0.2
+					}
 				}
 			};
 		},

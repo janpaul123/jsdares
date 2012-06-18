@@ -15,11 +15,14 @@ module.exports = function(jsmm) {
 		getAugmentedObject: function() {
 			var that = this;
 			return {
-				log: {
-					name: 'log',
-					type: 'function',
-					func: function(context, name, args) {
-						return that.log(args[0]);
+				type: 'object',
+				methods: {
+					log: {
+						name: 'log',
+						type: 'function',
+						func: function(context, name, args) {
+							return that.log(args[0]);
+						}
 					}
 				}
 			};
@@ -199,8 +202,8 @@ module.exports = function(jsmm) {
 	'console.log(str);' + '\n' +
 	'str = 5+5+str;' + '\n' +
 	'console.log(str);' + '\n' +
-	'var len = str.length;' + '\n' +
-	'console.log(len);';
+	'//var len = str.length;' + '\n' +
+	'//console.log(len);';
 	
 	jsmm.test.tests.succeed.control =
 	'// control structures' + '\n' +

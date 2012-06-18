@@ -33,9 +33,9 @@ module.exports = function(output) {
 			this.onmousedown.push({$element: $element, func: null, handle: null});
 			this.onmouseup.push({$element: $element, func: null, handle: null});
 
-			obj.onmousemove = this.getMouseObject(current, 'mousemove', 'mouseMove');
-			obj.onmousedown = this.getMouseObject(current, 'mousedown', 'mouseDown');
-			obj.onmouseup = this.getMouseObject(current, 'mouseup', 'mouseUp');
+			obj.methods.onmousemove = this.getMouseObject(current, 'mousemove', 'mouseMove');
+			obj.methods.onmousedown = this.getMouseObject(current, 'mousedown', 'mouseDown');
+			obj.methods.onmouseup = this.getMouseObject(current, 'mouseup', 'mouseUp');
 		},
 
 		getMouseObject: function(current, type, niceType) {
@@ -68,33 +68,39 @@ module.exports = function(output) {
 
 		getAugmentedDocumentObject: function() {
 			return {
-				onkeydown: {
-					name: 'onkeydown',
-					info: 'document.onkeydown',
-					type: 'variable',
-					example: 'onkeydown = keyDown',
-					get: $.proxy(this.handleKeyboardGet, this),
-					set: $.proxy(this.handleKeyboardSet, this)
-				},
-				onkeyup: {
-					name: 'onkeyup',
-					info: 'document.onkeyup',
-					type: 'variable',
-					example: 'onkeyup = keyUp',
-					get: $.proxy(this.handleKeyboardGet, this),
-					set: $.proxy(this.handleKeyboardSet, this)
+				type: 'object',
+				methods: {
+					onkeydown: {
+						name: 'onkeydown',
+						info: 'document.onkeydown',
+						type: 'variable',
+						example: 'onkeydown = keyDown',
+						get: $.proxy(this.handleKeyboardGet, this),
+						set: $.proxy(this.handleKeyboardSet, this)
+					},
+					onkeyup: {
+						name: 'onkeyup',
+						info: 'document.onkeyup',
+						type: 'variable',
+						example: 'onkeyup = keyUp',
+						get: $.proxy(this.handleKeyboardGet, this),
+						set: $.proxy(this.handleKeyboardSet, this)
+					}
 				}
 			};
 		},
 
 		getAugmentedWindowObject: function() {
 			return {
-				setInterval: {
-					name: 'setInterval',
-					info: 'window.setInterval',
-					type: 'function',
-					example: 'setInterval(func, 30)',
-					func: $.proxy(this.handleTimeCall, this)
+				type: 'object',
+				methods: {
+					setInterval: {
+						name: 'setInterval',
+						info: 'window.setInterval',
+						type: 'function',
+						example: 'setInterval(func, 30)',
+						func: $.proxy(this.handleTimeCall, this)
+					}
 				}
 			};
 		},
@@ -137,7 +143,10 @@ module.exports = function(output) {
 				return;
 			}
 			if (this.onkeydown !== null) {
-				this.editor.addEvent('keyboard', this.onkeydown.name, [{ keyCode: event.keyCode }]);
+				this.editor.addEvent('keyboard', this.onkeydown.name, [{
+					type: 'object',
+					methods: {keyCode: event.keyCode}
+				}]);
 			}
 		},
 
@@ -148,7 +157,10 @@ module.exports = function(output) {
 				return;
 			}
 			if (this.onkeyup !== null) {
-				this.editor.addEvent('keyboard', this.onkeyup.name, [{ keyCode: event.keyCode }]);
+				this.editor.addEvent('keyboard', this.onkeyup.name, [{
+					type: 'object',
+					methods: {keyCode: event.keyCode}
+				}]);
 			}
 		},
 
@@ -189,10 +201,13 @@ module.exports = function(output) {
 		fireMouseEvent: function(info, event) {
 			var offset = info.$element.offset();
 			this.editor.addEvent('mouse', info.func.name, [{
-				layerX: Math.round(event.pageX-offset.left),
-				layerY: Math.round(event.pageY-offset.top),
-				pageX: event.pageX,
-				pageY: event.pageY
+				type: 'object',
+				methods: {
+					layerX: Math.round(event.pageX-offset.left),
+					layerY: Math.round(event.pageY-offset.top),
+					pageX: event.pageX,
+					pageY: event.pageY
+				}
 			}]);
 		},
 

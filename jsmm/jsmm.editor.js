@@ -10,15 +10,15 @@ module.exports = function(jsmm) {
 			var split = text.split('.');
 
 			var obj = vars[split[0]];
-			if (obj === undefined) return null;
+			if (typeof obj !== 'object' || obj.methods === undefined) return null;
 			for (var i=1; i<split.length-1; i++) {
-				obj = obj[split[i]];
-				if (obj === undefined) return null;
+				obj = obj.methods[split[i]];
+				if (typeof obj !== 'object' || obj.methods === undefined) return null;
 			}
 
 			var examples = [];
 			var start = split[split.length-1].toLowerCase();
-			for (var name in obj) {
+			for (var name in obj.methods) {
 				var example;
 				if (typeof obj[name] === 'object' && obj[name].example !== undefined) {
 					example = obj[name].example;

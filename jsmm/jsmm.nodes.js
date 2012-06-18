@@ -254,7 +254,7 @@ module.exports = function(jsmm) {
 			}
 		},
 		getCode: function() {
-			var output = this.identifier.getCode() + '[';
+			var output = '[';
 			if (this.expressions.length > 0) output += this.expressions[0].getCode();
 			for (var i=1; i<this.expressions.length; i++) {
 				output += ', ' + this.expressions[i].getCode();

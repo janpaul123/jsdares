@@ -40,11 +40,11 @@ module.exports = function(output) {
 		},
 
 		getAugmentedObject: function() {
-			var obj = {};
+			var obj = {type: 'object', methods: {}};
 			for (var name in this.functions) {
 				var func = this.functions[name];
 				if (func.type === 'function') {
-					obj[name] = {
+					obj.methods[name] = {
 						name: name,
 						info: 'Math.' + name,
 						type: 'function',
@@ -52,7 +52,7 @@ module.exports = function(output) {
 						example: func.example
 					};
 				} else if (func.type === 'variable') {
-					obj[name] = {
+					obj.methods[name] = {
 						name: name,
 						info: 'Math.' + name,
 						type: 'variable',

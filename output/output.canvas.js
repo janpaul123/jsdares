@@ -157,56 +157,59 @@ module.exports = function(output) {
 
 		getAugmentedObject: function() {
 			return {
-				width: {
-					name: 'width',
-					info: 'canvas.width',
-					type: 'variable',
-					example: 'width',
-					get: $.proxy(function() {
-						return this.size;
-					}, this),
-					set: function() {
-						throw '<var>width</var> cannot be set';
+				type: 'object',
+				methods: {
+					width: {
+						name: 'width',
+						info: 'canvas.width',
+						type: 'variable',
+						example: 'width',
+						get: $.proxy(function() {
+							return this.size;
+						}, this),
+						set: function() {
+							throw '<var>width</var> cannot be set';
+						},
+						cost: 0.2
 					},
-					cost: 0.2
-				},
-				height: {
-					name: 'height',
-					info: 'canvas.height',
-					type: 'variable',
-					example: 'height',
-					get: $.proxy(function() {
-						return this.size;
-					}, this),
-					set: function() {
-						throw '<var>height</var> cannot be set';
+					height: {
+						name: 'height',
+						info: 'canvas.height',
+						type: 'variable',
+						example: 'height',
+						get: $.proxy(function() {
+							return this.size;
+						}, this),
+						set: function() {
+							throw '<var>height</var> cannot be set';
+						},
+						cost: 0.2
 					},
-					cost: 0.2
-				},
-				getContext: {
-					name: 'getContext',
-					info: 'canvas.getContext',
-					type: 'function',
-					example: 'getContext("2d")',
-					func: $.proxy(function(node, name, args) {
-						if (args.length !== 1) {
-							throw '<var>getContext</var> takes exactly <var>1</var> argument';
-						} else if (args[0] !== '2d') {
-							throw 'Only the <var>2d</var> context is supported';
-						}
-						return this.getContextObject();
-					}, this),
-					cost: 0.2
+					getContext: {
+						name: 'getContext',
+						info: 'canvas.getContext',
+						type: 'function',
+						example: 'getContext("2d")',
+						func: $.proxy(function(node, name, args) {
+							if (args.length !== 1) {
+								throw '<var>getContext</var> takes exactly <var>1</var> argument';
+							} else if (args[0] !== '2d') {
+								throw 'Only the <var>2d</var> context is supported';
+							}
+							return this.getContextObject();
+						}, this),
+						cost: 0.2
+					}
 				}
 			};
 		},
 
 		getContextObject: function() {
-			var obj = {};
+			var obj = {type: 'object', methods: {}};
 			for (var name in this.functions) {
 				var func = this.functions[name];
 				if (func.type === 'function') {
-					obj[name] = {
+					obj.methods[name] = {
 						name: name,
 						info: 'context.' + name,
 						type: 'function',
@@ -215,7 +218,7 @@ module.exports = function(output) {
 						cost: func.cost || 0.2
 					};
 				} else if (func.type === 'variable') {
-					obj[name] = {
+					obj.methods[name] = {
 						name: name,
 						info: 'context.' + name,
 						type: 'variable',
