@@ -158,7 +158,8 @@ module.exports = function(output) {
 		getAugmentedObject: function() {
 			return {
 				type: 'object',
-				methods: {
+				string: '[object canvas]',
+				properties: {
 					width: {
 						name: 'width',
 						info: 'canvas.width',
@@ -190,6 +191,7 @@ module.exports = function(output) {
 						info: 'canvas.getContext',
 						type: 'function',
 						example: 'getContext("2d")',
+						string: '[function canvas.getContext]',
 						func: $.proxy(function(node, name, args) {
 							if (args.length !== 1) {
 								throw '<var>getContext</var> takes exactly <var>1</var> argument';
@@ -205,20 +207,21 @@ module.exports = function(output) {
 		},
 
 		getContextObject: function() {
-			var obj = {type: 'object', methods: {}};
+			var obj = {type: 'object', string: '[object context]', properties: {}};
 			for (var name in this.functions) {
 				var func = this.functions[name];
 				if (func.type === 'function') {
-					obj.methods[name] = {
+					obj.properties[name] = {
 						name: name,
 						info: 'context.' + name,
 						type: 'function',
 						func: $.proxy(this.handleMethod, this),
 						example: func.example,
+						string: '[function context.' + name + ']',
 						cost: func.cost || 0.2
 					};
 				} else if (func.type === 'variable') {
-					obj.methods[name] = {
+					obj.properties[name] = {
 						name: name,
 						info: 'context.' + name,
 						type: 'variable',

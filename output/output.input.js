@@ -33,9 +33,9 @@ module.exports = function(output) {
 			this.onmousedown.push({$element: $element, func: null, handle: null});
 			this.onmouseup.push({$element: $element, func: null, handle: null});
 
-			obj.methods.onmousemove = this.getMouseObject(current, 'mousemove', 'mouseMove');
-			obj.methods.onmousedown = this.getMouseObject(current, 'mousedown', 'mouseDown');
-			obj.methods.onmouseup = this.getMouseObject(current, 'mouseup', 'mouseUp');
+			obj.properties.onmousemove = this.getMouseObject(current, 'mousemove', 'mouseMove');
+			obj.properties.onmousedown = this.getMouseObject(current, 'mousedown', 'mouseDown');
+			obj.properties.onmouseup = this.getMouseObject(current, 'mouseup', 'mouseUp');
 		},
 
 		getMouseObject: function(current, type, niceType) {
@@ -69,7 +69,8 @@ module.exports = function(output) {
 		getAugmentedDocumentObject: function() {
 			return {
 				type: 'object',
-				methods: {
+				string: '[object document]',
+				properties: {
 					onkeydown: {
 						name: 'onkeydown',
 						info: 'document.onkeydown',
@@ -93,12 +94,14 @@ module.exports = function(output) {
 		getAugmentedWindowObject: function() {
 			return {
 				type: 'object',
-				methods: {
+				string: '[object window]',
+				properties: {
 					setInterval: {
 						name: 'setInterval',
 						info: 'window.setInterval',
 						type: 'function',
 						example: 'setInterval(func, 30)',
+						string: '[function window.setInterval]',
 						func: $.proxy(this.handleTimeCall, this)
 					}
 				}
@@ -145,7 +148,8 @@ module.exports = function(output) {
 			if (this.onkeydown !== null) {
 				this.editor.addEvent('keyboard', this.onkeydown.name, [{
 					type: 'object',
-					methods: {keyCode: event.keyCode}
+					string: '[object event]',
+					properties: {keyCode: event.keyCode}
 				}]);
 			}
 		},
@@ -159,7 +163,8 @@ module.exports = function(output) {
 			if (this.onkeyup !== null) {
 				this.editor.addEvent('keyboard', this.onkeyup.name, [{
 					type: 'object',
-					methods: {keyCode: event.keyCode}
+					string: '[object event]',
+					properties: {keyCode: event.keyCode}
 				}]);
 			}
 		},
@@ -202,7 +207,8 @@ module.exports = function(output) {
 			var offset = info.$element.offset();
 			this.editor.addEvent('mouse', info.func.name, [{
 				type: 'object',
-				methods: {
+				string: '[object event]',
+				properties: {
 					layerX: Math.round(event.pageX-offset.left),
 					layerY: Math.round(event.pageY-offset.top),
 					pageX: event.pageX,

@@ -46,12 +46,14 @@ module.exports = function(output) {
 		getAugmentedObject: function() {
 			return {
 				type: 'object',
-				methods: {
+				string: '[object console]',
+				properties: {
 					log: {
 						name: 'log',
 						info: 'console.log',
 						type: 'function',
 						example: 'log("Hello World!")',
+						string: '[function console.log]',
 						func: $.proxy(this.log, this),
 						cost: 3
 					},
@@ -60,6 +62,7 @@ module.exports = function(output) {
 						info: 'console.clear',
 						type: 'function',
 						example: 'clear()',
+						string: '[function console.clear]',
 						func: $.proxy(this.clear, this),
 						cost: 4
 					},
@@ -68,6 +71,7 @@ module.exports = function(output) {
 						info: 'console.setColor',
 						type: 'function',
 						example: 'setColor("#a00")',
+						string: '[function console.setColor]',
 						func: $.proxy(this.setColor, this),
 						cost: 0.2
 					}
@@ -78,8 +82,8 @@ module.exports = function(output) {
 		log: function(context, name, args) {
 			var value = args[0];
 			var text = '' + value;
-			if (typeof value === 'object') text = '[object]';
-			else if (typeof value === 'function') text = '[function]';
+			if (typeof value === 'object') text = value.string;
+			else if (value === undefined) text = '';
 
 			this.text += text + '\n';
 

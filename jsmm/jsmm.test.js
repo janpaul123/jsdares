@@ -16,10 +16,12 @@ module.exports = function(jsmm) {
 			var that = this;
 			return {
 				type: 'object',
-				methods: {
+				string: '[console object]',
+				properties: {
 					log: {
 						name: 'log',
 						type: 'function',
+						string: '[console log function]',
 						func: function(context, name, args) {
 							return that.log(args[0]);
 						}

@@ -57,6 +57,7 @@ module.exports = function(jsmm) {
 	jsmm.Array = function() { return this.init.apply(this, arguments); };
 	jsmm.Array.prototype = {
 		type: 'array',
+		string: '[array]',
 		init: function(values) {
 			this.values = [];
 			for (var i=0; i<values.length; i++) {
@@ -64,7 +65,7 @@ module.exports = function(jsmm) {
 			}
 
 			var that = this;
-			this.methods = {
+			this.properties = {
 				length: {
 					name: 'length',
 					info: 'array.length',
@@ -241,10 +242,10 @@ module.exports = function(jsmm) {
 		var identifierValue = getValue(this.identifier, identifier);
 		if (typeof identifierValue !== 'object' || ['object', 'array'].indexOf(identifierValue.type) < 0) {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> is not an object</var>');
-		} else if (identifierValue.methods[property] === undefined) {
+		} else if (identifierValue.properties[property] === undefined) {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> does not have property <var>' + property + '</var>');
 		} else {
-			return identifierValue.methods[property];
+			return identifierValue.properties[property];
 		}
 	};
 	
@@ -331,7 +332,7 @@ module.exports = function(jsmm) {
 				throw new jsmm.msg.Error(this.id, 'Function <var>' + name + '</var> cannot be declared since there already is a variable with that name');
 			}
 		} else {
-			context.scope.vars[name] = {type: 'local', value: {type: 'internalFunction', name: name, func: func}};
+			context.scope.vars[name] = {type: 'local', value: {type: 'internalFunction', name: name, string: '[function ' + name + ']', func: func}};
 			context.addAssignment(this, name);
 			context.newStep([new jsmm.msg.Inline(this.id, 'declaring <var>' + this.name + this.getArgList() + '</var>', 'blockLoc')]);
 			return context.scope.vars[name];

@@ -90,12 +90,14 @@ module.exports = function(output) {
 		getAugmentedObject: function() {
 			return {
 				type: 'object',
-				methods: {
+				string: '[object robot]',
+				properties: {
 					drive: {
 						name: 'drive',
 						info: 'robot.drive',
 						type: 'function',
 						example: 'drive(3)',
+						string: '[function robot.drive]',
 						func: $.proxy(this.drive, this),
 						cost: 0.7
 					},
@@ -104,6 +106,7 @@ module.exports = function(output) {
 						info: 'robot.turnLeft',
 						type: 'function',
 						example: 'turnLeft()',
+						string: '[function robot.turnLeft]',
 						func: $.proxy(this.turn, this),
 						cost: 0.7
 					},
@@ -112,6 +115,7 @@ module.exports = function(output) {
 						info: 'robot.turnRight',
 						type: 'function',
 						example: 'turnRight()',
+						string: '[function robot.turnRight]',
 						func: $.proxy(this.turn, this),
 						cost: 0.7
 					},
@@ -120,6 +124,7 @@ module.exports = function(output) {
 						info: 'robot.detectWall',
 						type: 'function',
 						example: 'detectWall()',
+						string: '[function robot.detectWall]',
 						func: $.proxy(this.detectWall, this),
 						cost: 0.2
 					},
@@ -128,6 +133,7 @@ module.exports = function(output) {
 						info: 'robot.detectGoal',
 						type: 'function',
 						example: 'detectGoal()',
+						string: '[function robot.detectGoal]',
 						func: $.proxy(this.detectGoal, this),
 						cost: 0.2
 					}
