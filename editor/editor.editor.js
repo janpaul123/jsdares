@@ -58,7 +58,6 @@ module.exports = function(editor) {
 		},
 
 		callOutputs: function(funcName) {
-			// console.log(funcName);
 			for (var i=0; i<this.outputs.length; i++) {
 				if (this.outputs[i][funcName] !== undefined) {
 					this.outputs[i][funcName].apply(this.outputs[i], [].slice.call(arguments, 1));
@@ -221,7 +220,7 @@ module.exports = function(editor) {
 			this.callOutputs('outputPopFirstEvent');
 		},
 
-		clearEventToEnd: function() {
+		clearEventsToEnd: function() {
 			this.callOutputs('outputClearEventsToEnd');
 		},
 
@@ -248,9 +247,13 @@ module.exports = function(editor) {
 			} else {
 				this.disableTimeHighlighting();
 			}
-			if (this.runner.isStatic()) {
+			// if (this.runner.isStatic()) {
 				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
-			}
+			// }
+		},
+
+		runnerChangedEvent: function() {
+			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
@@ -279,7 +282,6 @@ module.exports = function(editor) {
 					}
 					this.editablesByLine[line].push(this.editables[i]);
 				}
-				console.log(this.editables);
 			}
 		},
 
@@ -325,9 +327,11 @@ module.exports = function(editor) {
 						if (node !== null) {
 							this.surface.showHighlight(this.makeLoc(node.blockLoc));
 							this.callOutputs('highlightCallIds', this.runner.getCallIdsByRange(node.blockLoc.line, node.blockLoc.line2));
+							this.callOutputs('highlightNodes', this.tree.getNodeIdsByRange(node.blockLoc.line, node.blockLoc.line2));
 						} else {
 							this.surface.hideHighlight();
 							this.callOutputs('highlightCallIds', null);
+							this.callOutputs('highlightNodes', null);
 						}
 					}
 				}

@@ -147,6 +147,7 @@ module.exports = function(output) {
 				calls: []
 			};
 			this.events.push(this.currentEvent);
+			this.stepNum = Infinity;
 		},
 
 		outputEndEvent: function() {
@@ -215,30 +216,33 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			this.stashOldLines();
-			this.currentEvent = this.events[eventNum];
+			if (eventNum >= 0 && (this.currentEvent !== this.events[eventNum] || this.stepNum !== stepNum)) {
+				this.stashOldLines();
+				this.currentEvent = this.events[eventNum];
+				this.stepNum = stepNum;
 
-			this.$old.show();
-			this.$lines.children('.console-line-visible').removeClass('console-line-visible');
-			for (var i=0; i<this.events.length; i++) {
-				if (i > eventNum) break;
-				for (var j=0; j<this.events[i].calls.length; j++) {
-					var call = this.events[i].calls[j];
-					if (i === eventNum && call.stepNum > stepNum) break;
+				this.$old.show();
+				this.$lines.children('.console-line-visible').removeClass('console-line-visible');
+				for (var i=0; i<this.events.length; i++) {
+					if (i > eventNum) break;
+					for (var j=0; j<this.events[i].calls.length; j++) {
+						var call = this.events[i].calls[j];
+						if (i === eventNum && call.stepNum > this.stepNum) break;
 
-					if (call.clear) {
-						this.$old.hide();
-						this.$lines.children('.console-line-visible').removeClass('console-line-visible');
-					} else {
-						call.$element.addClass('console-line-visible');
+						if (call.clear) {
+							this.$old.hide();
+							this.$lines.children('.console-line-visible').removeClass('console-line-visible');
+						} else {
+							call.$element.addClass('console-line-visible');
+						}
 					}
 				}
-			}
 
-			this.updateEventHighlight();
+				this.updateEventHighlight();
 
-			if (this.autoScroll) {
-				this.scrollToY(this.$content.height());
+				if (this.autoScroll) {
+					this.scrollToY(this.$content.height());
+				}
 			}
 		},
 

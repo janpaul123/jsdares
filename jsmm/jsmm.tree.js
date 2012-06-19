@@ -72,6 +72,15 @@ module.exports = function(jsmm) {
 		getFunctionNode: function(funcName) {
 			if (this.functionNodes[funcName] !== undefined) return this.functionNodes[funcName];
 			else return null;
+		},
+		getNodeIdsByRange: function(line1, line2) {
+			var nodeIds = [];
+			for (var line=line1; line<=line2; line++) {
+				if (this.nodesByLine[line] !== undefined) {
+					nodeIds.push(this.nodesByLine[line].id);
+				}
+			}
+			return nodeIds;
 		}
 	};
 };

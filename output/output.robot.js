@@ -152,6 +152,7 @@ module.exports = function(output) {
 			};
 			this.eventPosition = this.events.length;
 			this.events.push(event);
+			this.stepNum = Infinity;
 		},
 
 		outputEndEvent: function() {
@@ -203,43 +204,45 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			this.eventPosition = this.eventStart + eventNum;
-			this.stepNum = stepNum;
+			if (this.eventPosition !== this.eventStart + eventNum || this.stepNum !== stepNum) {
+				this.eventPosition = this.eventStart + eventNum;
+				this.stepNum = stepNum;
 
-			this.robot.$path.children('.robot-path-line, .robot-path-point').addClass('robot-path-hidden');
-			for (var i=0; i<this.events.length; i++) {
-				if (i > this.eventPosition) break;
-				for (var j=0; j<this.events[i].calls.length; j++) {
-					var call = this.events[i].calls[j];
-					if (i === this.eventPosition && call.stepNum > this.stepNum) break;
+				this.robot.$path.children('.robot-path-line, .robot-path-point').addClass('robot-path-hidden');
+				for (var i=0; i<this.events.length; i++) {
+					if (i > this.eventPosition) break;
+					for (var j=0; j<this.events[i].calls.length; j++) {
+						var call = this.events[i].calls[j];
+						if (i === this.eventPosition && call.stepNum > this.stepNum) break;
 
-					if (call.$element !== null) {
-						call.$element.removeClass('robot-path-hidden');
-					}
-				}
-			}
-
-			if (this.stepNum === Infinity) {
-				this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
-			} else {
-				var lastAnimNum = null;
-				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
-					var call = this.events[this.eventPosition].calls[i];
-					if (call.stepNum > this.stepNum) break;
-
-					if (call.stepNum === this.stepNum) {
-						this.robot.animationManager.play(call.animNum, call.animNum+1);
-						lastAnimNum = false;
-						break;
-					} else {
-						lastAnimNum = call.animNum;
+						if (call.$element !== null) {
+							call.$element.removeClass('robot-path-hidden');
+						}
 					}
 				}
 
-				if (lastAnimNum === null) {
-					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].startAnimNum);
-				} else if (lastAnimNum !== false) {
-					this.robot.animationManager.play(lastAnimNum+1, lastAnimNum+1);
+				if (this.stepNum === Infinity) {
+					this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].endAnimNum);
+				} else {
+					var lastAnimNum = null;
+					for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
+						var call = this.events[this.eventPosition].calls[i];
+						if (call.stepNum > this.stepNum) break;
+
+						if (call.stepNum === this.stepNum) {
+							this.robot.animationManager.play(call.animNum, call.animNum+1);
+							lastAnimNum = false;
+							break;
+						} else {
+							lastAnimNum = call.animNum;
+						}
+					}
+
+					if (lastAnimNum === null) {
+						this.robot.animationManager.play(this.events[this.eventPosition].startAnimNum, this.events[this.eventPosition].startAnimNum);
+					} else if (lastAnimNum !== false) {
+						this.robot.animationManager.play(lastAnimNum+1, lastAnimNum+1);
+					}
 				}
 			}
 		},

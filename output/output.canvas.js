@@ -287,6 +287,7 @@ module.exports = function(output) {
 			this.eventPosition = position;
 			this.events[position] = event;
 			this.eventsPosLength++;
+			this.stepNum = Infinity;
 		},
 
 		outputEndEvent: function() {
@@ -334,7 +335,8 @@ module.exports = function(output) {
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			var position = (this.eventsPosStart+eventNum)%this.eventsSize;
+			// eventNum can be -1
+			var position = (this.eventsPosStart+eventNum+this.eventsSize)%this.eventsSize;
 			if (this.eventPosition !== position || this.stepNum !== stepNum) {
 				this.eventPosition = position;
 				this.stepNum = stepNum;

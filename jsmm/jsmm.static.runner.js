@@ -94,6 +94,8 @@ module.exports = function(jsmm) {
 				if (event.context.hasError()) {
 					this.errorEventNums.push(this.events.length-1);
 					this.delegate.runnerChanged();
+				} else {
+					this.delegate.runnerChangedEvent();
 				}
 				return true;
 			}
@@ -105,7 +107,7 @@ module.exports = function(jsmm) {
 				if (this.interactive && !this.tree.compareAll(this.baseEvent.context)) {
 					this.errorEventNums = [];
 					if (!this.paused || this.eventNum < 0) {
-						this.delegate.clearEventToEnd();
+						this.delegate.clearEventsToEnd();
 						this.events = [];
 						this.eventNum = -1;
 						this.stepNum = Infinity;

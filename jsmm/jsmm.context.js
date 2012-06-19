@@ -262,15 +262,13 @@ module.exports = function(jsmm) {
 
 		getCallIdsByRange: function(line1, line2) {
 			var callIds = [];
-			for (var line=line1; line<=line2; line++) {
-				var node = this.tree.getNodeByLine(line);
-				if (node !== null) {
-					callIds.push(node.id); // also add the node id of each node, mainly so that the info module can highlight commands
-					if (this.callIdsByNodeIds[node.id] !== undefined) {
-						for (var i=0; i<this.callIdsByNodeIds[node.id].length; i++) {
-							if (callIds.indexOf(this.callIdsByNodeIds[node.id][i]) < 0) {
-								callIds.push(this.callIdsByNodeIds[node.id][i]);
-							}
+			var nodeIds = this.tree.getNodeIdsByRange(line1, line2);
+			for (var i=0; i<nodeIds.length; i++) {
+				var id = nodeIds[i];
+				if (this.callIdsByNodeIds[id] !== undefined) {
+					for (var j=0; j<this.callIdsByNodeIds[id].length; j++) {
+						if (callIds.indexOf(this.callIdsByNodeIds[id][j]) < 0) {
+							callIds.push(this.callIdsByNodeIds[id][j]);
 						}
 					}
 				}

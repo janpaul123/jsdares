@@ -158,9 +158,9 @@ module.exports = function(info) {
 			this.removeHighlights();
 		},
 
-		highlightCallNodes: function(nodeIds) {
+		highlightNodes: function(nodeIds) {
 			this.removeHighlights();
-			if (this.scopeTracker !== null) {
+			if (this.scopeTracker !== null && nodeIds !== null) {
 				for (var i=0; i<nodeIds.length; i++) {
 					var ids = this.scopeTracker.getHighlightIdsByNodeId(nodeIds[i]);
 					for (var j=0; j<ids.length; j++) {
@@ -309,9 +309,9 @@ module.exports = function(info) {
 			this.commandTracker = commandTracker;
 		},
 
-		highlightCallNodes: function(nodeIds) {
-			if (this.commandTracker !== null) {
-				this.removeHighlights();
+		highlightNodes: function(nodeIds) {
+			this.removeHighlights();
+			if (this.commandTracker !== null && nodeIds !== null) {
 				for (var i=0; i<nodeIds.length; i++) {
 					var ids = this.commandTracker.getHighlightIdsByNodeId(nodeIds[i]);
 					for (var j=0; j<ids.length; j++) {
@@ -428,19 +428,20 @@ module.exports = function(info) {
 
 		outputClearAllEvents: function() {
 			this.events = [];
+			this.currentEvent = null;
+			this.lastEvent = null;
 		},
 
 		outputStartEvent: function(context) {
-			this.currentEvent = {
+			this.lastEvent = {
 				scopeTracker: context.getScopeTracker(),
 				commandTracker: context.getCommandTracker()
 			};
-			this.events.push(this.currentEvent);
+			this.events.push(this.lastEvent);
+			this.stepNum = Infinity;
 		},
 
 		outputEndEvent: function(context) {
-			this.scope.update(this.currentEvent.scopeTracker, Infinity);
-			this.table.update(this.currentEvent.commandTracker);
 		},
 
 		outputPopFront: function() {
@@ -448,22 +449,29 @@ module.exports = function(info) {
 		},
 
 		outputClearEventsFrom: function(eventNum) {
+			this.scope.update(this.events[eventNum].scopeTracker, Infinity);
+			this.table.update(this.events[eventNum].commandTracker);
 			this.events = this.events.slice(0, eventNum);
 		},
 
 		outputClearEventsToEnd: function() {
+			this.scope.update(this.lastEvent.scopeTracker, Infinity);
+			this.table.update(this.lastEvent.commandTracker);
 			this.events = [];
 		},
 
 		outputSetEventStep: function(eventNum, stepNum) {
-			this.currentEvent = this.events[eventNum];
-			this.scope.update(this.currentEvent.scopeTracker, stepNum);
-			this.table.update(this.currentEvent.commandTracker);
+			if (eventNum >= 0 && (this.currentEvent !== this.events[eventNum] || this.stepNum !== stepNum)) {
+				this.currentEvent = this.events[eventNum];
+				this.stepNum = stepNum;
+				this.scope.update(this.currentEvent.scopeTracker, this.stepNum);
+				this.table.update(this.currentEvent.commandTracker);
+			}
 		},
 
-		highlightCallNodes: function(nodeIds) {
-			this.scope.highlightCallNodes(nodeIds);
-			this.table.highlightCallNodes(nodeIds);
+		highlightNodes: function(nodeIds) {
+			this.scope.highlightNodes(nodeIds);
+			this.table.highlightNodes(nodeIds);
 		},
 
 		enableHighlighting: function() {
