@@ -327,6 +327,7 @@ module.exports = function(editor) {
 		}
 	};
 
+	var eventWidth = 4;
 	editor.RunBar = function() { return this.init.apply(this, arguments); };
 	editor.RunBar.prototype = {
 		init: function($div, ed) {
@@ -347,7 +348,7 @@ module.exports = function(editor) {
 			this.$sliderContainer = $('<div class="editor-toolbar-run-slider-container"></div>');
 			this.$sliderButton = $('<div class="btn btn-primary editor-toolbar-run-slider-button"></div>');
 			this.$slider = $('<div class="editor-toolbar-run-slider"></div>');
-			this.slider = new clayer.Slider(this.$slider, this, 3);
+			this.slider = new clayer.Slider(this.$slider, this, eventWidth);
 			this.$sliderButton.append(this.$slider);
 			this.$sliderContainer.append(this.$sliderButton);
 			this.$div.append(this.$sliderContainer);
@@ -412,7 +413,7 @@ module.exports = function(editor) {
 							this.$stepBarContainer.fadeIn(150);
 							this.$div.removeClass('editor-toolbar-run-slider-disabled');
 							this.$div.addClass('editor-toolbar-run-slider-enabled');
-							this.$slider.width(this.runner.getEventTotal()*3);
+							this.$slider.width(this.runner.getEventTotal()*eventWidth);
 							this.slider.setValue(this.runner.getEventNum());
 							this.$sliderButton.css('margin-left', '');
 						}
@@ -420,7 +421,7 @@ module.exports = function(editor) {
 						this.setSliderErrors(runner);
 						this.playPauseAnimation.setFraction(this.runner.getEventNum()/(this.runner.getEventTotal()-1));
 						this.stepBar.update(runner);
-						this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*3);
+						this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*eventWidth);
 						this.$stepBarIcon.removeClass();
 						this.$stepBarIcon.addClass('editor-toolbar-run-step-bar-icon icon-white icon-' + {
 							base: 'stop',
