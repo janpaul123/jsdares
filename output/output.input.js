@@ -33,12 +33,12 @@ module.exports = function(output) {
 			this.onmousedown.push({$element: $element, func: null, handle: null});
 			this.onmouseup.push({$element: $element, func: null, handle: null});
 
-			obj.properties.onmousemove = this.getMouseObject(current, 'mousemove', 'mouseMove');
-			obj.properties.onmousedown = this.getMouseObject(current, 'mousedown', 'mouseDown');
-			obj.properties.onmouseup = this.getMouseObject(current, 'mouseup', 'mouseUp');
+			obj.properties.onmousemove = this.getMouseObject(current, name, 'mousemove', 'mouseMove');
+			obj.properties.onmousedown = this.getMouseObject(current, name, 'mousedown', 'mouseDown');
+			obj.properties.onmouseup = this.getMouseObject(current, name, 'mouseup', 'mouseUp');
 		},
 
-		getMouseObject: function(current, type, niceType) {
+		getMouseObject: function(current, name, type, niceType) {
 			var fullType = 'on' + type;
 			return {
 				name: fullType,

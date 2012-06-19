@@ -2,7 +2,7 @@
 "use strict";
 
 module.exports = function(jsmm) {
-	var getValue = function(node, expression) {
+	var getValue = function(context, node, expression) {
 		var value = expression;
 		if (typeof value === 'object' && value.type === 'local') {
 			value = value.value;
@@ -17,6 +17,7 @@ module.exports = function(jsmm) {
 		} else if (typeof value === 'object' && value.type === 'newArrayValue') {
 			throw new jsmm.msg.Error(node.id, '<var>' + node.getCode() + '</var> is <var>undefined</var>');
 		} else if (typeof value === 'object' && value.type === 'variable') {
+			context.addCommand(node, value.info);
 			return value.get(value.name);
 		} else {
 			return value;
@@ -29,6 +30,7 @@ module.exports = function(jsmm) {
 		} else if (typeof variable !== 'object' || ['variable', 'local'].indexOf(variable.type) < 0) {
 			throw new jsmm.msg.Error(node.id, 'Cannot assign <var>' + jsmm.stringify(value) + '</var> to <var>' + variableNode.getCode() + '</var>');
 		} else if (variable.type === 'variable') {
+			context.addCommand(node, variable.info);
 			try {
 				variable.set(context, variable.name, value);
 			} catch (error) {
@@ -96,7 +98,7 @@ module.exports = function(jsmm) {
 
 	jsmm.nodes.PostfixStatement.prototype.runFunc = function(context, variable, symbol) {
 		context.addCommand(this, '++');
-		var value = getValue(this.identifier, variable);
+		var value = getValue(context, this.identifier, variable);
 
 		if (typeof value !== 'number') {
 			throw new jsmm.msg.Error(this.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value) + '</var> is not a number');
@@ -170,9 +172,9 @@ module.exports = function(jsmm) {
 		var value;
 		if (symbol === '=') {
 			context.addCommand(this, '=');
-			value = getValue(this.expression, expression);
+			value = getValue(context, this.expression, expression);
 		} else {
-			value = runBinaryExpression(context, this, getValue(this.identifier, variable), symbol, getValue(this.expression, expression));
+			value = runBinaryExpression(context, this, getValue(context, this.identifier, variable), symbol, getValue(context, this.expression, expression));
 		}
 
 		if (variable.type === 'newArrayValue') {
@@ -195,15 +197,15 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.BinaryExpression.prototype.runFunc = function(context, expression1, symbol, expression2) {
-		var value1 = getValue(this.expression1, expression1);
-		var value2 = getValue(this.expression2, expression2);
+		var value1 = getValue(context, this.expression1, expression1);
+		var value2 = getValue(context, this.expression2, expression2);
 		var result = runBinaryExpression(context, this, value1, symbol, value2);
 		context.newStep([new jsmm.msg.Inline(this.id, '<var>' + jsmm.stringify(value1) + '</var> ' + symbol + ' <var>' + jsmm.stringify(value2) + '</var> = <var>' + jsmm.stringify(result) + '</var>')]);
 		return result;
 	};
 	
 	jsmm.nodes.UnaryExpression.prototype.runFunc = function(context, symbol, expression) {
-		var value = getValue(this.expression, expression);
+		var value = getValue(context, this.expression, expression);
 		var result;
 
 		if (symbol === '!') {
@@ -236,7 +238,7 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.ObjectIdentifier.prototype.runFunc = function(context, identifier, property) {
-		var identifierValue = getValue(this.identifier, identifier);
+		var identifierValue = getValue(context, this.identifier, identifier);
 		if (typeof identifierValue !== 'object' || ['object', 'array'].indexOf(identifierValue.type) < 0) {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> is not an object</var>');
 		} else if (identifierValue.properties[property] === undefined) {
@@ -247,8 +249,8 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.ArrayIdentifier.prototype.runFunc = function(context, identifier, expression) {
-		var identifierValue = getValue(this.identifier, identifier);
-		var expressionValue = getValue(this.expression, expression);
+		var identifierValue = getValue(context, this.identifier, identifier);
+		var expressionValue = getValue(context, this.expression, expression);
 
 		if (typeof identifierValue !== 'object' || identifierValue.type !== 'arrayPointer') {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> is not an array');
@@ -260,10 +262,10 @@ module.exports = function(jsmm) {
 	};
 	
 	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, func, args) {
-		var funcValue = getValue(this.identifier, func), funcArgs = [], msgFuncArgs = [], appFunc;
+		var funcValue = getValue(context, this.identifier, func), funcArgs = [], msgFuncArgs = [], appFunc;
 
 		for (var i=0; i<args.length; i++) {
-			var value = getValue(this.expressionArgs[i], args[i]);
+			var value = getValue(context, this.expressionArgs[i], args[i]);
 			funcArgs.push(value);
 			msgFuncArgs.push(jsmm.stringify(value));
 		}
@@ -294,7 +296,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ArrayDefinition.prototype.runFunc = function(context, expressions) {
 		var values = [];
 		for (var i=0; i<this.expressions.length; i++) {
-			values[i] = getValue(this.expressions[i], expressions[i]);
+			values[i] = getValue(context, this.expressions[i], expressions[i]);
 		}
 		var array = new jsmm.Array(values);
 		return {type: 'arrayPointer', string: '[array]', id: context.scope.registerArray(array), properties: array.properties};
@@ -305,7 +307,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ForBlock.prototype.runFunc = function(context, expression) {
 		var type = (this.type === 'IfBlock' ? 'if' : (this.type === 'WhileBlock' ? 'while' : 'for'));
 		context.addCommand(this, type);
-		var value = getValue(this.expression, expression);
+		var value = getValue(context, this.expression, expression);
 		if (typeof value !== 'boolean') {
 			throw new jsmm.msg.Error(this.id, '<var>' + type + '</var> is not possible since <var>' + jsmm.stringify(value) + '</var> is not a boolean');
 		} else {
@@ -369,7 +371,7 @@ module.exports = function(jsmm) {
 
 		var retVal;
 		if (this.expression !== undefined && expression !== undefined) {
-			retVal = getValue(this.expression, expression);
+			retVal = getValue(context, this.expression, expression);
 			context.newStep([new jsmm.msg.Inline(this.id, 'returning <var>' + jsmm.stringify(retVal) + '</var>')]);
 		}
 
