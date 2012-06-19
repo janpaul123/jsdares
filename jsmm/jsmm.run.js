@@ -126,17 +126,17 @@ module.exports = function(jsmm) {
 	
 	/* number */
 	jsmm.nodes.NumberLiteral.prototype.getRunCode = function() {
-		return this.number;
+		return getNode(this) + '.runFunc(jsmmContext, ' + this.number + ')';
 	};
 	
 	/* str */
 	jsmm.nodes.StringLiteral.prototype.getRunCode = function() {
-		return JSON.stringify(this.str);
+		return getNode(this) + '.runFunc(jsmmContext, ' + JSON.stringify(this.str) + ')';
 	};
 	
 	/* bool */
 	jsmm.nodes.BooleanLiteral.prototype.getRunCode = function() {
-		return this.bool ? 'true' : 'false';
+		return getNode(this) + '.runFunc(jsmmContext, ' + (this.bool ? 'true' : 'false') + ')';
 	};
 	
 	/* name */

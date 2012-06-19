@@ -227,7 +227,22 @@ module.exports = function(jsmm) {
 		context.newStep([new jsmm.msg.Inline(this.id, '<var>' + symbol + jsmm.stringify(value) + '</var> = <var>' + jsmm.stringify(result) + '</var>')]);
 		return result;
 	};
+
+	jsmm.nodes.NumberLiteral.prototype.runFunc = function(context, val) {
+		context.addCommand(this, 'number');
+		return val;
+	};
 	
+	jsmm.nodes.StringLiteral.prototype.runFunc = function(context, val) {
+		context.addCommand(this, 'string');
+		return val;
+	};
+	
+	jsmm.nodes.BooleanLiteral.prototype.runFunc = function(context, val) {
+		context.addCommand(this, 'boolean');
+		return val;
+	};
+
 	jsmm.nodes.NameIdentifier.prototype.runFunc = function(context, name) {
 		var val = context.scope.find(name);
 		if (val === undefined) {
@@ -257,6 +272,7 @@ module.exports = function(jsmm) {
 		} else if (typeof expressionValue !== 'number' && expressionValue % 1 !== 0) {
 			throw new jsmm.msg.Error(this.id, 'Index <var>' + this.expression.getCode() + '</var> is not an integer');
 		} else {
+			context.addCommand(this, '[]');
 			return context.scope.getArray(identifierValue.id).getArrayValue(expressionValue);
 		}
 	};
@@ -298,6 +314,7 @@ module.exports = function(jsmm) {
 		for (var i=0; i<this.expressions.length; i++) {
 			values[i] = getValue(context, this.expressions[i], expressions[i]);
 		}
+		context.addCommand(this, 'array');
 		var array = new jsmm.Array(values);
 		return {type: 'arrayPointer', string: '[array]', id: context.scope.registerArray(array), properties: array.properties};
 	};
