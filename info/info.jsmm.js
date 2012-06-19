@@ -5,10 +5,40 @@ var robot = require('../robot');
 
 module.exports = function(info) {
 	info.tables.push({
-		html: '<p><span class="info-table-output"><i class="icon-wrench icon-white"></i> javascript</span></p><p>Below you find the basic constructs of the <strong>JavaScript</strong> language. Programs are executed from <strong>top to bottom</strong>, one statement after another. Use the <strong>Step</strong> button too see in detail how your program is executed.</p>',
+		html: '<p><span class="info-table-output"><i class="icon-wrench icon-white"></i> javascript</span></p><p>Below you find the basic constructs of the <strong>JavaScript</strong> language. Programs are executed from <strong>top to bottom</strong>, one statement after another. Use the <strong>Step</strong> button to see in detail how your program is executed.</p>',
 		list: [
 			{
-				name: 'var',
+				name: 'number',
+				id: 'number',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p>Numbers can be used by just writing the <strong>number</strong> in the code, like <var>0</var> or <var>-3</var>. For very <strong>large</strong> or <strong>small</strong> numbers you can use the scientific notation: <var>2.99e8</var>.</p>');
+
+					info.consoleExample(infoTable, $content, 'console.log(10);\nconsole.log(-10);\nconsole.log(2.99e8);\nconsole.log(1.0e-3);');
+				}
+			},
+			{
+				name: 'string',
+				id: 'string',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p>To represent <strong>text</strong> we use the <strong>string</strong> notation, for example <var>"Hi!"</var>. Everything in between <strong>apostrophes</strong> is a string, so also <var>"3"</var> is a string and not a number. When printing a string to the console it is always displayed exactly as entered.</p>');
+
+					info.consoleExample(infoTable, $content, 'console.log("Hello!");\nconsole.log("2.99e8");');
+				}
+			},
+			{
+				name: 'boolean',
+				id: 'boolean',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p>A <strong>boolean</strong> is something that is either <strong>true</strong> or <strong>false</strong>, and we write this simply by writing <var>true</var> or <var>false</var>. They are used, for example, in comparisons and logic operators.</p>');
+
+					info.consoleExample(infoTable, $content, 'console.log(true);\nconsole.log(false);\nconsole.log(10 > 0);');
+				}
+			},
+			{
+				name: 'var <small>(declaration)</small>',
 				id: 'var',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -20,7 +50,7 @@ module.exports = function(info) {
 				}
 			},
 			{
-				name: '=',
+				name: '= <small>(assignment)</small>',
 				id: '=',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -30,11 +60,11 @@ module.exports = function(info) {
 				}
 			},
 			{
-				name: '+, -, *, /, %',
+				name: '+, -, *, /, % <small>(numbers only)</small>',
 				id: '+',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>These are the basic <strong>arithmetic operators</strong>: <var>+</var> is addition, <var>-</var> is subtraction, <var>*</var> is multiplication, and <var>/</var> is division. The last one is <var>%</var>, remainder, which is a bit more uncommon. For more information about these operators, you can search online.</p>');
+					$content.html('<p>These are the basic <strong>math</strong> operators: <var>+</var> is addition, <var>-</var> is subtraction, <var>*</var> is multiplication, and <var>/</var> is division. The last one is <var>%</var>, remainder, which is a bit more uncommon. For more information about these operators, you can search online.</p>');
 
 					info.consoleExample(infoTable, $content, 'console.log(4+6);\nconsole.log(10-3);\nconsole.log(5*10);\nconsole.log(81/9);\nconsole.log(18%5);');
 
@@ -42,7 +72,7 @@ module.exports = function(info) {
 				}
 			},
 			{
-				name: '+, += <small>[with strings]</small>',
+				name: '+, += <small>(strings only)</small>',
 				id: '+s',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -52,17 +82,7 @@ module.exports = function(info) {
 				}
 			},
 			{
-				name: '!',
-				id: '!',
-				outputs: [],
-				makeContent: function(infoTable, $content) {
-					$content.html('<p>To <strong>invert</strong> a boolean, you can use <var>!</var>. For example, <var>!true</var> is just false.</p>');
-
-					info.consoleExample(infoTable, $content, 'console.log(!true);\nconsole.log(!(5 == 7));');
-				}
-			},
-			{
-				name: '+=, -=, *=, /=, %=',
+				name: '+=, -=, *=, /=, %= <small>(numbers only)</small>',
 				id: '+=',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -74,7 +94,7 @@ module.exports = function(info) {
 				}
 			},
 			{
-				name: '++, --',
+				name: '++, -- <small>(numbers only)</small>',
 				id: '++',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -84,31 +104,41 @@ module.exports = function(info) {
 				}
 			},
 			{
+				name: '! <small>(booleans only)</small>',
+				id: '!',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p>To <strong>invert</strong> a boolean, you can use <var>!</var>. For example, <var>!true</var> is just <var>false</var>.</p>');
+
+					info.consoleExample(infoTable, $content, 'console.log(!true);\nconsole.log(!(5 == 7));');
+				}
+			},
+			{
 				name: '==, !=',
 				id: '==',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>These two operators <strong>compare</strong> values. <var>==</var> checks if two values are the <strong>same</strong>, and returns true if they are, and false if they are not. <var>!=</var> is the opposite, it checks if values are <strong>not</strong> the same.</p>');
+					$content.html('<p>These two operators <strong>compare</strong> values. <var>==</var> checks if two values are the <strong>same</strong>, and returns <var>true</var> if they are, and <var>false</var> if they are not. <var>!=</var> is the opposite, it checks if values are <strong>not</strong> the same.</p>');
 
 					info.consoleExample(infoTable, $content, 'console.log(5 == 5);\nconsole.log(5 == "Hi");\nconsole.log(5 != 5);\nconsole.log(5 != "Hi");');
 				}
 			},
 			{
-				name: '>, >=, <, <=',
+				name: '>, >=, <, <= <small>(numbers only)</small>',
 				id: '>',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>These operators <strong>compare</strong> numbers. <var>a &gt; b</var> returns true if <var>a</var> is <strong>greater than</strong> <var>b</var>, and <var>a &gt;= b</var> returns true if <var>a</var> is <strong>greater than or equal</strong> to <var>b</var>. The other two work the other way around.</p>');
+					$content.html('<p>These operators <strong>compare</strong> numbers. <var>a &gt; b</var> returns <var>true</var> if <var>a</var> is <strong>greater than</strong> <var>b</var>, and <var>a &gt;= b</var> returns <var>true</var> if <var>a</var> is <strong>greater than or equal</strong> to <var>b</var>. The other two work the other way around.</p>');
 
 					info.consoleExample(infoTable, $content, 'console.log(10 > 5);\nconsole.log(5 >= 5);\nconsole.log(3 < 5);\nconsole.log(5 < 3);');
 				}
 			},
 			{
-				name: '&&, ||',
+				name: '&&, || <small>(booleans only)</small>',
 				id: '&&',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>These operators are used to <strong>combine</strong> boolean values (true and false). <var>a && b</var> returns true if <strong>both</strong> <var>a</var> and <var>b</var> are true, so it is also called <em>and</em>. <var>a || b</var> returns true is <strong>either</strong> of them is true, so it is also called <em>or</em>.</p>');
+					$content.html('<p>These operators are used to <strong>combine</strong> boolean values (<var>true</var> and <var>false</var>). <var>a && b</var> returns <var>true</var> if <strong>both</strong> <var>a</var> and <var>b</var> are <var>true</var>, so it is also called <em>and</em>. <var>a || b</var> returns <var>true</var> is <strong>either</strong> of them is <var>true</var>, so it is also called <em>or</em>.</p>');
 
 					info.consoleExample(infoTable, $content, 'console.log(true && true);\nconsole.log(true && false);\nconsole.log(true || false);\nconsole.log(false || !(10 == 11));\nconsole.log(false || false);');
 				}
@@ -118,7 +148,7 @@ module.exports = function(info) {
 				id: 'if',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>The if-statement is used to <strong>control</strong> what parts of the program are run. Only when the boolean is <strong>true</strong>, is the part between brackets executed.</p>');
+					$content.html('<p>The if-statement is used to <strong>control</strong> what parts of the program are run. Only when the boolean is <var>true</var>, is the part between brackets executed.</p>');
 
 					info.consoleExample(infoTable, $content, 'if (false) {\n  console.log("Hello!");\n}\n\nif (true) {\n  console.log("Goodbye!");\n}\n');
 
@@ -130,7 +160,7 @@ module.exports = function(info) {
 				id: 'else',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p><var>else</var> is always used <strong>together</strong> with <var>if</var>. The part between the brackets after the else-statement is only executed if the boolean in the if-statement is <strong>false</strong>. Both statements can also be <strong>combined</strong> into an <var>else if</var>, see the example below.</p>');
+					$content.html('<p><var>else</var> is always used <strong>together</strong> with <var>if</var>. The part between the brackets after the else-statement is only executed if the boolean in the if-statement is <var>false</var>. Both statements can also be <strong>combined</strong> into an <var>else if</var>, see the example below.</p>');
 
 					info.consoleExample(infoTable, $content, 'var number = 6;\nif (number == 10) {\n  console.log("Number is 10");\n} else {\n  console.log("Number is not 10");\n}\n\nvar weight = 25;\nvar maximum = 18;\nif (weight <= maximum) {\n  console.log("Bag is allowed");\n} else {\n  console.log("Bag is too heavy");\n}\n\nvar time = 15;\nif (time < 12) {\n  console.log("morning");\n} else if (time < 18) {\n  console.log("afternoon");\n} else {\n  console.log("evening");\n}');
 				}
@@ -140,7 +170,7 @@ module.exports = function(info) {
 				id: 'while',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>The while-loop is used to create <strong>repetition</strong> in a program. Before the part between the brackets is executed, the boolean is <strong>checked</strong>. If it is true, the part is <strong>executed</strong>, otherwise the part is <strong>skipped</strong>, like with an if-statement. After executing the code between brackets, the boolean is checked <strong>again</strong>, and so on.</p>');
+					$content.html('<p>The while-loop is used to create <strong>repetition</strong> in a program. Before the part between the brackets is executed, the boolean is <strong>checked</strong>. If it is <var>true</var>, the part is <strong>executed</strong>, otherwise the part is <strong>skipped</strong>, like with an if-statement. After executing the code between brackets, the boolean is checked <strong>again</strong>, and so on.</p>');
 
 					info.consoleExample(infoTable, $content, 'var i = 0;\nwhile(i < 5) {\n  console.log(i);\n  i = i+1;\n}');
 				}
@@ -176,9 +206,29 @@ module.exports = function(info) {
 				id: 'return',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>Functions can also <strong>return</strong> some value after they have been run. For example, <var>robot.detectWall()</var> returns <strong>true or false</strong> depending on whether or not the robot faces a wall. Your functions can return some value, too. For example, to return the number 5 at some point in a function, you write <var>return 5;</var>. The function then stops and returns that number at the place where it was called.</p>');
+					$content.html('<p>Functions can also <strong>return</strong> some value after they have been run. For example, <var>robot.detectWall()</var> returns <var>true</var> or <var>false</var> depending on whether or not the robot faces a wall. Your functions can return some value, too. For example, to return the number 5 at some point in a function, you write <var>return 5;</var>. The function then stops and returns that number at the place where it was called.</p>');
 
 					info.consoleExample(infoTable, $content, 'function largest(num1, num2) {\n  if (num1 > num2) {\n    return num1;\n  } else {\n    return num2;\n  }\n}\n\nconsole.log(largest(6, 10));\nconsole.log(largest(30, 40) + 2);\nconsole.log(largest(0, 5) + largest(5, 10));');
+				}
+			},
+			{
+				name: '[value1, value2, ...] <small>(array creation)</small>',
+				id: 'array',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p>An <strong>array</strong> is a list of variables, all of which have a <strong>number</strong>. This allows you to store a bunch of <strong>values</strong> at once, instead of having to declare a lot of variables. A <strong>new</strong> array is written like this: <var>[]</var>. You can also put some values in when creating an array. For example, if we create an array with letters, <var>["a", "b", "c"]</var>, then these letters are placed on positions 0, 1, and 2.</p>');
+
+					info.consoleExample(infoTable, $content, 'var letters = ["a", "b", "c"];\nconsole.log(letters[0]);\nconsole.log(letters[1]);\nconsole.log(letters[2]);');
+				}
+			},
+			{
+				name: 'array[] <small>(array access)</small>',
+				id: '[]',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p>In order to <strong>retrieve</strong> values from an array, and to <strong>put</strong> new values in an array, we write <var>array[0]</var>, or with any other number. You then get the <strong>value</strong> corresponding to that number, just when writing a variable name. The difference with a normal variable, however, is that we can also <strong>calculate</strong> this number, for example <var>letters[10-8]</var>.</p>');
+
+					info.consoleExample(infoTable, $content, 'var letters = ["a", "b", "c"];\nconsole.log(letters[0]);\nconsole.log(letters[10-8]);\n\nletters[10] = "k";\nconsole.log(letters[10]);');
 				}
 			}
 		]
