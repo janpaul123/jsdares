@@ -7,10 +7,53 @@ var dares = require('../dares');
 var info = require('../info');
 
 module.exports = function(output) {
+	output.Home = function() { return this.init.apply(this, arguments); };
+	output.Home.prototype = {
+		init: function(ui, $div) {
+			this.ui = ui;
+			this.$div = $div;
+			this.$content = $('<div class="home-content"></div>');
+			this.$div.append(this.$content);
+
+			this.$content.append('<h2>JSdare prototype</h2>');
+
+			this.$content.append('<p><strong>Hello my friend!</strong> What you see here is an attempt to realise a vision of programming eduction. A vision of children learning programming by building what they like: games. In a way that can be used outside of this platform as well. In a way that lets them truly experience the deep connection between the code and its meaning. </p>');
+
+			this.$dareButton = $('<button class="btn btn-success">Try some dares</button>');
+			this.$dareButton.on('click', $.proxy(this.ui.dares.show, this.ui.dares));
+
+			this.$content.append($('<p>The exercises are called <strong>dares</strong>, and you can try a few of them. The idea is to be able to turn every piece of code into a dare, and share this.</p>').append($('<div></div>').append(this.$dareButton)));
+
+			this.$example1 = $('<button class="btn btn-inverse">Robot example</button>');
+			this.$example1.on('click', $.proxy(function() {
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\nwhile(!robot.detectGoal()) {\n  robot.turnLeft();\n  while (robot.detectWall()) {\n    robot.turnRight();\n  }\n  robot.drive();\n}');
+			}, this));
+			this.$example2 = $('<button class="btn btn-inverse">Canvas example</button>');
+			this.$example2.on('click', $.proxy(function() {
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\n');
+			}, this));
+			this.$example3 = $('<button class="btn btn-inverse">Console example</button>');
+			this.$example3.on('click', $.proxy(function() {
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\nfunction printLine(n) {\n  var text = "";\n  for (var i=1; i<10; i++) {\n    text += (i*n) + "\t";\n  }\n  console.log(text);\n}\nfor (var i=1; i<25; i++) { \n  console.setColor("hsla(" + i*15 + ", 75%, 50%, 1)");\n  printLine(i);\n}');
+			}, this));
+
+			this.$exampleBar = $('<div class="btn-group"></div>');
+			this.$exampleBar.append(this.$example1).append(this.$example2).append(this.$example3);
+
+			this.$content.append($('<p>You can also load up some examples. They are inserted at the bottom of code.</p>').append(this.$exampleBar));
+
+			this.$content.append('<p class="upline">A lot here comes from the first part of Bret Victor\'s recent talk, <a hreft="http://www.youtube.com/watch?v=PUv66718DII" target="_blank">Inventing on Principle</a>, with immediate results, manipulation, highlighting, and abstraction. While his vision is aimed at a general set of applications, it applies to education very well. Here you find a complete implementation of this, running in your browser. I also stole his jumping slider, by the way. ;-) Besides this, you\'ll see a powerful stepping tool, for both debugging, and better understanding. There is also a visualisation of the current scope, and a command reference. The error messages should hopefully be quite friendly. Besides the standard console and canvas environment, you can use the robot environment, based on the <a href="http://en.wikipedia.org/wiki/Turtle_graphics" target="_blank">LOGO turtle</a> and <a href="http://en.wikipedia.org/wiki/Karel_(programming_language)" target="_blank">Karel the robot</a>. Finally, you can do some exercises, inspired on <a href="http://en.wikipedia.org/wiki/Code_golf" target="_blank">code golf</a>.</p>');
+		},
+
+		remove: function() {
+			this.$div.remove();
+		}
+	};
+
 	output.UI = function() { return this.init.apply(this, arguments); };
 	output.UI.prototype = {
-		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign'},
-		outputNames: ['robot', 'console', 'canvas', 'info', 'dare', 'input', 'math', 'editor'],
+		icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign', home: 'icon-home'},
+		outputNames: ['robot', 'console', 'canvas', 'info', 'dare', 'input', 'math', 'home', 'editor'],
 
 		init: function() {
 			for (var i=0; i<this.outputNames.length; i++) {
@@ -19,19 +62,18 @@ module.exports = function(output) {
 
 			this.$main = $('#main');
 			this.initTabs();
-			this.loadInitial();
 
-			/*
 			this.dares = new dares.Dares($('#dares-popup'), dares.getContent(this));
 
-			$('#start-dare, #switch-dare').click($.proxy(function() {
+			$('#switch-dare').click($.proxy(function() {
 				this.dares.show();
 			}, this));
 
 			$('#abort-dare').click($.proxy(function() {
 				this.loadInitial();
 			}, this));
-			*/
+
+			this.loadInitial();
 		},
 
 		initTabs: function() {
@@ -144,6 +186,12 @@ module.exports = function(output) {
 			return this.math;
 		},
 
+		addHome: function() {
+			this.addTab('home');
+			this.home = new output.Home(this, $('#home'));
+			return this.home;
+		},
+
 		finish: function() {
 			var runner = new jsmm.Runner(this.editor, this.scope, {});
 			this.editor.updateSettings(runner, this.outputs);
@@ -161,6 +209,7 @@ module.exports = function(output) {
 		loadInitial: function() {
 			this.removeAll();
 			this.addEditor();
+			this.addHome();
 			this.addRobot();
 			this.addConsole();
 			this.addCanvas();
