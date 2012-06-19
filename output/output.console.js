@@ -101,7 +101,8 @@ module.exports = function(output) {
 			this.currentEvent.calls.push({
 				$element: $element,
 				stepNum: context.getStepNum(),
-				nodeId: context.getCallNodeId()
+				nodeId: context.getCallNodeId(),
+				callId: context.getCallId()
 			});
 			
 			if (this.currentEvent.$firstElement === null) {
@@ -241,12 +242,12 @@ module.exports = function(output) {
 			}
 		},
 
-		highlightCallNodes: function(nodeIds) {
+		highlightCallIds: function(callIds) {
 			this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
 
 			for (var i=0; i<this.currentEvent.calls.length; i++) {
 				var call = this.currentEvent.calls[i];
-				if (nodeIds.indexOf(call.nodeId) >= 0 && !call.clear) {
+				if (callIds.indexOf(call.callId) >= 0 && !call.clear) {
 					call.$element.addClass('console-line-highlight-line');
 				}
 			}
@@ -258,14 +259,14 @@ module.exports = function(output) {
 			}
 		},
 
-		highlightTimeNodes: function(timeNodes) {
+		highlightTimeIds: function(timeIds) {
 			this.$lines.children('.console-line-highlight-time').removeClass('console-line-highlight-time');
-			if (timeNodes !== null) {
+			if (timeIds !== null) {
 				for (var i=0; i<this.events.length; i++) {
 					for (var j=0; j<this.events[i].calls.length; j++) {
 						var call = this.events[i].calls[j];
 
-						if (timeNodes[i].indexOf(call.nodeId) >= 0 && !call.clear) {
+						if (timeIds[i].indexOf(call.callId) >= 0 && !call.clear) {
 							call.$element.addClass('console-line-highlight-time');
 						}
 					}

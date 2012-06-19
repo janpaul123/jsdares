@@ -324,10 +324,10 @@ module.exports = function(editor) {
 						this.currentHighlightNode = node;
 						if (node !== null) {
 							this.surface.showHighlight(this.makeLoc(node.blockLoc));
-							this.callOutputs('highlightCallNodes', this.runner.getCallNodesByRange(node.blockLoc.line, node.blockLoc.line2));
+							this.callOutputs('highlightCallIds', this.runner.getCallIdsByRange(node.blockLoc.line, node.blockLoc.line2));
 						} else {
 							this.surface.hideHighlight();
-							this.callOutputs('highlightCallNodes', []);
+							this.callOutputs('highlightCallIds', null);
 						}
 					}
 				}
@@ -345,7 +345,7 @@ module.exports = function(editor) {
 			if (this.timeHighlightingEnabled) {
 				this.timeHighlightingEnabled = false;
 				this.surface.hideTimeHighlights();
-				this.callOutputs('highlightTimeNodes', null);
+				this.callOutputs('highlightTimeIds', null);
 			}
 		},
 
@@ -368,27 +368,27 @@ module.exports = function(editor) {
 
 		updateActiveTimeHighlights: function() {
 			if (this.activeTimeHighlights.length > 0) {
-				var nodes = [];
+				var timeIds = [];
 				var size = this.runner.getEventTotal();
 				for (var i=0; i<size; i++) {
-					nodes[i] = [];
+					timeIds[i] = [];
 				}
 				var highlightsFromTree = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
 
 				for (i=0; i<this.activeTimeHighlights.length; i++) {
 					var timeHighlight = highlightsFromTree[this.activeTimeHighlights[i]];
-					var nodesPerContext = this.runner.getAllCallNodesByRange(timeHighlight.line, timeHighlight.line2);
-					for (var j=0; j<nodesPerContext.length; j++) {
-						for (var k=0; k<nodesPerContext[j].length; k++) {
-							if (nodes[j].indexOf(nodesPerContext[j][k]) < 0) {
-								nodes[j].push(nodesPerContext[j][k]);
+					var idsPerContext = this.runner.getAllCallIdsByRange(timeHighlight.line, timeHighlight.line2);
+					for (var j=0; j<idsPerContext.length; j++) {
+						for (var k=0; k<idsPerContext[j].length; k++) {
+							if (timeIds[j].indexOf(idsPerContext[j][k]) < 0) {
+								timeIds[j].push(idsPerContext[j][k]);
 							}
 						}
 					}
 				}
-				this.callOutputs('highlightTimeNodes', nodes);
+				this.callOutputs('highlightTimeIds', timeIds);
 			} else {
-				this.callOutputs('highlightTimeNodes', null);
+				this.callOutputs('highlightTimeIds', null);
 			}
 		},
 

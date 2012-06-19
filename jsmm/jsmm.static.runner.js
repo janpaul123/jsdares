@@ -284,18 +284,18 @@ module.exports = function(jsmm) {
 		},
 
 		/// UTILS ///
-		getCallNodesByRange: function(line1, line2) {
+		getCallIdsByRange: function(line1, line2) {
 			if (this.eventNum >= 0) {
-				return this.events[this.eventNum].context.getCallNodesByRange(line1, line2);
+				return this.events[this.eventNum].context.getCallIdsByRange(line1, line2);
 			} else {
 				return [];
 			}
 		},
 
-		getAllCallNodesByRange: function(line1, line2) {
+		getAllCallIdsByRange: function(line1, line2) {
 			var nodes = [];
 			for (var i=0; i<this.events.length; i++) {
-				nodes[i] = this.events[i].context.getCallNodesByRange(line1, line2);
+				nodes[i] = this.events[i].context.getCallIdsByRange(line1, line2);
 			}
 			return nodes;
 		},

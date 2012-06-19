@@ -246,7 +246,14 @@ module.exports = function(output) {
 			if (this.functions[name].path) {
 				return this.wrapper.callPath(name, args);
 			} else {
-				this.events[this.eventPosition].calls.push({name: name, args: args, state: this.wrapper.getState(), stepNum: context.getStepNum(), nodeId: context.getCallNodeId()});
+				this.events[this.eventPosition].calls.push({
+					name: name,
+					args: args,
+					state: this.wrapper.getState(),
+					stepNum: context.getStepNum(),
+					nodeId: context.getCallNodeId(),
+					callId: context.getCallId()
+				});
 				return this.context[name].apply(this.context, args);
 			}
 		},
@@ -295,8 +302,8 @@ module.exports = function(output) {
 			this.eventsSize = 300;
 			this.eventsPosStart = 0;
 			this.eventsPosLength = 0;
-			this.callNodes = [];
-			this.timeNodes = null;
+			this.callIds = [];
+			this.timeIds = null;
 		},
 
 		outputPopFirstEvent: function() {
@@ -335,13 +342,13 @@ module.exports = function(output) {
 			}
 		},
 
-		highlightTimeNodes: function(timeNodes) {
-			this.timeNodes = timeNodes;
+		highlightTimeIds: function(timeIds) {
+			this.timeIds = timeIds;
 			this.render();
 		},
 
-		highlightCallNodes: function(callNodes) {
-			this.callNodes = callNodes;
+		highlightCallIds: function(callids) {
+			this.callIds = callids;
 			this.render();
 		},
 
@@ -363,13 +370,13 @@ module.exports = function(output) {
 				this.context[call.name].apply(this.context, call.args);
 			}
 
-			if (this.timeNodes !== null) {
+			if (this.timeIds !== null) {
 				for (var i=0; i<this.eventsPosLength; i++) {
 					var event = this.events[(this.eventsPosStart+i)%this.eventsSize];
 					for (var j=0; j<event.calls.length; j++) {
 						var call = event.calls[j];
 
-						if (this.timeNodes[i].indexOf(call.nodeId) >= 0 && this.functions[call.name].highlight) {
+						if (this.timeIds[i].indexOf(call.callId) >= 0 && this.functions[call.name].highlight) {
 							this.wrapper.setState(call.state);
 							this.context.strokeStyle = 'rgba(0, 110, 220, 0.30)';
 							this.context.fillStyle = 'rgba(0, 110, 220, 0.30)';
@@ -380,12 +387,12 @@ module.exports = function(output) {
 				}
 			}
 
-			if (this.callNodes !== null) {
+			if (this.callIds !== null) {
 				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
 					var call = this.events[this.eventPosition].calls[i];
 					if (call.stepNum > this.stepNum) break;
 
-					if (this.callNodes.indexOf(call.nodeId) >= 0 && this.functions[call.name].highlight) {
+					if (this.callIds.indexOf(call.callId) >= 0 && this.functions[call.name].highlight) {
 						this.wrapper.setState(call.state);
 						this.context.strokeStyle = 'rgba(5, 195, 5, 0.85)';
 						this.context.fillStyle = 'rgba(5, 195, 5, 0.85)';
@@ -441,7 +448,7 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
 			this.$div.off('mousemove');
-			this.callNodes = [];
+			this.callIds = [];
 			if (this.eventsPosLength > 0) {
 				this.render();
 				this.clearMirror();
@@ -512,10 +519,10 @@ module.exports = function(output) {
 
 					if (this.highlightCallIndex < 0) {
 						this.editor.highlightNode(null);
-						this.highlightCallNodes(null);
+						this.highlightCallIds(null);
 					} else {
 						this.editor.highlightNodeId(this.events[this.eventPosition].calls[this.highlightCallIndex].nodeId);
-						this.highlightCallNodes([this.events[this.eventPosition].calls[this.highlightCallIndex].nodeId]);
+						this.highlightCallIds([this.events[this.eventPosition].calls[this.highlightCallIndex].callId]);
 					}
 				}
 			}

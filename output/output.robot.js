@@ -271,26 +271,26 @@ module.exports = function(output) {
 			}
 		},
 
-		highlightCallNodes: function(callNodes) {
+		highlightCallIds: function(callIds) {
 			this.robot.removePathHighlights();
-			if (callNodes !== null) {
+			if (callIds !== null) {
 				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
 					var call = this.events[this.eventPosition].calls[i];
-					if (callNodes.indexOf(call.nodeId) >= 0 && call.$element !== null) {
+					if (callIds.indexOf(call.callId) >= 0 && call.$element !== null) {
 						call.$element.addClass('robot-path-highlight');
 					}
 				}
 			}
 		},
 
-		highlightTimeNodes: function(timeNodes) {
+		highlightTimeIds: function(timeIds) {
 			this.robot.removeTimeHighlights();
-			if (timeNodes !== null) {
+			if (timeIds !== null) {
 				for (var i=this.eventStart; i<this.events.length; i++) {
 					for (var j=0; j<this.events[i].calls.length; j++) {
 						var call = this.events[i].calls[j];
 
-						if (timeNodes[i-this.eventStart].indexOf(call.nodeId) >= 0 && call.$element !== null) {
+						if (timeIds[i-this.eventStart].indexOf(call.callId) >= 0 && call.$element !== null) {
 							call.$element.addClass('robot-path-highlight-time');
 						}
 					}
@@ -335,6 +335,7 @@ module.exports = function(output) {
 			this.events[this.eventPosition].calls.push({
 				stepNum: context.getStepNum(),
 				nodeId: context.getCallNodeId(),
+				callId: context.getCallId(),
 				$element: $element,
 				animNum: this.robot.animation.getLength()-1
 			});

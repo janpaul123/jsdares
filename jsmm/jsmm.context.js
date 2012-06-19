@@ -187,17 +187,22 @@ module.exports = function(jsmm) {
 
 			this.steps = [];
 			this.callStackNodes = [];
-			this.callNodesByNodes = {};
+			this.callIdsByNodeIds = {};
 			this.commandTracker = new jsmm.CommandTracker();
 			this.scopeTracker = new jsmm.ScopeTracker();
 			this.calledFunctions = [];
 			this.callNodeId = null;
+			this.callId = null;
 			this.error = null;
 		},
 
 		/// OUTPUT FUNCTIONS ///
 		getCallNodeId: function() {
 			return this.callNodeId;
+		},
+
+		getCallId: function() {
+			return this.callId;
 		},
 
 		getCommandTracker: function() {
@@ -255,22 +260,22 @@ module.exports = function(jsmm) {
 			return this.calledFunctions;
 		},
 
-		getCallNodesByRange: function(line1, line2) {
-			var nodeIds = [];
+		getCallIdsByRange: function(line1, line2) {
+			var callIds = [];
 			for (var line=line1; line<=line2; line++) {
 				var node = this.tree.getNodeByLine(line);
 				if (node !== null) {
-					nodeIds.push(node.id);
-					if (this.callNodesByNodes[node.id] !== undefined) {
-						for (var i=0; i<this.callNodesByNodes[node.id].length; i++) {
-							if (nodeIds.indexOf(this.callNodesByNodes[node.id][i]) < 0) {
-								nodeIds.push(this.callNodesByNodes[node.id][i]);
+					callIds.push(node.id); // also add the node id of each node, mainly so that the info module can highlight commands
+					if (this.callIdsByNodeIds[node.id] !== undefined) {
+						for (var i=0; i<this.callIdsByNodeIds[node.id].length; i++) {
+							if (callIds.indexOf(this.callIdsByNodeIds[node.id][i]) < 0) {
+								callIds.push(this.callIdsByNodeIds[node.id][i]);
 							}
 						}
 					}
 				}
 			}
-			return nodeIds;
+			return callIds;
 		},
 
 		/// JS-- PROGRAM FUNCTIONS ///
@@ -305,13 +310,18 @@ module.exports = function(jsmm) {
 
 		externalCall: function(node, funcValue, args) {
 			this.callNodeId = node.id;
+			this.callId = node.id;
 			for (var i=0; i<this.callStackNodes.length; i++) {
+				this.callId += '-' + this.callStackNodes[i].getTopNode().id;
+			}
+
+			for (i=0; i<this.callStackNodes.length; i++) {
 				var nodeId = this.callStackNodes[i].getTopNode().id;
-				if (this.callNodesByNodes[nodeId] === undefined) {
-					this.callNodesByNodes[nodeId] = [];
+				if (this.callIdsByNodeIds[nodeId] === undefined) {
+					this.callIdsByNodeIds[nodeId] = [];
 				}
-				if (this.callNodesByNodes[nodeId].indexOf(node.id) < 0) {
-					this.callNodesByNodes[nodeId].push(node.id);
+				if (this.callIdsByNodeIds[nodeId].indexOf(this.callId) < 0) {
+					this.callIdsByNodeIds[nodeId].push(this.callId);
 				}
 			}
 
