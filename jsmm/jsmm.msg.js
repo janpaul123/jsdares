@@ -20,7 +20,7 @@ module.exports = function(jsmm) {
 			} else if (this.nodeId > 0) {
 				return tree.getNodeById(this.nodeId)[this.locType];
 			} else {
-				return {line: 0, column: 0};
+				return {line: 1, column: 0};
 			}
 		};
 		

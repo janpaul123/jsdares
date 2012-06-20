@@ -76,7 +76,7 @@ module.exports = function(info) {
 				id: '+s',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p><var>+</var> is not only used for addition, but also for <strong>concatenating</strong> strings with strings, or strings with numbers. For example <var>"Hello " + "World!"</var> results in <var>"Hello World!"</var>. The shortcut <var>+=</var> also works.</p>');
+					$content.html('<p><var>+</var> is not only used for addition, but also for <strong>concatenating</strong> strings with strings, or strings with numbers. For example <var>"Hello " + "World!"</var> results in <var>"Hello World!"</var>. The shorthand <var>+=</var> also works.</p>');
 
 					info.consoleExample(infoTable, $content, 'console.log("Hello " + "World!");\n\nvar text = "Age: ";\ntext += 42;\nconsole.log(text);');
 				}
@@ -86,7 +86,7 @@ module.exports = function(info) {
 				id: '+=',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>These operators are basically <strong>shortcuts</strong>. <var>a += b;</var> is a shortcut for <var>a = a + b;</var>, <var>a -= b;</var> is a shortcut for <var>a = a - b;</var>, and so on.</p>');
+					$content.html('<p>These operators are basically <strong>shorthands</strong>. <var>a += b;</var> is shorthand for <var>a = a + b;</var>, <var>a -= b;</var> is shorthand for <var>a = a - b;</var>, and so on.</p>');
 
 					info.consoleExample(infoTable, $content, 'var counter = 1;\nconsole.log(counter);\ncounter += 1;\nconsole.log(counter);\ncounter *= 3;\nconsole.log(counter);\n\nvar height = 100;\nconsole.log(height);\nheight *= counter;\nconsole.log(height);');
 
@@ -98,7 +98,7 @@ module.exports = function(info) {
 				id: '++',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>These two are even shorter <strong>shortcuts</strong>. <var>a++;</var> is the same as writing <var>a = a + 1;</var>, or increasing the variable <var>a</var> by one. <var>a--;</var> means decreasing the variable by one, or <var>a = a - 1;</var>.</p>');
+					$content.html('<p>These two are even shorter <strong>shorthands</strong>. <var>a++;</var> is the same as writing <var>a = a + 1;</var>, or increasing the variable <var>a</var> by one. <var>a--;</var> means decreasing the variable by one, or <var>a = a - 1;</var>.</p>');
 
 					info.consoleExample(infoTable, $content, 'var counter = 1;\nconsole.log(counter);\ncounter++;\nconsole.log(counter);\ncounter++;\nconsole.log(counter);\ncounter--;\nconsole.log(counter);\ncounter--;\nconsole.log(counter);');
 				}

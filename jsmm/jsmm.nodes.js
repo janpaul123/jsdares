@@ -191,7 +191,11 @@ module.exports = function(jsmm) {
 	jsmm.nodes.StringLiteral = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.StringLiteral.prototype = addCommonNodeMethods('StringLiteral', {str: false}, false, {
 		init: function() {
-			this.str = JSON.parse(this.str);
+			try {
+				this.str = JSON.parse(this.str);
+			} catch (e) {
+				throw new jsmm.msg.Error(this.id, 'String contains invalid characters');
+			}
 		},
 		getCode: function() {
 			return JSON.stringify(this.str);

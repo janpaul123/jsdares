@@ -13,7 +13,7 @@ module.exports = function(jsmm) {
 		var token = hash.token || '';
 		var expected = hash.expected || [];
 		var loc = {
-			line: jsmm.parser.lexer.yylloc.first_line,
+			line: jsmm.parser.lexer.yylloc.first_line || 1,
 			column: jsmm.parser.lexer.yylloc.first_column
 		};
 		

@@ -23,7 +23,7 @@ module.exports = function(jsmm) {
 				if (error.type === 'Error') {
 					this.error = error;
 				} else {
-					//throw error;
+					throw error;
 					this.error = new jsmm.msg.Error(0, 'An unknown error has occurred', error);
 				}
 			}
