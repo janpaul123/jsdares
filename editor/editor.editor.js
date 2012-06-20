@@ -124,37 +124,35 @@ module.exports = function(editor) {
 			if (this.editablesEnabled) {
 				this.disableEditables();
 			}
+			if (this.wasStepping) {
+				this.wasStepping = false;
+				this.surface.hideStepMessage();
+			}
 			this.handleError(error);
 			this.runner.disable();
 			this.toolbar.disable();
 			this.updateHighlighting();
 			this.highlightFunctionNode(null);
-		},
-
-		handleError: function(error) {
-			this.surface.hideAutoCompleteBox();
-			this.surface.showErrorMessage(this.makeMessageLoc(error), error.getHTML());
-			this.surface.hideStepMessage();
 			this.callOutputs('outputSetError', true);
 		},
 
+		handleError: function(error) {
+			console.log('handleError');
+			this.surface.hideAutoCompleteBox();
+			this.surface.showMessage('error', this.makeMessageLoc(error), error.getHTML());
+		},
+
 		handleMessages: function(messages) {
-			this.callOutputs('outputSetError', false);
-			this.surface.hideErrorMessage();
-			var shown = false;
 			for (var i=0; i<messages.length; i++) {
-				if (messages[i].type === 'Inline') {
-					this.surface.showStepMessage(this.makeMessageLoc(messages[i]), messages[i].getHTML());
+				if (['Inline', 'Error'].indexOf(messages[i].type) >= 0) {
+					this.surface.showMessage(messages[i].type.toLowerCase(), this.makeMessageLoc(messages[i]), messages[i].getHTML());
 					this.surface.scrollToLine(messages[i].getLoc(this.tree).line);
-					shown = true;
+					break;
 				}
 			}
-			if (!shown) {
-				this.surface.hideStepMessage();
-				this.wasStepping = false;
-			} else if (!this.wasStepping) {
+			if (!this.wasStepping) {
 				this.wasStepping = true;
-				this.surface.openStepMessage();
+				this.surface.openMessage();
 			}
 		},
 
@@ -231,13 +229,24 @@ module.exports = function(editor) {
 		runnerChanged: function() { // runner callback
 			if (!this.autoCompletionEnabled) {
 				this.surface.hideAutoCompleteBox();
-				if (this.runner.hasError()) {
-					this.handleError(this.runner.getError());
-				} else {
+				if (this.runner.isStepping()) {
 					this.handleMessages(this.runner.getMessages());
+				} else {
+					if (this.wasStepping) {
+						this.wasStepping = false;
+						this.surface.closeMessage();
+					}
+					if (this.runner.hasError()) {
+						this.handleError(this.runner.getError());
+					} else {
+						this.surface.hideMessage();
+					}
 				}
 				this.updateHighlighting();
 				this.toolbar.update(this.runner);
+				this.callOutputs('outputSetError', this.runner.hasError());
+			} else {
+				this.callOutputs('outputSetError', false);
 			}
 			if (this.canHighlightTime()) {
 				this.enableTimeHighlighting();

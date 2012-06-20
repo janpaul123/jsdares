@@ -78,15 +78,25 @@
 	position: absolute;
 	top: 0px;
 	right: 5px;
+	width: 16px;
+	height: 16px;
 	cursor: pointer;
 	z-index: 56;
-	margin-top: -5px;
 	@transition: opacity 0.1s linear, right 0.1s linear;
 	.transition(@transition);
 }
 
-.editor-margin-message-icon-step {
+.editor-margin-message-icon-error {
+	background-image: url(../img/margin-message-icon-error.png);
+}
+
+.editor-margin-message-icon-inline {
+	background-image: url(../img/margin-message-icon-inline.png);
 	.transition(top 0.1s ease-in-out);
+}
+
+.editor-margin-message-icon-preview {
+	background-image: url(../img/margin-message-icon-preview.png);
 }
 
 /*

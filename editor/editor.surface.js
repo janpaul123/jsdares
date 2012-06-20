@@ -44,9 +44,9 @@ module.exports = function(editor) {
 	};
 
 	editor.Message.prototype = {
-		init: function(type, surface) {
+		init: function(surface) {
 			this.surface = surface;
-			this.$marginIcon = $('<div class="editor-margin-icon editor-margin-message-icon-' + type + '"><img src="img/margin-message-icon-' + type + '.png"/></div>');
+			this.$marginIcon = $('<div class="editor-margin-icon"></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
 			this.$marginIcon.css('opacity', 0).css('right', 25);
 			this.$marking = $('<div class="editor-marking"></div>');
@@ -61,8 +61,11 @@ module.exports = function(editor) {
 			this.location = null;
 			this.html = '';
 			this.isCurrentlyShown = false;
+			this.type = '';
 		},
-		showAtLocation: function(location, html) {
+		showAtLocation: function(type, location, html) {
+			console.log(arguments);
+			this.switchType(type);
 			if (!this.visible) {
 				this.visible = true;
 				this.$marginIcon.css('opacity', 1).css('right', 5);
@@ -93,6 +96,13 @@ module.exports = function(editor) {
 			this.box.remove();
 		},
 		/// INTERNAL FUNCTIONS ///
+		switchType: function(type) {
+			if (this.type !== type) {
+				this.$marginIcon.removeClass('editor-margin-message-icon-' + this.type);
+				this.type = type;
+				this.$marginIcon.addClass('editor-margin-message-icon-' + this.type);
+			}
+		},
 		toggleMesssage: function() {
 			this.messageOpen = !this.messageOpen;
 			this.updateMessage();
@@ -124,7 +134,7 @@ module.exports = function(editor) {
 			this.$content = $('<div class="editor-autocomplete-content"></div>');
 			this.$element.append(this.$content);
 
-			this.$marginIcon = $('<div class="editor-margin-icon"><img src="img/margin-message-icon-preview.png"/></div>');
+			this.$marginIcon = $('<div class="editor-margin-icon editor-margin-message-icon-preview"></div>');
 			surface.addElementToMargin(this.$marginIcon);
 			this.$marginIcon.css('top', surface.lineToY(line));
 			this.$marginIcon.hide();
@@ -250,9 +260,8 @@ module.exports = function(editor) {
 			this.$margin = $('<div class="editor-margin"></div>');
 			this.$div.append(this.$margin);
 			
-			// setting up messages
-			this.errorMessage = new editor.Message('error', this);
-			this.stepMessage = new editor.Message('step', this);
+			// setting up message
+			this.message = new editor.Message(this);
 
 			// highlights
 			//this.$highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
@@ -270,8 +279,7 @@ module.exports = function(editor) {
 		remove: function() {
 			this.hideAutoCompleteBox();
 			//this.$highlightMarking.remove();
-			this.errorMessage.remove();
-			this.stepMessage.remove();
+			this.message.remove();
 			this.$surface.children('.editor-time-highlight').remove();
 			this.$margin.remove();
 			this.$surface.remove();
@@ -320,33 +328,27 @@ module.exports = function(editor) {
 			this.$div.off('mousemove mouseleave');
 		},
 
-		openErrorMessage: function() {
-			this.errorMessage.openMessage();
+		showMessage: function(type, location, html) {
+			this.message.showAtLocation(type, location, html);
+			this.$textarea.removeClass('editor-error editor-step');
+			if (type === 'error') {
+				this.$textarea.addClass('editor-error');
+			} else {
+				this.$textarea.addClass('editor-step');
+			}
 		},
 
-		showErrorMessage: function(location, html) {
-			this.errorMessage.showAtLocation(location, html);
-			this.$textarea.addClass('editor-error');
+		hideMessage: function() {
+			this.$textarea.removeClass('editor-error editor-step');
+			this.message.hide();
 		},
 
-		hideErrorMessage: function() {
-			this.$textarea.removeClass('editor-error');
-			this.errorMessage.closeMessage();
-			this.errorMessage.hide();
+		openMessage: function() {
+			this.message.openMessage();
 		},
 
-		openStepMessage: function() {
-			this.stepMessage.openMessage();
-		},
-
-		showStepMessage: function(location, html) {
-			this.$textarea.addClass('editor-step');
-			this.stepMessage.showAtLocation(location, html);
-		},
-
-		hideStepMessage: function() {
-			this.$textarea.removeClass('editor-step');
-			this.stepMessage.hide();
+		closeMessage: function() {
+			this.message.closeMessage();
 		},
 
 		enableHighlighting: function() {
@@ -523,8 +525,7 @@ module.exports = function(editor) {
 				this.autoCompleteBox = new editor.AutoCompleteBox(this, this.delegate, line, column, offset);
 			}
 			this.autoCompleteBox.setExamples(examples, this.text, addSemicolon);
-			this.hideErrorMessage();
-			this.hideStepMessage();
+			this.hideMessage();
 		},
 
 		hideAutoCompleteBox: function() {

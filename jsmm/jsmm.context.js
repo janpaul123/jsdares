@@ -239,6 +239,7 @@ module.exports = function(jsmm) {
 					throw error;
 					this.error = new jsmm.msg.Error(0, 'An unknown error has occurred', error);
 				}
+				this.newStep([this.error]);
 			}
 		},
 

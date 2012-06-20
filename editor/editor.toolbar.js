@@ -157,11 +157,7 @@ module.exports = function(editor) {
 
 			if (this.runner.isStepping() &&
 					((this.runner.isBaseEventSelected() && !this.runner.isPaused()) || !this.isBaseEvent)) {
-				if (this.runner.hasError()) {
-					this.$stepForward.addClass('disabled');
-				} else {
-					this.$stepForward.removeClass('disabled');
-				}
+				this.$stepForward.removeClass('disabled');
 				this.$stepBackward.removeClass('disabled');
 				this.$restart.removeClass('disabled');
 				this.bubbleValue.setStepInfo(this.runner.getStepNum(), this.runner.getStepTotal());
