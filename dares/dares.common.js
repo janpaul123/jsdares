@@ -159,9 +159,7 @@ module.exports = function(dares) {
 			this.ui.finish();
 		};
 
-		dare.loadEditor = function(ui) {
-			this.editor = this.ui.addEditor();
-
+		dare.loadCode = function() {
 			var codeName = 'dare-code-' + this.name;
 			this.editor.setText(window.localStorage.getItem(codeName) || '');
 			this.editor.setTextChangeCallback(function(text) {

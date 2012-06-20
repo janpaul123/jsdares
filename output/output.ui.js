@@ -175,6 +175,7 @@ module.exports = function(output) {
 		addDare: function(dare) {
 			this.addTab('dare');
 			this.dare = dare;
+			this.outputs.push(this.dare);
 			dare.makeActive($('#dare'), this);
 			this.$main.addClass('ui-dares-active');
 			return this.dare;

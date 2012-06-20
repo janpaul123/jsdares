@@ -79,7 +79,7 @@ module.exports = function(dares) {
 		},
 
 		makeActive: function($div, ui) {
-			this.loadEditor(ui);
+			this.editor = this.ui.addEditor();
 
 			this.$div = $div;
 			$div.addClass('dare dare-imagematch');
@@ -127,15 +127,14 @@ module.exports = function(dares) {
 			this.drawScore();
 
 			this.loadInfo(ui);
+			ui.finish();
 
-			this.editor.addOutput(this);
-			this.editor.outputRequestsRerun();
+			this.loadCode();
 			this.animateImage();
 		},
 
 		remove: function() {
 			this.animationFinish();
-			this.editor.removeOutput(this);
 			this.$submit.remove();
 			this.$originalCanvasContainer.remove();
 			this.$div.html('');

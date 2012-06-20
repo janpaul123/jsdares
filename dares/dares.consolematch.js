@@ -92,7 +92,7 @@ module.exports = function(dares) {
 		},
 
 		makeActive: function($div, ui) {
-			this.loadEditor(ui);
+			this.editor = this.ui.addEditor();
 
 			this.$div = $div;
 			$div.addClass('dare dare-consolematch');
@@ -101,7 +101,7 @@ module.exports = function(dares) {
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
-			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
+			this.$description.append('<h2>' + this.name + '</h2><p class="dare-text">' + this.description + '</p>');
 
 			this.$submit = $('<div class="btn btn-success">Submit</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));
@@ -144,15 +144,15 @@ module.exports = function(dares) {
 			this.drawScore();
 
 			this.loadInfo(ui);
+			ui.finish();
 
-			this.editor.addOutput(this);
-			this.editor.outputRequestsRerun();
+			this.loadCode();
+			// this.editor.outputRequestsRerun();
 			this.animateConsole();
 		},
 
 		remove: function() {
 			this.animationFinish();
-			this.editor.removeOutput(this);
 			this.$submit.remove();
 			this.$originalConsoleContainer.remove();
 			this.$div.html('');

@@ -17,18 +17,6 @@
 	position: relative;
 }
 
-.console-target {
-	padding: 10px;
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	.opacity(20);
-}
-
-.console-error {
-	opacity: 0.5;
-}
-
 .console-line {
 	min-height: @code-line-height;
 	border: none;
@@ -60,4 +48,20 @@
 
 .console-line-highlight-line {
 	background-color: @highlight-color;
+}
+
+.console-target {
+	padding: 10px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	.opacity(20);
+
+	.console-line {
+		display: block;
+	}
+}
+
+.console-error {
+	opacity: 0.5;
 }
