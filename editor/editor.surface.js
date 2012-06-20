@@ -64,7 +64,6 @@ module.exports = function(editor) {
 			this.type = '';
 		},
 		showAtLocation: function(type, location, html) {
-			console.log(arguments);
 			this.switchType(type);
 			if (!this.visible) {
 				this.visible = true;

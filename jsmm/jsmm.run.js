@@ -225,6 +225,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.FunctionDeclaration.prototype.getFunctionCode = function() {
 		var output = 'jsmmScope.vars["' + this.name + '"].value.func = ';
 		output += 'function (jsmmContext, args) {\n';
+		output += 'console.log(' + getNode(this) + ');\n';
 		output += getNode(this) + '.runFuncEnter(jsmmContext, args);\n';
 		output += this.statementList.getRunCode();
 		output += 'return ' + getNode(this) + '.runFuncLeave(jsmmContext);\n';

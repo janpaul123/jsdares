@@ -116,7 +116,7 @@ module.exports = function(jsmm) {
 						var start;
 						if (this.events[0] === this.baseEvent) {
 							this.delegate.clearAllEvents();
-							this.baseEvent.run(this.tree, this.scope, this.limits.base);
+							this.baseEvent.run(this.tree, this.scope.getCopy(), this.limits.base);
 							this.runScope = this.baseEvent.context.getBaseScope().getCopy();
 							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 							start = 1;

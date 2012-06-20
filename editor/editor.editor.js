@@ -137,7 +137,6 @@ module.exports = function(editor) {
 		},
 
 		handleError: function(error) {
-			console.log('handleError');
 			this.surface.hideAutoCompleteBox();
 			this.surface.showMessage('error', this.makeMessageLoc(error), error.getHTML());
 		},
@@ -177,8 +176,9 @@ module.exports = function(editor) {
 		},
 
 		scrollToError: function() { // callback
+			this.handleError(this.runner.getError());
 			this.surface.scrollToLine(this.runner.getError().getLoc(this.tree).line);
-			this.surface.openErrorMessage();
+			this.surface.openMessage();
 		},
 
 		userChangedText: function() { // callback
@@ -611,7 +611,6 @@ module.exports = function(editor) {
 						if (examples !== null) {
 							this.autoCompletionEnabled = true;
 							var addSemicolon = line.substring(pos.column).replace(/ /g, '').length <= 0;
-							console.log('addSemicolon', addSemicolon);
 							this.surface.showAutoCompleteBox(pos.line, pos.column-examples.width, offset-examples.width, examples, addSemicolon);
 							return;
 						}
