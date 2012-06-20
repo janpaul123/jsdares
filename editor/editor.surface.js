@@ -168,28 +168,30 @@ module.exports = function(editor) {
 		up: function() {
 			if (this.selected > 0) {
 				this.select(this.selected-1);
-			} else {
+			} else if (this.selected === -1 && this.examples.length > 0) {
 				this.select(this.examples.length-1);
+			} else {
+				this.select(-1);
 			}
 			this.scrollToSelected();
-			return true;
 		},
 		down: function() {
 			if (this.selected < this.examples.length-1) {
 				this.select(this.selected+1);
 			} else {
-				this.select(0);
+				this.select(-1);
 			}
 			this.scrollToSelected();
-			return true;
 		},
 		enter: function() {
 			if (this.selected >= 0 && this.selected < this.examples.length) {
 				this.insert();
-				return true;
 			} else {
-				return false;
+				this.cancel();
 			}
+		},
+		cancel: function() {
+			this.delegate.disableAutoCompletion();
 		},
 		/// INTERNAL FUNCTIONS ///
 		select: function(number) {
@@ -534,17 +536,17 @@ module.exports = function(editor) {
 
 		autoCompleteNavigate: function(event) {
 			if (event.keyCode === 38) { // 38 == up
-				if (this.autoCompleteBox.up()) {
-					event.preventDefault();
-				}
+				this.autoCompleteBox.up();
+				event.preventDefault();
 			} else if (event.keyCode === 40) { // 40 == down
-				if (this.autoCompleteBox.down()) {
-					event.preventDefault();
-				}
+				this.autoCompleteBox.down();
+				event.preventDefault();
 			} else if (event.keyCode === 13) { // 13 == enter
-				if (this.autoCompleteBox.enter()) {
-					event.preventDefault();
-				}
+				this.autoCompleteBox.enter();
+				event.preventDefault();
+			} else if (event.keyCode === 27) { // 27 == escape
+				this.autoCompleteBox.cancel();
+				event.preventDefault();
 			}
 		},
 

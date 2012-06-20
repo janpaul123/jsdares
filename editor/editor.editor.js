@@ -601,7 +601,8 @@ module.exports = function(editor) {
 						var examples = this.runner.getExamples(match[0]);
 						if (examples !== null) {
 							this.autoCompletionEnabled = true;
-							var addSemicolon = line.substring(pos.column).replace(' ', '').length <= 0;
+							var addSemicolon = line.substring(pos.column).replace(/ /g, '').length <= 0;
+							console.log('addSemicolon', addSemicolon);
 							this.surface.showAutoCompleteBox(pos.line, pos.column-examples.width, offset-examples.width, examples, addSemicolon);
 							return;
 						}
@@ -634,7 +635,7 @@ module.exports = function(editor) {
 			}
 		},
 
-		disableAutoCompletion: function() {
+		disableAutoCompletion: function() { // callback
 			if (this.autoCompletionEnabled) {
 				this.autoCompletionEnabled = false;
 				this.delayedUpdate();
