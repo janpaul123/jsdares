@@ -175,7 +175,7 @@ module.exports = function(jsmm) {
 
 	jsmm.Context = function() { return this.init.apply(this, arguments); };
 	jsmm.Context.prototype = {
-		init: function(tree, scope, limits, funcName, args) {
+		init: function(tree, scope, limits) {
 			this.tree = tree;
 			this.scope = scope;
 			this.scopeStack = [this.scope];
@@ -224,8 +224,10 @@ module.exports = function(jsmm) {
 			var func;
 			if (funcName !== undefined) {
 				func = this.scope.find(funcName).value.func;
+				this.isFunctionContext = true;
 			} else {
 				func = this.tree.programNode.getRunFunction();
+				this.isFunctionContext = false;
 			}
 
 			try {
@@ -341,7 +343,7 @@ module.exports = function(jsmm) {
 		},
 
 		inFunction: function() {
-			return this.callStackNodes.length > 0;
+			return this.isFunctionContext || this.callStackNodes.length > 0;
 		},
 
 		increaseExecutionCounter: function(node, amount) {
