@@ -249,17 +249,19 @@ module.exports = function(output) {
 		highlightCallIds: function(callIds) {
 			this.$lines.children('.console-line-highlight-line').removeClass('console-line-highlight-line');
 
-			for (var i=0; i<this.currentEvent.calls.length; i++) {
-				var call = this.currentEvent.calls[i];
-				if (callIds.indexOf(call.callId) >= 0 && !call.clear) {
-					call.$element.addClass('console-line-highlight-line');
+			if (callIds !== null) {
+				for (var i=0; i<this.currentEvent.calls.length; i++) {
+					var call = this.currentEvent.calls[i];
+					if (callIds.indexOf(call.callId) >= 0 && !call.clear) {
+						call.$element.addClass('console-line-highlight-line');
+					}
 				}
-			}
 
-			var $last = this.$lines.children('.console-line-highlight-line').last();
-			if ($last.length > 0) {
-				// the offset is weird since .position().top changes when scrolling
-				this.scrollToY($last.position().top, true);
+				var $last = this.$lines.children('.console-line-highlight-line').last();
+				if ($last.length > 0) {
+					// the offset is weird since .position().top changes when scrolling
+					this.scrollToY($last.position().top, true);
+				}
 			}
 		},
 

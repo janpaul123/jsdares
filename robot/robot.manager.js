@@ -21,7 +21,6 @@ module.exports = function(output) {
 		},
 		
 		play: function(start, end) {
-			console.log('play', arguments);
 			var newAnim = this.useNewAnimation();
 			if (newAnim || this.start !== start || this.end !== end) {
 				this.forcePlay(start, end);
@@ -29,14 +28,13 @@ module.exports = function(output) {
 		},
 
 		forcePlay: function(start, end) {
-			console.log('forcePlay', arguments);
+			this.useNewAnimation();
 			this.start = start;
 			this.end = end;
 			this.replay();
 		},
 
 		replay: function() {
-			console.log('replay', this);
 			if (this.runningAnimation !== null && this.start >= 0 && this.end >= 0) {
 				this.runningAnimation.play(this.start, this.end);
 			}

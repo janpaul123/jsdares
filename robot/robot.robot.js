@@ -309,7 +309,7 @@ module.exports = function(output) {
 		},
 
 		playAll: function() {
-			this.animationManager.play(0, Infinity);
+			this.animationManager.forcePlay(0, Infinity);
 		},
 
 		stop: function() {
