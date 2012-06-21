@@ -101,7 +101,7 @@ module.exports = function(dares) {
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
-			this.$description.append('<h2>' + this.name + '</h2><p class="dare-text">' + this.description + '</p>');
+			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
 
 			this.$submit = $('<div class="btn btn-success">Submit</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));

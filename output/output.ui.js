@@ -15,7 +15,7 @@ module.exports = function(output) {
 			this.$content = $('<div class="home-content"></div>');
 			this.$div.append(this.$content);
 
-			this.$content.append('<h2>JSdare prototype</h2>');
+			this.$content.append('<h2>Javascript Dare prototype</h2>');
 
 			this.$content.append('<p><strong>Hello my friend!</strong> What you see here is an attempt to realise a vision of programming eduction. A vision of children learning programming by building what they like: games. They work towards making a game, but before that they have to learn the basics, which is also done by small games, which we call <strong>dares</strong>.</p>');
 
@@ -26,21 +26,21 @@ module.exports = function(output) {
 
 			this.$example1 = $('<button class="btn btn-inverse"><i class="icon-th icon-white"></i> Robot example</button>');
 			this.$example1.on('click', $.proxy(function() {
-				this.ui.editor.setText(this.ui.editor.getText() + '\n\nwhile(!robot.detectGoal()) {\n  robot.turnLeft();\n  while (robot.detectWall()) {\n    robot.turnRight();\n  }\n  robot.drive();\n}');
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\n// ROBOT EXAMPLE\nwhile(!robot.detectGoal()) {\n  robot.turnLeft();\n  while (robot.detectWall()) {\n    robot.turnRight();\n  }\n  robot.drive();\n}');
 			}, this));
 			this.$example2 = $('<button class="btn btn-inverse"><i class="icon-picture icon-white"></i> Canvas example</button>');
 			this.$example2.on('click', $.proxy(function() {
-				this.ui.editor.setText(this.ui.editor.getText() + '\n\n');
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\n// CANVAS EXAMPLE\n// Adapted from billmill.org/static/canvastutorial\nvar context = canvas.getContext("2d");\nvar paddleX = canvas.width/2;\nvar paddleDirection = 0;\nvar paddleWidth = 80;\nvar paddleHeight = 12;\nvar paddleSpeed = 5;\nvar ballX = 110;\nvar ballY = 150;\nvar ballVx = 8;\nvar ballVy = 12;\nvar gameOver = false;\nvar bricks = [];\nvar bricksNumX = 7;\nvar bricksNumY = 5;\nvar brickWidth = canvas.width / bricksNumX;\nvar brickHeight = 20;\nvar brickMargin = 4;\nvar brickCount = bricksNumX*bricksNumY;\n\nfunction clear() {\n  context.clearRect(0, 0, canvas.width, canvas.height);  \n}\n\nfunction circle(x, y) {\n  context.beginPath();\n  context.arc(x, y, 10, 0, 2*Math.PI);\n  context.fill();\n}\n\nfunction drawPaddle() {\n  var x = paddleX - paddleWidth/2;\n  var y = canvas.height - paddleHeight;\n  context.fillRect(x, y, paddleWidth, paddleHeight);\n}\n\nfunction mouseMove(event) {\n  paddleX = event.layerX;\n}\n\nfunction hitHorizontal() {\n  if (ballX < 0) {\n    ballVx = -ballVx;\n  } else if (ballX >= canvas.width) {\n    ballVx = -ballVx;\n  }\n}\n\nfunction hitVertical() {\n  if (ballY < 0) {\n    ballVy = -ballVy;\n  } else if (ballY < brickHeight*bricksNumY) {\n    var bx = Math.floor(ballX/brickWidth);\n    var by = Math.floor(ballY/brickHeight);\n    \n    if (bx >= 0 && bx < bricksNumX) {\n      if (bricks[by][bx]) {\n        bricks[by][bx] = false;\n        ballVy = -ballVy;\n        brickCount--;\n        if (brickCount <= 0) {\n          finish(true);\n        }\n      }\n    }\n  } else if (ballY >= canvas.height-paddleHeight) {\n    var paddleLeft = paddleX-paddleWidth/2;\n    var paddleRight = paddleX+paddleWidth/2;\n    if (ballX >= paddleLeft && ballX <= paddleRight) {\n      ballVy = -ballVy;\n    } else {\n      finish(false);\n    }\n  }\n}\n\nfunction initBricks() {\n  for (var y=0; y<bricksNumY; y++) {\n    bricks[y] = [];\n    for (var x=0; x<bricksNumX; x++) {\n      bricks[y][x] = true;\n    }\n  }\n}\n\nfunction drawBricks() {\n  for (var by=0; by<bricksNumY; by++) {\n    for (var bx=0; bx<bricksNumX; bx++) {\n      if (bricks[by][bx]) {\n        var x = bx * brickWidth + brickMargin/2;\n        var y = by * brickHeight + brickMargin/2;\n        var width = brickWidth - brickMargin;\n        var height = brickHeight - brickMargin;\n        context.fillRect(x, y, width, height);\n      }\n    }\n  }\n}\n\nfunction finish(won) {\n  gameOver = true;\n  context.font = "40pt Calibri";\n  if (won) {\n    context.strokeStyle = "#0a0";\n    context.strokeText("Well done!", 130, 200);\n  } else {\n    context.strokeStyle = "#a00";\n    context.strokeText("GAME OVER", 130, 200);\n  }\n}\n\nfunction tick() {\n  if (gameOver) {\n    return;\n  }\n  clear();\n  drawPaddle();\n  \n  ballX += ballVx;\n  ballY += ballVy;\n  hitHorizontal();\n  hitVertical();\n  \n  circle(ballX, ballY);\n  drawBricks();\n}\n\ninitBricks();\ncanvas.onmousemove = mouseMove;\nwindow.setInterval(tick, 30);');
 			}, this));
 			this.$example3 = $('<button class="btn btn-inverse"><i class="icon-list-alt icon-white"></i> Console example</button>');
 			this.$example3.on('click', $.proxy(function() {
-				this.ui.editor.setText(this.ui.editor.getText() + '\n\nfunction printLine(n) {\n  var text = "";\n  for (var i=1; i<10; i++) {\n    text += (i*n) + "\\t";\n  }\n  console.log(text);\n}\nfor (var i=1; i<25; i++) { \n  console.setColor("hsla(" + i*15 + ", 75%, 50%, 1)");\n  printLine(i);\n}');
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\n//CONSOLE EXAMPLE\n\nfunction printLine(n) {\n  var text = "";\n  for (var i=1; i<10; i++) {\n    text += (i*n) + "\\t";\n  }\n  console.log(text);\n}\nfor (var i=1; i<25; i++) { \n  console.setColor("hsla(" + i*15 + ", 75%, 50%, 1)");\n  printLine(i);\n}');
 			}, this));
 
 			this.$exampleBar = $('<div class="btn-group"></div>');
 			this.$exampleBar.append(this.$example1).append(this.$example2).append(this.$example3);
 
-			this.$content.append($('<p>You can also load up some examples. They are inserted at the bottom of code.</p>').append(this.$exampleBar));
+			this.$content.append($('<p>You can also load up some <strong>examples</strong>. They are inserted at the bottom of code.</p>').append(this.$exampleBar));
 
 			this.$mazeOn = $('<button class="btn btn-inverse"><i class="icon-th icon-white"></i> Insert robot maze</button>');
 			this.$mazeOn.on('click', $.proxy(function() {
@@ -54,11 +54,11 @@ module.exports = function(output) {
 			this.$mazeBar = $('<div class="btn-group"></div>');
 			this.$mazeBar.append(this.$mazeOn).append(this.$mazeOff);
 
-			this.$content.append($('<p>The robot works best if you either put a nice maze in place, or clear it completely.</p>').append(this.$mazeBar));
+			this.$content.append($('<p>The <strong>robot example</strong> works best if you either put a nice maze in place.</p>').append(this.$mazeBar));
 
-			this.$content.append('<h3>Principles</h3><p>There are a few principles underlying this project. First, I believe that building <strong>games</strong> is one of the most motivating things children can do to learn programming. For us it is not directly the goal, however, but merely a <strong>tool</strong>. It allows us to seamlessly <strong>connect</strong> to other fields, such as maths and physics, in a context that is <strong>meaningful</strong> for children.</p> <p>Also important is that what they learn is a <strong>real skill</strong>, something that can be used outside of this platform as well. On the other hand the language <strong>restricted</strong>, to avoid them feeling overwhelmed. And all this in a way that lets them truly <strong>experience</strong> the deep connection between the code and its meaning.</p>');
+			this.$content.append('<h3>Principles</h3><p>There are a few principles underlying this project. First, I believe that building <strong>games</strong> is one of the most motivating things children can do to learn programming. For us it is not directly the goal, however, but merely a <strong>tool</strong>. It allows us to seamlessly <strong>connect</strong> to other fields, such as maths and physics, in a context that is <strong>meaningful</strong> for children. To teach the basics, an interesting and engaging environment can be by simulating <strong>robots</strong>, which can also connect with actual robot classes being given at some schools.</p> <p>Also important is that they learn a <strong>real skill</strong>, something that can be used outside of this platform as well. On the other hand the language is somewhat <strong>restricted</strong>, to avoid them feeling overwhelmed. And, in the case of Javascript, to avoid the really bad parts of the language.</p> <p>Another real skill is being able to <strong>search</strong> for documentation and examples online, which is why only a concise command reference is given. Teachers and children should be <strong>in charge</strong>, which means that they should be able to design dares themselves and <strong>share</strong> them with peers.</p> <p>And all this in a way that lets them truly <strong>experience</strong> the deep connection between the code and its meaning. This means they must have tools to <strong>explore</strong> the language and computational space, even though in real life this is (unfortunately) not always possible. It is most important that students develop an accurate <strong>intuition</strong>.</p>');
 
-			this.$content.append('<h3>Features</h3><p>A lot here comes from the first part of <strong>Bret Victor\'s</strong> recent talk, <a href="http://www.youtube.com/watch?v=PUv66718DII" target="_blank">Inventing on Principle</a>, with immediate results, manipulation, highlighting, and abstraction. While his vision is aimed at a general set of applications, it applies to education very well. Here you find a complete implementation of this, running in your browser. <small>(I also stole his jumping slider, by the way.)</small> Besides this, you\'ll see a powerful <strong>stepping</strong> tool, for both debugging, and better understanding. There is also a visualisation of the current <strong>scope</strong>, and a command <strong>reference</strong>. The <strong>error messages</strong> should hopefully be quite friendly. Besides the standard console and canvas environment, you can use the <strong>robot</strong> environment, based on the <a href="http://en.wikipedia.org/wiki/Turtle_graphics" target="_blank">LOGO turtle</a> and <a href="http://en.wikipedia.org/wiki/Karel_(programming_language)" target="_blank">Karel the robot</a>. Finally, you can do some <strong>dares</strong>, inspired on <a href="http://en.wikipedia.org/wiki/Code_golf" target="_blank">code golf</a>.</p>');
+			this.$content.append('<h3>Features</h3><p>A lot of features come from the first part of <strong>Bret Victor\'s</strong> recent talk, <a href="http://www.youtube.com/watch?v=PUv66718DII" target="_blank">Inventing on Principle</a>, with immediate results, manipulation, highlighting, and abstraction. While his vision is aimed at a general set of applications, it applies to education very well. Here you find a complete <strong>implementation</strong> of this, running in your browser.<br><small>(By the way, I also stole his jumping slider.)</small></p> <p>Also, you\'ll see a powerful <strong>stepping</strong> tool, for both debugging, and better understanding. There is a visualisation of the current <strong>scope</strong>, and a command <strong>reference</strong>. The <strong>error messages</strong> should hopefully be quite friendly.</p> <p>Besides the standard console and canvas environment, you can use the <strong>robot</strong> environment, based on the <a href="http://en.wikipedia.org/wiki/Turtle_graphics" target="_blank">LOGO turtle</a> and <a href="http://en.wikipedia.org/wiki/Karel_(programming_language)" target="_blank">Karel the robot</a>. Finally, you can do some <strong>dares</strong>, inspired on <a href="http://en.wikipedia.org/wiki/Code_golf" target="_blank">code golf</a>.</p>');
 		},
 
 		remove: function() {
@@ -235,15 +235,15 @@ module.exports = function(output) {
 			this.addMath();
 			this.finish();
 
+			this.editor.setText(window.localStorage.getItem('initial-code') || '');
+			this.editor.setTextChangeCallback(function(text) {
+				window.localStorage.setItem('initial-code', text);
+			});
 			if (window.localStorage.getItem('initial-robot') !== null) {
 				this.robot.setState(window.localStorage.getItem('initial-robot'));
 			}
 			this.robot.setStateChangedCallback(function(state) {
 				window.localStorage.setItem('initial-robot', state);
-			});
-			this.editor.setText(window.localStorage.getItem('initial-code') || '');
-			this.editor.setTextChangeCallback(function(text) {
-				window.localStorage.setItem('initial-code', text);
 			});
 		},
 

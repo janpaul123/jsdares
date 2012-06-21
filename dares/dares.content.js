@@ -8,8 +8,8 @@ module.exports = function(dares) {
 				title: 'I',
 				dares: [
 					new dares.RobotGoalDare({
-						name: 'Horse Jump',
-						description: '',
+						name: 'Knight Jump',
+						description: '<p><strong>Move</strong> the robot to the green square. In chess this is known as a <strong>knight jump</strong>.</p>',
 						speed: 100,
 						maxLines: 5,
 						linePenalty: 0,
@@ -24,7 +24,7 @@ module.exports = function(dares) {
 					}, ui),
 					new dares.ConsoleMatchDare({
 						name: 'Hello World',
-						description: 'A classic exercise is the "Hello World" program, which simply requires you to write "Hello World" to the console.',
+						description: '<p>A classic exercise is the "Hello World" program, which simply requires you to write "Hello World" to the console.</p>',
 						speed: 100,
 						maxLines: 1,
 						linePenalty: 8,
@@ -35,7 +35,7 @@ module.exports = function(dares) {
 					}, ui),
 					new dares.ImageMatchDare({
 						name: 'Gravity',
-						description: 'A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.',
+						description: '<p>A block is thrown in the air and then accelerates back down. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to copy this image as good as possible, in as few lines of code as you can.</p>',
 						threshold: 270000,
 						original: function(anim) {
 							var drawBlock = function(i) {
@@ -51,7 +51,7 @@ module.exports = function(dares) {
 					}, ui),
 					new dares.ConsoleMatchDare({
 						name: 'Multiplication Tables',
-						description: 'A multiplication table shows the result of multiplying numbers. Your task is to create a multiplication table with 10 rows and 5 columns in as few lines as code as possible.',
+						description: '<p>A multiplication table shows the result of multiplying numbers. Your task is to create a multiplication table with 10 rows and 5 columns in as few lines as code as possible.</p>',
 						speed: 100,
 						original: function(anim) {
 							for (var y=1; y<=10; y++) {

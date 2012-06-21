@@ -238,7 +238,7 @@ module.exports = function(output) {
 			this.$container.height(this.height);
 
 			// inits
-			this.$container.children('.robot-maze-block .robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
+			this.$maze.children('.robot-maze-block, .robot-maze-line-vertical, .robot-maze-line-horizontal').remove();
 			this.$verticalLines = [];
 			this.$horizontalLines = [];
 			this.$blocks = [];

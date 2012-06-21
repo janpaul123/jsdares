@@ -304,6 +304,7 @@ module.exports = function(output) {
 		setState: function(state) {
 			this.robot.setState(state);
 			this.updateInterface();
+			this.editor.outputRequestsRerun();
 		},
 
 		setStateChangedCallback: function(callback) {
@@ -321,6 +322,10 @@ module.exports = function(output) {
 		getMouseElement: function() {
 			//return this.$container;
 			return null; // no support for now
+		},
+
+		setFocus: function() {
+			this.robot.animationManager.replay();
 		},
 
 		/// INTERNAL FUNCTIONS ///
