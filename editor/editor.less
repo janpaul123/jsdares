@@ -27,12 +27,16 @@
 	min-width: 430px;
 	min-height: 430px;
 	border-left: solid 1px @editor-margin-border-color;
+	.transition(border-left 0.2s ease-in-out);
+
+	.box-shadow(none);
+	resize: none;
+
 	&:focus {
 		border-left: solid 1px @editor-margin-border-color;
 		outline:0px !important;
     	.box-shadow(none);
 	}
-	.transition(border-left 0.2s ease-in-out);
 }
 
 .editor-highlighting {
@@ -304,8 +308,9 @@ div.colorpicker div.circle.lightness {
 		}
 
 		&.editor-toolbar-step-editing .editor-toolbar-step-value {
-		background-color: @editor-marking-color;
+			background-color: @editor-marking-color;
 			cursor: col-resize;
+			padding-top: 2px;
 
 			&:hover, &.active {
 				background-color: @editor-marking-color-active;

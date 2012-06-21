@@ -558,6 +558,7 @@ module.exports = function(editor) {
 			this.$keyUp = $.proxy(this.keyUp, this);
 			$(document).on('keydown', this.$keyDown);
 			$(document).on('keyup', this.$keyUp);
+			console.log('init toolbar');
 
 			this.highlightingKey = false;
 			this.editablesKey = false;
@@ -645,6 +646,7 @@ module.exports = function(editor) {
 				this.refreshCheckKeys();
 			} else if (event.keyCode === 27) {
 				this.runBar.playPause();
+				event.preventDefault(); // workaround for Safari bug: https://bugs.webkit.org/show_bug.cgi?id=78206
 			}
 		},
 
