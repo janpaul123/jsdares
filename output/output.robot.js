@@ -305,6 +305,7 @@ module.exports = function(output) {
 			this.robot.setState(state);
 			this.updateInterface();
 			this.editor.outputRequestsRerun();
+			this.stateChanged();
 		},
 
 		setStateChangedCallback: function(callback) {

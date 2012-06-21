@@ -1,3 +1,5 @@
+all: widget home
+
 # widget
 widget: widget/js/browser.js widget/css/style.css widget/js/jquery.ui.colorPicker.js
 
@@ -13,6 +15,12 @@ browser.js: cli-widget.js */*.js jsmm/jsmmparser.js
 
 style.css: cli-widget.less global.less */*.less bootstrap/less/*.less
 	node_modules/.bin/lessc cli-widget.less > style.css
+
+# home
+home: home/home.css
+
+home/home.css: home/*.less
+	node_modules/.bin/lessc home/home.less > home/home.css	
 
 # color picker
 colorpicker/jquery.ui.colorPicker.js: colorpicker/jquery.ui.colorPicker.coffee
@@ -31,4 +39,10 @@ test: srv-test.js jsmm/jsmmparser.js jsmm/*.js
 clean:
 	rm widget/js/browser.js browser.js jsmm/jsmmparser.js
 
-.PHONY: clean test widget
+# deploy
+deploy: widget home
+	rm -rf deploy
+	cp -r home deploy
+	cp -r widget deploy/super-secret-preview
+
+.PHONY: clean test widget home deploy
