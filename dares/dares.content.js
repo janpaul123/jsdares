@@ -20,7 +20,8 @@ module.exports = function(dares) {
 							robot.drive(2);
 							robot.turnLeft();
 							robot.drive(1);
-						}
+						},
+						infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight']
 					}, ui),
 					new dares.ConsoleMatchDare({
 						name: 'Hello World',
@@ -31,7 +32,8 @@ module.exports = function(dares) {
 						original: function(anim) {
 							anim.push('Hello World\n');
 							return anim;
-						}
+						},
+						infoCommandFilter: ['console.log']
 					}, ui),
 					new dares.ImageMatchDare({
 						name: 'Gravity',
@@ -47,7 +49,8 @@ module.exports = function(dares) {
 								anim.push(drawBlock(i));
 							}
 							return anim;
-						}
+						},
+						infoCommandFilter: ['jsmm', 'canvas', 'context']
 					}, ui),
 					new dares.ConsoleMatchDare({
 						name: 'Multiplication Tables',
@@ -62,7 +65,8 @@ module.exports = function(dares) {
 								anim.push(text + '\n');
 							}
 							return anim;
-						}
+						},
+						infoCommandFilter: ['jsmm', 'console']
 					}, ui)
 				]
 			}]

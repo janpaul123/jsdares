@@ -7,7 +7,7 @@ module.exports = function(info) {
 		list: [
 			{
 				name: 'document.onkeydown = functionName',
-				id: 'document.onkeydown',
+				id: 'events.document.onkeydown',
 				// outputs: [],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -17,7 +17,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'document.onkeyup = functionName',
-				id: 'document.onkeyup',
+				id: 'events.document.onkeyup',
 				// outputs: [],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -27,7 +27,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'event.keyCode',
-				id: 'event.keyCode',
+				id: 'events.event.keyCode',
 				// outputs: [],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -37,7 +37,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'canvas.onmousemove = functionName',
-				id: 'canvas.onmousemove',
+				id: 'events.canvas.onmousemove',
 				// outputs: ['canvas'],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -47,7 +47,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'canvas.onmousedown = functionName',
-				id: 'canvas.onmousedown',
+				id: 'events.canvas.onmousedown',
 				// outputs: ['canvas'],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -57,7 +57,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'canvas.onmouseup = functionName',
-				id: 'canvas.onmouseup',
+				id: 'events.canvas.onmouseup',
 				// outputs: ['canvas'],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -67,7 +67,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'event.layerX',
-				id: 'event.layerX',
+				id: 'events.event.layerX',
 				// outputs: ['canvas'],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -77,7 +77,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'event.layerY',
-				id: 'event.layerY',
+				id: 'events.event.layerY',
 				// outputs: ['canvas'],
 				outputs: [],
 				makeContent: function(infoTable, $content) {
@@ -87,7 +87,7 @@ module.exports = function(info) {
 			},
 			{
 				name: 'window.setInterval(functionName, time)',
-				id: 'window.setInterval',
+				id: 'events.window.setInterval',
 				// outputs: ['canvas'],
 				outputs: [],
 				makeContent: function(infoTable, $content) {

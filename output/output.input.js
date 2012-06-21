@@ -42,7 +42,7 @@ module.exports = function(output) {
 			var fullType = 'on' + type;
 			return {
 				name: fullType,
-				info: name + '.' + fullType,
+				info: 'events.' + name + '.' + fullType,
 				type: 'variable',
 				example: fullType + ' = ' + niceType,
 				get: $.proxy(function(name) {
@@ -73,7 +73,7 @@ module.exports = function(output) {
 				properties: {
 					onkeydown: {
 						name: 'onkeydown',
-						info: 'document.onkeydown',
+						info: 'events.document.onkeydown',
 						type: 'variable',
 						example: 'onkeydown = keyDown',
 						get: $.proxy(this.handleKeyboardGet, this),
@@ -81,7 +81,7 @@ module.exports = function(output) {
 					},
 					onkeyup: {
 						name: 'onkeyup',
-						info: 'document.onkeyup',
+						info: 'events.document.onkeyup',
 						type: 'variable',
 						example: 'onkeyup = keyUp',
 						get: $.proxy(this.handleKeyboardGet, this),
@@ -98,7 +98,7 @@ module.exports = function(output) {
 				properties: {
 					setInterval: {
 						name: 'setInterval',
-						info: 'window.setInterval',
+						info: 'events.window.setInterval',
 						type: 'function',
 						example: 'setInterval(func, 30)',
 						string: '[function window.setInterval]',
