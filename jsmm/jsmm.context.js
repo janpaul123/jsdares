@@ -13,8 +13,8 @@ module.exports = function(jsmm) {
 			this.idsByNodeId[node.getTopNode().id] = this.idsByNodeId[node.getTopNode().id] || [];
 			this.idsByNodeId[node.getTopNode().id].push(id);
 
-			this.nodeIdsById[id] = this.nodeIdsById[id] || [];
-			if (this.nodeIdsById[id].indexOf(node.id) < 0) this.nodeIdsById[id].push(node.id);
+			if (this.nodeIdsById[id] === undefined) this.nodeIdsById[id] = {};
+			this.nodeIdsById[id][node.id] = true;
 		},
 
 		getHighlightIdsByNodeId: function(line) {
@@ -22,7 +22,7 @@ module.exports = function(jsmm) {
 		},
 
 		getHighlightNodeIdsById: function(id) {
-			return this.nodeIdsById[id] || [];
+			return Object.keys(this.nodeIdsById[id] || []);
 		}
 	};
 
@@ -85,7 +85,7 @@ module.exports = function(jsmm) {
 			if (split.length < 2) return [];
 			var scope = this.scopes[split[0]];
 			if (scope === undefined) return [];
-			return scope[split[1]] || [];
+			return Object.keys(scope[split[1]] || []);
 		},
 
 		getHighlightIdsByNodeId: function(nodeId) {
@@ -95,11 +95,11 @@ module.exports = function(jsmm) {
 		/// INTERNAL FUNCTIONS ///
 		addAssignment: function(stepNum, node, position, name, value, highlight) {
 			if (highlight) {
-				this.scopes[position][name] = this.scopes[position][name] || [];
-				if (this.scopes[position][name].indexOf(node.id) < 0) this.scopes[position][name].push(node.id);
+				if (this.scopes[position][name] === undefined) this.scopes[position][name] = {};
+				this.scopes[position][name][node.id] = true;
 
 				var topNodeId = node.getTopNode().id;
-				this.nodeIds[topNodeId] = this.nodeIds[topNodeId] || [];
+				if (this.nodeIds[topNodeId] === undefined) this.nodeIds[topNodeId] = [];
 				this.nodeIds[topNodeId].push(position + '-' + name);
 			}
 
@@ -236,8 +236,10 @@ module.exports = function(jsmm) {
 				if (error.type === 'Error') {
 					this.error = error;
 				} else {
-					throw error;
 					this.error = new jsmm.msg.Error(0, 'An unknown error has occurred', error);
+					if (jsmm.debug) {
+						throw error;
+					}
 				}
 				this.newStep([this.error]);
 			}

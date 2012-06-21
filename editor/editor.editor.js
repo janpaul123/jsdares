@@ -485,12 +485,14 @@ module.exports = function(editor) {
 			}
 		},
 
-		highlightFunctionNode: function(node) { //this.runner.getFunctionNode()
+		highlightFunctionNode: function(node, scroll) { // toolbar callback
 			if (node === null) {
 				this.surface.hideFunctionHighlight();
 			} else {
 				this.surface.showFunctionHighlight(this.makeLoc(node.blockLoc));
-				this.surface.scrollToLine(node.blockLoc.line);
+				if (scroll) {
+					this.surface.scrollToLine(node.blockLoc.line);
+				}
 			}
 		},
 

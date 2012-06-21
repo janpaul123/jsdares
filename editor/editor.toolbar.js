@@ -483,7 +483,7 @@ module.exports = function(editor) {
 		sliderChanged: function(value) {
 			if (this.runner.isPaused()) {
 				this.runner.setEventNum(value);
-				this.editor.highlightFunctionNode(this.runner.getFunctionNode());
+				this.editor.highlightFunctionNode(this.runner.getFunctionNode(), !this.runner.isStepping());
 			}
 		},
 
