@@ -224,7 +224,9 @@ module.exports = function(jsmm) {
 			}
 		}
 
-		context.newStep([new jsmm.msg.Inline(this.id, '<var>' + symbol + jsmm.stringify(value) + '</var> = <var>' + jsmm.stringify(result) + '</var>')]);
+		if (symbol === '!' || this.expression.type !== 'NumberLiteral') {
+			context.newStep([new jsmm.msg.Inline(this.id, '<var>' + symbol + jsmm.stringify(value) + '</var> = <var>' + jsmm.stringify(result) + '</var>')]);
+		}
 		return result;
 	};
 

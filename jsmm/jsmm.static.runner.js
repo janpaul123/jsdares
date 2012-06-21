@@ -194,6 +194,10 @@ module.exports = function(jsmm) {
 			return this.stepNum < Infinity;
 		},
 
+		canStep: function() {
+			return this.getStepTotal() > 0 && this.eventNum >= 0 && this.enabled;
+		},
+
 		restart: function() {
 			if (this.stepNum !== Infinity) {
 				this.stepNum = Infinity;
@@ -202,7 +206,7 @@ module.exports = function(jsmm) {
 		},
 
 		stepForward: function() {
-			if (this.eventNum >= 0) {
+			if (this.canStep()) {
 				if (this.stepNum < this.events[this.eventNum].context.steps.length-1) {
 					this.stepNum++;
 				} else if (this.stepNum === Infinity) {
@@ -210,21 +214,23 @@ module.exports = function(jsmm) {
 				} else {
 					this.stepNum = Infinity;
 				}
+				this.delegate.runnerChanged();
 			}
-			this.delegate.runnerChanged();
 		},
 
 		stepBackward: function() {
-			if (this.stepNum < Infinity && this.stepNum > 0) {
-				this.stepNum--;
-			} else if (this.stepNum < Infinity) {
-				this.stepNum = Infinity;
+			if (this.canStep()) {
+				if (this.stepNum < Infinity && this.stepNum > 0) {
+					this.stepNum--;
+				} else if (this.stepNum < Infinity) {
+					this.stepNum = Infinity;
+				}
+				this.delegate.runnerChanged();
 			}
-			this.delegate.runnerChanged();
 		},
 
 		getStepTotal: function() {
-			return this.events[this.eventNum].context.steps.length-1;
+			return this.events[this.eventNum].context.steps.length;
 		},
 
 		getStepNum: function() {

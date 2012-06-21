@@ -162,7 +162,11 @@ module.exports = function(editor) {
 				this.$restart.removeClass('disabled');
 				this.bubbleValue.setStepInfo(this.runner.getStepNum(), this.runner.getStepTotal());
 			} else {
-				this.$stepForward.removeClass('disabled');
+				if (this.runner.canStep()) {
+					this.$stepForward.removeClass('disabled');
+				} else {
+					this.$stepForward.addClass('disabled');
+				}
 				this.$stepBackward.addClass('disabled');
 				this.$restart.addClass('disabled');
 				this.clearStepping();

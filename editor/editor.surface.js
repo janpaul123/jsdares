@@ -249,6 +249,7 @@ module.exports = function(editor) {
 
 			this.$textarea.on('keydown', $.proxy(this.keyDown, this));
 			this.$textarea.on('keyup', $.proxy(this.keyUp, this));
+			this.$textarea.on('blur', $.proxy(this.lostFocus, this));
 			this.$textarea.on('click', $.proxy(this.click, this));
 
 			// setting up surface
@@ -262,10 +263,8 @@ module.exports = function(editor) {
 			// setting up message
 			this.message = new editor.Message(this);
 
-			// highlights
-			//this.$highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
-			//this.addElement(this.$highlightMarking);
-			//this.$highlightMarking.hide();
+			this.$updateSize = $.proxy(this.updateSize, this);
+			$(window).on('resize', this.$updateSize);
 
 			this.initOffsets();
 
@@ -276,6 +275,7 @@ module.exports = function(editor) {
 		},
 
 		remove: function() {
+			$(window).off('resize', this.$updateSize);
 			this.hideAutoCompleteBox();
 			//this.$highlightMarking.remove();
 			this.message.remove();
@@ -671,6 +671,16 @@ module.exports = function(editor) {
 				this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
 			}
 
+			if (this.userChangedText) {
+				this.userChangedText = false;
+				this.showElements();
+				if (this.autoCompleteBox === null) {
+					this.delegate.userChangedText();
+				}
+			}
+		},
+
+		lostFocus: function(event) {
 			if (this.userChangedText) {
 				this.userChangedText = false;
 				this.showElements();
