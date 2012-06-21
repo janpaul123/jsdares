@@ -558,7 +558,6 @@ module.exports = function(editor) {
 			this.$keyUp = $.proxy(this.keyUp, this);
 			$(document).on('keydown', this.$keyDown);
 			$(document).on('keyup', this.$keyUp);
-			console.log('init toolbar');
 
 			this.highlightingKey = false;
 			this.editablesKey = false;

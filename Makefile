@@ -45,6 +45,6 @@ deploy: widget home
 	cp -r home deploy
 	cp -r widget deploy/super-secret-preview
 	node_modules/.bin/browserify cli-widget.js -o production.js
-	cp production.js deploy/super-secret-preview/js/browser.js
+	node_modules/.bin/uglifyjs -o deploy/super-secret-preview/js/browser.js production.js
 
 .PHONY: clean test widget home deploy

@@ -2,7 +2,7 @@
 "use strict";
 
 var jsmm = {};
-jsmm.debug = true;
+jsmm.debug = false;
 
 require('./jsmm.nodes')(jsmm);
 require('./jsmm.parser')(jsmm);
