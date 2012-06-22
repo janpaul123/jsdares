@@ -339,7 +339,7 @@ module.exports = function(editor) {
 			this.$div.on('mouseleave', $.proxy(this.mouseLeave, this));
 
 			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
-			this.$playPause.tooltip({title: '<strong>esc</strong>', placement: 'bottom'});
+			this.$playPause.tooltip({title: 'play/pause (<strong>esc</strong>)', placement: 'bottom'});
 			this.$playPause.on('click', $.proxy(this.playPause, this));
 			this.$div.append(this.$playPause);
 
@@ -539,13 +539,13 @@ module.exports = function(editor) {
 			var isMac = navigator.platform.indexOf("Mac") >= 0;
 			var $editHighlightGroup = $('<div class="btn-group editor-toolbar-highlight-group"></div>');
 			this.$highlight = $('<button class="btn btn-inverse editor-toolbar-highlight"><i class="icon-screenshot icon-white"></i></button>');
-			this.$highlight.tooltip({title: '<strong>ctrl</strong>' + (isMac ? ' or <strong>cmd</strong> (&#8984;)' : ''), placement: 'bottom'});
+			this.$highlight.tooltip({title: 'highlighting (<strong>ctrl</strong>' + (isMac ? ' or <strong>cmd</strong> &#8984;)' : ')'), placement: 'bottom'});
 			this.$highlight.click($.proxy(this.highlight, this));
 			$editHighlightGroup.append(this.$highlight);
 
 			this.$edit = $('<button class="btn btn-inverse editor-toolbar-edit"><i class="icon-edit icon-white"></i></button>');
 			this.$edit.click($.proxy(this.edit, this));
-			this.$edit.tooltip({title: '<strong>alt</strong>' + (isMac ? ' (&#8997;)' : ''), placement: 'bottom'});
+			this.$edit.tooltip({title: 'manipulation (<strong>alt</strong>' + (isMac ? ' &#8997;)' : ')'), placement: 'bottom'});
 			$editHighlightGroup.append(this.$edit);
 			this.$div.append($editHighlightGroup);
 

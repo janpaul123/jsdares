@@ -17,7 +17,7 @@ module.exports = function(output) {
 
 			this.$content.append('<h2>Javascript Dare prototype</h2>');
 
-			this.$content.append('<p><strong>Hello my friend!</strong> What you see here is an attempt to realise a vision of programming eduction. A vision of children learning programming by building what they like: games. The process to get there is by doing small programming exercises, themselves presented as games. We call them <strong>dares</strong>.</p>');
+			this.$content.append('<p><strong>Hello my friend!</strong> What you see here is an attempt to realise a vision of programming education. A vision of children learning programming by building what they like: games. The process to get there is by doing small programming exercises, themselves presented as games. We call them <strong>dares</strong>.</p>');
 
 			this.$dareButton = $('<button class="btn btn-success">Example dares</button>');
 			this.$dareButton.on('click', $.proxy(this.ui.dares.show, this.ui.dares));
