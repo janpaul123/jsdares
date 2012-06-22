@@ -34,7 +34,7 @@ module.exports = function(output) {
 			}, this));
 			this.$example3 = $('<button class="btn btn-inverse"><i class="icon-list-alt icon-white"></i> Console example</button>');
 			this.$example3.on('click', $.proxy(function() {
-				this.ui.editor.setText(this.ui.editor.getText() + '\n\n//CONSOLE EXAMPLE\n\nfunction printLine(n) {\n  var text = "";\n  for (var i=1; i<=8; i++) {\n    text += (i*n) + "\\t";\n  }\n  console.log(text);\n}\nfor (var i=1; i<=20; i++) { \n  console.setColor("hsla(" + i*15 + ", 75%, 50%, 1)");\n  printLine(i);\n}');
+				this.ui.editor.setText(this.ui.editor.getText() + '\n\n//CONSOLE EXAMPLE\nconsole.setColor("#fff");\nconsole.log("A colourful multiplication table:");\nconsole.log();\n\nfunction printLine(n) {\n  var text = "";\n  for (var i=1; i<=8; i++) {\n    text += (i*n) + "\\t";\n  }\n  console.log(text);\n}\n\nfor (var i=1; i<=20; i++) { \n  console.setColor("hsla(" + i*15 + ", 75%, 50%, 1)");\n  printLine(i);\n}\n\nconsole.setColor("#ed7032");\nconsole.log();\nconsole.log(":-D");');
 			}, this));
 
 			this.$exampleBar = $('<div class="btn-group"></div>');
