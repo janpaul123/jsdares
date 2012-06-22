@@ -520,7 +520,7 @@ module.exports = function(editor) {
 
 		/// KEYBOARD CALLBACKS ///
 		tabIndent: function(event, offset1, offset2) { // callback
-			// 9 == tab key
+			// 9 == TAB
 			if (event.keyCode === 9) {
 				var code = new editor.Code(this.surface.getText());
 				var pos1 = code.offsetToLoc(offset1);

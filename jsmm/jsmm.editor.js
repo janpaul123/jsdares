@@ -18,8 +18,6 @@ module.exports = function(jsmm) {
 				if (typeof obj !== 'object' || obj.properties === undefined) return null;
 			}
 
-			console.log(obj);
-
 			var examples = [];
 			var start = split[split.length-1].toLowerCase();
 			for (var name in obj.properties) {

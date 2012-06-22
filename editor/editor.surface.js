@@ -148,49 +148,59 @@ module.exports = function(editor) {
 			this.addSemicolon = false;
 			this.selected = -1;
 			this.examples = [];
+			this.previousExample = '';
 		},
 		setExamples: function(examples, text, addSemicolon) {
-			var previousExample = this.examples[this.selected] || '';
+			if (this.examples[this.selected] !== undefined) {
+				this.previousExample = this.examples[this.selected];
+			}
 			this.examples = examples.examples;
 			this.width = examples.width;
 			this.text = text;
 			this.addSemicolon = addSemicolon;
 			this.$content.children('.editor-autocomplete-line').remove();
 			this.$lines = [];
-			var selected = -1;
-			for (var i=0; i<this.examples.length; i++) {
-				var $line = $('<div class="editor-autocomplete-line"></div>');
-				$line.html(examples.prefix + '<strong>' + this.examples[i].substring(0, examples.width) + '</strong>' + this.examples[i].substring(this.width));
-				$line.on('mousemove', $.proxy(this.mouseMove, this));
-				$line.on('click', $.proxy(this.click, this));
-				$line.data('example-number', i);
-				this.$content.append($line);
-				this.$lines.push($line);
-				if (this.examples[i] === previousExample) selected = i;
+			var selected = 0;
+			if (this.examples.length > 0) {
+				this.$element.show();
+				for (var i=0; i<this.examples.length; i++) {
+					var $line = $('<div class="editor-autocomplete-line"></div>');
+					$line.html(examples.prefix + '<strong>' + this.examples[i].substring(0, examples.width) + '</strong>' + this.examples[i].substring(this.width));
+					$line.on('mousemove', $.proxy(this.mouseMove, this));
+					$line.on('click', $.proxy(this.click, this));
+					$line.data('example-number', i);
+					this.$content.append($line);
+					this.$lines.push($line);
+					if (this.examples[i] === this.previousExample) selected = i;
+				}
+				this.select(selected);
+			} else {
+				this.$element.hide();
 			}
-			this.select(selected);
 		},
 		remove: function() {
 			this.$element.remove();
 			this.$marginIcon.remove();
 		},
 		up: function() {
-			if (this.selected > 0) {
-				this.select(this.selected-1);
-			} else if (this.selected === -1 && this.examples.length > 0) {
-				this.select(this.examples.length-1);
-			} else {
-				this.select(-1);
+			if (this.examples.length > 0) {
+				if (this.selected > 0) {
+					this.select(this.selected-1);
+				} else {
+					this.select(this.examples.length-1);
+				}
+				this.scrollToSelected();
 			}
-			this.scrollToSelected();
 		},
 		down: function() {
-			if (this.selected < this.examples.length-1) {
-				this.select(this.selected+1);
-			} else {
-				this.select(-1);
+			if (this.examples.length > 0) {
+				if (this.selected < this.examples.length-1) {
+					this.select(this.selected+1);
+				} else {
+					this.select(0);
+				}
+				this.scrollToSelected();
 			}
-			this.scrollToSelected();
 		},
 		enter: function() {
 			if (this.selected >= 0 && this.selected < this.examples.length) {
@@ -541,7 +551,7 @@ module.exports = function(editor) {
 			} else if (event.keyCode === 40) { // 40 == down
 				this.autoCompleteBox.down();
 				event.preventDefault();
-			} else if (event.keyCode === 13) { // 13 == enter
+			} else if ([13, 9].indexOf(event.keyCode) >= 0) { // 13 == enter, 9 == tab
 				this.autoCompleteBox.enter();
 				event.preventDefault();
 			} else if (event.keyCode === 27) { // 27 == escape
@@ -636,12 +646,12 @@ module.exports = function(editor) {
 				this.userChangedText = true;
 			}
 
-			if (this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd)) {
-				this.userChangedText = true;
-			}
-
 			if (this.autoCompleteBox !== null) {
 				this.autoCompleteNavigate(event);
+			} else {
+				if (this.delegate.tabIndent(event, this.$textarea[0].selectionStart, this.$textarea[0].selectionEnd)) {
+					this.userChangedText = true;
+				}
 			}
 
 			//this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
@@ -666,8 +676,8 @@ module.exports = function(editor) {
 				this.userChangedText = true;
 			}
 
-			// 38 == up, 40 == down, 13 == enter, 16 == shift
-			if ([38, 40, 13, 16].indexOf(event.keyCode) < 0) {
+			// 38 == up, 40 == down, 13 == enter, 16 == shift, 9 == TAB
+			if ([38, 40, 13, 16, 9].indexOf(event.keyCode) < 0) {
 				this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
 			}
 
