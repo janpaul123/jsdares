@@ -265,20 +265,17 @@ module.exports = function(jsmm) {
 			return this.calledFunctions;
 		},
 
-		getCallIdsByRange: function(line1, line2) {
-			var callIds = [];
-			var nodeIds = this.tree.getNodeIdsByRange(line1, line2);
+		getCallIdsByNodeIds: function(nodeIds) {
+			var callIds = {};
 			for (var i=0; i<nodeIds.length; i++) {
 				var id = nodeIds[i];
 				if (this.callIdsByNodeIds[id] !== undefined) {
 					for (var j=0; j<this.callIdsByNodeIds[id].length; j++) {
-						if (callIds.indexOf(this.callIdsByNodeIds[id][j]) < 0) {
-							callIds.push(this.callIdsByNodeIds[id][j]);
-						}
+						callIds[this.callIdsByNodeIds[id][j]] = true;
 					}
 				}
 			}
-			return callIds;
+			return Object.keys(callIds);
 		},
 
 		/// JS-- PROGRAM FUNCTIONS ///

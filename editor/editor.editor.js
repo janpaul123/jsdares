@@ -335,12 +335,13 @@ module.exports = function(editor) {
 						this.currentHighlightNode = node;
 						if (node !== null) {
 							this.surface.showHighlight(this.makeLoc(node.blockLoc));
-							this.callOutputs('highlightCallIds', this.runner.getCallIdsByRange(node.blockLoc.line, node.blockLoc.line2));
-							this.callOutputs('highlightNodes', this.tree.getNodeIdsByRange(node.blockLoc.line, node.blockLoc.line2));
+							var nodeIds = this.tree.getNodeIdsByRange(node.blockLoc.line, node.blockLoc.line2);
+							this.callOutputs('highlightNodes', nodeIds);
+							this.callOutputs('highlightCallIds', this.runner.getCallIdsByNodeIds(nodeIds));
 						} else {
 							this.surface.hideHighlight();
-							this.callOutputs('highlightCallIds', null);
 							this.callOutputs('highlightNodes', null);
+							this.callOutputs('highlightCallIds', null);
 						}
 					}
 				}
@@ -390,7 +391,8 @@ module.exports = function(editor) {
 
 				for (i=0; i<this.activeTimeHighlights.length; i++) {
 					var timeHighlight = highlightsFromTree[this.activeTimeHighlights[i]];
-					var idsPerContext = this.runner.getAllCallIdsByRange(timeHighlight.line, timeHighlight.line2);
+					var nodeIds = this.tree.getNodeIdsByRange(timeHighlight.line, timeHighlight.line2);
+					var idsPerContext = this.runner.getAllCallIdsByNodeIds(nodeIds);
 					for (var j=0; j<idsPerContext.length; j++) {
 						for (var k=0; k<idsPerContext[j].length; k++) {
 							if (timeIds[j].indexOf(idsPerContext[j][k]) < 0) {

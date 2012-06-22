@@ -292,20 +292,20 @@ module.exports = function(jsmm) {
 		},
 
 		/// UTILS ///
-		getCallIdsByRange: function(line1, line2) {
+		getCallIdsByNodeIds: function(nodeIds) {
 			if (this.eventNum >= 0) {
-				return this.events[this.eventNum].context.getCallIdsByRange(line1, line2);
+				return this.events[this.eventNum].context.getCallIdsByNodeIds(nodeIds);
 			} else {
 				return [];
 			}
 		},
 
-		getAllCallIdsByRange: function(line1, line2) {
-			var nodes = [];
+		getAllCallIdsByNodeIds: function(nodeIds) {
+			var callIds = [];
 			for (var i=0; i<this.events.length; i++) {
-				nodes[i] = this.events[i].context.getCallIdsByRange(line1, line2);
+				callIds[i] = this.events[i].context.getCallIdsByNodeIds(nodeIds);
 			}
-			return nodes;
+			return callIds;
 		},
 
 		getExamples: function(text) {
