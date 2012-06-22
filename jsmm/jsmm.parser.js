@@ -47,8 +47,8 @@ module.exports = function(jsmm) {
 			// special cases: passing on information about the used symbol
 			if (hash.text === "'") {
 				throw new jsmm.msg.CriticalError(loc, 'Unfortunately <var>\'</var> cannot be used, please use double quotes (<var>"</var>) instead', errStr);
-			} else if (['<<', '>>', '>>=', '<<='].indexOf(hash.text) >= 0) {
-				throw new jsmm.msg.CriticalError(loc, 'Unfortunately the bit shift operator <var>' + hash.text + '</var> cannot be used', errStr);
+			} else if (['~', '&', '|', '<<', '>>', '>>=', '<<='].indexOf(hash.text) >= 0) {
+				throw new jsmm.msg.CriticalError(loc, 'Unfortunately the bitwise operator <var>' + hash.text + '</var> cannot be used', errStr);
 			} else if (['===', '!=='].indexOf(hash.text) >= 0) {
 				throw new jsmm.msg.CriticalError(loc, 'Unfortunately the strict equality operator <var>' + hash.text + '</var> cannot be used', errStr);
 			} else if (['?', ':', '\\'].indexOf(hash.text) >= 0) {
