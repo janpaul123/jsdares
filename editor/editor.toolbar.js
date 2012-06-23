@@ -556,11 +556,15 @@ module.exports = function(editor) {
 			this.$checkKeys = $.proxy(this.checkKeys, this);
 			this.$keyDown = $.proxy(this.keyDown, this);
 			this.$keyUp = $.proxy(this.keyUp, this);
+			this.$lostFocus = $.proxy(this.lostFocus, this);
 			$(document).on('keydown', this.$keyDown);
 			$(document).on('keyup', this.$keyUp);
+			$(document).on('blur', this.$lostFocus);
 
 			this.highlightingKey = false;
 			this.editablesKey = false;
+			this.escapeKey = false;
+			this.escapeKeyTimer = null;
 		},
 
 		remove: function() {
@@ -568,9 +572,11 @@ module.exports = function(editor) {
 			this.runBar.remove();
 			this.$highlight.remove();
 			this.$edit.remove();
+			this.clearEscapeKeyTimer();
 			$(document).off('mousemove', this.$checkKeys);
 			$(document).off('keydown', this.$keyDown);
 			$(document).off('keyup', this.$keyUp);
+			$(document).off('blur', this.$lostFocus);
 			this.$div.html('');
 			this.$div.removeClass('btn-toolbar editor-toolbar');
 		},
@@ -635,19 +641,28 @@ module.exports = function(editor) {
 		keyDown: function(event) {
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC
 			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
-				this.editor.enableHighlighting();
+				if (!this.highlightingKey) {
+					this.editor.enableHighlighting();
+				}
 				this.highlightingKey = true;
 				this.refreshCheckKeys();
-				event.preventDefault(); // hopefully this fixes windows bugs
+				event.preventDefault();
 			} else if (event.keyCode === 18) {
-				this.setEditing(true);
-				this.editor.enableEditables();
+				if (!this.editablesKey) {
+					this.setEditing(true);
+					this.editor.enableEditables();
+				}
 				this.editablesKey = true;
 				this.refreshCheckKeys();
-				event.preventDefault(); // hopefully this fixes windows bugs
+				event.preventDefault();
 			} else if (event.keyCode === 27) {
-				this.runBar.playPause();
-				event.preventDefault(); // workaround for Safari bug: https://bugs.webkit.org/show_bug.cgi?id=78206
+				if (!this.escapeKey) {
+					this.runBar.playPause();
+				}
+				this.escapeKey = true;
+				this.clearEscapeKeyTimer();
+				this.escapeKeyTimer = setTimeout($.proxy(function() { this.escapeKey = false; }, this), 1000);
+				event.preventDefault();
 			}
 		},
 
@@ -655,11 +670,27 @@ module.exports = function(editor) {
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
 			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
 				this.editor.disableHighlighting();
-				event.preventDefault(); // hopefully this fixes windows bugs
+				event.preventDefault();
 			} else if (event.keyCode === 18) {
 				this.setEditing(false);
 				this.editor.disableEditables();
-				event.preventDefault(); // hopefully this fixes windows bugs
+				event.preventDefault();
+			} else if (event.keyCode === 27) {
+				this.escapeKey = false;
+				this.clearEscapeKeyTimer();
+				event.preventDefault();
+			}
+		},
+
+		lostFocus: function(event) {
+			this.escapeKey = false;
+			this.clearEscapeKeyTimer();
+		},
+
+		clearEscapeKeyTimer: function() {
+			if (this.escapeKeyTimer !== null) {
+				clearTimeout(this.escapeKeyTimer);
+				this.escapeKeyTimer = null;
 			}
 		},
 
