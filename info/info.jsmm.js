@@ -72,16 +72,6 @@ module.exports = function(info) {
 				}
 			},
 			{
-				name: '+, += <small>(strings only)</small>',
-				id: 'jsmm.+s',
-				outputs: [],
-				makeContent: function(infoTable, $content) {
-					$content.html('<p><var>+</var> is not only used for addition, but also for <strong>concatenating</strong> strings with strings, or strings with numbers. For example <var>"Hello " + "World!"</var> results in <var>"Hello World!"</var>. The shorthand <var>+=</var> also works.</p>');
-
-					info.consoleExample(infoTable, $content, 'console.log("Hello " + "World!");\n\nvar text = "Age: ";\ntext += 42;\nconsole.log(text);');
-				}
-			},
-			{
 				name: '+=, -=, *=, /=, %= <small>(numbers only)</small>',
 				id: 'jsmm.+=',
 				outputs: [],
@@ -91,6 +81,16 @@ module.exports = function(info) {
 					info.consoleExample(infoTable, $content, 'var counter = 1;\nconsole.log(counter);\ncounter += 1;\nconsole.log(counter);\ncounter *= 3;\nconsole.log(counter);\n\nvar height = 100;\nconsole.log(height);\nheight *= counter;\nconsole.log(height);');
 
 					info.canvasExample(infoTable, $content, 'var x = 10;\ncontext.fillRect(x, 70, 10, 10);\nx += 30;\ncontext.fillRect(x, 70, 10, 10);\nx += 30;\ncontext.fillRect(x, 70, 10, 10);');
+				}
+			},
+			{
+				name: '+, += <small>(string concatenation)</small>',
+				id: 'jsmm.+s',
+				outputs: [],
+				makeContent: function(infoTable, $content) {
+					$content.html('<p><var>+</var> is not only used for addition, but also for <strong>concatenating</strong> strings with strings, or strings with numbers. For example <var>"Hello " + "World!"</var> results in <var>"Hello World!"</var>. The shorthand <var>+=</var> also works.</p>');
+
+					info.consoleExample(infoTable, $content, 'console.log("Hello " + "World!");\n\nvar text = "Age: ";\ntext += 42;\nconsole.log(text);');
 				}
 			},
 			{

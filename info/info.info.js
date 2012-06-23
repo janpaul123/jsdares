@@ -35,7 +35,7 @@ module.exports = function(info) {
 				infoTable.addGlobalEvent($(document), 'keyup', localDocument.onkeyup);
 			}
 		} else {
-			$samp.text(sampText);
+			$samp.html(sampText);
 		}
 	};
 

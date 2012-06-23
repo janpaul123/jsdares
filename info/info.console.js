@@ -13,7 +13,7 @@ module.exports = function(info) {
 				makeContent: function(infoTable, $content) {
 					$content.html('<p>Use <var>console.log</var> to write a string or number to the console, for example to write <em>Hello World!</em> to the console, you can type <var>console.log("Hello World!");</var></p>');
 
-					info.consoleExample(infoTable, $content, 'console.log("Hello World!");\nconsole.log(7*6);\nconsole.log("Square of 5 is " + (5*5));\nconsole.log(console);');
+					info.consoleExample(infoTable, $content, 'console.log("Hello World!");\nconsole.log(7*6);\nconsole.log("Square of 5 is " + (5*5));\nconsole.log(console);', 'Hello World!<br>42<br>Square of 5 is 25<br>[object Console]');
 				}
 			},
 			{
