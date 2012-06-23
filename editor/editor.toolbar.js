@@ -638,11 +638,13 @@ module.exports = function(editor) {
 				this.editor.enableHighlighting();
 				this.highlightingKey = true;
 				this.refreshCheckKeys();
+				event.preventDefault(); // hopefully this fixes windows bugs
 			} else if (event.keyCode === 18) {
 				this.setEditing(true);
 				this.editor.enableEditables();
 				this.editablesKey = true;
 				this.refreshCheckKeys();
+				event.preventDefault(); // hopefully this fixes windows bugs
 			} else if (event.keyCode === 27) {
 				this.runBar.playPause();
 				event.preventDefault(); // workaround for Safari bug: https://bugs.webkit.org/show_bug.cgi?id=78206
@@ -653,9 +655,11 @@ module.exports = function(editor) {
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
 			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
 				this.editor.disableHighlighting();
+				event.preventDefault(); // hopefully this fixes windows bugs
 			} else if (event.keyCode === 18) {
 				this.setEditing(false);
 				this.editor.disableEditables();
+				event.preventDefault(); // hopefully this fixes windows bugs
 			}
 		},
 

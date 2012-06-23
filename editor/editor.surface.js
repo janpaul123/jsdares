@@ -676,8 +676,8 @@ module.exports = function(editor) {
 				this.userChangedText = true;
 			}
 
-			// 38 == up, 40 == down, 13 == enter, 16 == shift, 9 == TAB
-			if ([38, 40, 13, 16, 9].indexOf(event.keyCode) < 0) {
+			// 38 == up, 40 == down, 13 == enter, 16 == shift, 9 == TAB, 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND
+			if ([38, 40, 13, 16, 9, 17, 18, 91, 93, 224].indexOf(event.keyCode) < 0) {
 				this.delegate.autoComplete(event, this.$textarea[0].selectionStart);
 			}
 

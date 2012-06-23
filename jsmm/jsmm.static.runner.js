@@ -25,6 +25,7 @@ module.exports = function(jsmm) {
 		init: function(delegate, scope, limits) {
 			this.delegate = delegate;
 			this.scope = new jsmm.Scope(scope);
+			this.exampleScope = this.scope;
 			this.limits = {
 				history: limits.history || 40,
 				base: limits.base || {
@@ -65,6 +66,7 @@ module.exports = function(jsmm) {
 			this.baseEvent.run(this.tree, this.scope.getCopy(), this.limits.base);
 			this.runScope = this.baseEvent.context.getBaseScope().getCopy();
 			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
+			else this.exampleScope = this.runScope;
 			this.delegate.runnerChanged();
 		},
 
@@ -95,6 +97,7 @@ module.exports = function(jsmm) {
 					this.errorEventNums.push(this.events.length-1);
 					this.delegate.runnerChanged();
 				} else {
+					this.exampleScope = this.runScope;
 					this.delegate.runnerChangedEvent();
 				}
 				return true;
@@ -119,6 +122,7 @@ module.exports = function(jsmm) {
 							this.baseEvent.run(this.tree, this.scope.getCopy(), this.limits.base);
 							this.runScope = this.baseEvent.context.getBaseScope().getCopy();
 							if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
+							else this.exampleScope = this.runScope;
 							start = 1;
 						} else {
 							this.delegate.clearEventsFrom(0);
@@ -130,6 +134,7 @@ module.exports = function(jsmm) {
 							this.events[i].run(this.tree, this.runScope, this.limits.event);
 							this.runScope = this.events[i].context.getBaseScope().getCopy();
 							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
+							else this.exampleScope = this.runScope;
 						}
 
 						if (this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length) {
@@ -309,7 +314,7 @@ module.exports = function(jsmm) {
 		},
 
 		getExamples: function(text) {
-			return jsmm.editor.autocompletion.getExamples(this.runScope || this.scope, text);
+			return jsmm.editor.autocompletion.getExamples(this.exampleScope, text);
 		},
 
 		getFunctionNode: function() {
