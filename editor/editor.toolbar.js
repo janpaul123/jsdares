@@ -683,8 +683,15 @@ module.exports = function(editor) {
 		},
 
 		lostFocus: function(event) {
-			this.escapeKey = false;
 			this.clearEscapeKeyTimer();
+			this.escapeKey = false;
+			if (this.highlightingKey) {
+				this.editor.disableHighlighting();
+			}
+			if (this.editablesKey) {
+				this.setEditing(false);
+				this.editor.disableEditables();
+			}
 		},
 
 		clearEscapeKeyTimer: function() {
