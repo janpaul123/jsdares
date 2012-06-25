@@ -67,6 +67,7 @@ module.exports = function(jsmm) {
 			this.runScope = this.baseEvent.context.getBaseScope().getCopy();
 			if (this.baseEvent.context.hasError()) this.errorEventNums.push(0);
 			else this.exampleScope = this.runScope;
+			this.updateStepping();
 			this.delegate.runnerChanged();
 		},
 
@@ -105,6 +106,7 @@ module.exports = function(jsmm) {
 		},
 
 		newTree: function(tree) {
+			console.log('newTree', this.baseEvent.context, tree);
 			this.tree = tree;
 			if (this.baseEvent.context !== null && this.tree.compareMain(this.baseEvent.context)) {
 				if (this.interactive && !this.tree.compareAll(this.baseEvent.context)) {
@@ -136,10 +138,7 @@ module.exports = function(jsmm) {
 							if (this.events[i].context.hasError()) this.errorEventNums.push(i);
 							else this.exampleScope = this.runScope;
 						}
-
-						if (this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length) {
-							this.stepNum = Infinity;
-						}
+						this.updateStepping();
 					}
 				}
 				this.baseEvent.context.tree = this.tree;
@@ -188,6 +187,14 @@ module.exports = function(jsmm) {
 				this.step = Infinity;
 			}
 			this.delegate.runnerChanged();
+		},
+
+		getEventType: function() {
+			if (this.eventNum < 0) {
+				return '';
+			} else {
+				return this.events[this.eventNum].type;
+			}
 		},
 
 		isBaseEventSelected: function() {
@@ -249,11 +256,9 @@ module.exports = function(jsmm) {
 			this.delegate.runnerChanged();
 		},
 
-		getStepType: function() {
-			if (this.eventNum < 0) {
-				return '';
-			} else {
-				return this.events[this.eventNum].type;
+		updateStepping: function() {
+			if (this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length) {
+				this.stepNum = Infinity;
 			}
 		},
 

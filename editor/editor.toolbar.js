@@ -428,7 +428,7 @@ module.exports = function(editor) {
 							keyboard: 'keyboard',
 							mouse: 'mouse',
 							interval: 'time'
-						}[this.runner.getStepType()]);
+						}[this.runner.getEventType()]);
 						if (this.runner.hasError()) {
 							this.$stepBarContainer.addClass('editor-toolbar-run-step-bar-error');
 						} else {

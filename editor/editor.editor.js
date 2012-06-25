@@ -126,7 +126,7 @@ module.exports = function(editor) {
 			}
 			if (this.wasStepping) {
 				this.wasStepping = false;
-				this.surface.hideStepMessage();
+				this.surface.hideMessage();
 			}
 			this.handleError(error);
 			this.runner.disable();
