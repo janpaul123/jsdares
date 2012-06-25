@@ -282,6 +282,7 @@ module.exports = function(editor) {
 			this.userChangedText = false;
 			this.autoCompleteBox = null;
 			this.$timeHighlights = {};
+			this.showElementsTimeout = null;
 		},
 
 		remove: function() {
@@ -606,11 +607,21 @@ module.exports = function(editor) {
 		showElements: function() {
 			this.$surface.show();
 			this.$margin.show();
+			this.clearShowElementsTimeout();
 		},
 
 		hideElements: function() {
 			this.$surface.hide();
 			this.$margin.hide();
+			this.clearShowElementsTimeout();
+			this.showElementsTimeout = setTimeout($.proxy(this.showElements, this), 1000);
+		},
+
+		clearShowElementsTimeout: function() {
+			if (this.showElementsTimeout !== null) {
+				clearTimeout(this.showElementsTimeout);
+				this.showElementsTimeout = null;
+			}
 		},
 
 		pageXToColumn: function(x) {

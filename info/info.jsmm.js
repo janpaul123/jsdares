@@ -22,7 +22,7 @@ module.exports = function(info) {
 				id: 'jsmm.string',
 				outputs: [],
 				makeContent: function(infoTable, $content) {
-					$content.html('<p>To represent <strong>text</strong> we use the <strong>string</strong> notation, for example <var>"Hi!"</var>. Everything in between <strong>apostrophes</strong> is a string, so also <var>"3"</var> is a string and not a number. When printing a string to the console it is always displayed exactly as entered.</p>');
+					$content.html('<p>To represent <strong>text</strong> we use the <strong>string</strong> notation, for example <var>"Hi!"</var>. Everything in between <strong>quotation marks</strong> is a string, so also <var>"3"</var> is a string and not a number. When printing a string to the console it is always displayed exactly as entered.</p>');
 
 					info.consoleExample(infoTable, $content, 'console.log("Hello!");\nconsole.log("2.99e8");');
 				}
