@@ -106,7 +106,6 @@ module.exports = function(jsmm) {
 		},
 
 		newTree: function(tree) {
-			console.log('newTree', this.baseEvent.context, tree);
 			this.tree = tree;
 			if (this.baseEvent.context !== null && this.tree.compareMain(this.baseEvent.context)) {
 				if (this.interactive && !this.tree.compareAll(this.baseEvent.context)) {
@@ -257,8 +256,11 @@ module.exports = function(jsmm) {
 		},
 
 		updateStepping: function() {
-			if (this.stepNum < Infinity && this.stepNum >= this.events[this.eventNum].context.steps.length) {
+			var total = this.getStepTotal();
+			if (total <= 0) {
 				this.stepNum = Infinity;
+			} else if (this.stepNum < Infinity && this.stepNum >= total) {
+				this.stepNum = total-1;
 			}
 		},
 
