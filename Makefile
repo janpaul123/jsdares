@@ -9,11 +9,11 @@ widget/js/browser.js: browser.js
 widget/css/style.css: style.css
 	cp style.css widget/css/style.css
 
-browser.js: cli-widget.js */*.js jsmm/jsmmparser.js
-	$(MAKE) test
+browser.js: cli-widget.js node_modules/jsmm-applet/lib/*.js node_modules/jsmm-applet/lib/*/*.js node_modules/jsmm-applet/lib/*/*.jison node_modules/jsmm-applet/lib/*/*.coffee
+	cd node_modules/jsmm-applet && $(MAKE) && cd ../..
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
-style.css: cli-widget.less global.less */*.less bootstrap/less/*.less
+style.css: cli-widget.less node_modules/jsmm-applet/lib/*.less node_modules/jsmm-applet/lib/*/*.less bootstrap/less/*.less
 	node_modules/.bin/lessc cli-widget.less > style.css
 
 # home
@@ -23,21 +23,11 @@ home/home.css: home/*.less
 	node_modules/.bin/lessc home/home.less > home/home.css	
 
 # color picker
-colorpicker/jquery.ui.colorPicker.js: colorpicker/jquery.ui.colorPicker.coffee
-	node_modules/.bin/coffee -c colorpicker/jquery.ui.colorPicker.coffee
-
-widget/js/jquery.ui.colorPicker.js: colorpicker/jquery.ui.colorPicker.js
-	cp colorpicker/jquery.ui.colorPicker.js widget/js/jquery.ui.colorPicker.js
-
-# back end
-jsmm/jsmmparser.js: jsmm/jsmmparser.jison
-	cd jsmm; ../node_modules/.bin/jison jsmmparser.jison
-
-test: srv-test.js jsmm/jsmmparser.js jsmm/*.js
-	node srv-test.js
+widget/js/jquery.ui.colorPicker.js: browser.js node_modules/jsmm-applet/lib/colorpicker/jquery.ui.colorPicker.js
+	cp node_modules/jsmm-applet/lib/colorpicker/jquery.ui.colorPicker.js widget/js/jquery.ui.colorPicker.js
 
 clean:
-	rm widget/js/browser.js browser.js jsmm/jsmmparser.js
+	rm widget/js/browser.js browser.js style.css widget/css/style.css
 
 # deploy
 deploy: widget home
@@ -47,4 +37,4 @@ deploy: widget home
 	node_modules/.bin/browserify cli-widget.js -o production.js
 	node_modules/.bin/uglifyjs -o deploy/super-secret-preview/js/browser.js production.js
 
-.PHONY: clean test widget home deploy
+.PHONY: clean widget home deploy
