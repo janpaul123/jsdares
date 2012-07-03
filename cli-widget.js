@@ -3,11 +3,12 @@
 
 $(function() {
 	var applet = require('jsmm-applet');
+	window.applet = applet;
 
-	var output = applet.output;
-	window.output = output;
+	var $main = $('<div id="main"></div>');
+	$('body').append($main);
 
-	var ui = new output.UI();
+	var ui = new applet.UI($main);
 	window.ui = ui;
 
 	var stressTime = function(n, f) {
