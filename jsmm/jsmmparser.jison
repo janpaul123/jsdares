@@ -15,7 +15,7 @@ newlines		(?:{skip}*(?:[\n]{skip}*)+)
 fraction		(?:"."{digit}+)
 number			(?:(?:(?:[1-9]{digit}*)|"0"){fraction}?{exponent}?)
 string			(?:["][^\\"\n]*(?:[\\][nt"\\][^\\"\n]*)*["])
-reserved		(?:"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new"|"continue"|"void"|"delete"|"this"|"do"|"in"|"switch"|"throw"|"try"|"typeof"|"with"|"abstract"|"boolean"|"byte"|"char"|"class"|"const"|"debugger"|"double"|"enum"|"export"|"extends"|"final"|"float"|"goto"|"implements"|"import"|"int"|"interface"|"long"|"native"|"package"|"private"|"protected"|"public"|"short"|"static"|"super"|"synchronized"|"throws"|"transient"|"volatile"|"arguments"|"NaN"|"Array"|"Object"|"RegExp"|"toString"|(?:"jsmm"{alphanum}*))
+reserved		(?:"undefined"|"null"|"break"|"case"|"catch"|"default"|"finally"|"instanceof"|"new"|"continue"|"void"|"delete"|"this"|"do"|"in"|"switch"|"throw"|"try"|"typeof"|"with"|"abstract"|"boolean"|"byte"|"char"|"class"|"const"|"debugger"|"double"|"enum"|"export"|"extends"|"final"|"float"|"goto"|"implements"|"import"|"int"|"interface"|"long"|"native"|"package"|"private"|"protected"|"public"|"short"|"static"|"super"|"synchronized"|"throws"|"transient"|"volatile"|"arguments"|"NaN"|"Array"|"Object"|"RegExp"|"toString"|(?:"jsmm"{alphanum}*))
 invalid			(?:"'"|"~"|">>="|"<<="|">>"|"<<"|"|"|"&"|"==="|"!=="|"?"|":"|"$"|"\\")
 
 %%
