@@ -19,6 +19,8 @@ module.exports = function(jsmm) {
 		} else if (typeof value === 'object' && value.type === 'variable') {
 			context.addCommand(node, value.info);
 			return value.get(value.name);
+		} else if (typeof value === 'object' && value.type === 'arrayPointer') {
+			return context.scope.getArray(value.id);
 		} else {
 			return value;
 		}
@@ -90,7 +92,9 @@ module.exports = function(jsmm) {
 		getCopy: function() {
 			var values = [];
 			for (var i=0; i<this.values.length; i++) {
-				values[i] = this.values[i].value;
+				if (this.values[i] !== undefined) {
+					values[i] = this.values[i].value;
+				}
 			}
 			return new jsmm.Array(values);
 		}
@@ -269,13 +273,13 @@ module.exports = function(jsmm) {
 		var identifierValue = getValue(context, this.identifier, identifier);
 		var expressionValue = getValue(context, this.expression, expression);
 
-		if (typeof identifierValue !== 'object' || identifierValue.type !== 'arrayPointer') {
+		if (typeof identifierValue !== 'object' || identifierValue.type !== 'array') {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> is not an array');
 		} else if (typeof expressionValue !== 'number' && expressionValue % 1 !== 0) {
 			throw new jsmm.msg.Error(this.id, 'Index <var>' + this.expression.getCode() + '</var> is not an integer');
 		} else {
 			context.addCommand(this, 'jsmm.[]');
-			return context.scope.getArray(identifierValue.id).getArrayValue(expressionValue);
+			return identifierValue.getArrayValue(expressionValue);
 		}
 	};
 	
@@ -318,7 +322,7 @@ module.exports = function(jsmm) {
 		}
 		context.addCommand(this, 'jsmm.array');
 		var array = new jsmm.Array(values);
-		return {type: 'arrayPointer', string: '[array]', id: context.scope.registerArray(array), properties: array.properties};
+		return {type: 'arrayPointer', string: '[array]', id: context.scope.registerArray(array), properties: array.properties}; // properties only for examples!
 	};
 	
 	jsmm.nodes.IfBlock.prototype.runFunc =
