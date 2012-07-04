@@ -5,8 +5,7 @@ $(function() {
 	var applet = require('jsmm-applet');
 	window.applet = applet;
 
-	var $main = $('<div id="main"></div>');
-	$('body').append($main);
+	var $main = $('.example-game');
 
 	var ui = new applet.UI($main);
 	window.ui = ui;

@@ -4,3 +4,132 @@
 html, body {
 	height: 100%;
 }
+
+.main {
+	padding: 0px;
+	margin: 0px auto;
+	height: 100%;
+	max-width: 1085px;
+	min-width: 930px;
+}
+
+.header {
+	position: relative;
+	max-width: 1085px;
+	min-width: 930px;
+	margin: 0px auto;
+
+	.header-title {
+		font-size: 70px;
+		line-height: 70px;
+
+		.header-js {
+			font-weight: lighter;
+		}
+
+		.header-dare {
+			font-weight: bold;
+		}
+	}
+
+	.header-menu {
+		position: absolute;
+		right: 0px;
+		top: 10px;
+
+		a {
+			color: #333;
+			font-size: 24px;
+			font-variant: small-caps;
+		}
+
+		.header-separator {
+			border-left: 1px solid #555;
+			border-right: 1px solid #ddd;
+			margin: 0 8px;
+			display: inline-block;
+			height: 20px;
+			position: relative;
+			top: 4px;
+		}
+	}
+}
+
+.example {
+	position: relative;
+	padding-top: 30px;
+
+	.example-text-top {
+		background-color: #DDD;
+		.border-radius(4px);
+
+		@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+		.box-shadow(@shadow);
+		padding: 10px;
+
+		.example-arrow {
+			#popoverArrow > .top(10px, #ddd);
+			position: absolute;
+			width: 0;
+			height: 0;
+			margin-bottom: -10px;
+		}
+
+		position: absolute;
+		top: 20px;
+		font-size: 18px;
+		font-weight: lighter;
+		right: 50%;
+		margin-right: 20px;
+	}
+
+	.example-text-bottom {
+		background-color: #DDD;
+		.border-radius(4px);
+
+		@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+		.box-shadow(@shadow);
+		padding: 10px;
+
+		.example-arrow {
+			#popoverArrow > .bottom(10px, #ddd);
+			position: absolute;
+			width: 0;
+			height: 0;
+			margin-top: -10px;
+		}
+
+		position: absolute;
+		left: 50%;
+		top: 650px;
+		font-size: 18px;
+		font-weight: lighter;
+		margin-left: 32px;
+	}
+
+	.example-doodle-left {
+		display: none;
+		position: absolute;
+		right: 50%;
+		background-image: url(../img/example-doodle-left.png);
+		top: -101px;
+		height: 369px;
+		width: 747px;
+		margin-right: 53px;
+		z-index: 1000000;
+		-webkit-transform: scaley(-1) scale(0.5) rotate(-30deg);
+	}
+
+	.example-doodle-right {
+		display: none;
+		position: absolute;
+		left: 50%;
+		background-image: url(../img/example-doodle-right.png);
+		top: -101px;
+		height: 272px;
+		width: 619px;
+		margin-left: 53px;
+		z-index: 1000000;
+		-webkit-transform: scaley(-1) scale(0.5) rotate(-30deg);
+	}
+}
