@@ -22,6 +22,7 @@ html, body {
 	.header-title {
 		font-size: 70px;
 		line-height: 70px;
+		margin-left: 5px;
 
 		.header-js {
 			font-weight: lighter;
@@ -34,7 +35,7 @@ html, body {
 
 	.header-menu {
 		position: absolute;
-		right: 0px;
+		right: 5px;
 		top: 10px;
 
 		a {
@@ -45,7 +46,6 @@ html, body {
 
 		.header-separator {
 			border-left: 1px solid #555;
-			border-right: 1px solid #ddd;
 			margin: 0 8px;
 			display: inline-block;
 			height: 20px;
@@ -58,6 +58,7 @@ html, body {
 .example {
 	position: relative;
 	padding-top: 30px;
+	padding-bottom: 40px;
 
 	.example-text-top {
 		background-color: #DDD;
@@ -79,8 +80,7 @@ html, body {
 		top: 20px;
 		font-size: 18px;
 		font-weight: lighter;
-		right: 50%;
-		margin-right: 20px;
+		left: 23%;
 	}
 
 	.example-text-bottom {
@@ -96,15 +96,14 @@ html, body {
 			position: absolute;
 			width: 0;
 			height: 0;
-			margin-top: -10px;
+			margin-top: -10px+2;
 		}
 
 		position: absolute;
-		left: 50%;
 		top: 650px;
 		font-size: 18px;
 		font-weight: lighter;
-		margin-left: 32px;
+		left: 70%;
 	}
 
 	.example-doodle-left {
@@ -131,5 +130,32 @@ html, body {
 		margin-left: 53px;
 		z-index: 1000000;
 		-webkit-transform: scaley(-1) scale(0.5) rotate(-30deg);
+	}
+}
+
+.how {
+
+	.how-header {
+		font-size: 50px;
+		line-height: 50px;
+		font-weight: bold;
+		font-variant: small-caps;
+		margin-bottom: 20px;
+	}
+
+	.how-text {
+		position: relative;
+		width: 100%;
+
+		.how-text-1 {
+			width: 40%;
+		}
+
+		.how-text-2 {
+			position: absolute;
+			left: 50%;
+			top: 0px;
+			width: 45%;
+		}
 	}
 }
