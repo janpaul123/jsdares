@@ -53,6 +53,25 @@ $(function() {
 					robot.drive(1);
 				},
 				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight']
+			},
+			{
+				completed: true,
+				highscore: 100,
+				name: 'Circles',
+				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
+				speed: 100,
+				maxLines: 5,
+				outputs: ['robot'],
+				linePenalty: 0,
+				goalReward: 50,
+				numGoals: 1,
+				state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
+				original: function(robot) {
+					robot.drive(2);
+					robot.turnLeft();
+					robot.drive(1);
+				},
+				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight']
 			}
 		]
 	});
