@@ -28,6 +28,34 @@ $(function() {
 	$('.example-text-top').css('margin-left', -$('.example-text-top').width()/2);
 	$('.example-text-bottom').css('margin-left', -$('.example-text-bottom').width()/2);
 
+	var $dares = $('.intro-dares');
+
+	var $rollinrobots = $('<div></div>');
+	$dares.append($rollinrobots);
+
+	var rollinrobots = new applet.dares.Dares($rollinrobots, {
+		title: "Rollin' Robots",
+		dares: [
+			{
+				name: 'Knight Jump',
+				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
+				speed: 100,
+				maxLines: 5,
+				outputs: ['robot'],
+				linePenalty: 0,
+				goalReward: 50,
+				numGoals: 1,
+				state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
+				original: function(robot) {
+					robot.drive(2);
+					robot.turnLeft();
+					robot.drive(1);
+				},
+				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight']
+			}
+		]
+	});
+
 	var stressTime = function(n, f) {
 		var start = (new Date()).getTime();
 		for (var i=0; i<n; i++) {
