@@ -35,6 +35,7 @@ $(function() {
 
 	var rollinrobots = new applet.dares.Dares($rollinrobots, {
 		title: "Rollin' Robots",
+		difficulty: 3,
 		dares: [
 			{
 				name: 'Knight Jump',
