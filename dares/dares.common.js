@@ -2,6 +2,34 @@
 "use strict";
 
 module.exports = function(dares) {
+	dares.LinePoints = function() { return this.init.apply(this, arguments); };
+	dares.LinePoints.prototype = {
+		init: function($div, max, reward) {
+			this.max = max;
+			this.reward = reward;
+
+			this.$container = $('<div class="dare-points-lines"><div class="dare-points-info"><div class="dare-points-title"><strong><span class="dare-points-lines-lines">0</span> lines</strong> (maximum ' + this.max + ')</div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points for every line below the maximum. Only lines that actually contain content are counted.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
+			$div.append(this.$container);
+
+			this.$lines = this.$container.find('.dare-points-lines-lines');
+			this.$points = this.$container.find('.dare-points-points');
+		},
+		remove: function() {
+			this.$container.remove();
+		},
+		setValue: function(lines) {
+			this.$lines.text(lines);
+			if (lines <= this.max) {
+				this.$points.addClass('dare-points-good');
+				this.$points.text((this.max-lines)*this.reward);
+			} else {
+				this.$points.removeClass('dare-points-good');
+				this.$points.text(0);
+			}
+		}
+	};
+
+	/*
 	dares.AnimatedPoints = function() { return this.init.apply(this, arguments); };
 	dares.AnimatedPoints.prototype = {
 		init: function($div) {
@@ -79,6 +107,7 @@ module.exports = function(dares) {
 			this.$console.html(points + (this.threshold !== null ? '<br/>' + (points >= this.threshold) : ''));
 		}
 	};
+	*/
 
 	dares.SegmentedAnimation = function() { return this.init.apply(this, arguments); };
 	dares.SegmentedAnimation.prototype = {
@@ -173,22 +202,19 @@ module.exports = function(dares) {
 		dare.updateScoreAndAnimationWithLines = function(points) {
 			this.contentLines = this.editor.getContentLines();
 			this.animation.addSegment(this.contentLines.length, 100, $.proxy(this.animationLinesCallback, this));
-			points -= this.linePenalty*this.contentLines.length;
+			points += (this.threshold-this.contentLines.length)*this.linePenalty;
 			this.updateScore(points);
 		};
 
 		dare.animationLinesCallback = function(line) {
-			if (line === 0) {
-				this.animatedPoints.setChanging('numLines');
-			}
 			this.editor.highlightContentLine(this.contentLines[line]);
-			this.animatedPoints.setValue('numLines', line+1);
+			this.linePoints.setValue(line+1);
 		};
 
 		dare.animationFinish = function() {
 			if (this.animation !== null) {
 				this.animation.remove();
-				this.animatedPoints.setChanging(null);
+				//this.animatedPoints.setChanging(null);
 				this.editor.highlightContentLine(null);
 				this.drawScore();
 			}

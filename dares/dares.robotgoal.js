@@ -7,53 +7,47 @@ var clayer = require('jsmm-applet').clayer;
 module.exports = function(dares) {
 	dares.RobotGoalPoints = function() { return this.init.apply(this, arguments); };
 	dares.RobotGoalPoints.prototype = {
-		init: function($div, numGoals, reward, threshold) {
-			this.$div = $div;
-			this.$div.addClass('dare-robotgoal-points');
-			this.$div.hide();
+		init: function($div, min, total, reward) {
+			this.min = min;
+			this.total = total;
+			this.reward = reward;
 
-			this.$goals = $('<div class="dare-robotgoal-points-goals"></div>');
-			this.$div.append(this.$goals);
+			this.$container = $('<div class="dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span> <span class="dare-points-constraints">at least ' + this.min + ' squares required</span></div><div class="dare-points-robotgoal-squares"></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points per visited goal square.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
+			$div.append(this.$container);
+
+			var $squareContainer = this.$container.find('.dare-points-robotgoal-squares');
+			this.$goals = this.$container.find('.dare-points-robotgoal-goals');
+			this.$points = this.$container.find('.dare-points-points');
 
 			this.$squares = [];
-			for (var i=0; i<numGoals; i++) {
-				var $square = $('<div class="dare-robotgoal-points-square"></div>');
-				this.$goals.append($square);
-				this.$squares.push($square);
+			for (var i=0; i<total; i++) {
+				this.$squares[i] = $('<div class="dare-points-robotgoal-square"></div>');
+				$squareContainer.append(this.$squares[i]);
 			}
+		},
 
-			this.$points = $('<div class="dare-robotgoal-points-points">0</div>');
-			this.$div.append(this.$points);
-			this.reward = reward;
-			this.threshold = threshold;
-		},
-		show: function() {
-			this.$div.slideDown(150);
-		},
-		hide: function() {
-			this.$div.slideUp(150);
-		},
-		setValue: function(name, value) {
-			if (value > 0) {
-				clayer.setCss3(this.$squares[value-1], 'transition', 'background-color 0.2s linear');
-				this.$squares[value-1].addClass('dare-robotgoal-points-square-active dare-robotgoal-points-square-blink');
-				if (value-2 >= 0) {
-					this.$squares[value-2].removeClass('dare-robotgoal-points-square-blink');
+		setValue: function(goals) {
+			if (goals > 0) {
+				this.$container.addClass('dare-points-robotgoal-active');
+				this.$squares[goals-1].addClass('dare-points-robotgoal-square-active dare-points-robotgoal-square-blink');
+				if (goals-2 >= 0) {
+					this.$squares[goals-2].removeClass('dare-points-robotgoal-square-blink');
 				}
 			} else {
+				this.$container.removeClass('dare-points-robotgoal-active');
 				for (var i=0; i<this.$squares.length; i++) {
-					clayer.setCss3(this.$squares[i], 'transition', '');
-					this.$squares[i].removeClass('dare-robotgoal-points-square-active dare-robotgoal-points-square-blink');
+					this.$squares[i].removeClass('dare-points-robotgoal-square-active dare-points-robotgoal-square-blink');
 				}
 			}
-			this.$points.text(this.reward*value);
-			if (this.reward*value >= this.threshold) this.$points.addClass('win');
-			else this.$points.removeClass('win');
+
+			this.$points.text(this.reward*goals);
+			if (goals >= this.min) this.$points.addClass('dare-points-good');
+			else this.$points.removeClass('dare-points-good');
 		},
+
 		endAnimation: function() {
-			this.$squares[this.$squares.length-1].removeClass('dare-robotgoal-points-square-blink');
-		},
-		setChanging: function() {}
+			this.$squares[this.$squares.length-1].removeClass('dare-points-robotgoal-square-blink');
+		}
 	};
 
 	dares.RobotGoalDare = function() { return this.init.apply(this, arguments); };
@@ -104,17 +98,12 @@ module.exports = function(dares) {
 			this.originalRobot.insertDelay(30000);
 			this.options.original(this.originalRobot);
 
-			var $points = $('<div></div>');
-			this.$div.append($points);
+			this.$points = $('<div class="dare-points"></div>');
+			this.$div.append(this.$points);
 
+			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.threshold, this.numGoals, this.goalReward);
 			if (this.linePenalty > 0) {
-				this.animatedPoints = new dares.AnimatedPoints($points);
-				this.animatedPoints.addFactor('numVisitedGoals', this.goalReward);
-				this.animatedPoints.addFactor('numLines', -this.linePenalty);
-				this.animatedPoints.setThreshold(this.threshold);
-				this.animatedPoints.finish();
-			} else {
-				this.animatedPoints = new dares.RobotGoalPoints($points, this.numGoals, this.goalReward, this.threshold);
+				this.linePoints = new dares.LinePoints(this.$points, this.maxLines, this.linePenalty);
 			}
 
 			this.$score = $('<div class="dare-score"></div>');
@@ -146,7 +135,6 @@ module.exports = function(dares) {
 		submit: function() {
 			if (this.error) return;
 			this.animationFinish();
-			this.animatedPoints.show();
 
 			this.visitedGoals = this.robot.getVisitedGoals();
 			var points = this.visitedGoals.length * this.goalReward;
@@ -164,18 +152,15 @@ module.exports = function(dares) {
 		},
 
 		animationGoalStartCallback: function(i) {
-			if (i === 0 && this.linePenalty > 0) {
-				this.animatedPoints.setChanging('numVisitedGoals');
-			}
-			this.animatedPoints.setValue('numVisitedGoals', 0);
+			this.goalPoints.setValue(0);
 		},
 
 		animationGoalCallback: function(i) {
 			if (i < this.visitedGoals.length) {
-				this.animatedPoints.setValue('numVisitedGoals', i+1);
+				this.goalPoints.setValue(i+1);
 				this.originalRobot.highlightVisitedGoal(this.visitedGoals[i]);
 			} else {
-				this.animatedPoints.endAnimation();
+				this.goalPoints.endAnimation();
 				this.originalRobot.highlightVisitedGoal(null);
 			}
 		}
