@@ -79,7 +79,8 @@ $(function() {
 				},
 				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
 				outputOptions: {
-					robot: {readOnly: true}
+					robot: {readOnly: true},
+					input: {}
 				},
 				type: 'RobotGoalDare',
 				editor: {}
