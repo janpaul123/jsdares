@@ -219,7 +219,7 @@ module.exports = function(dares) {
 				this.$score.append('<div class="dare-score-completed"><i class="icon-ok icon-white"></i> Dare completed!</div>');
 				this.$score.append('<div class="dare-score-highscore"><i class="icon-trophy icon-white"></i> Highscore: ' + this.highscore + ' points</div>');
 				var $share = $('<div class="dare-score-share"><i class="icon-share icon-white"></i> Share: </div>');
-				var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + this.highscore + ' points on @jsdare!');
+				var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.options.name + ' dare with ' + this.highscore + ' points on @jsdare!');
 				var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
 				$twitter.click(function(event) {
 					event.preventDefault();
