@@ -129,49 +129,6 @@ module.exports = function(dares) {
 	};
 
 	dares.addCommonDareMethods = function(dare) {
-		dare.loadOptions = function(options, ui) {
-			this.ui = ui;
-			this.outputs = [];
-			this.name = options.name || '';
-			this.description = options.description || '';
-			this.difficulty = options.difficulty || 1;
-			this.original = options.original;
-			this.threshold = options.threshold || 1000;
-			this.linePenalty = options.linePenalty || 1;
-			this.speed = options.speed || 50;
-			this.infoCommandFilter = options.infoCommandFilter || null;
-			this.error = false;
-
-			this.highscore = JSON.parse(window.localStorage.getItem('dare-highscore-' + this.name)) || 0;
-			this.completed = JSON.parse(window.localStorage.getItem('dare-completed-' + this.name)) || false;
-		};
-
-		dare.makePreviewButton = function() {
-			var $previewSelect = $('<button class="btn btn-success">Select</button>');
-			$previewSelect.on('click', $.proxy(function(event) { event.stopImmediatePropagation(); this.selectDare(); }, this));
-			return $previewSelect;
-		};
-
-		dare.selectDare = function() {
-			this.ui.removeAll();
-			this.ui.hideDares();
-			this.ui.addDare(this);
-		};
-
-		dare.loadCode = function() {
-			var codeName = 'dare-code-' + this.name;
-			this.editor.setText(window.localStorage.getItem(codeName) || '');
-			this.editor.setTextChangeCallback(function(text) {
-				window.localStorage.setItem(codeName, text);
-			});
-		};
-
-		dare.loadInfo = function(ui) {
-			if (this.infoCommandFilter === null || this.infoCommandFilter.length > 0) {
-				this.info = ui.addInfo(this.infoCommandFilter);
-			}
-		};
-
 		dare.hasError = function() {
 			this.error = true;
 			this.$submit.addClass('disabled');
@@ -187,9 +144,8 @@ module.exports = function(dares) {
 		dare.updateScore = function(points) {
 			if (points >= this.threshold) {
 				this.completed = true;
-				this.highscore = Math.max(this.highscore, points);
-				window.localStorage.setItem('dare-completed-' + this.name, true);
-				window.localStorage.setItem('dare-highscore-' + this.name, this.highscore);
+				this.highscore = Math.max(this.highscore || 0, points);
+				this.delegate.updateHighscore(this.highscore);
 			}
 		};
 

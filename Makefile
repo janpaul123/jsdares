@@ -9,11 +9,11 @@ widget/js/browser.js: browser.js
 widget/css/style.css: style.css
 	cp style.css widget/css/style.css
 
-browser.js: cli-widget.js node_modules/jsmm-applet/lib/*.js node_modules/jsmm-applet/lib/*/*.js node_modules/jsmm-applet/lib/*/*.jison node_modules/jsmm-applet/lib/*/*.coffee
+browser.js: cli-widget.js dares/*.js node_modules/jsmm-applet/lib/*.js node_modules/jsmm-applet/lib/*/*.js node_modules/jsmm-applet/lib/*/*.jison node_modules/jsmm-applet/lib/*/*.coffee
 	cd node_modules/jsmm-applet && $(MAKE) && cd ../..
 	node_modules/.bin/browserify cli-widget.js -d -o browser.js
 
-style.css: cli-widget.less node_modules/jsmm-applet/lib/*.less node_modules/jsmm-applet/lib/*/*.less bootstrap/less/*.less
+style.css: cli-widget.less dares/*.less node_modules/jsmm-applet/lib/*.less node_modules/jsmm-applet/lib/*/*.less bootstrap/less/*.less
 	node_modules/.bin/lessc cli-widget.less > style.css
 
 # home

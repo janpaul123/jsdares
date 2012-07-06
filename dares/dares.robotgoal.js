@@ -1,10 +1,10 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-module.exports = function(dares) {
-	var robot = require('../robot');
-	var clayer = require('../clayer');
+var robot = require('jsmm-applet').robot;
+var clayer = require('jsmm-applet').clayer;
 
+module.exports = function(dares) {
 	dares.RobotGoalPoints = function() { return this.init.apply(this, arguments); };
 	dares.RobotGoalPoints.prototype = {
 		init: function($div, numGoals, reward, threshold) {
@@ -58,11 +58,10 @@ module.exports = function(dares) {
 
 	dares.RobotGoalDare = function() { return this.init.apply(this, arguments); };
 	dares.RobotGoalDare.prototype = dares.addCommonDareMethods({
-		init: function(options, ui) {
-			this.loadOptions(options, ui);
-			this.outputs = ['robot'];
-			this.state = options.state;
-			this.original = options.original;
+		init: function(delegate, ui, options) {
+			this.delegate = delegate;
+			this.ui = ui;
+			this.options = options;
 			this.previewBlockSize = options.previewBlockSize || 32;
 			this.resultBlockSize = options.resultBlockSize || 48;
 			this.numGoals = options.numGoals;
@@ -72,40 +71,16 @@ module.exports = function(dares) {
 			this.threshold = options.threshold || this.numGoals*this.goalReward - this.linePenalty*this.maxLines;
 			this.previewRobot = null;
 			this.animation = null;
-		},
 
-		setPreview: function($preview) {
-			this.removePreview();
+			this.editor = this.ui.addEditor(this.options.editor);
+			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
 
-			var $robot = $('<div class="dares-robotgoal-robot"></div>');
-			var $container = $('<div class="dares-table-preview-robot-container"></div>');
-			$container.append($robot);
-			$preview.html($container);
+			this.$div = this.ui.addTab('dare');
+			this.ui.loadOutputs(this.options.outputOptions);
+			this.ui.selectTab('dare');
 
-			$preview.append(this.description);
-			// $preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numVisitedGoals - ' + this.linePenalty + '*numLines;</span></div>');
-			$preview.append(this.makePreviewButton());
-
-			this.previewRobot = new robot.Robot($robot, true, this.previewBlockSize);
-			this.previewRobot.setState(this.state);
-			this.previewRobot.clear();
-			this.previewRobot.insertDelay(100000);
-			this.original(this.previewRobot);
-			this.previewRobot.playAll();
-		},
-
-		removePreview: function() {
-			if (this.previewRobot !== null) {
-				this.previewRobot.remove();
-			}
-		},
-
-		makeActive: function($div, ui) {
-			this.editor = this.ui.addEditor();
-
-			this.$div = $div;
-			$div.addClass('dare dare-robotgoal');
-			this.robot = this.ui.addRobot(true);
+			this.$div.addClass('dare dare-robotgoal');
+			this.robot = this.ui.getOutput('robot');
 			
 			this.$originalRobotContainer = $('<span class="dare-robotgoal-original-container"></span>');
 			this.$originalRobotContainer.on('click', $.proxy(this.animateRobot, this));
@@ -117,17 +92,17 @@ module.exports = function(dares) {
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
-			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
+			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
 
-			this.$submit = $('<div class="btn btn-success">Submit</div>');
+			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));
 			this.$description.append(this.$submit);
 
 			this.originalRobot = new robot.Robot(this.$originalRobot, true, this.resultBlockSize);
-			this.originalRobot.setState(this.state);
+			this.originalRobot.setState(this.options.robotState);
 			this.originalRobot.clear();
 			this.originalRobot.insertDelay(30000);
-			this.original(this.originalRobot);
+			this.options.original(this.originalRobot);
 
 			var $points = $('<div></div>');
 			this.$div.append($points);
@@ -146,11 +121,7 @@ module.exports = function(dares) {
 			this.$div.append(this.$score);
 			this.drawScore();
 
-			this.loadInfo(ui);
-			ui.finish();
-
-			this.loadCode();
-			this.robot.setState(this.state);
+			this.robot.setState(this.options.robotState);
 			this.animateRobot();
 		},
 
@@ -159,8 +130,7 @@ module.exports = function(dares) {
 			this.originalRobot.remove();
 			this.$submit.remove();
 			this.$originalRobotContainer.remove();
-			this.$div.html('');
-			this.$div.removeClass('dare dare-robotgoal');
+			this.ui.removeAll();
 		},
 
 		animateRobot: function() {

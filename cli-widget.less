@@ -1,23 +1,21 @@
 @import "bootstrap/less/bootstrap.less";
 @import "node_modules/jsmm-applet/lib/index.less";
+@import "dares/index.less";
 
-html, body {
+html {
 	height: 100%;
+	-webkit-font-smoothing: antialiased;
 }
 
 .main {
 	padding: 0px;
 	margin: 0px auto;
 	height: 100%;
-	max-width: 1085px;
-	min-width: 930px;
+	width: @applet-width;
 }
 
 .header {
 	position: relative;
-	max-width: 1085px;
-	min-width: 930px;
-	margin: 0px auto;
 
 	.header-title {
 		font-size: 70px;
@@ -40,6 +38,7 @@ html, body {
 		position: absolute;
 		right: 5px;
 		top: 10px;
+		display: none;
 
 		a {
 			color: #333;
@@ -103,7 +102,7 @@ html, body {
 		}
 
 		position: absolute;
-		top: 650px;
+		top: 625px;
 		font-size: 18px;
 		font-weight: lighter;
 		left: 70%;
