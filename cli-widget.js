@@ -34,33 +34,30 @@ $(function() {
 
 	var DaresManager = function() { return this.init.apply(this, arguments); };
 	DaresManager.prototype = {
-		init: function() {
-
-		},
-
-		updateContent: function(content) {
-			localStorage[content.title] = JSON.stringify(content);
-		},
-
-		loadContent: function(content) {
-			if (localStorage[content.title] !== undefined) {
-				var ret = JSON.parse(localStorage[content.title]);
-				for (var i=0; i<content.dares.length; i++) {
-					ret.dares[i].original = content.dares[i].original; // not serialisable
-				}
-				return ret;
-			} else {
-				return content;
+		init: function(content) {
+			this.content = content;
+			for (var i=0; i<this.content.dares.length; i++) {
+				this.content.dares[i].user = JSON.parse(localStorage[this.content.title + '-' + i] || 'null') || {};
 			}
+		},
+
+		getDare: function(index) {
+			return this.content.dares[index];
+		},
+
+		updateDareUser: function(index, attr, value) {
+			this.content.dares[index].user[attr] = value;
+			localStorage[this.content.title + '-' + index] = JSON.stringify(this.content.dares[index].user);
+		},
+
+		getContent: function() {
+			return this.content;
 		}
 	};
-	var dm = new DaresManager();
 
-	var $rollinrobots = $('<div></div>');
-	$dares.append($rollinrobots);
-	var rollinrobots = new dares.Dares(dm, $rollinrobots, dm.loadContent({
+	var rrDM = new DaresManager({
 		title: "Rollin' Robots",
-		difficulty: 3,
+		difficulty: 1,
 		dares: [
 			{
 				name: 'Knight Jump',
@@ -86,7 +83,11 @@ $(function() {
 				editor: {}
 			}
 		]
-	}));
+	});
+
+	var $rollinrobots = $('<div></div>');
+	$dares.append($rollinrobots);
+	var rrDares = new dares.Dares(rrDM, $rollinrobots);
 
 	var stressTime = function(n, f) {
 		var start = (new Date()).getTime();

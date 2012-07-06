@@ -9,9 +9,8 @@ module.exports = function(dares) {
 	dares.Dares.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
-		init: function(delegate, $collection, content) {
+		init: function(delegate, $collection) {
 			this.delegate = delegate;
-			this.content = content;
 			this.$collection = $collection;
 			this.$collection.addClass('dares-collection');
 
@@ -20,6 +19,7 @@ module.exports = function(dares) {
 			this.$header = $('<div class="dares-header"></div>');
 			this.$collection.append(this.$header);
 
+			var content = delegate.getContent();
 			var $title = $('<div class="dares-header-title">' + content.title + '</div>');
 			this.$header.append($title);
 
@@ -59,11 +59,13 @@ module.exports = function(dares) {
 
 		updateDares: function() {
 			this.$body.children('.dares-body-item').remove(); // prevent $.data leaks
-			for (var i=0; i<this.content.dares.length; i++) {
-				var dare = this.content.dares[i];
+
+			var content = this.delegate.getContent();
+			for (var i=0; i<content.dares.length; i++) {
+				var dare = content.dares[i];
 
 				var $item = $('<div class="dares-body-item"></div>');
-				if (dare.completed) {
+				if (dare.user.completed) {
 					$item.addClass('dares-body-completed');
 				}
 
@@ -76,7 +78,7 @@ module.exports = function(dares) {
 					$name.append('<span class="dares-body-output"><i class="' + this.icons[output] + ' icon-white"></i> ' + output + '</span>');
 				}
 				$item.append($name);
-				$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.highscore +'</span>');
+				$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.user.highscore +'</span>');
 
 				this.$body.append($item);
 			}
@@ -87,13 +89,15 @@ module.exports = function(dares) {
 
 			var $target = $(event.delegateTarget);
 			this.index = $target.data('index');
-			var dare = this.content.dares[this.index];
+			var dare = this.delegate.getDare(this.index);
 
 			this.$modal.addClass('dares-modal-active');
 			this.dare = new dares[dare.type](this, this.ui, dare);
 
 			var $ui = this.$ui;
 			setTimeout(function() { $ui.addClass('dares-modal-ui-active'); }, 0);
+
+			$('body').addClass('modal-open'); // for Bootstrap specific fixes
 		},
 
 		closeModal: function() {
@@ -101,6 +105,7 @@ module.exports = function(dares) {
 				this.dare.remove();
 				this.$modal.removeClass('dares-modal-active');
 				this.$ui.removeClass('dares-modal-ui-active');
+				$('body').removeClass('modal-open');
 			}
 		},
 
@@ -109,15 +114,13 @@ module.exports = function(dares) {
 		},
 
 		updateHighscore: function(highscore) {
-			this.content.dares[this.index].completed = true;
-			this.content.dares[this.index].highscore = highscore;
+			this.delegate.updateDareUser(this.index, 'completed', true);
+			this.delegate.updateDareUser(this.index, 'highscore', highscore);
 			this.updateDares();
-			this.delegate.updateContent(this.content);
 		},
 
 		updateCode: function(code) {
-			this.content.dares[this.index].editor.text = code;
-			this.delegate.updateContent(this.content);
+			this.delegate.updateDareUser(this.index, 'text', code);
 		}
 	};
 };

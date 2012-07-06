@@ -69,11 +69,11 @@ module.exports = function(dares) {
 			this.goalReward = options.goalReward || 50;
 			this.maxLines = options.maxLines || 10;
 			this.threshold = options.threshold || this.numGoals*this.goalReward - this.linePenalty*this.maxLines;
+			this.highscore = options.user.highscore;
 			this.previewRobot = null;
 			this.animation = null;
 
 			this.editor = this.ui.addEditor(this.options.editor);
-			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
 
 			this.$div = this.ui.addTab('dare');
 			this.ui.loadOutputs(this.options.outputOptions);
@@ -122,6 +122,11 @@ module.exports = function(dares) {
 			this.drawScore();
 
 			this.robot.setState(this.options.robotState);
+			if (this.options.user.text !== undefined) {
+				this.editor.setText(this.options.user.text);
+			}
+			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
+			
 			this.animateRobot();
 		},
 
