@@ -64,7 +64,7 @@ $(function() {
 				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
 				speed: 100,
 				outputs: ['robot'],
-				totalGoals: 1,
+				totalGoals: 3,
 				minGoals: 1,
 				goalReward: 50,
 				maxLines: 5,

@@ -12,7 +12,7 @@ module.exports = function(dares) {
 			this.total = total;
 			this.reward = reward;
 
-			this.$container = $('<div class="dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span> <span class="dare-points-constraints">at least ' + this.min + ' squares required</span></div><div class="dare-points-robotgoal-squares"></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points per visited goal square.</div></div><div class="dare-points-points">0</div></div>');
+			this.$container = $('<div class="dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span></div><div class="dare-points-robotgoal-squares"></div></div><div class="dare-points-points">0</div></div>');
 			$div.append(this.$container);
 
 			var $squareContainer = this.$container.find('.dare-points-robotgoal-squares');
@@ -20,9 +20,21 @@ module.exports = function(dares) {
 			this.$points = this.$container.find('.dare-points-points');
 
 			this.$squares = [];
-			for (var i=0; i<total; i++) {
+			for (var i=0; i<min; i++) {
 				this.$squares[i] = $('<div class="dare-points-robotgoal-square"></div>');
 				$squareContainer.append(this.$squares[i]);
+			}
+
+			if (min < total) {
+				var $optional = $('<div class="dare-points-robotgoal-optional"></div>');
+				$squareContainer.append($optional);
+
+				for (;i<total; i++) {
+					this.$squares[i] = $('<div class="dare-points-robotgoal-square"></div>');
+					$optional.append(this.$squares[i]);
+				}
+
+				$optional.append('<span class="dare-points-robotgoal-optional-text">optional</span>');
 			}
 		},
 
@@ -33,6 +45,7 @@ module.exports = function(dares) {
 			if (goals > 0) {
 				this.$container.addClass('dare-points-robotgoal-active');
 				this.$squares[goals-1].addClass('dare-points-robotgoal-square-active dare-points-robotgoal-square-blink');
+				//this.$squares[goals-1].text(this.reward);
 				if (goals-2 >= 0) {
 					this.$squares[goals-2].removeClass('dare-points-robotgoal-square-blink');
 				}
@@ -40,6 +53,7 @@ module.exports = function(dares) {
 				this.$container.removeClass('dare-points-robotgoal-active');
 				for (var i=0; i<this.$squares.length; i++) {
 					this.$squares[i].removeClass('dare-points-robotgoal-square-active dare-points-robotgoal-square-blink');
+					//this.$squares[i].text('');
 				}
 			}
 

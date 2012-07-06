@@ -128,7 +128,7 @@ module.exports = function(dares) {
 		remove: function() {
 			this.clearTimeout();
 			for (var i=0; i<this.removeSegments.length; i++) {
-				this.removeSegments[i].callback();
+				this.segments[this.removeSegments[i]].callback();
 			}
 		},
 

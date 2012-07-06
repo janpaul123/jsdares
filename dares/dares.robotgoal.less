@@ -36,13 +36,12 @@
 		position: relative;
 
 		.dare-points-robotgoal-squares {
-			height: 46px;
 			margin-bottom: 10px;
 
 			.dare-points-robotgoal-square {
 				width: 40px;
 				height: 40px;
-				float: left;
+				display: inline-block;
 				border: 3px solid #eee;
 				margin-right: 20px;
 				.transition(background-color 0.3s linear);
@@ -54,6 +53,20 @@
 				&.dare-points-robotgoal-square-blink {
 					background-color: lighten(#080, 7%);
 				}
+			}
+
+			.dare-points-robotgoal-optional {
+				display: inline-block;
+				background: #222;
+				padding: 10px 13px 8px;
+				.border-radius(5px);
+				margin-left: -6px;
+			}
+
+			.dare-points-robotgoal-optional-text {
+				position: relative;
+				bottom: 18px;
+				margin-left: -8px;
 			}
 		}
 	}
