@@ -8,16 +8,19 @@ module.exports = function(dares) {
 			this.max = max;
 			this.reward = reward;
 
-			this.$container = $('<div class="dare-points-lines"><div class="dare-points-info"><div class="dare-points-title"><strong><span class="dare-points-lines-lines">0</span> lines</strong> (maximum ' + this.max + ')</div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points for every line below the maximum. Only lines that actually contain content are counted.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
+			this.$container = $('<div class="dare-points-lines"><div class="dare-points-info"><div class="dare-points-title">Lines: <span class="dare-points-lines-lines">0</span></strong> <span class="dare-points-constraints">no more than ' + this.max + ' lines</span></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points for every line below the maximum. Only lines that actually contain content are counted.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
 			$div.append(this.$container);
 
 			this.$lines = this.$container.find('.dare-points-lines-lines');
 			this.$points = this.$container.find('.dare-points-points');
 		},
+
 		remove: function() {
 			this.$container.remove();
 		},
+
 		setValue: function(lines) {
+			this.$lines.addClass('dare-points-highlight');
 			this.$lines.text(lines);
 			if (lines <= this.max) {
 				this.$points.addClass('dare-points-good');
@@ -26,6 +29,10 @@ module.exports = function(dares) {
 				this.$points.removeClass('dare-points-good');
 				this.$points.text(0);
 			}
+		},
+
+		endAnimation: function() {
+			this.$lines.removeClass('dare-points-highlight');
 		}
 	};
 
@@ -113,28 +120,49 @@ module.exports = function(dares) {
 	dares.SegmentedAnimation.prototype = {
 		init: function() {
 			this.segments = [];
+			this.removeSegments = [];
 			this.total = 0;
 			this.timeout = null;
 		},
+
 		remove: function() {
 			this.clearTimeout();
+			for (var i=0; i<this.removeSegments.length; i++) {
+				this.removeSegments[i].callback();
+			}
 		},
+
 		addSegment: function(to, delay, callback) {
 			if (to > 0) {
 				this.segments.push({
 					from: this.total,
 					to: to+this.total,
 					delay: delay,
-					callback: callback
+					callback: callback,
+					popRemove: false
 				});
 				this.total += to;
 			}
 		},
+
+		addRemoveSegment: function(delay, callback) {
+			this.removeSegments.push(this.segments.length);
+			this.segments.push({
+				from: this.total,
+				to: 1+this.total,
+				delay: delay,
+				callback: callback,
+				popRemove: true
+			});
+			this.total++;
+		},
+
 		run: function() {
 			this.position = 0;
 			this.segment = 0;
 			this.animateNext();
 		},
+
 		/// INTERNAL FUNCTIONS ///
 		clearTimeout: function() {
 			if (this.timeout !== null) {
@@ -142,17 +170,24 @@ module.exports = function(dares) {
 				this.timeout = null;
 			}
 		},
+
 		animateNext: function() {
 			this.clearTimeout();
-			if (this.position < this.total) {
+			while (this.position < this.total) {
 				var segment = this.segments[this.segment];
 				if (this.position >= segment.to) {
 					this.segment++;
 					segment = this.segments[this.segment];
 				}
+				if (segment.popRemove) {
+					this.removeSegments.shift();
+				}
 				segment.callback(this.position-segment.from);
-				this.timeout = setTimeout($.proxy(this.animateNext, this), segment.delay);
 				this.position++;
+				if (segment.delay > 0) {
+					this.timeout = setTimeout($.proxy(this.animateNext, this), segment.delay);
+					return;
+				}
 			}
 		}
 	};
@@ -170,10 +205,10 @@ module.exports = function(dares) {
 			this.animationFinish();
 		};
 
-		dare.updateScore = function(points) {
-			if (points >= this.threshold) {
+		dare.updateHighScore = function(points) {
+			if (!this.completed || points > this.highscore) {
 				this.completed = true;
-				this.highscore = Math.max(this.highscore || 0, points);
+				this.highscore = points;
 				this.delegate.updateHighscore(this.highscore);
 			}
 		};
@@ -199,11 +234,20 @@ module.exports = function(dares) {
 			}
 		};
 
-		dare.updateScoreAndAnimationWithLines = function(points) {
+		dare.hasValidNumberOfLines = function() {
+			return this.options.maxLines === undefined || this.editor.getContentLines().length <= this.options.maxLines;
+		};
+
+		dare.addLineAnimation = function() {
 			this.contentLines = this.editor.getContentLines();
-			this.animation.addSegment(this.contentLines.length, 100, $.proxy(this.animationLinesCallback, this));
-			points += (this.threshold-this.contentLines.length)*this.linePenalty;
-			this.updateScore(points);
+			this.animation.addSegment(1, 500, $.proxy(this.animationLinesStartCallback, this));
+			this.animation.addSegment(this.contentLines.length, Math.max(1300/this.contentLines.length, 50), $.proxy(this.animationLinesCallback, this));
+			this.animation.addRemoveSegment(0, $.proxy(this.animationLinesFinishCallback, this));
+			return (this.options.maxLines-this.contentLines.length)*this.options.lineReward;
+		};
+
+		dare.animationLinesStartCallback = function() {
+			this.linePoints.setValue(0);
 		};
 
 		dare.animationLinesCallback = function(line) {
@@ -211,12 +255,16 @@ module.exports = function(dares) {
 			this.linePoints.setValue(line+1);
 		};
 
+		dare.animationLinesFinishCallback = function() {
+			this.linePoints.endAnimation();
+		};
+
 		dare.animationFinish = function() {
 			if (this.animation !== null) {
 				this.animation.remove();
-				//this.animatedPoints.setChanging(null);
 				this.editor.highlightContentLine(null);
 				this.drawScore();
+				this.animation = null;
 			}
 		};
 		return dare;

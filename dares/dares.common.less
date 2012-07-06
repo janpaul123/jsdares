@@ -22,10 +22,11 @@
 		overflow: auto;
 		width: 100%;
 		color: #FBFBFB;
+		font-family: "Helvetica Neue";
 
 		.dare-points-info {
 			padding: 10px;
-			width: 390px;
+			width: 350px;
 
 			.dare-points-title {
 				font-size: 20px;
@@ -33,13 +34,17 @@
 				font-weight: bold;
 				margin-bottom: 10px;
 			}
-			
+
 			.dare-points-constraints {
 				margin-left: 10px;
 				font-size: 14px;
 				color: #666;
 				vertical-align: text-bottom;
 				font-weight: normal;
+			}
+
+			.dare-points-highlight {
+				background-color: @highlight-color;
 			}
 		}
 
@@ -51,28 +56,20 @@
 			line-height: 30px;
 			font-size: 30px;
 			padding: 5px 10px;
-			background-color: #080;
+			background-color: #800;
 			font-family: "Helvetica Neue";
 			font-weight: bold;
 			color: white;
 			border-radius: 5px;
-		}
 
-		.dare-points-console {
-			position: absolute;
-			left: 5px;
-			top: 5px;
-		}
-
-		.dare-points-code {
-			float: right;
-			padding: 5px 5px 5px 5%; // intentional!
-			border-left: 1px solid #333;
-			width: 75%;
-
-			.dare-points-changing {
-				background-color: @highlight-color;
+			&.dare-points-good {
+				background-color: #080;
 			}
+		}
+
+		.dare-points-lines {
+			position: relative;
+			border-top: 1px solid #222;
 		}
 	}
 

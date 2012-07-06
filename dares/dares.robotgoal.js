@@ -12,7 +12,7 @@ module.exports = function(dares) {
 			this.total = total;
 			this.reward = reward;
 
-			this.$container = $('<div class="dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span> <span class="dare-points-constraints">at least ' + this.min + ' squares required</span></div><div class="dare-points-robotgoal-squares"></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points per visited goal square.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
+			this.$container = $('<div class="dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span> <span class="dare-points-constraints">at least ' + this.min + ' squares required</span></div><div class="dare-points-robotgoal-squares"></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points per visited goal square.</div></div><div class="dare-points-points">0</div></div>');
 			$div.append(this.$container);
 
 			var $squareContainer = this.$container.find('.dare-points-robotgoal-squares');
@@ -27,6 +27,9 @@ module.exports = function(dares) {
 		},
 
 		setValue: function(goals) {
+			this.$goals.addClass('dare-points-highlight');
+			this.$goals.text(goals);
+
 			if (goals > 0) {
 				this.$container.addClass('dare-points-robotgoal-active');
 				this.$squares[goals-1].addClass('dare-points-robotgoal-square-active dare-points-robotgoal-square-blink');
@@ -46,6 +49,7 @@ module.exports = function(dares) {
 		},
 
 		endAnimation: function() {
+			this.$goals.removeClass('dare-points-highlight');
 			this.$squares[this.$squares.length-1].removeClass('dare-points-robotgoal-square-blink');
 		}
 	};
@@ -58,11 +62,6 @@ module.exports = function(dares) {
 			this.options = options;
 			this.previewBlockSize = options.previewBlockSize || 32;
 			this.resultBlockSize = options.resultBlockSize || 48;
-			this.numGoals = options.numGoals;
-			this.linePenalty = options.linePenalty;
-			this.goalReward = options.goalReward || 50;
-			this.maxLines = options.maxLines || 10;
-			this.threshold = options.threshold || this.numGoals*this.goalReward - this.linePenalty*this.maxLines;
 			this.highscore = options.user.highscore;
 			this.previewRobot = null;
 			this.animation = null;
@@ -101,9 +100,9 @@ module.exports = function(dares) {
 			this.$points = $('<div class="dare-points"></div>');
 			this.$div.append(this.$points);
 
-			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.threshold, this.numGoals, this.goalReward);
-			if (this.linePenalty > 0) {
-				this.linePoints = new dares.LinePoints(this.$points, this.maxLines, this.linePenalty);
+			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.options.minGoals, this.options.totalGoals, this.options.goalReward);
+			if (this.options.maxLines !== undefined) {
+				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
 			}
 
 			this.$score = $('<div class="dare-score"></div>');
@@ -137,16 +136,20 @@ module.exports = function(dares) {
 			this.animationFinish();
 
 			this.visitedGoals = this.robot.getVisitedGoals();
-			var points = this.visitedGoals.length * this.goalReward;
+			var points = this.visitedGoals.length * this.options.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
 			this.animation.addSegment(1, 500, $.proxy(this.animationGoalStartCallback, this));
-			this.animation.addSegment(this.visitedGoals.length+1, 500, $.proxy(this.animationGoalCallback, this));
-			if (this.linePenalty > 0) {
-				this.updateScoreAndAnimationWithLines(points);
-			} else {
-				this.updateScore(points);
+			this.animation.addSegment(this.visitedGoals.length, 500, $.proxy(this.animationGoalCallback, this));
+			this.animation.addRemoveSegment(500, $.proxy(this.animationGoalFinishCallback, this));
+			if (this.options.maxLines !== undefined) {
+				points += this.addLineAnimation();
 			}
+			
+			if (this.visitedGoals.length >= this.options.minGoals && this.hasValidNumberOfLines()) {
+				this.updateHighScore(points);
+			}
+
 			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
 			this.animation.run();
 		},
@@ -159,10 +162,12 @@ module.exports = function(dares) {
 			if (i < this.visitedGoals.length) {
 				this.goalPoints.setValue(i+1);
 				this.originalRobot.highlightVisitedGoal(this.visitedGoals[i]);
-			} else {
-				this.goalPoints.endAnimation();
-				this.originalRobot.highlightVisitedGoal(null);
 			}
+		},
+
+		animationGoalFinishCallback: function() {
+			this.goalPoints.endAnimation();
+			this.originalRobot.highlightVisitedGoal(null);
 		}
 	});
 };

@@ -63,11 +63,12 @@ $(function() {
 				name: 'Knight Jump',
 				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
 				speed: 100,
-				maxLines: 5,
 				outputs: ['robot'],
-				linePenalty: 0,
+				totalGoals: 1,
+				minGoals: 1,
 				goalReward: 50,
-				numGoals: 1,
+				maxLines: 5,
+				lineReward: 10,
 				robotState: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
 				original: function(robot) {
 					robot.drive(2);
