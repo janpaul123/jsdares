@@ -79,9 +79,9 @@ module.exports = function(dares) {
 
 		setValue: function(score) {
 			this.$score.text(score);
-			this.$container.removeClass('dare-points-highscore-active');
+			this.$container.removeClass('dare-points-highscore-blink');
 			window.setTimeout($.proxy(function() {
-				this.$container.addClass('dare-points-highscore-active');
+				this.$container.addClass('dare-points-highscore-active dare-points-highscore-blink');
 			}, this));
 
 			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + score + ' points on @jsdare!');
@@ -95,7 +95,7 @@ module.exports = function(dares) {
 		},
 
 		endAnimation: function() {
-			this.$percentage.removeClass('dare-points-highlight');
+			this.$container.removeClass('dare-points-highscore-blink');
 		}
 	};
 
@@ -184,40 +184,31 @@ module.exports = function(dares) {
 		init: function() {
 			this.segments = [];
 			this.removeSegments = [];
-			this.total = 0;
 			this.timeout = null;
 		},
 
 		remove: function() {
 			this.clearTimeout();
 			for (var i=0; i<this.removeSegments.length; i++) {
-				this.segments[this.removeSegments[i]].callback();
+				this.removeSegments[i]();
+			}
+		},
+
+		prependSegment: function(to, delay, callback) {
+			if (to > 0) {
+				this.segments.unshift({to: to, delay: delay, callback: callback, popRemove: false });
 			}
 		},
 
 		addSegment: function(to, delay, callback) {
 			if (to > 0) {
-				this.segments.push({
-					from: this.total,
-					to: to+this.total,
-					delay: delay,
-					callback: callback,
-					popRemove: false
-				});
-				this.total += to;
+				this.segments.push({to: to, delay: delay, callback: callback, popRemove: false });
 			}
 		},
 
 		addRemoveSegment: function(delay, callback) {
-			this.removeSegments.push(this.segments.length);
-			this.segments.push({
-				from: this.total,
-				to: 1+this.total,
-				delay: delay,
-				callback: callback,
-				popRemove: true
-			});
-			this.total++;
+			this.segments.push({to: 1, delay: delay, callback: callback, popRemove: this.removeSegments.length });
+			this.removeSegments.push(callback);
 		},
 
 		run: function() {
@@ -236,17 +227,19 @@ module.exports = function(dares) {
 
 		animateNext: function() {
 			this.clearTimeout();
-			while (this.position < this.total) {
+			while (this.segment < this.segments.length) {
 				var segment = this.segments[this.segment];
+				segment.callback(this.position);
+				if (segment.popRemove !== false) {
+					this.removeSegments.splice(segment.popRemove, 1);
+				}
+				
+				this.position++;
 				if (this.position >= segment.to) {
 					this.segment++;
-					segment = this.segments[this.segment];
+					this.position = 0;
 				}
-				if (segment.popRemove) {
-					this.removeSegments.shift();
-				}
-				segment.callback(this.position-segment.from);
-				this.position++;
+
 				if (segment.delay > 0) {
 					this.timeout = setTimeout($.proxy(this.animateNext, this), segment.delay);
 					return;
@@ -256,6 +249,48 @@ module.exports = function(dares) {
 	};
 
 	dares.addCommonDareMethods = function(dare) {
+		dare.initOptions = function(delegate, ui, options) {
+			this.delegate = delegate;
+			this.ui = ui;
+			this.options = options;
+			this.highscore = options.user.highscore;
+			this.animation = null;
+
+			this.editor = this.ui.addEditor(this.options.editor);
+			this.$div = this.ui.addTab('dare');
+			this.ui.loadOutputs(this.options.outputOptions);
+			this.ui.selectTab('dare');
+		};
+
+		dare.appendDescription = function($div) {
+			this.$description = $('<div class="dare-description"></div>');
+			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
+			$div.append(this.$description);
+
+			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
+			this.$submit.on('click', $.proxy(this.submit, this));
+			this.$description.append(this.$submit);
+		};
+
+		dare.initPoints = function() {
+			this.$points = $('<div class="dare-points"></div>');
+			this.$div.append(this.$points);
+			this.$points.hide();
+
+			this.linePoints = null;
+			if (this.options.maxLines !== undefined) {
+				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
+			}
+			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name, this.highscore);
+		};
+
+		dare.initEditor = function() {
+			if (this.options.user.text !== undefined) {
+				this.editor.setText(this.options.user.text);
+			}
+			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
+		};
+
 		dare.hasError = function() {
 			this.error = true;
 			this.$submit.addClass('disabled');
@@ -273,7 +308,7 @@ module.exports = function(dares) {
 				this.completed = true;
 				this.highscore = points;
 				this.delegate.updateHighscore(this.highscore);
-				this.animation.addRemoveSegment(200, $.proxy(this.animationHighscoreCallback, this));
+				this.animation.addRemoveSegment(300, $.proxy(this.animationHighscoreCallback, this));
 			}
 		};
 
@@ -289,6 +324,26 @@ module.exports = function(dares) {
 			return (this.options.maxLines-this.contentLines.length)*this.options.lineReward;
 		};
 
+		dare.addToAnimation = function(points) {
+			if (!this.$points.is(':visible')) {
+				this.animation.prependSegment(1, 400, $.proxy(this.animationSlideDown, this));
+			}
+
+			if (this.options.maxLines !== undefined) {
+				points += this.addLineAnimation();
+			}
+			
+			if (this.visitedGoals.length >= this.options.minGoals && this.hasValidNumberOfLines()) {
+				this.updateHighScore(points);
+			}
+
+			this.animation.addSegment(1, 0, $.proxy(this.animationFinish, this));
+		};
+
+		dare.animationSlideDown = function() {
+			this.$points.slideDown(400);
+		};
+
 		dare.animationLinesStartCallback = function() {
 			this.linePoints.setValue(0);
 		};
@@ -299,7 +354,9 @@ module.exports = function(dares) {
 		};
 
 		dare.animationLinesFinishCallback = function() {
+			this.linePoints.setValue(this.contentLines.length);
 			this.linePoints.endAnimation();
+			this.editor.highlightContentLine(null);
 		};
 
 		dare.animationHighscoreCallback = function() {
@@ -309,7 +366,7 @@ module.exports = function(dares) {
 		dare.animationFinish = function() {
 			if (this.animation !== null) {
 				this.animation.remove();
-				this.editor.highlightContentLine(null);
+				this.highscorePoints.endAnimation();
 				this.animation = null;
 			}
 		};

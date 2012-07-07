@@ -13,21 +13,21 @@ module.exports = function(dares) {
 			this.reward = reward;
 
 			this.$container = $('<div class="dare-points-content dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span></div><div class="dare-points-robotgoal-squares"></div></div><div class="dare-points-points">0</div></div>');
-			$div.append(this.$container);
+			$div.prepend(this.$container);
 
-			var $squareContainer = this.$container.find('.dare-points-robotgoal-squares');
+			this.$squareContainer = this.$container.find('.dare-points-robotgoal-squares');
 			this.$goals = this.$container.find('.dare-points-robotgoal-goals');
 			this.$points = this.$container.find('.dare-points-points');
 
 			this.$squares = [];
 			for (var i=0; i<min; i++) {
 				this.$squares[i] = $('<div class="dare-points-robotgoal-square"></div>');
-				$squareContainer.append(this.$squares[i]);
+				this.$squareContainer.append(this.$squares[i]);
 			}
 
 			if (min < total) {
 				var $optional = $('<div class="dare-points-robotgoal-optional"></div>');
-				$squareContainer.append($optional);
+				this.$squareContainer.append($optional);
 
 				for (;i<total; i++) {
 					this.$squares[i] = $('<div class="dare-points-robotgoal-square"></div>');
@@ -64,27 +64,17 @@ module.exports = function(dares) {
 
 		endAnimation: function() {
 			this.$goals.removeClass('dare-points-highlight');
-			this.$squares[this.$squares.length-1].removeClass('dare-points-robotgoal-square-blink');
+			this.$squareContainer.find('.dare-points-robotgoal-square-blink').removeClass('dare-points-robotgoal-square-blink');
 		}
 	};
 
 	dares.RobotGoalDare = function() { return this.init.apply(this, arguments); };
 	dares.RobotGoalDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
-			this.delegate = delegate;
-			this.ui = ui;
-			this.options = options;
+			this.initOptions(delegate, ui, options);
 			this.previewBlockSize = options.previewBlockSize || 32;
 			this.resultBlockSize = options.resultBlockSize || 48;
-			this.highscore = options.user.highscore;
 			this.previewRobot = null;
-			this.animation = null;
-
-			this.editor = this.ui.addEditor(this.options.editor);
-
-			this.$div = this.ui.addTab('dare');
-			this.ui.loadOutputs(this.options.outputOptions);
-			this.ui.selectTab('dare');
 
 			this.$div.addClass('dare dare-robotgoal');
 			this.robot = this.ui.getOutput('robot');
@@ -96,35 +86,20 @@ module.exports = function(dares) {
 			this.$originalRobot = $('<div class="dare-robotgoal-original"></div>');
 			this.$originalRobotContainer.append(this.$originalRobot);
 			this.$originalRobotContainer.append('<div class="dare-robotgoal-original-refresh"><i class="icon-repeat icon-white"></i></div>');
-
-			this.$description = $('<div class="dare-description"></div>');
-			this.$div.append(this.$description);
-			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
-
-			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
-			this.$submit.on('click', $.proxy(this.submit, this));
-			this.$description.append(this.$submit);
-
+			
 			this.originalRobot = new robot.Robot(this.$originalRobot, true, this.resultBlockSize);
 			this.originalRobot.setState(this.options.robotState);
 			this.originalRobot.clear();
 			this.originalRobot.insertDelay(30000);
 			this.options.original(this.originalRobot);
 
-			this.$points = $('<div class="dare-points"></div>');
-			this.$div.append(this.$points);
+			this.appendDescription(this.$div);
 
+			this.initPoints();
 			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.options.minGoals, this.options.totalGoals, this.options.goalReward);
-			if (this.options.maxLines !== undefined) {
-				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
-			}
-			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name, this.highscore);
 
 			this.robot.setState(this.options.robotState);
-			if (this.options.user.text !== undefined) {
-				this.editor.setText(this.options.user.text);
-			}
-			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
+			this.initEditor();
 			
 			this.animateRobot();
 		},
@@ -150,18 +125,11 @@ module.exports = function(dares) {
 			var points = this.visitedGoals.length * this.options.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(1, 500, $.proxy(this.animationGoalStartCallback, this));
+			this.animation.addSegment(1, 200, $.proxy(this.animationGoalStartCallback, this));
 			this.animation.addSegment(this.visitedGoals.length, 500, $.proxy(this.animationGoalCallback, this));
 			this.animation.addRemoveSegment(500, $.proxy(this.animationGoalFinishCallback, this));
-			if (this.options.maxLines !== undefined) {
-				points += this.addLineAnimation();
-			}
-			
-			if (this.visitedGoals.length >= this.options.minGoals && this.hasValidNumberOfLines()) {
-				this.updateHighScore(points);
-			}
 
-			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
+			this.addToAnimation(points);
 			this.animation.run();
 		},
 
@@ -177,6 +145,7 @@ module.exports = function(dares) {
 		},
 
 		animationGoalFinishCallback: function() {
+			this.goalPoints.setValue(this.visitedGoals.length);
 			this.goalPoints.endAnimation();
 			this.originalRobot.highlightVisitedGoal(null);
 		}
