@@ -8,7 +8,7 @@ module.exports = function(dares) {
 			this.max = max;
 			this.reward = reward;
 
-			this.$container = $('<div class="dare-points-lines"><div class="dare-points-info"><div class="dare-points-title">Lines: <span class="dare-points-lines-lines">0</span></strong> <span class="dare-points-constraints">no more than ' + this.max + ' lines</span></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points for every line below the maximum. Only lines that actually contain content are counted.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
+			this.$container = $('<div class="dare-points-content dare-points-lines"><div class="dare-points-info"><div class="dare-points-title">Lines: <span class="dare-points-lines-lines">0</span></strong> <span class="dare-points-constraints">no more than ' + this.max + ' lines</span></div><div class="dare-points-description">You get <strong>' + this.reward + '</strong> points for every line below the maximum. Only lines that actually contain content are counted.</div></div><div class="dare-points-points dare-points-good">0</div></div>');
 			$div.append(this.$container);
 
 			this.$lines = this.$container.find('.dare-points-lines-lines');
@@ -33,6 +33,33 @@ module.exports = function(dares) {
 
 		endAnimation: function() {
 			this.$lines.removeClass('dare-points-highlight');
+		}
+	};
+
+	dares.MatchPoints = function() { return this.init.apply(this, arguments); };
+	dares.MatchPoints.prototype = {
+		init: function($div, min, type) {
+			this.min = min;
+
+			this.$container = $('<div class="dare-points-content dare-points-match"><div class="dare-points-info"><div class="dare-points-title">Matching ' + (type === 'console' ? 'characters' : 'pixels') +': <span class="dare-points-match-percentage">0</span>% <span class="dare-points-constraints">at least ' + this.min + '%</span></div><div class="dare-points-description">You get one point for every percentage of the ' + type + ' output that matches.</div></div><div class="dare-points-points">0</div></div>');
+			$div.append(this.$container);
+			
+			var $squareContainer = this.$container.find('.dare-points-match-squares');
+			this.$percentage = this.$container.find('.dare-points-match-percentage');
+			this.$points = this.$container.find('.dare-points-points');
+		},
+
+		setValue: function(percentage) {
+			this.$percentage.addClass('dare-points-highlight');
+			this.$percentage.text(percentage);
+
+			this.$points.text(percentage);
+			if (percentage >= this.min) this.$points.addClass('dare-points-good');
+			else this.$points.removeClass('dare-points-good');
+		},
+
+		endAnimation: function() {
+			this.$percentage.removeClass('dare-points-highlight');
 		}
 	};
 

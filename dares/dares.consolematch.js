@@ -3,8 +3,6 @@
 
 module.exports = function(dares) {
 	dares.AnimatedConsole = function() { return this.init.apply(this, arguments); };
-	dares.ConsoleMatchDare = function() { return this.init.apply(this, arguments); };
-	
 	dares.AnimatedConsole.prototype = {
 		init: function($div) {
 			this.$div = $div || null;
@@ -49,61 +47,32 @@ module.exports = function(dares) {
 		}
 	};
 
+	dares.ConsoleMatchDare = function() { return this.init.apply(this, arguments); };
 	dares.ConsoleMatchDare.prototype = dares.addCommonDareMethods({
-		init: function(options, ui) {
-			this.loadOptions(options, ui);
-			this.outputs = ['console'];
-			this.original = options.original;
-			this.fullText = this.original(new dares.AnimatedConsole()).getFullText();
-			this.linePenalty = options.linePenalty || 3;
-			this.maxLines = options.maxLines || 10;
-			this.threshold = options.threshold || this.fullText.length - this.linePenalty * this.maxLines;
+		init: function(delegate, ui, options) {
+			this.delegate = delegate;
+			this.ui = ui;
+			this.options = options;
+
+			this.fullText = this.options.original(new dares.AnimatedConsole()).getFullText();
 			this.previewAnim = null;
 			this.animation = null;
-		},
 
-		setPreview: function($preview) {
-			this.removePreviewAnim();
+			this.editor = this.ui.addEditor(this.options.editor);
 
-			var $console = $('<div class="dares-consolematch-console"></div>');
-			var $container = $('<div class="dares-table-preview-console-container"></div>');
-			$container.append($console);
-			$preview.html($container);
+			this.$div = this.ui.addTab('dare');
+			this.ui.loadOutputs(this.options.outputOptions);
+			this.ui.selectTab('dare');
 
-			if (this.previewHeight === undefined) {
-				$console.text(this.fullText);
-				this.previewHeight = $console.height();
-			}
-			$console.height(this.previewHeight); // fix height
-
-			$preview.append(this.description);
-			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numMatchingChars - ' + this.linePenalty + '*numLines;</span></div>');
-			$preview.append(this.makePreviewButton());
-
-			this.previewAnim = new dares.AnimatedConsole($console);
-			this.original(this.previewAnim);
-			this.previewAnim.run(this.speed);
-		},
-
-		removePreviewAnim: function() {
-			if (this.previewAnim !== null) {
-				this.previewAnim.remove();
-			}
-		},
-
-		makeActive: function($div, ui) {
-			this.editor = this.ui.addEditor();
-
-			this.$div = $div;
-			$div.addClass('dare dare-consolematch');
-			this.console = this.ui.addConsole();
+			this.$div.addClass('dare dare-consolematch');
+			this.console = this.ui.getOutput('console');
 			this.console.makeTargetConsole(this.fullText);
 
 			this.$description = $('<div class="dare-description"></div>');
 			this.$div.append(this.$description);
-			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
+			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
 
-			this.$submit = $('<div class="btn btn-success">Submit</div>');
+			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));
 			this.$description.append(this.$submit);
 
@@ -111,16 +80,16 @@ module.exports = function(dares) {
 			this.$originalConsoleContainer.on('click', $.proxy(this.animateConsole, this));
 			this.$div.append(this.$originalConsoleContainer);
 
-			this.$resultCanvas = $('<canvas class="dare-consolematch-result"></canvas>');
-			this.$originalConsoleContainer.append(this.$resultCanvas);
-			this.resultContext = this.$resultCanvas[0].getContext('2d');
+			this.$resultConsole = $('<canvas class="dare-consolematch-result"></canvas>');
+			this.$originalConsoleContainer.append(this.$resultConsole);
+			this.resultContext = this.$resultConsole[0].getContext('2d');
 
 			this.$originalConsoleContainer.append('<div class="dare-consolematch-original-refresh"><i class="icon-repeat icon-white"></i></div>');
 			this.$originalConsole = $('<span class="dare-consolematch-original-console"></span>');
 			this.$originalConsoleContainer.append(this.$originalConsole);
 
 			this.originalAnim = new dares.AnimatedConsole(this.$originalConsole);
-			this.original(this.originalAnim);
+			this.options.original(this.originalAnim);
 			this.initOffsets();
 
 			this.$originalConsole.text(this.fullText);
@@ -128,26 +97,26 @@ module.exports = function(dares) {
 			this.height = this.$originalConsole.height();
 			this.$originalConsole.width(this.width); // fix width and height
 			this.$originalConsole.height(this.height);
-			this.$resultCanvas.attr('width', this.width);
-			this.$resultCanvas.attr('height', this.height + this.lineHeight);
+			this.$resultConsole.attr('width', this.width);
+			this.$resultConsole.attr('height', this.height + this.lineHeight);
 
-			var $points = $('<div></div>');
-			this.$div.append($points);
-			this.animatedPoints = new dares.AnimatedPoints($points);
-			this.animatedPoints.addFactor('numMatchingChars', 1, 'max: ' + this.fullText.length);
-			this.animatedPoints.addFactor('numLines', -this.linePenalty);
-			this.animatedPoints.setThreshold(this.threshold);
-			this.animatedPoints.finish();
+			this.$points = $('<div class="dare-points"></div>');
+			this.$div.append(this.$points);
+
+			this.matchPoints = new dares.MatchPoints(this.$points, this.options.minPercentage, 'console');
+			if (this.options.maxLines !== undefined) {
+				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
+			}
 
 			this.$score = $('<div class="dare-score"></div>');
 			this.$div.append(this.$score);
 			this.drawScore();
 
-			this.loadInfo(ui);
-			ui.finish();
+			if (this.options.user.text !== undefined) {
+				this.editor.setText(this.options.user.text);
+			}
+			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
 
-			this.loadCode();
-			// this.editor.outputRequestsRerun();
 			this.animateConsole();
 		},
 
@@ -155,8 +124,7 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.$submit.remove();
 			this.$originalConsoleContainer.remove();
-			this.$div.html('');
-			this.$div.removeClass('dare dare-consolematch');
+			this.ui.removeAll();
 		},
 
 		animateConsole: function() {
@@ -172,19 +140,19 @@ module.exports = function(dares) {
 		submit: function() {
 			if (this.error) return;
 			this.animationFinish();
-			this.animatedPoints.show();
 
 			var userText = this.console.getText();
 			this.animationRects = [];
-			var points = 0, x = 0, y = 0, maxX = 0;
+			var matching = 0, x = 0, y = 0, maxX = 0, percentage = 0;
 
 			for (var i=0; i<this.fullText.length; i++) {
 				var orig = this.fullText.charAt(i);
 				var match = orig === userText.charAt(i);
-				if (match) points++;
+				if (match) matching++;
+				percentage = Math.floor(100*matching/this.fullText.length);
 
 				if (orig === '\n') {
-					this.animationRects.push({x1: x, x2: x+1, y: y, match: match, points: points});
+					this.animationRects.push({x1: x, x2: x+1, y: y, match: match, points: percentage});
 					x = 0; y++;
 				} else {
 					var prevX = x, prevY = y;
@@ -194,7 +162,7 @@ module.exports = function(dares) {
 					} else {
 						x++;
 					}
-					this.animationRects.push({x1: prevX, x2: x, y: y, match: match, points: points});
+					this.animationRects.push({x1: prevX, x2: x, y: y, match: match, points: percentage});
 					maxX = Math.max(x, maxX);
 				}
 			}
@@ -202,18 +170,33 @@ module.exports = function(dares) {
 			var surplus = userText.length - this.fullText.length;
 			maxX += 2; // account for last character and endline marker
 			if (surplus > 0) {
-				var origPoints = points;
-				var parts = Math.min(surplus, 1000);
+				var origMatching = matching;
+				var parts = Math.min(surplus, 30);
 				for (i=0; i<parts; i++) {
-					points = Math.floor(origPoints - i/parts*surplus);
-					this.animationRects.push({x1: maxX*i/parts, x2: maxX*(i+1)/parts, y: y, match: false, points: points});
+					matching = Math.max(Math.floor(origMatching - (i+1)/parts*surplus), 0);
+					percentage = Math.floor(100*matching/this.fullText.length);
+					this.animationRects.push({x1: maxX*i/parts, x2: maxX*(i+1)/parts, y: y, match: false, points: percentage});
 				}
-				points = origPoints - surplus;
+				matching = origMatching - surplus;
 			}
 
+			percentage = Math.floor(100*matching/this.fullText.length);
+			var points = percentage;
+
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(Math.ceil(this.animationRects.length/10), 50, $.proxy(this.animationMatchingCallback, this));
-			this.updateScoreAndAnimationWithLines(points);
+			this.animation.addSegment(1, 500, $.proxy(this.animationMatchingStartCallback, this));
+
+			this.animationSteps = Math.min(this.animationRects.length, 100);
+			this.animation.addSegment(this.animationSteps, Math.max(1500/this.animationSteps, 50), $.proxy(this.animationMatchingCallback, this));
+			this.animation.addRemoveSegment(500, $.proxy(this.animationMatchingFinishCallback, this));
+			if (this.options.maxLines !== undefined) {
+				points += this.addLineAnimation();
+			}
+
+			if (percentage >= this.options.minPercentage && this.hasValidNumberOfLines()) {
+				this.updateHighScore(points);
+			}
+
 			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
 			this.animation.run();
 		},
@@ -237,21 +220,22 @@ module.exports = function(dares) {
 			textOffset.x -= this.charWidth;
 			textOffset.y -= this.lineHeight;
 
-			this.$resultCanvas.css('left', textOffset.x);
-			this.$resultCanvas.css('top', textOffset.y);
+			this.$resultConsole.css('left', textOffset.x);
+			this.$resultConsole.css('top', textOffset.y);
 			$mirror.remove();
 		},
 
-		animationMatchingCallback: function(i) {
-			i *= 10;
-			if (i === 0) {
-				this.drawConsole(0);
-				this.animatedPoints.setChanging('numMatchingChars');
-			}
+		animationMatchingStartCallback: function() {
+			this.matchPoints.setValue(0);
+			this.drawConsole(0);
+		},
 
+		animationMatchingCallback: function(i) {
 			var rectangle = null;
-			for (var j=0; j<10 && i+j<this.animationRects.length; j++) {
-				rectangle = this.animationRects[i+j];
+
+			var steps = Math.ceil(this.animationRects.length/this.animationSteps);
+			for (var j=0; j<steps && steps*i+j < this.animationRects.length; j++) {
+				rectangle = this.animationRects[steps*i+j];
 				if (rectangle.match) {
 					this.resultContext.fillStyle = '#060';
 				} else {
@@ -261,8 +245,12 @@ module.exports = function(dares) {
 			}
 			
 			if (rectangle !== null) {
-				this.animatedPoints.setValue('numMatchingChars', rectangle.points);
+				this.matchPoints.setValue(rectangle.points);
 			}
+		},
+
+		animationMatchingFinishCallback: function() {
+			this.matchPoints.endAnimation();
 		}
 	});
 };

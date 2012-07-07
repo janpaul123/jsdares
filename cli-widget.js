@@ -82,6 +82,28 @@ $(function() {
 				},
 				type: 'RobotGoalDare',
 				editor: {}
+			},
+			{
+				name: 'Weird console',
+				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
+				speed: 100,
+				outputs: ['console'],
+				minPercentage: 95,
+				goalReward: 50,
+				maxLines: 5,
+				lineReward: 10,
+				original: function(console) {
+					console.push("Test\n");
+					console.push("Test 2\n");
+					return console;
+				},
+				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
+				outputOptions: {
+					console: {},
+					input: {}
+				},
+				type: 'ConsoleMatchDare',
+				editor: {}
 			}
 		]
 	});

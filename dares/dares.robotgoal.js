@@ -12,7 +12,7 @@ module.exports = function(dares) {
 			this.total = total;
 			this.reward = reward;
 
-			this.$container = $('<div class="dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span></div><div class="dare-points-robotgoal-squares"></div></div><div class="dare-points-points">0</div></div>');
+			this.$container = $('<div class="dare-points-content dare-points-robotgoal"><div class="dare-points-info"><div class="dare-points-title">Goal squares: <span class="dare-points-robotgoal-goals">0</span></div><div class="dare-points-robotgoal-squares"></div></div><div class="dare-points-points">0</div></div>');
 			$div.append(this.$container);
 
 			var $squareContainer = this.$container.find('.dare-points-robotgoal-squares');
@@ -168,7 +168,7 @@ module.exports = function(dares) {
 			this.animation.run();
 		},
 
-		animationGoalStartCallback: function(i) {
+		animationGoalStartCallback: function() {
 			this.goalPoints.setValue(0);
 		},
 
