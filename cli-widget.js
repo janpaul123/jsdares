@@ -89,7 +89,6 @@ $(function() {
 				speed: 100,
 				outputs: ['console'],
 				minPercentage: 95,
-				goalReward: 50,
 				maxLines: 5,
 				lineReward: 10,
 				original: function(console) {
@@ -103,6 +102,33 @@ $(function() {
 					input: {}
 				},
 				type: 'ConsoleMatchDare',
+				editor: {}
+			},
+			{
+				name: 'Gravity',
+				description: '<p>A block is <strong>thrown</strong> in the air and then <strong>accelerates back down</strong>. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to <strong>copy</strong> this image as good as possible, in as <strong>few lines</strong> of code as you can.</p>',
+				speed: 50,
+				outputs: ['canvas'],
+				minPercentage: 95,
+				maxLines: 5,
+				lineReward: 10,
+				original: function(anim) {
+					var drawBlock = function(i) {
+						return function(context) {
+							context.fillRect(10+i*24, 270+i*-65+i*i*4, 50, 50);
+						};
+					};
+					for (var i=0; i<20; i++) {
+						anim.push(drawBlock(i));
+					}
+					return anim;
+				},
+				infoCommandFilter: ['jsmm', 'canvas', 'context'],
+				outputOptions: {
+					canvas: {},
+					input: {}
+				},
+				type: 'ImageMatchDare',
 				editor: {}
 			}
 		]

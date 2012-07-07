@@ -47,43 +47,21 @@ module.exports = function(dares) {
 	};
 	
 	dares.ImageMatchDare.prototype = dares.addCommonDareMethods({
-		init: function(options, ui) {
-			this.loadOptions(options, ui);
-			this.threshold = options.threshold || 300000;
-			this.linePenalty = options.linePenalty || 5000;
-			this.outputs = ['canvas'];
+		init: function(delegate, ui, options) {
+			this.delegate = delegate;
+			this.ui = ui;
+			this.options = options;
 			this.previewAnim = null;
 			this.animation = null;
-		},
 
-		setPreview: function($preview) {
-			this.removePreviewAnim();
+			this.editor = this.ui.addEditor(this.options.editor);
 
-			var $canvas = $('<canvas class="dares-imagematch-canvas" width="540" height="540"></canvas>');
-			$preview.html($canvas);
-			$preview.append(this.description);
-			$preview.append('<div class="dares-table-preview-points-container"><span class="dares-table-preview-points">var points = numMatchingPixels - ' + this.linePenalty + '*numLines;</span></div>');
+			this.$div = this.ui.addTab('dare');
+			this.ui.loadOutputs(this.options.outputOptions);
+			this.ui.selectTab('dare');
 
-			$preview.append(this.makePreviewButton());
-
-			var context = $canvas[0].getContext('2d');
-			this.previewAnim = new dares.AnimatedCanvas();
-			this.original(this.previewAnim);
-			this.previewAnim.run(context, this.speed);
-		},
-
-		removePreviewAnim: function() {
-			if (this.previewAnim !== null) {
-				this.previewAnim.remove();
-			}
-		},
-
-		makeActive: function($div, ui) {
-			this.editor = this.ui.addEditor();
-
-			this.$div = $div;
-			$div.addClass('dare dare-imagematch');
-			this.canvas = this.ui.addCanvas();
+			this.$div.addClass('dare dare-imagematch');
+			this.canvas = this.ui.getOutput('canvas');
 			this.size = this.canvas.getSize();
 
 			this.$description = $('<div class="dare-description"></div>');
@@ -100,36 +78,37 @@ module.exports = function(dares) {
 			this.$div.append(this.$resultCanvas);
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
-			this.$description.append('<h2>' + this.name + '</h2><div class="dare-text">' + this.description + '</div>');
+			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
 
-			this.$submit = $('<div class="btn btn-success">Submit</div>');
+			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
 			this.$submit.on('click', $.proxy(this.submit, this));
 			this.$description.append(this.$submit);
 
 			this.originalAnim = new dares.AnimatedCanvas();
-			this.original(this.originalAnim);
+			this.options.original(this.originalAnim);
 			this.drawImage(0);
 			this.imageData = this.originalContext.getImageData(0, 0, this.size, this.size);
 
 			var targetContext = this.canvas.makeTargetCanvas();
 			this.originalAnim.run(targetContext, 0);
 
-			var $points = $('<div></div>');
-			this.$div.append($points);
-			this.animatedPoints = new dares.AnimatedPoints($points);
-			this.animatedPoints.addFactor('numMatchingPixels', 1, 'max: ' + (this.size*this.size));
-			this.animatedPoints.addFactor('numLines', -this.linePenalty);
-			this.animatedPoints.setThreshold(this.threshold);
-			this.animatedPoints.finish();
+			this.$points = $('<div class="dare-points"></div>');
+			this.$div.append(this.$points);
+
+			this.matchPoints = new dares.MatchPoints(this.$points, this.options.minPercentage, 'canvas');
+			if (this.options.maxLines !== undefined) {
+				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
+			}
 
 			this.$score = $('<div class="dare-score"></div>');
 			this.$div.append(this.$score);
 			this.drawScore();
 
-			this.loadInfo(ui);
-			ui.finish();
+			if (this.options.user.text !== undefined) {
+				this.editor.setText(this.options.user.text);
+			}
+			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
 
-			this.loadCode();
 			this.animateImage();
 		},
 
@@ -137,13 +116,12 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.$submit.remove();
 			this.$originalCanvasContainer.remove();
-			this.$div.html('');
-			this.$div.removeClass('dare dare-imagematch');
+			this.ui.removeAll();
 		},
 
 		animateImage: function() {
 			this.animationFinish();
-			this.drawImage(this.speed);
+			this.drawImage(this.options.speed);
 		},
 
 		drawImage: function(speed) {
@@ -153,15 +131,13 @@ module.exports = function(dares) {
 
 		submit: function() {
 			this.animationFinish();
-			this.animatedPoints.show();
 
 			var userImageData = this.canvas.getImageData();
 			var resultImageData = this.resultContext.createImageData(this.size, this.size);
 			this.pointsPerLine = [];
 
-			var i=0, points = 0;
+			var i=0, matching = 0, total = this.size*this.size, percentage = 0;
 			for (var y=0; y<this.size; y++) {
-				var linePoints = 0;
 				for (var x=0; x<this.size; x++) {
 					var dr = userImageData.data[i] - this.imageData.data[i++];
 					var dg = userImageData.data[i] - this.imageData.data[i++];
@@ -171,38 +147,48 @@ module.exports = function(dares) {
 
 					resultImageData.data[i-1] = 140; // alpha
 					if (distance < 20) {
-						points++;
-						linePoints++;
+						matching++;
 						resultImageData.data[i-3] = 255; // green
 					} else {
 						resultImageData.data[i-4] = 255; // red
 					}
 				}
-				this.pointsPerLine.push(linePoints);
+				percentage = Math.floor(100*matching/total);
+				this.pointsPerLine.push(percentage);
 			}
+
+			var points = percentage;
 
 			this.resultContext.clearRect(0, 0, this.size, this.size);
 			this.resultContext.putImageData(resultImageData, 0, 0);
 
 			this.animation = new dares.SegmentedAnimation();
+			this.animation.addSegment(1, 500, $.proxy(this.animationMatchingStartCallback, this));
 			this.animation.addSegment(this.size/10, 50, $.proxy(this.animationMatchingCallback, this));
-			this.animationMatchingNumber = 0;
-			this.updateScoreAndAnimationWithLines(points);
+			this.animation.addRemoveSegment(500, $.proxy(this.animationMatchingFinishCallback, this));
+			if (this.options.maxLines !== undefined) {
+				points += this.addLineAnimation();
+			}
+			
+			if (percentage >= this.options.minPercentage && this.hasValidNumberOfLines()) {
+				this.updateHighScore(points);
+			}
+
 			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
 			this.animation.run();
 		},
 
+		animationMatchingStartCallback: function() {
+			this.drawImage(0);
+		},
+
 		animationMatchingCallback: function(y) {
-			y *= 10;
-			if (y === 0) {
-				this.drawImage(0);
-				this.animatedPoints.setChanging('numMatchingPixels');
-			}
-			for (var i=0; i<10; i++) {
-				this.animationMatchingNumber += this.pointsPerLine[y+i];
-			}
-			this.animatedPoints.setValue('numMatchingPixels', this.animationMatchingNumber);
-			this.originalContext.drawImage(this.$resultCanvas[0], 0, y, this.size, 10, 0, y, this.size, 10);
+			this.matchPoints.setValue(this.pointsPerLine[Math.min(y*10+9, this.pointsPerLine.length-1)]);
+			this.originalContext.drawImage(this.$resultCanvas[0], 0, y*10, this.size, 10, 0, y*10, this.size, 10);
+		},
+
+		animationMatchingFinishCallback: function() {
+			this.matchPoints.endAnimation();
 		}
 	});
 };

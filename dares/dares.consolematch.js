@@ -53,6 +53,7 @@ module.exports = function(dares) {
 			this.delegate = delegate;
 			this.ui = ui;
 			this.options = options;
+			this.highscore = options.user.highscore;
 
 			this.fullText = this.options.original(new dares.AnimatedConsole()).getFullText();
 			this.previewAnim = null;
