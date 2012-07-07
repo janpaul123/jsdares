@@ -118,10 +118,7 @@ module.exports = function(dares) {
 			if (this.options.maxLines !== undefined) {
 				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
 			}
-
-			this.$score = $('<div class="dare-score"></div>');
-			this.$div.append(this.$score);
-			this.drawScore();
+			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name, this.highscore);
 
 			this.robot.setState(this.options.robotState);
 			if (this.options.user.text !== undefined) {

@@ -19,7 +19,7 @@
 		margin-bottom: 10px;
 		padding: 0px;
 		position: relative;
-		overflow: auto;
+		clear: both;
 		width: 100%;
 		color: #FBFBFB;
 		font-family: "Helvetica Neue";
@@ -36,7 +36,7 @@
 				font-size: 20px;
 				line-height: 20px;
 				font-weight: bold;
-				margin-bottom: 10px;
+				margin: 3px 0 10px;
 			}
 
 			.dare-points-constraints {
@@ -45,6 +45,10 @@
 				color: #666;
 				vertical-align: text-bottom;
 				font-weight: normal;
+			}
+
+			.dare-points-description {
+				margin-bottom: 3px;
 			}
 
 			.dare-points-highlight {
@@ -73,6 +77,45 @@
 
 		.dare-points-lines {
 			border-top: 1px solid #222;
+		}
+
+		.dare-points-highscore {
+			position: absolute;
+			left: 50%;
+			width: 400px;
+			height: 0px;
+			bottom: 0px;
+			margin-left: -200px;
+			background-color: #111;
+			overflow: hidden;
+
+			@transition: bottom 0.3s linear, height 0.2s linear;
+			.transition(@transition);
+
+			.border-bottom-left-radius(5px);
+			.border-bottom-right-radius(5px);
+
+			&.dare-points-highscore-active {
+				height: 50px;
+				bottom: -51px;
+			}
+
+			.dare-points-highscore-score {
+				font-size: 35px;
+				line-height: 30px;
+				position: absolute;
+				bottom: 9px;
+				left: 10px;
+				font-weight: bold;
+				background: url(../img/goldencup32x32px.png) no-repeat top left;
+				padding-left: 40px
+			}
+
+			.dare-points-highscore-share {
+				position: absolute;
+				bottom: 10px;
+				right: 10px;
+			}
 		}
 	}
 

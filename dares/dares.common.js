@@ -43,8 +43,7 @@ module.exports = function(dares) {
 
 			this.$container = $('<div class="dare-points-content dare-points-match"><div class="dare-points-info"><div class="dare-points-title">Matching ' + (type === 'console' ? 'characters' : 'pixels') +': <span class="dare-points-match-percentage">0</span>% <span class="dare-points-constraints">at least ' + this.min + '%</span></div><div class="dare-points-description">You get one point for every percentage of the ' + type + ' output that matches.</div></div><div class="dare-points-points">0</div></div>');
 			$div.append(this.$container);
-			
-			var $squareContainer = this.$container.find('.dare-points-match-squares');
+
 			this.$percentage = this.$container.find('.dare-points-match-percentage');
 			this.$points = this.$container.find('.dare-points-points');
 		},
@@ -56,6 +55,43 @@ module.exports = function(dares) {
 			this.$points.text(percentage);
 			if (percentage >= this.min) this.$points.addClass('dare-points-good');
 			else this.$points.removeClass('dare-points-good');
+		},
+
+		endAnimation: function() {
+			this.$percentage.removeClass('dare-points-highlight');
+		}
+	};
+
+	dares.HighscorePoints = function() { return this.init.apply(this, arguments); };
+	dares.HighscorePoints.prototype = {
+		init: function($div, name, initial) {
+			this.name = name;
+			this.$container = $('<div class="dare-points-highscore"><div class="dare-points-highscore-score">0</div><div class="dare-points-highscore-share"></div></div>');
+			$div.append(this.$container);
+
+			this.$score = this.$container.find('.dare-points-highscore-score');
+			this.$share = this.$container.find('.dare-points-highscore-share');
+
+			if (this.initial > 0) {
+				this.setValue(initial);
+			}
+		},
+
+		setValue: function(score) {
+			this.$score.text(score);
+			this.$container.removeClass('dare-points-highscore-active');
+			window.setTimeout($.proxy(function() {
+				this.$container.addClass('dare-points-highscore-active');
+			}, this));
+
+			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + score + ' points on @jsdare!');
+			var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
+			$twitter.click(function(event) {
+				event.preventDefault();
+				window.open(twitUrl, '', 'width=550,height=300');
+			});
+
+			this.$share.html($twitter);
 		},
 
 		endAnimation: function() {
@@ -237,27 +273,7 @@ module.exports = function(dares) {
 				this.completed = true;
 				this.highscore = points;
 				this.delegate.updateHighscore(this.highscore);
-			}
-		};
-
-		dare.drawScore = function() {
-			if (this.completed) {
-				this.$score.html('');
-				this.$score.append('<div class="dare-score-completed"><i class="icon-ok icon-white"></i> Dare completed!</div>');
-				this.$score.append('<div class="dare-score-highscore"><i class="icon-trophy icon-white"></i> Highscore: ' + this.highscore + ' points</div>');
-				var $share = $('<div class="dare-score-share"><i class="icon-share icon-white"></i> Share: </div>');
-				var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.options.name + ' dare with ' + this.highscore + ' points on @jsdare!');
-				var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
-				$twitter.click(function(event) {
-					event.preventDefault();
-					window.open(twitUrl, '', 'width=550,height=300');
-				});
-				$share.append($twitter);
-				// for Facebook see https://developers.facebook.com/docs/reference/dialogs/feed/
-				this.$score.append($share);
-				this.$score.slideDown(150);
-			} else {
-				this.$score.hide();
+				this.animation.addRemoveSegment(200, $.proxy(this.animationHighscoreCallback, this));
 			}
 		};
 
@@ -286,11 +302,14 @@ module.exports = function(dares) {
 			this.linePoints.endAnimation();
 		};
 
+		dare.animationHighscoreCallback = function() {
+			this.highscorePoints.setValue(this.highscore);
+		};
+
 		dare.animationFinish = function() {
 			if (this.animation !== null) {
 				this.animation.remove();
 				this.editor.highlightContentLine(null);
-				this.drawScore();
 				this.animation = null;
 			}
 		};
