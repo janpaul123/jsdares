@@ -123,10 +123,10 @@ $(function() {
 					}
 					return anim;
 				},
-				infoCommandFilter: ['jsmm', 'canvas', 'context'],
 				outputOptions: {
 					canvas: {},
-					input: {}
+					input: {},
+					info: {commandFilter: ['jsmm', 'canvas', 'context']}
 				},
 				type: 'ImageMatchDare',
 				editor: {}

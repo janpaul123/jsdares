@@ -64,25 +64,25 @@ module.exports = function(dares) {
 
 	dares.HighscorePoints = function() { return this.init.apply(this, arguments); };
 	dares.HighscorePoints.prototype = {
-		init: function($div, name, initial) {
+		init: function($div, name) {
 			this.name = name;
 			this.$container = $('<div class="dare-points-highscore"><div class="dare-points-highscore-score">0</div><div class="dare-points-highscore-share"></div></div>');
 			$div.append(this.$container);
 
 			this.$score = this.$container.find('.dare-points-highscore-score');
 			this.$share = this.$container.find('.dare-points-highscore-share');
+		},
 
-			if (this.initial > 0) {
-				this.setValue(initial);
-			}
+		show: function() {
+			this.$container.addClass('dare-points-highscore-active');
+		},
+
+		blink: function() {
+			this.$container.addClass('dare-points-highscore-blink');
 		},
 
 		setValue: function(score) {
 			this.$score.text(score);
-			this.$container.removeClass('dare-points-highscore-blink');
-			window.setTimeout($.proxy(function() {
-				this.$container.addClass('dare-points-highscore-active dare-points-highscore-blink');
-			}, this));
 
 			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + score + ' points on @jsdare!');
 			var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
@@ -253,8 +253,9 @@ module.exports = function(dares) {
 			this.delegate = delegate;
 			this.ui = ui;
 			this.options = options;
-			this.highscore = options.user.highscore;
 			this.animation = null;
+			this.completed = this.options.user.completed;
+			this.highscore = this.options.user.highscore;
 
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
@@ -281,7 +282,11 @@ module.exports = function(dares) {
 			if (this.options.maxLines !== undefined) {
 				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
 			}
-			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name, this.highscore);
+			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name);
+			if (this.completed) {
+				this.highscorePoints.show();
+				this.highscorePoints.setValue(this.highscore);
+			}
 		};
 
 		dare.initEditor = function() {
@@ -308,7 +313,8 @@ module.exports = function(dares) {
 				this.completed = true;
 				this.highscore = points;
 				this.delegate.updateHighscore(this.highscore);
-				this.animation.addRemoveSegment(300, $.proxy(this.animationHighscoreCallback, this));
+				this.animation.addSegment(1, 0, $.proxy(this.animationHighscoreBlinkCallback, this));
+				this.animation.addSegment(points, 5, $.proxy(this.animationHighscoreIncreaseCallback, this));
 			}
 		};
 
@@ -359,15 +365,21 @@ module.exports = function(dares) {
 			this.editor.highlightContentLine(null);
 		};
 
-		dare.animationHighscoreCallback = function() {
-			this.highscorePoints.setValue(this.highscore);
+		dare.animationHighscoreBlinkCallback = function() {
+			this.highscorePoints.show();
+			this.highscorePoints.blink();
+		};
+
+		dare.animationHighscoreIncreaseCallback = function(score) {
+			this.highscorePoints.setValue(score);
 		};
 
 		dare.animationFinish = function() {
 			if (this.animation !== null) {
 				this.animation.remove();
-				this.highscorePoints.endAnimation();
 				this.animation = null;
+				this.highscorePoints.setValue(this.highscore);
+				this.highscorePoints.endAnimation();
 			}
 		};
 		return dare;
