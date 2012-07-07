@@ -50,32 +50,14 @@ module.exports = function(dares) {
 	dares.ConsoleMatchDare = function() { return this.init.apply(this, arguments); };
 	dares.ConsoleMatchDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
-			this.delegate = delegate;
-			this.ui = ui;
-			this.options = options;
-			this.highscore = options.user.highscore;
-
-			this.fullText = this.options.original(new dares.AnimatedConsole()).getFullText();
-			this.previewAnim = null;
-			this.animation = null;
-
-			this.editor = this.ui.addEditor(this.options.editor);
-
-			this.$div = this.ui.addTab('dare');
-			this.ui.loadOutputs(this.options.outputOptions);
-			this.ui.selectTab('dare');
+			this.initOptions(delegate, ui, options);
 
 			this.$div.addClass('dare dare-consolematch');
 			this.console = this.ui.getOutput('console');
+			this.fullText = this.options.original(new dares.AnimatedConsole()).getFullText();
 			this.console.makeTargetConsole(this.fullText);
 
-			this.$description = $('<div class="dare-description"></div>');
-			this.$div.append(this.$description);
-			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
-
-			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
-			this.$submit.on('click', $.proxy(this.submit, this));
-			this.$description.append(this.$submit);
+			this.appendDescription(this.$div);
 
 			this.$originalConsoleContainer = $('<span class="dare-consolematch-original-container"></span>');
 			this.$originalConsoleContainer.on('click', $.proxy(this.animateConsole, this));
@@ -101,23 +83,9 @@ module.exports = function(dares) {
 			this.$resultConsole.attr('width', this.width);
 			this.$resultConsole.attr('height', this.height + this.lineHeight);
 
-			this.$points = $('<div class="dare-points"></div>');
-			this.$div.append(this.$points);
-
+			this.initPoints();
 			this.matchPoints = new dares.MatchPoints(this.$points, this.options.minPercentage, 'console');
-			if (this.options.maxLines !== undefined) {
-				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
-			}
-
-			this.$score = $('<div class="dare-score"></div>');
-			this.$div.append(this.$score);
-			this.drawScore();
-
-			if (this.options.user.text !== undefined) {
-				this.editor.setText(this.options.user.text);
-			}
-			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
-
+			this.initEditor();
 			this.animateConsole();
 		},
 
@@ -144,16 +112,17 @@ module.exports = function(dares) {
 
 			var userText = this.console.getText();
 			this.animationRects = [];
-			var matching = 0, x = 0, y = 0, maxX = 0, percentage = 0;
+			var matching = 0, x = 0, y = 0, maxX = 0;
+			this.percentage = 100;
 
 			for (var i=0; i<this.fullText.length; i++) {
 				var orig = this.fullText.charAt(i);
 				var match = orig === userText.charAt(i);
 				if (match) matching++;
-				percentage = Math.floor(100*matching/this.fullText.length);
+				this.percentage = Math.floor(100*matching/this.fullText.length);
 
 				if (orig === '\n') {
-					this.animationRects.push({x1: x, x2: x+1, y: y, match: match, points: percentage});
+					this.animationRects.push({x1: x, x2: x+1, y: y, match: match, points: this.percentage});
 					x = 0; y++;
 				} else {
 					var prevX = x, prevY = y;
@@ -163,7 +132,7 @@ module.exports = function(dares) {
 					} else {
 						x++;
 					}
-					this.animationRects.push({x1: prevX, x2: x, y: y, match: match, points: percentage});
+					this.animationRects.push({x1: prevX, x2: x, y: y, match: match, points: this.percentage});
 					maxX = Math.max(x, maxX);
 				}
 			}
@@ -175,30 +144,21 @@ module.exports = function(dares) {
 				var parts = Math.min(surplus, 30);
 				for (i=0; i<parts; i++) {
 					matching = Math.max(Math.floor(origMatching - (i+1)/parts*surplus), 0);
-					percentage = Math.floor(100*matching/this.fullText.length);
-					this.animationRects.push({x1: maxX*i/parts, x2: maxX*(i+1)/parts, y: y, match: false, points: percentage});
+					this.percentage = Math.floor(100*matching/this.fullText.length);
+					this.animationRects.push({x1: maxX*i/parts, x2: maxX*(i+1)/parts, y: y, match: false, points: this.percentage});
 				}
 				matching = origMatching - surplus;
 			}
 
-			percentage = Math.floor(100*matching/this.fullText.length);
-			var points = percentage;
+			this.percentage = Math.floor(100*matching/this.fullText.length);
+			this.animationSteps = Math.min(this.animationRects.length, 100);
 
 			this.animation = new dares.SegmentedAnimation();
 			this.animation.addSegment(1, 500, $.proxy(this.animationMatchingStartCallback, this));
-
-			this.animationSteps = Math.min(this.animationRects.length, 100);
 			this.animation.addSegment(this.animationSteps, Math.max(1500/this.animationSteps, 50), $.proxy(this.animationMatchingCallback, this));
 			this.animation.addRemoveSegment(500, $.proxy(this.animationMatchingFinishCallback, this));
-			if (this.options.maxLines !== undefined) {
-				points += this.addLineAnimation();
-			}
-
-			if (percentage >= this.options.minPercentage && this.hasValidNumberOfLines()) {
-				this.updateHighScore(points);
-			}
-
-			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
+			
+			this.addToAnimation(this.percentage, this.percentage >= this.options.minPercentage);
 			this.animation.run();
 		},
 
@@ -243,14 +203,12 @@ module.exports = function(dares) {
 					this.resultContext.fillStyle = '#600';
 				}
 				this.resultContext.fillRect(rectangle.x1*this.charWidth, rectangle.y*this.lineHeight, (rectangle.x2-rectangle.x1)*this.charWidth, this.lineHeight);
-			}
-			
-			if (rectangle !== null) {
 				this.matchPoints.setValue(rectangle.points);
 			}
 		},
 
 		animationMatchingFinishCallback: function() {
+			this.matchPoints.setValue(this.percentage);
 			this.matchPoints.endAnimation();
 		}
 	});

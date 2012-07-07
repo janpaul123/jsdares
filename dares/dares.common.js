@@ -42,7 +42,7 @@ module.exports = function(dares) {
 			this.min = min;
 
 			this.$container = $('<div class="dare-points-content dare-points-match"><div class="dare-points-info"><div class="dare-points-title">Matching ' + (type === 'console' ? 'characters' : 'pixels') +': <span class="dare-points-match-percentage">0</span>% <span class="dare-points-constraints">at least ' + this.min + '%</span></div><div class="dare-points-description">You get one point for every percentage of the ' + type + ' output that matches.</div></div><div class="dare-points-points">0</div></div>');
-			$div.append(this.$container);
+			$div.prepend(this.$container);
 
 			this.$percentage = this.$container.find('.dare-points-match-percentage');
 			this.$points = this.$container.find('.dare-points-points');
@@ -324,7 +324,7 @@ module.exports = function(dares) {
 			return (this.options.maxLines-this.contentLines.length)*this.options.lineReward;
 		};
 
-		dare.addToAnimation = function(points) {
+		dare.addToAnimation = function(points, enough) {
 			if (!this.$points.is(':visible')) {
 				this.animation.prependSegment(1, 400, $.proxy(this.animationSlideDown, this));
 			}
@@ -333,7 +333,7 @@ module.exports = function(dares) {
 				points += this.addLineAnimation();
 			}
 			
-			if (this.visitedGoals.length >= this.options.minGoals && this.hasValidNumberOfLines()) {
+			if (enough && this.hasValidNumberOfLines()) {
 				this.updateHighScore(points);
 			}
 

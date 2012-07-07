@@ -92,6 +92,9 @@
 			@transition: bottom 0.3s linear, height 0.3s linear, background-color 0.3s linear;
 			.transition(@transition);
 
+			@shadow: 0px 1px 3px rgba(0,0,0,0.3);
+			.box-shadow(@shadow);
+
 			.border-bottom-left-radius(5px);
 			.border-bottom-right-radius(5px);
 
@@ -127,6 +130,7 @@
 		.code-well();
 		@shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 0px #333;
 		.box-shadow(@shadow);
+
 
 		overflow: auto;
 		margin-top: 10px;

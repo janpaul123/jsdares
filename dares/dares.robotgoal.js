@@ -94,13 +94,11 @@ module.exports = function(dares) {
 			this.options.original(this.originalRobot);
 
 			this.appendDescription(this.$div);
-
+			
 			this.initPoints();
 			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.options.minGoals, this.options.totalGoals, this.options.goalReward);
-
 			this.robot.setState(this.options.robotState);
 			this.initEditor();
-			
 			this.animateRobot();
 		},
 
@@ -129,7 +127,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(this.visitedGoals.length, 500, $.proxy(this.animationGoalCallback, this));
 			this.animation.addRemoveSegment(500, $.proxy(this.animationGoalFinishCallback, this));
 
-			this.addToAnimation(points);
+			this.addToAnimation(points, this.visitedGoals.length >= this.options.minGoals);
 			this.animation.run();
 		},
 

@@ -48,28 +48,16 @@ module.exports = function(dares) {
 	
 	dares.ImageMatchDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
-			this.delegate = delegate;
-			this.ui = ui;
-			this.options = options;
+			this.initOptions(delegate, ui, options);
 			this.previewAnim = null;
-			this.animation = null;
-
-			this.editor = this.ui.addEditor(this.options.editor);
-
-			this.$div = this.ui.addTab('dare');
-			this.ui.loadOutputs(this.options.outputOptions);
-			this.ui.selectTab('dare');
 
 			this.$div.addClass('dare dare-imagematch');
 			this.canvas = this.ui.getOutput('canvas');
 			this.size = this.canvas.getSize();
 
-			this.$description = $('<div class="dare-description"></div>');
-			this.$div.append(this.$description);
-
 			this.$originalCanvasContainer = $('<div class="dare-imagematch-original-container"><div class="dare-imagematch-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
 			this.$originalCanvasContainer.on('click', $.proxy(this.animateImage, this));
-			this.$description.append(this.$originalCanvasContainer);
+			this.$div.append(this.$originalCanvasContainer);
 			this.$originalCanvas = $('<canvas class="dare-imagematch-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$originalCanvasContainer.append(this.$originalCanvas);
 			this.originalContext = this.$originalCanvas[0].getContext('2d');
@@ -77,12 +65,6 @@ module.exports = function(dares) {
 			this.$resultCanvas = $('<canvas class="dare-imagematch-result" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$div.append(this.$resultCanvas);
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
-
-			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
-
-			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
-			this.$submit.on('click', $.proxy(this.submit, this));
-			this.$description.append(this.$submit);
 
 			this.originalAnim = new dares.AnimatedCanvas();
 			this.options.original(this.originalAnim);
@@ -92,23 +74,11 @@ module.exports = function(dares) {
 			var targetContext = this.canvas.makeTargetCanvas();
 			this.originalAnim.run(targetContext, 0);
 
-			this.$points = $('<div class="dare-points"></div>');
-			this.$div.append(this.$points);
+			this.appendDescription(this.$div);
 
+			this.initPoints();
 			this.matchPoints = new dares.MatchPoints(this.$points, this.options.minPercentage, 'canvas');
-			if (this.options.maxLines !== undefined) {
-				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
-			}
-
-			this.$score = $('<div class="dare-score"></div>');
-			this.$div.append(this.$score);
-			this.drawScore();
-
-			if (this.options.user.text !== undefined) {
-				this.editor.setText(this.options.user.text);
-			}
-			this.editor.setTextChangeCallback($.proxy(this.delegate.updateCode, this.delegate));
-
+			this.initEditor();
 			this.animateImage();
 		},
 
@@ -136,7 +106,9 @@ module.exports = function(dares) {
 			var resultImageData = this.resultContext.createImageData(this.size, this.size);
 			this.pointsPerLine = [];
 
-			var i=0, matching = 0, total = this.size*this.size, percentage = 0;
+			var i=0, matching = 0, total = this.size*this.size;
+			this.percentage = 0;
+
 			for (var y=0; y<this.size; y++) {
 				for (var x=0; x<this.size; x++) {
 					var dr = userImageData.data[i] - this.imageData.data[i++];
@@ -153,11 +125,9 @@ module.exports = function(dares) {
 						resultImageData.data[i-4] = 255; // red
 					}
 				}
-				percentage = Math.floor(100*matching/total);
-				this.pointsPerLine.push(percentage);
+				this.percentage = Math.floor(100*matching/total);
+				this.pointsPerLine.push(this.percentage);
 			}
-
-			var points = percentage;
 
 			this.resultContext.clearRect(0, 0, this.size, this.size);
 			this.resultContext.putImageData(resultImageData, 0, 0);
@@ -166,15 +136,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(1, 500, $.proxy(this.animationMatchingStartCallback, this));
 			this.animation.addSegment(this.size/10, 50, $.proxy(this.animationMatchingCallback, this));
 			this.animation.addRemoveSegment(500, $.proxy(this.animationMatchingFinishCallback, this));
-			if (this.options.maxLines !== undefined) {
-				points += this.addLineAnimation();
-			}
-			
-			if (percentage >= this.options.minPercentage && this.hasValidNumberOfLines()) {
-				this.updateHighScore(points);
-			}
-
-			this.animation.addSegment(1, 50, $.proxy(this.animationFinish, this));
+			this.addToAnimation(this.percentage, this.percentage >= this.options.minPercentage);
 			this.animation.run();
 		},
 
@@ -188,6 +150,7 @@ module.exports = function(dares) {
 		},
 
 		animationMatchingFinishCallback: function() {
+			this.matchPoints.setValue(this.percentage);
 			this.matchPoints.endAnimation();
 		}
 	});
