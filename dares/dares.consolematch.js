@@ -1,6 +1,8 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var applet = require('jsmm-applet');
+
 module.exports = function(dares) {
 	dares.AnimatedConsole = function() { return this.init.apply(this, arguments); };
 	dares.AnimatedConsole.prototype = {
