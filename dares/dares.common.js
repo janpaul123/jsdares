@@ -211,7 +211,7 @@ module.exports = function(dares) {
 			this.removeSegments.push(callback);
 		},
 
-		run: function() {
+		play: function() {
 			this.position = 0;
 			this.segment = 0;
 			this.animateNext();
@@ -325,7 +325,7 @@ module.exports = function(dares) {
 		dare.addLineAnimation = function() {
 			this.contentLines = this.editor.getContentLines();
 			this.animation.addSegment(1, 500, $.proxy(this.animationLinesStartCallback, this));
-			this.animation.addSegment(this.contentLines.length, Math.max(1300/this.contentLines.length, 50), $.proxy(this.animationLinesCallback, this));
+			this.animation.addSegment(this.contentLines.length, Math.min(500, Math.max(1300/this.contentLines.length, 50)), $.proxy(this.animationLinesCallback, this));
 			this.animation.addRemoveSegment(0, $.proxy(this.animationLinesFinishCallback, this));
 			return (this.options.maxLines-this.contentLines.length)*this.options.lineReward;
 		};

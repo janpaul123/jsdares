@@ -128,7 +128,7 @@ module.exports = function(dares) {
 			this.animation.addRemoveSegment(500, $.proxy(this.animationGoalFinishCallback, this));
 
 			this.addToAnimation(points, this.visitedGoals.length >= this.options.minGoals);
-			this.animation.run();
+			this.animation.play();
 		},
 
 		animationGoalStartCallback: function() {

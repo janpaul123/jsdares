@@ -137,7 +137,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(this.size/10, 50, $.proxy(this.animationMatchingCallback, this));
 			this.animation.addRemoveSegment(500, $.proxy(this.animationMatchingFinishCallback, this));
 			this.addToAnimation(this.percentage, this.percentage >= this.options.minPercentage);
-			this.animation.run();
+			this.animation.play();
 		},
 
 		animationMatchingStartCallback: function() {

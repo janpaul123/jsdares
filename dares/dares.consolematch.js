@@ -7,32 +7,49 @@ module.exports = function(dares) {
 	dares.AnimatedConsole = function() { return this.init.apply(this, arguments); };
 	dares.AnimatedConsole.prototype = {
 		init: function($div) {
-			this.$div = $div || null;
-			this.fullText = '';
-			this.queue = [];
-			this.next = 0;
+			this.$div = $div;
+			this.$div.addClass('dare-consolematch-animatedconsole');
+			this.text = '';
+			this.calls = [];
+			this.width = this.height = this.position = 0;
 			this.timeout = null;
 		},
+
 		remove: function() {
+			this.$div.removeClass('dare-consolematch-animatedconsole');
 			this.clearTimeout();
 		},
-		push: function(text) {
-			this.fullText += '' + text;
-			this.queue.push(this.fullText);
-		},
-		getFullText: function() {
-			return this.fullText;
-		},
-		run: function(delay) {
-			this.clearTimeout();
-			if (delay <= 0) {
-				this.$div.text(this.fullText);
-			} else {
-				this.delay = delay;
-				this.next = 0;
-				this.animateNext();
+
+		run: function(code) {
+			var simpleConsole = new applet.output.SimpleConsole();
+			var runner = new applet.jsmm.SimpleRunner({console: simpleConsole.getAugmentedObject()});
+			runner.run(code);
+			this.calls = this.calls.concat(simpleConsole.getCalls());
+			this.text = simpleConsole.getText();
+
+			for (var i=0; i<this.calls.length; i++) {
+				this.applyCall(this.calls[i]);
+				this.width = Math.max(this.width, this.$div.width());
+				this.height = Math.max(this.height, this.$div.height());
+				console.log(this.$div.height());
 			}
+
+			this.$div.width(this.width); // fix width and height
+			this.$div.height(this.height);
 		},
+
+		play: function(delay) {
+			this.clearTimeout();
+			this.delay = delay;
+			this.position = 0;
+			this.$div.html('');
+			this.animateNext();
+		},
+
+		getText: function() {
+			return this.text;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		clearTimeout: function() {
 			if (this.timeout !== null) {
@@ -40,11 +57,27 @@ module.exports = function(dares) {
 				this.timeout = null;
 			}
 		},
+
 		animateNext: function() {
 			this.clearTimeout();
-			this.$div.text(this.queue[this.next++]);
-			if (this.next < this.queue.length) {
-				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+			while (this.position < this.calls.length) {
+				this.applyCall(this.calls[this.position++]);
+			
+				if (this.delay > 0) {
+					this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+					return;
+				}
+			}
+		},
+
+		applyCall: function(call) {
+			if (call.clear) {
+				this.$div.html('');
+			} else {
+				var $line = $('<div class="dare-consolematch-animatedconsole-line"></div>');
+				$line.text(call.text);
+				$line.css('color', call.color);
+				this.$div.append($line);
 			}
 		}
 	};
@@ -56,12 +89,10 @@ module.exports = function(dares) {
 
 			this.$div.addClass('dare dare-consolematch');
 			this.console = this.ui.getOutput('console');
-			this.fullText = this.options.original(new dares.AnimatedConsole()).getFullText();
-			this.console.makeTargetConsole(this.fullText);
 
 			this.appendDescription(this.$div);
 
-			this.$originalConsoleContainer = $('<span class="dare-consolematch-original-container"></span>');
+			this.$originalConsoleContainer = $('<div class="dare-consolematch-original-container"></div>');
 			this.$originalConsoleContainer.on('click', $.proxy(this.animateConsole, this));
 			this.$div.append(this.$originalConsoleContainer);
 
@@ -70,20 +101,19 @@ module.exports = function(dares) {
 			this.resultContext = this.$resultConsole[0].getContext('2d');
 
 			this.$originalConsoleContainer.append('<div class="dare-consolematch-original-refresh"><i class="icon-repeat icon-white"></i></div>');
-			this.$originalConsole = $('<span class="dare-consolematch-original-console"></span>');
+			this.$originalConsole = $('<div class="dare-consolematch-original-console"></div>');
 			this.$originalConsoleContainer.append(this.$originalConsole);
 
 			this.originalAnim = new dares.AnimatedConsole(this.$originalConsole);
-			this.options.original(this.originalAnim);
-			this.initOffsets();
+			this.originalAnim.run(this.options.original);
 
-			this.$originalConsole.text(this.fullText);
-			this.width = this.$originalConsole.width() + this.charWidth;
-			this.height = this.$originalConsole.height();
-			this.$originalConsole.width(this.width); // fix width and height
-			this.$originalConsole.height(this.height);
-			this.$resultConsole.attr('width', this.width);
-			this.$resultConsole.attr('height', this.height + this.lineHeight);
+			this.initOffsets();
+			this.$originalConsole.width(this.$originalConsole.width() + this.charWidth);
+			this.$resultConsole.attr('width', this.$originalConsole.width());
+			this.$resultConsole.attr('height', this.$originalConsole.height() + this.lineHeight);
+
+			this.fullText = this.originalAnim.getText();
+			this.console.makeTargetConsole(this.fullText);
 
 			this.initPoints();
 			this.matchPoints = new dares.MatchPoints(this.$points, this.options.minPercentage, 'console');
@@ -100,12 +130,12 @@ module.exports = function(dares) {
 
 		animateConsole: function() {
 			this.animationFinish();
-			this.drawConsole(this.speed);
+			this.drawConsole(this.options.speed);
 		},
 
 		drawConsole: function(speed) {
-			this.resultContext.clearRect(0, 0, this.width, this.height+this.lineHeight);
-			this.originalAnim.run(speed);
+			this.resultContext.clearRect(0, 0, this.$resultConsole.width(), this.$resultConsole.height());
+			this.originalAnim.play(speed);
 		},
 
 		submit: function() {
@@ -145,14 +175,14 @@ module.exports = function(dares) {
 				var origMatching = matching;
 				var parts = Math.min(surplus, 30);
 				for (i=0; i<parts; i++) {
-					matching = Math.max(Math.floor(origMatching - (i+1)/parts*surplus), 0);
+					matching = Math.max(0, Math.floor(origMatching - (i+1)/parts*surplus));
 					this.percentage = Math.floor(100*matching/this.fullText.length);
 					this.animationRects.push({x1: maxX*i/parts, x2: maxX*(i+1)/parts, y: y, match: false, points: this.percentage});
 				}
 				matching = origMatching - surplus;
 			}
 
-			this.percentage = Math.floor(100*matching/this.fullText.length);
+			this.percentage = Math.max(0, Math.floor(100*matching/this.fullText.length));
 			this.animationSteps = Math.min(this.animationRects.length, 100);
 
 			this.animation = new dares.SegmentedAnimation();
@@ -161,7 +191,7 @@ module.exports = function(dares) {
 			this.animation.addRemoveSegment(500, $.proxy(this.animationMatchingFinishCallback, this));
 			
 			this.addToAnimation(this.percentage, this.percentage >= this.options.minPercentage);
-			this.animation.run();
+			this.animation.play();
 		},
 
 		initOffsets: function() {
@@ -183,8 +213,8 @@ module.exports = function(dares) {
 			textOffset.x -= this.charWidth;
 			textOffset.y -= this.lineHeight;
 
-			this.$resultConsole.css('left', textOffset.x);
-			this.$resultConsole.css('top', textOffset.y);
+			// this.$resultConsole.css('left', textOffset.x);
+			// this.$resultConsole.css('top', textOffset.y);
 			$mirror.remove();
 		},
 
