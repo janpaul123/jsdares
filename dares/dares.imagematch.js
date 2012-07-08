@@ -1,35 +1,37 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var applet = require('jsmm-applet');
+
 module.exports = function(dares) {
 	dares.AnimatedCanvas = function() { return this.init.apply(this, arguments); };
 	dares.ImageMatchDare = function() { return this.init.apply(this, arguments); };
 	
 	dares.AnimatedCanvas.prototype = {
 		init: function() {
-			this.queue = [];
-			this.next = 0;
+			this.calls = [];
+			this.position = 0;
 			this.timeout = null;
 		},
 		remove: function() {
 			this.clearTimeout();
 		},
-		push: function(func) {
-			this.queue.push(func);
+
+		run: function(code) {
+			var simpleCanvas = new applet.output.SimpleCanvas();
+			var runner = new applet.jsmm.SimpleRunner({canvas: simpleCanvas.getAugmentedObject()});
+			runner.run(code);
+			this.calls = this.calls.concat(simpleCanvas.getCalls());
 		},
-		run: function(context, delay) {
+
+		play: function(context, delay) {
 			this.clearTimeout();
 			this.context = context;
-			if (delay <= 0) {
-				for (var i=0; i<this.queue.length; i++)	{
-					this.queue[i](this.context);
-				}
-			} else {
-				this.delay = delay;
-				this.next = 0;
-				this.animateNext();
-			}
+			this.delay = delay;
+			this.position = 0;
+			this.animateNext();
 		},
+
 		/// INTERNAL FUNCTIONS ///
 		clearTimeout: function() {
 			if (this.timeout !== null) {
@@ -37,11 +39,21 @@ module.exports = function(dares) {
 				this.timeout = null;
 			}
 		},
+
 		animateNext: function() {
 			this.clearTimeout();
-			this.queue[this.next++](this.context);
-			if (this.next < this.queue.length) {
-				this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+			while (this.position < this.calls.length) {
+				var call = this.calls[this.position++];
+				if (call.value !== undefined) {
+					this.context[call.name] = call.value;
+				} else {
+					this.context[call.name].apply(this.context, call.args);
+				}
+			
+				if (this.delay > 0 && call.draws) {
+					this.timeout = setTimeout($.proxy(this.animateNext, this), this.delay);
+					return;
+				}
 			}
 		}
 	};
@@ -67,12 +79,12 @@ module.exports = function(dares) {
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
 			this.originalAnim = new dares.AnimatedCanvas();
-			this.options.original(this.originalAnim);
+			this.originalAnim.run(this.options.original);
 			this.drawImage(0);
 			this.imageData = this.originalContext.getImageData(0, 0, this.size, this.size);
 
 			var targetContext = this.canvas.makeTargetCanvas();
-			this.originalAnim.run(targetContext, 0);
+			this.originalAnim.play(targetContext, 0);
 
 			this.appendDescription(this.$div);
 
@@ -96,7 +108,7 @@ module.exports = function(dares) {
 
 		drawImage: function(speed) {
 			this.originalContext.clearRect(0, 0, this.size, this.size);
-			this.originalAnim.run(this.originalContext, speed);
+			this.originalAnim.play(this.originalContext, speed);
 		},
 
 		submit: function() {
