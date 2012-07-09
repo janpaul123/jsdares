@@ -15,14 +15,17 @@
 	
 	.dare-points {
 		.code-well();
-		margin-top: 10px;
-		margin-bottom: 10px;
+		margin: 10px 0;
 		padding: 0px;
 		position: relative;
 		clear: both;
 		width: 100%;
 		color: #FBFBFB;
 		font-family: "Helvetica Neue";
+
+		&.dare-points-has-highscore {
+			margin-bottom: 60px; // hack because highscore can't have margins
+		}
 
 		.dare-points-content {
 			position: relative;

@@ -82,24 +82,23 @@ $(function() {
 				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
 				outputOptions: {
 					robot: {readOnly: true, state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}'},
-					input: {}
+					info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
 				},
 				type: 'RobotGoalDare',
 				editor: {}
 			},
 			{
-				name: 'Weird console',
-				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
-				speed: 1000,
+				name: 'Multiplication table',
+				description: '<p>A multiplication table shows the result of multiplying any two numbers. Your task is to build a multiplication table of 10 rows and 5 columns, as seen below. For the spacing between the numbers, use the tab character, <var>"\\t"</var>.</p>',
 				outputs: ['console'],
 				minPercentage: 95,
-				maxLines: 5,
+				maxLines: 8,
 				lineReward: 10,
-				original: 'console.log("test");\nconsole.log("test 2");\nconsole.clear();\nconsole.log("bla\\nbla");\nconsole.log("blaaaaaat");',
+				original: 'for (var l=1; l<=10; l++) {\n  var text = "";\n  for (var c=1; c<=5; c++) {\n    text += l*c + "\\t";\n  }\n  console.log(text);\n}',
 				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
 				outputOptions: {
 					console: {},
-					input: {}
+					info: {commandFilter: ['jsmm', 'console.log']}
 				},
 				type: 'ConsoleMatchDare',
 				editor: {}
@@ -110,13 +109,12 @@ $(function() {
 				speed: 50,
 				outputs: ['canvas'],
 				minPercentage: 95,
-				maxLines: 5,
+				maxLines: 6,
 				lineReward: 10,
 				original: 'var context = canvas.getContext("2d");\nfor (var i=0; i<20; i++) {\n  context.fillRect(10+i*24, 270+i*-65+i*i*4, 50, 50);\n}',
 				outputOptions: {
 					canvas: {},
-					input: {},
-					info: {commandFilter: ['jsmm', 'canvas', 'context']}
+					info: {commandFilter: ['jsmm', 'canvas.getContext', 'context.fillRect']}
 				},
 				type: 'ImageMatchDare',
 				editor: {}

@@ -65,9 +65,11 @@ module.exports = function(dares) {
 	dares.HighscorePoints = function() { return this.init.apply(this, arguments); };
 	dares.HighscorePoints.prototype = {
 		init: function($div, name) {
+			this.$div = $div;
 			this.name = name;
+
 			this.$container = $('<div class="dare-points-highscore"><div class="dare-points-highscore-score">0</div><div class="dare-points-highscore-share"></div></div>');
-			$div.append(this.$container);
+			this.$div.append(this.$container);
 
 			this.$score = this.$container.find('.dare-points-highscore-score');
 			this.$share = this.$container.find('.dare-points-highscore-share');
@@ -75,6 +77,7 @@ module.exports = function(dares) {
 
 		show: function() {
 			this.$container.addClass('dare-points-highscore-active');
+			this.$div.addClass('dare-points-has-highscore');
 		},
 
 		blink: function() {

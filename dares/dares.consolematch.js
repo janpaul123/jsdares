@@ -31,7 +31,6 @@ module.exports = function(dares) {
 				this.applyCall(this.calls[i]);
 				this.width = Math.max(this.width, this.$div.width());
 				this.height = Math.max(this.height, this.$div.height());
-				console.log(this.$div.height());
 			}
 
 			this.$div.width(this.width); // fix width and height
@@ -39,8 +38,12 @@ module.exports = function(dares) {
 		},
 
 		play: function(delay) {
+			if (delay === undefined) {
+				this.delay = Math.max(2000/this.calls.length, 30);
+			} else {
+				this.delay = delay;
+			}
 			this.clearTimeout();
-			this.delay = delay;
 			this.position = 0;
 			this.$div.html('');
 			this.animateNext();
@@ -182,11 +185,14 @@ module.exports = function(dares) {
 			}
 
 			this.percentage = Math.max(0, Math.floor(100*matching/this.fullText.length));
-			this.animationSteps = Math.min(this.animationRects.length, 100);
+			var animationSteps = Math.min(this.animationRects.length, 100);
+			this.stepSize = Math.floor(this.animationRects.length/animationSteps);
+			console.log(this.stepSize);
+			animationSteps = Math.ceil(this.animationRects.length/this.stepSize);
 
 			this.animation = new dares.SegmentedAnimation();
 			this.animation.addSegment(1, 500, this.animationMatchingStartCallback.bind(this));
-			this.animation.addSegment(this.animationSteps, Math.max(1500/this.animationSteps, 50), this.animationMatchingCallback.bind(this));
+			this.animation.addSegment(animationSteps, Math.max(1500/animationSteps, 30), this.animationMatchingCallback.bind(this));
 			this.animation.addRemoveSegment(500, this.animationMatchingFinishCallback.bind(this));
 			
 			this.addToAnimation(this.percentage, this.percentage >= this.options.minPercentage);
@@ -223,11 +229,11 @@ module.exports = function(dares) {
 		},
 
 		animationMatchingCallback: function(i) {
+			console.log(i);
 			var rectangle = null;
 
-			var steps = Math.ceil(this.animationRects.length/this.animationSteps);
-			for (var j=0; j<steps && steps*i+j < this.animationRects.length; j++) {
-				rectangle = this.animationRects[steps*i+j];
+			for (var j=0; j<this.stepSize && this.stepSize*i+j < this.animationRects.length; j++) {
+				rectangle = this.animationRects[this.stepSize*i+j];
 				if (rectangle.match) {
 					this.resultContext.fillStyle = '#060';
 				} else {
