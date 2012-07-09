@@ -112,6 +112,23 @@ $(function() {
 				},
 				type: 'ImageMatchDare',
 				editor: {}
+			},
+			{
+				name: 'Test',
+				description: '<p>A block is <strong>thrown</strong> in the air and then <strong>accelerates back down</strong>. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to <strong>copy</strong> this image as good as possible, in as <strong>few lines</strong> of code as you can.</p>',
+				speed: 50,
+				outputs: ['canvas'],
+				minPercentage: 95,
+				maxLines: 5,
+				lineReward: 10,
+				original: 'var context = canvas.getContext("2d");\nfor (var i=0; i<20; i++) {\n  context.fillRect(10+i*24, 270+i*-65+i*i*4, 50, 50);\n}',
+				outputOptions: {
+					canvas: {},
+					input: {},
+					info: {}
+				},
+				type: 'ImageMatchDare',
+				editor: {}
 			}
 		]
 	});
