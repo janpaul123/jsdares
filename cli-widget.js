@@ -69,11 +69,10 @@ $(function() {
 				goalReward: 50,
 				maxLines: 5,
 				lineReward: 10,
-				robotState: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
 				original: 'robot.drive(2);\nrobot.turnLeft();\nrobot.drive(1);',
 				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
 				outputOptions: {
-					robot: {readOnly: true},
+					robot: {readOnly: true, state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}'},
 					input: {}
 				},
 				type: 'RobotGoalDare',
@@ -120,10 +119,28 @@ $(function() {
 	$dares.append($rollinrobots);
 	var rrDares = new dares.Dares(rrDM, $rollinrobots);
 
+	if (localStorage['initial-code'] === undefined) {
+		localStorage['initial-code'] = '// ROBOT EXAMPLE\nwhile(!robot.detectGoal()) {\n  robot.turnLeft();\n  while (robot.detectWall()) {\n    robot.turnRight();\n  }\n  robot.drive();\n}\n\n//CONSOLE EXAMPLE\nconsole.setColor("#fff");\nconsole.log("A colourful multiplication table:");\nconsole.log();\n\nfunction printLine(n) {\n  var text = "";\n  for (var i=1; i<=8; i++) {\n    text += (i*n) + "\\t";\n  }\n  console.log(text);\n}\n\nfor (var i=1; i<=20; i++) { \n  console.setColor("hsla(" + i*15 + ", 75%, 50%, 1)");\n  printLine(i);\n}\n\nconsole.setColor("#ed7032");\nconsole.log();\nconsole.log(":-D");';
+	}
+
+	if (localStorage['initial-robot'] === undefined) {
+		localStorage['initial-robot'] = '{"columns":8,"rows":8,"initialX":3,"initialY":4,"initialAngle":90,"mazeObjects":50,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,true,true,true,false,true,false],[false,true,false,false,true,false,false,true],[false,false,true,true,false,false,true,false],[false,true,true,false,false,false,false,false],[false,false,false,true,false,true,true,true],[false,false,true,false,true,true,false,false],[false,false,false,true,false,true,true,false]],"horizontalActive":[[false,true,false,false,true,false,false,true],[false,true,false,true,false,false,true,false],[false,true,true,false,true,false,true,false],[false,true,false,false,true,true,true,false],[false,false,true,true,false,true,false,true],[false,true,false,false,true,false,false,true],[false,true,true,true,false,false,false,true],[false,true,true,false,false,false,false,false]],"blockGoal":[[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}';
+	}
 
 	var fullEditorUI = new applet.UI();
 	$('#full-editor').on('click', function() {
 		fullEditorUI.openModal();
+		var editor = fullEditorUI.addEditor({text: localStorage['initial-code']});
+		editor.setTextChangeCallback(function(text) {
+			localStorage['initial-code'] = text;
+		});
+		fullEditorUI.loadOutputs({
+			robot: {state: localStorage['initial-robot']}, canvas: {}, console: {}, info: {}, input: {}, Math: {}
+		});
+		fullEditorUI.getOutput('robot').setStateChangeCallback(function(state) {
+			localStorage['initial-robot'] = state;
+		});
+		fullEditorUI.selectTab('robot');
 	});
 
 

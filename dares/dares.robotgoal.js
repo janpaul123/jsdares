@@ -86,10 +86,10 @@ module.exports = function(dares) {
 			this.$originalRobotContainer.append(this.$originalRobot);
 			this.$originalRobotContainer.append('<div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div>');
 			
-			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.resultBlockSize, this.options.robotState);
+			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.resultBlockSize, this.options.outputOptions.robot.state);
 			this.originalRobot.insertDelay(30000);
 
-			var simpleRobot = new applet.output.SimpleRobot(this.options.robotState);
+			var simpleRobot = new applet.output.SimpleRobot(this.options.outputOptions.robot.state);
 			var runner = new applet.jsmm.SimpleRunner({robot: simpleRobot.getAugmentedObject()});
 			runner.run(this.options.original);
 			simpleRobot.play(this.originalRobot);
@@ -98,7 +98,6 @@ module.exports = function(dares) {
 			
 			this.initPoints();
 			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.options.minGoals, this.options.totalGoals, this.options.goalReward);
-			this.robot.setState(this.options.robotState);
 			this.initEditor();
 			this.animateRobot();
 		},
