@@ -123,9 +123,11 @@ $(function() {
 				lineReward: 10,
 				original: 'var context = canvas.getContext("2d");\nfor (var i=0; i<20; i++) {\n  context.fillRect(10+i*24, 270+i*-65+i*i*4, 50, 50);\n}',
 				outputOptions: {
+					robot: {},
+					console: {},
 					canvas: {},
 					input: {},
-					info: {}
+					info: {scope: true}
 				},
 				type: 'ImageMatchDare',
 				editor: {}
