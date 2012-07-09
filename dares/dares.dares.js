@@ -33,6 +33,7 @@ module.exports = function(dares) {
 			this.$collection.append(this.$body);
 
 			this.ui = new applet.UI();
+			this.ui.setCloseCallback($.proxy(this.close, this));
 			this.dare = null;
 			
 			this.updateDares();
@@ -80,6 +81,7 @@ module.exports = function(dares) {
 			this.index = $target.data('index');
 			var dare = this.delegate.getDare(this.index);
 			
+			this.delegate.open();
 			this.ui.openModal();
 			this.dare = new dares[dare.type](this, this.ui, dare);
 		},
@@ -96,6 +98,10 @@ module.exports = function(dares) {
 
 		updateCode: function(code) {
 			this.delegate.updateDareUser(this.index, 'text', code);
+		},
+
+		close: function() {
+			this.delegate.close();
 		}
 	};
 };
