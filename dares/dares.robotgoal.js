@@ -1,8 +1,7 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var robot = require('jsmm-applet').robot;
-var clayer = require('jsmm-applet').clayer;
+var applet = require('jsmm-applet');
 
 module.exports = function(dares) {
 	dares.RobotGoalPoints = function() { return this.init.apply(this, arguments); };
@@ -87,11 +86,13 @@ module.exports = function(dares) {
 			this.$originalRobotContainer.append(this.$originalRobot);
 			this.$originalRobotContainer.append('<div class="dare-robotgoal-original-refresh"><i class="icon-repeat icon-white"></i></div>');
 			
-			this.originalRobot = new robot.Robot(this.$originalRobot, true, this.resultBlockSize);
-			this.originalRobot.setState(this.options.robotState);
-			this.originalRobot.clear();
+			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.resultBlockSize, this.options.robotState);
 			this.originalRobot.insertDelay(30000);
-			this.options.original(this.originalRobot);
+
+			var simpleRobot = new applet.output.SimpleRobot(this.options.robotState);
+			var runner = new applet.jsmm.SimpleRunner({robot: simpleRobot.getAugmentedObject()});
+			runner.run(this.options.original);
+			simpleRobot.play(this.originalRobot);
 
 			this.appendDescription(this.$div);
 			

@@ -70,11 +70,7 @@ $(function() {
 				maxLines: 5,
 				lineReward: 10,
 				robotState: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}',
-				original: function(robot) {
-					robot.drive(2);
-					robot.turnLeft();
-					robot.drive(1);
-				},
+				original: 'robot.drive(2);\nrobot.turnLeft();\nrobot.drive(1);',
 				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
 				outputOptions: {
 					robot: {readOnly: true},
