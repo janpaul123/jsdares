@@ -33,7 +33,7 @@ module.exports = function(dares) {
 			this.$collection.append(this.$body);
 
 			this.ui = new applet.UI();
-			this.ui.setCloseCallback($.proxy(this.close, this));
+			this.ui.setCloseCallback(this.close.bind(this));
 			this.dare = null;
 			
 			this.updateDares();
@@ -62,7 +62,7 @@ module.exports = function(dares) {
 				}
 
 				$item.data('index', i);
-				$item.on('click', $.proxy(this.itemClick, this));
+				$item.on('click', this.itemClick.bind(this));
 
 				var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
 				for (var j=0; j<dare.outputs.length; j++) {
