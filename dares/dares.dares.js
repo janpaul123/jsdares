@@ -32,16 +32,7 @@ module.exports = function(dares) {
 			this.$body = $('<div class="dares-body"></div>');
 			this.$collection.append(this.$body);
 
-			this.$modal = $('<div class="dares-modal"></div>');
-			// this.$modal.on('click', $.proxy(this.close, this));
-			$('body').append(this.$modal);
-
-			this.$ui = $('<div class="dares-modal-ui"></div>');
-			this.$modal.append(this.$ui);
-
-			this.ui = new applet.UI(this.$ui, {
-				close: $.proxy(this.closeModal, this)
-			});
+			this.ui = new applet.UI();
 			this.dare = null;
 			
 			this.updateDares();
@@ -85,28 +76,12 @@ module.exports = function(dares) {
 		},
 
 		itemClick: function(event) {
-			this.closeModal();
-
 			var $target = $(event.delegateTarget);
 			this.index = $target.data('index');
 			var dare = this.delegate.getDare(this.index);
-
-			this.$modal.addClass('dares-modal-active');
+			
+			this.ui.openModal();
 			this.dare = new dares[dare.type](this, this.ui, dare);
-
-			var $ui = this.$ui;
-			setTimeout(function() { $ui.addClass('dares-modal-ui-active'); }, 0);
-
-			$('body').addClass('modal-open'); // for Bootstrap specific fixes
-		},
-
-		closeModal: function() {
-			if (this.dare !== null) {
-				this.dare.remove();
-				this.$modal.removeClass('dares-modal-active');
-				this.$ui.removeClass('dares-modal-ui-active');
-				$('body').removeClass('modal-open');
-			}
 		},
 
 		selectDare: function(body, number) {

@@ -126,29 +126,19 @@
 		}
 	}
 
-	.dare-score {
-		.code-well();
-		@shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), inset 0px 1px 0px #333;
-		.box-shadow(@shadow);
-
-
-		overflow: auto;
-		margin-top: 10px;
-		margin-bottom: 10px;
-		color: white;
-		font-size: 13px;
-		line-height: 20px;
-		padding: 8px 8px 5px;
-		background-image: url(../img/star-black.png);
-		.animation(dare-score-star-move-anim, 1.5s);
-
-		span {
-			margin-right: 10px;
-		}
-
-		i {
-			margin-top: -2px;
-		}
+	.dare-original-refresh {
+		display: none;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-left: round(-(14+3)/2px);
+		margin-top: round(-(20+1)/2px);
+		line-height: 24px;
+		background-color: rgba(0, 0, 0, 0.7);
+		width: 14px;
+		height: 20px;
+		padding: 1px 3px;
+		.border-radius(3px);
 	}
 }
 

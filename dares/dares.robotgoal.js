@@ -84,7 +84,7 @@ module.exports = function(dares) {
 
 			this.$originalRobot = $('<div class="dare-robotgoal-original"></div>');
 			this.$originalRobotContainer.append(this.$originalRobot);
-			this.$originalRobotContainer.append('<div class="dare-robotgoal-original-refresh"><i class="icon-repeat icon-white"></i></div>');
+			this.$originalRobotContainer.append('<div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div>');
 			
 			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.resultBlockSize, this.options.robotState);
 			this.originalRobot.insertDelay(30000);
@@ -108,7 +108,6 @@ module.exports = function(dares) {
 			this.originalRobot.remove();
 			this.$submit.remove();
 			this.$originalRobotContainer.remove();
-			this.ui.removeAll();
 		},
 
 		animateRobot: function() {

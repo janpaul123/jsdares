@@ -100,7 +100,7 @@ module.exports = function(dares) {
 			this.$originalConsoleContainer.append(this.$resultConsole);
 			this.resultContext = this.$resultConsole[0].getContext('2d');
 
-			this.$originalConsoleContainer.append('<div class="dare-consolematch-original-refresh"><i class="icon-repeat icon-white"></i></div>');
+			this.$originalConsoleContainer.append('<div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div>');
 			this.$originalConsole = $('<div class="dare-consolematch-original-console"></div>');
 			this.$originalConsoleContainer.append(this.$originalConsole);
 
@@ -125,7 +125,6 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.$submit.remove();
 			this.$originalConsoleContainer.remove();
-			this.ui.removeAll();
 		},
 
 		animateConsole: function() {

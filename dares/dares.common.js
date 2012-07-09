@@ -84,7 +84,7 @@ module.exports = function(dares) {
 		setValue: function(score) {
 			this.$score.text(score);
 
-			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the ' + this.name + ' dare with ' + score + ' points on @jsdare!');
+			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the "' + this.name + '" dare with ' + score + ' points on @jsdare!');
 			var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
 			$twitter.click(function(event) {
 				event.preventDefault();
@@ -259,6 +259,7 @@ module.exports = function(dares) {
 
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
+			this.ui.registerObject(this);
 			this.ui.loadOutputs(this.options.outputOptions);
 			this.ui.selectTab('dare');
 		};

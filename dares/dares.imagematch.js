@@ -67,7 +67,7 @@ module.exports = function(dares) {
 			this.canvas = this.ui.getOutput('canvas');
 			this.size = this.canvas.getSize();
 
-			this.$originalCanvasContainer = $('<div class="dare-imagematch-original-container"><div class="dare-imagematch-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
+			this.$originalCanvasContainer = $('<div class="dare-imagematch-original-container"><div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div></div>');
 			this.$originalCanvasContainer.on('click', $.proxy(this.animateImage, this));
 			this.$div.append(this.$originalCanvasContainer);
 			this.$originalCanvas = $('<canvas class="dare-imagematch-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
@@ -98,7 +98,6 @@ module.exports = function(dares) {
 			this.animationFinish();
 			this.$submit.remove();
 			this.$originalCanvasContainer.remove();
-			this.ui.removeAll();
 		},
 
 		animateImage: function() {
