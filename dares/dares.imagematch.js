@@ -145,7 +145,7 @@ module.exports = function(dares) {
 
 			this.animation = new dares.SegmentedAnimation();
 			this.animation.addSegment(1, 500, this.animationMatchingStartCallback.bind(this));
-			this.animation.addSegment(this.size/10, 50, this.animationMatchingCallback.bind(this));
+			this.animation.addSegment(Math.ceil(this.size/10), 50, this.animationMatchingCallback.bind(this));
 			this.animation.addRemoveSegment(500, this.animationMatchingFinishCallback.bind(this));
 			this.addToAnimation(this.percentage, this.percentage >= this.options.minPercentage);
 			this.animation.play();
@@ -156,8 +156,10 @@ module.exports = function(dares) {
 		},
 
 		animationMatchingCallback: function(y) {
-			this.matchPoints.setValue(this.pointsPerLine[Math.min(y*10+9, this.pointsPerLine.length-1)]);
-			this.originalContext.drawImage(this.$resultCanvas[0], 0, y*10, this.size, 10, 0, y*10, this.size, 10);
+			var height = 10;
+			if (y*10+10 > this.size) height = this.size-y*10; // to correct when this.size is no multiple of 10
+			this.matchPoints.setValue(this.pointsPerLine[Math.min(y*10+9, this.size-1)]);
+			this.originalContext.drawImage(this.$resultCanvas[0], 0, y*10, this.size, height, 0, y*10, this.size, height);
 		},
 
 		animationMatchingFinishCallback: function() {
