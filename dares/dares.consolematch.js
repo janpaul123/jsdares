@@ -187,7 +187,6 @@ module.exports = function(dares) {
 			this.percentage = Math.max(0, Math.floor(100*matching/this.fullText.length));
 			var animationSteps = Math.min(this.animationRects.length, 100);
 			this.stepSize = Math.floor(this.animationRects.length/animationSteps);
-			console.log(this.stepSize);
 			animationSteps = Math.ceil(this.animationRects.length/this.stepSize);
 
 			this.animation = new dares.SegmentedAnimation();
