@@ -143,7 +143,7 @@ $(function() {
 			localStorage.setItem('initial-code', text);
 		});
 		fullEditorUI.loadOutputs({
-			robot: {state: localStorage.getItem('initial-robot')}, canvas: {}, console: {}, info: {}, input: {}, Math: {}
+			robot: {state: localStorage.getItem('initial-robot')}, canvas: {}, console: {}, info: {}, input: {mouseObjects: ['canvas']}, Math: {}
 		});
 		fullEditorUI.getOutput('robot').setStateChangeCallback(function(state) {
 			localStorage.setItem('initial-robot', state);
