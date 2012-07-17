@@ -110,7 +110,7 @@ $(function() {
 			{
 				name: 'Stepping',
 				type: 'RobotGoalDare',
-				description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <strong>program</strong>, but it is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
+				description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-code">program</a>, which makes a robot move. You can see the robot when clicking on the <a href="#arrow-tab-robot">robot tab</a>. You can use the <a href="#arrow-step">step button</a> to see what the program does.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
 				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
@@ -142,7 +142,7 @@ $(function() {
 			{
 				name: 'Highlighting',
 				type: 'RobotGoalDare',
-				description: '<p>Stepping is very useful, but to see more quickly which command does what, you can use the <strong>highlighting button</strong>. When using highlighting, move the mouse over the code, or over the path of the robot. After that, move the robot to the green square in as few lines as you can.</p>',
+				description: '<p>Stepping is very useful, but to see more quickly which command does what, you can use the <a href="#arrow-highlighting">highlighting button</a>. When using highlighting, move the mouse over the code, or over the path of the robot. After that, move the robot to the green square in as few lines as you can.</p>',
 				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
@@ -158,7 +158,7 @@ $(function() {
 			{
 				name: 'Multiple goals',
 				type: 'RobotGoalDare',
-				description: '<p>This time you have to visit <strong>all three</strong> goals, in any order. Programmers always look for the fastest solution. Can you find a clever route?</p>',
+				description: '<p>This time you have to visit <strong>all three</strong> goals, in any order. Programmers always look for the fastest solution. Can you find a fast route?</p>',
 				totalGoals: 3,
 				minGoals: 3,
 				goalReward: 50,
@@ -174,7 +174,7 @@ $(function() {
 			{
 				name: 'Manipulation',
 				type: 'RobotGoalDare',
-				description: '<p>For this dare you just have to edit the numbers in the program. You can use the <strong>manipulation button</strong> to do this easily. Note that you cannot use extra lines of code, but you can get <strong>extra points</strong> by visiting all goals!</p>',
+				description: '<p>For this dare you just have to edit the numbers in the program. You can use the <a href="#arrow-manipulation">manipulation button</a> to do this easily. Note that you cannot use extra lines of code, but you can get <strong>extra points</strong> by visiting all goals!</p>',
 				totalGoals: 7,
 				minGoals: 5,
 				goalReward: 50,
@@ -190,7 +190,7 @@ $(function() {
 			{
 				name: 'Knight Jump',
 				type: 'RobotGoalDare',
-				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the step button to see what happens. We have also added another tab, the <strong>info tab</strong>, with more information about functions.</p>',
+				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the <a href="#arrow-step">step button</a> to see what happens. We have also added a new tab, the <a href="#arrow-tab-info">info tab</a>, with more information about functions.</p>',
 				totalGoals: 6,
 				minGoals: 6,
 				goalReward: 50,
@@ -222,7 +222,7 @@ $(function() {
 			{
 				name: 'ForwardRight',
 				type: 'RobotGoalDare',
-				description: '<p>Sometimes you want to use the same commands, but only slightly different every time. In this dare, you want to move forward and then right, but with a different distance every time. For this you can use an <strong>argument</strong> in the function. After the function name you give a name for the argument, and the argument then <strong>contains</strong> the number you put in when calling the function. You can then use this name when calling the commands in the function. We have created an example for you, try to see what happens when you step through it.</p>',
+				description: '<p>Sometimes you want to use the same commands, but only slightly different every time. In this dare, you want to move forward and then right, but with a different distance every time.</p><p>For this you can use an <strong>argument</strong> in the function. After the function name you give a name for the argument, and the argument then <strong>contains</strong> the number you put in when calling the function. You can then use this name when calling the commands in the function.</p><p>We have created an example for you, try to see what happens when you <a href="#arrow-step">step</a> through it.</p>',
 				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
@@ -252,25 +252,9 @@ $(function() {
 				editor: {}
 			},
 			{
-				name: 'More functions',
-				type: 'RobotGoalDare',
-				description: '<p>For this one you probably need to make one (or more) functions, since you can use no more than <strong>17 lines</strong> of code.</p>',
-				totalGoals: 3,
-				minGoals: 3,
-				goalReward: 50,
-				maxLines: 17,
-				lineReward: 10,
-				original: 'function move(distance) {\n  robot.drive(distance);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(distance);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nmove(6);\nmove(4);\nmove(2);',
-				outputs: {
-					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":7,"rows":7,"initialX":6,"initialY":6,"initialAngle":90,"mazeObjects":31,"verticalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,true,false],[false,false,false,false,false,true,true],[false,false,true,true,true,true,false],[false,false,false,true,true,true,true],[true,true,true,true,true,true,false],[false,true,true,true,true,true,true]],"horizontalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,false,false],[false,false,false,false,true,false,false],[false,false,true,false,false,false,false],[false,false,true,false,false,false,false],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]]}'},
-					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
-				},
-				editor: {}
-			},
-			{
 				name: 'Animal',
 				type: 'ImageMatchDare',
-				description: '<p>You can already apply some stuff you have learned to <strong>drawing shapes</strong> on a canvas. For this dare you have to draw a simple animal using rectangles. We have already drawn the head for you.</p><p>Try to figure out with the manipulation button what all the numbers do, and add the rectangles for the <strong>body and legs</strong>. You can also use the info tab for more information on drawing commands. Do not worry about the <var>var context = canvas.getContext("2d");</var> line for now. If you like, you can try to give the animal a color.</p>',
+				description: '<p>You can already apply some stuff you have learned to <strong>drawing shapes</strong> on a canvas. For this dare you have to draw a simple animal using rectangles. We have already drawn the head for you.</p><p>Try to figure out with the <a href="#arrow-manipulation">manipulation button</a> what all the numbers do, and add the rectangles for the <strong>body and legs</strong>. You can also use the <a href="#arrow-tab-info">info tab</a> for more information on drawing commands. Do not worry about the <var>var context = canvas.getContext("2d");</var> line for now. If you like, you can try to give the animal a color.</p>',
 				speed: 500,
 				minPercentage: 97,
 				maxLines: 10,
