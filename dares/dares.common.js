@@ -263,7 +263,7 @@ module.exports = function(dares) {
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
 			this.ui.registerObject(this);
-			this.ui.loadOutputs(this.options.outputOptions);
+			this.ui.loadOutputs(this.options.outputs);
 			this.ui.selectTab('dare');
 		};
 
@@ -283,7 +283,7 @@ module.exports = function(dares) {
 			this.$points.hide();
 
 			this.linePoints = null;
-			if (this.options.maxLines !== undefined) {
+			if (this.options.maxLines > 0) {
 				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
 			}
 			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name);
@@ -294,7 +294,7 @@ module.exports = function(dares) {
 		};
 
 		dare.initEditor = function() {
-			if (this.options.user.text !== undefined) {
+			if (this.options.user.text !== undefined && this.options.user.text.length > 0) {
 				this.editor.setText(this.options.user.text);
 			}
 			this.editor.setTextChangeCallback(this.delegate.updateCode.bind(this.delegate));
@@ -323,7 +323,7 @@ module.exports = function(dares) {
 		};
 
 		dare.hasValidNumberOfLines = function() {
-			return this.options.maxLines === undefined || this.editor.getContentLines().length <= this.options.maxLines;
+			return this.linePoints === null || this.editor.getContentLines().length <= this.options.maxLines;
 		};
 
 		dare.addLineAnimation = function() {
@@ -339,7 +339,7 @@ module.exports = function(dares) {
 				this.animation.prependSegment(1, 400, this.animationSlideDown.bind(this));
 			}
 
-			if (this.options.maxLines !== undefined) {
+			if (this.linePoints !== null) {
 				points += this.addLineAnimation();
 			}
 			

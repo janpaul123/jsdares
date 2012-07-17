@@ -71,9 +71,7 @@ module.exports = function(dares) {
 	dares.RobotGoalDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
 			this.initOptions(delegate, ui, options);
-			this.previewBlockSize = options.previewBlockSize || 32;
-			this.resultBlockSize = options.resultBlockSize || 48;
-			this.previewRobot = null;
+			this.previewBlockSize = options.outputs.robot.previewBlockSize || 48;
 
 			this.$div.addClass('dare dare-robotgoal');
 			this.robot = this.ui.getOutput('robot');
@@ -86,10 +84,10 @@ module.exports = function(dares) {
 			this.$originalRobotContainer.append(this.$originalRobot);
 			this.$originalRobotContainer.append('<div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div>');
 			
-			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.resultBlockSize, this.options.outputOptions.robot.state);
+			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.previewBlockSize, this.robot.getState());
 			this.originalRobot.insertDelay(30000);
 
-			var simpleRobot = new applet.output.SimpleRobot(this.options.outputOptions.robot.state);
+			var simpleRobot = new applet.output.SimpleRobot(this.robot.getState());
 			var runner = new applet.jsmm.SimpleRunner({robot: simpleRobot.getAugmentedObject()});
 			runner.run(this.options.original);
 			simpleRobot.play(this.originalRobot);

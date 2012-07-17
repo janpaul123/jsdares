@@ -31,14 +31,14 @@ $(function() {
 	$('.example-text-top').css('margin-left', -$('.example-text-top').width()/2);
 	$('.example-text-bottom').css('margin-left', -$('.example-text-bottom').width()/2);
 
-	var $dares = $('.intro-dares');
+	var $dares = $('.intro');
 
 	var DaresManager = function() { return this.init.apply(this, arguments); };
 	DaresManager.prototype = {
 		init: function(content) {
 			this.content = content;
 			for (var i=0; i<this.content.dares.length; i++) {
-				this.content.dares[i].user = JSON.parse(localStorage.getItem(this.content.title + '-' + i) || 'null') || {};
+				this.content.dares[i].user = JSON.parse(localStorage.getItem(this.content.title + '-' + this.content.dares[i].name) || 'null') || {};
 			}
 		},
 
@@ -48,7 +48,7 @@ $(function() {
 
 		updateDareUser: function(index, attr, value) {
 			this.content.dares[index].user[attr] = value;
-			localStorage.setItem(this.content.title + '-' + index, JSON.stringify(this.content.dares[index].user));
+			localStorage.setItem(this.content.title + '-' + this.content.dares[index].name, JSON.stringify(this.content.dares[index].user));
 		},
 
 		getContent: function() {
@@ -64,66 +64,243 @@ $(function() {
 		}
 	};
 
+	var exDM = new DaresManager({
+		title: "Other examples",
+		difficulty: 3,
+		dares: [
+			{
+				name: 'Multiplication table',
+				type: 'ConsoleMatchDare',
+				description: '<p>A multiplication table shows the result of multiplying any two numbers. Your task is to build a multiplication table of 10 rows and 5 columns, as seen below. For the spacing between the numbers, use the tab character, <var>"\\t"</var>.</p>',
+				minPercentage: 95,
+				maxLines: 8,
+				lineReward: 10,
+				original: 'for (var l=1; l<=10; l++) {\n  var text = "";\n  for (var c=1; c<=5; c++) {\n    text += l*c + "\\t";\n  }\n  console.log(text);\n}',
+				outputs: {
+					console: {},
+					info: {commandFilter: ['jsmm', 'console.log']}
+				},
+				editor: {}
+			},
+			{
+				name: 'Gravity',
+				type: 'ImageMatchDare',
+				description: '<p>A block is <strong>thrown</strong> in the air and then <strong>accelerates back down</strong>. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to <strong>copy</strong> this image as good as possible, in as <strong>few lines</strong> of code as you can.</p>',
+				speed: 50,
+				minPercentage: 95,
+				maxLines: 6,
+				lineReward: 10,
+				original: 'var context = canvas.getContext("2d");\nfor (var i=0; i<20; i++) {\n  context.fillRect(10+i*24, 270+i*-65+i*i*4, 50, 50);\n}',
+				outputs: {
+					canvas: {},
+					info: {commandFilter: ['jsmm', 'canvas.getContext', 'context.fillRect']}
+				},
+				editor: {}
+			}
+		]
+	});
+	var $examples = $('<div></div>');
+	$dares.prepend($examples);
+	var exDares = new dares.Dares(exDM, $examples);
+
 	var rrDM = new DaresManager({
 		title: "Rollin' Robots",
 		difficulty: 1,
 		dares: [
 			{
-				name: 'Knight Jump',
-				description: '<p>Move the robot to the <strong>green square</strong>. In chess this is known as a <strong>knight jump</strong>.</p>',
-				speed: 100,
-				outputs: ['robot'],
-				totalGoals: 3,
+				name: 'Stepping',
+				type: 'RobotGoalDare',
+				description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <strong>program</strong>, but it is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
+				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
-				maxLines: 5,
-				lineReward: 10,
-				original: 'robot.drive(2);\nrobot.turnLeft();\nrobot.drive(1);',
-				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
-				outputOptions: {
-					robot: {readOnly: true, state: '{"columns":4,"rows":4,"initialX":2,"initialY":2,"initialAngle":90,"mazeObjects":1,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[true,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":1}'},
-					info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				maxLines: 0,
+				lineReward: 0,
+				original: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(3);',
+				outputs: {
+					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":4,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false]]}'}
+					//info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
 				},
+				editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\n'}
+			},
+			{
+				name: 'Another wall',
 				type: 'RobotGoalDare',
+				description: '<p>Again, move the robot to the green square. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p>',
+				totalGoals: 1,
+				minGoals: 1,
+				goalReward: 50,
+				maxLines: 10,
+				lineReward: 10,
+				original: 'robot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);',
+				outputs: {
+					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":5,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'}
+					//info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
 				editor: {}
 			},
 			{
-				name: 'Multiplication table',
-				description: '<p>A multiplication table shows the result of multiplying any two numbers. Your task is to build a multiplication table of 10 rows and 5 columns, as seen below. For the spacing between the numbers, use the tab character, <var>"\\t"</var>.</p>',
-				outputs: ['console'],
-				minPercentage: 95,
-				maxLines: 8,
+				name: 'Highlighting',
+				type: 'RobotGoalDare',
+				description: '<p>Stepping is very useful, but to see more quickly which command does what, you can use the <strong>highlighting button</strong>. When using highlighting, move the mouse over the code, or over the path of the robot. After that, move the robot to the green square in as few lines as you can.</p>',
+				totalGoals: 1,
+				minGoals: 1,
+				goalReward: 50,
+				maxLines: 16,
 				lineReward: 10,
-				original: 'for (var l=1; l<=10; l++) {\n  var text = "";\n  for (var c=1; c<=5; c++) {\n    text += l*c + "\\t";\n  }\n  console.log(text);\n}',
-				infoCommandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'],
-				outputOptions: {
-					console: {},
-					info: {commandFilter: ['jsmm', 'console.log']}
+				original: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(2);',
+				outputs: {
+					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":4,"initialY":4,"initialAngle":90,"mazeObjects":12,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,true,true,true],[true,true,true,true,false],[false,true,true,true,true]],"horizontalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,true,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'}
+					//info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
 				},
-				type: 'ConsoleMatchDare',
+				editor: {text: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\n'}
+			},
+			{
+				name: 'Multiple goals',
+				type: 'RobotGoalDare',
+				description: '<p>This time you have to visit <strong>all three</strong> goals, in any order. Programmers always look for the fastest solution. Can you find a clever route?</p>',
+				totalGoals: 3,
+				minGoals: 3,
+				goalReward: 50,
+				maxLines: 20,
+				lineReward: 10,
+				original: 'robot.drive(2);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(1);',
+				outputs: {
+					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":1,"initialY":4,"initialAngle":90,"mazeObjects":12,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,true,false,false],[false,true,false,true,false],[false,false,true,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,true,false,false],[false,true,false,true,false],[false,false,true,false,true],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,true,false]]}'}
+					//info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
 				editor: {}
 			},
 			{
-				name: 'Gravity',
-				description: '<p>A block is <strong>thrown</strong> in the air and then <strong>accelerates back down</strong>. The position of the block is drawn every few seconds, resulting in the image on the right. Your task is to <strong>copy</strong> this image as good as possible, in as <strong>few lines</strong> of code as you can.</p>',
-				speed: 50,
-				outputs: ['canvas'],
-				minPercentage: 95,
-				maxLines: 6,
+				name: 'Manipulation',
+				type: 'RobotGoalDare',
+				description: '<p>For this dare you just have to edit the numbers in the program. You can use the <strong>manipulation button</strong> to do this easily. Note that you cannot use extra lines of code, but you can get <strong>extra points</strong> by visiting all goals!</p>',
+				totalGoals: 7,
+				minGoals: 5,
+				goalReward: 50,
+				maxLines: 11,
 				lineReward: 10,
-				original: 'var context = canvas.getContext("2d");\nfor (var i=0; i<20; i++) {\n  context.fillRect(10+i*24, 270+i*-65+i*i*4, 50, 50);\n}',
-				outputOptions: {
-					canvas: {},
-					info: {commandFilter: ['jsmm', 'canvas.getContext', 'context.fillRect']}
+				original: 'robot.drive(7);\nrobot.turnRight();\nrobot.drive(6);\nrobot.turnRight();\nrobot.drive(7);\nrobot.turnRight();\nrobot.drive(4);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(1);',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":7,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"blockGoal":[[true,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,true],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[true,false,false,false,false,false,false,true],[false,false,false,false,true,false,false,false]],"numGoals":1}'}
+					//info: {commandFilter: ['robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
 				},
+				editor: {text: 'robot.drive(3);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\n'}
+			},
+			{
+				name: 'Knight Jump',
+				type: 'RobotGoalDare',
+				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the step button to see what happens. We have also added another tab, the <strong>info tab</strong>, with more information about functions.</p>',
+				totalGoals: 6,
+				minGoals: 6,
+				goalReward: 50,
+				maxLines: 15,
+				lineReward: 10,
+				original: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();\nknightJump();\nrobot.turnLeft();\nknightJump();\nrobot.drive(1);\nknightJump();\nknightJump();\nknightJump();\n',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":6,"rows":6,"initialX":0,"initialY":2,"initialAngle":90,"mazeObjects":15,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,true,true],[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false],[true,false,false,false,false,false],[false,false,false,false,true,false],[false,true,true,false,false,false],[false,false,false,false,false,true],[false,false,true,false,false,false]]}'},
+					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
+				editor: {text: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();'}
+			},
+			{
+				name: 'Zig-zag',
+				type: 'RobotGoalDare',
+				description: '<p>For this you need to write your <strong>own</strong> function. You can try writing a program without a function, but note that you can only use <strong>20 lines</strong> (not counting empty lines and lines with only <var>}</var>).</p>',
+				totalGoals: 9,
+				minGoals: 9,
+				goalReward: 50,
+				maxLines: 20,
+				lineReward: 10,
+				original: 'function zigzag() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nzigzag();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 48, state: '{"columns":6,"rows":6,"initialX":0,"initialY":5,"initialAngle":90,"mazeObjects":26,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,true,false],[false,false,true,true,false,false],[false,true,false,false,false,false],[true,false,false,true,true,false],[false,true,false,false,false,false]],"horizontalActive":[[false,false,false,true,false,false],[false,false,true,false,true,false],[false,true,false,false,false,false],[false,false,true,false,false,false],[false,false,true,true,false,true],[false,false,false,false,true,false]],"blockGoal":[[false,false,true,false,true,false],[false,false,false,true,false,false],[true,false,false,false,false,false],[false,true,false,false,false,false],[true,false,false,true,false,false],[false,false,true,false,true,false]]}'},
+					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
+				editor: {}
+			},
+			{
+				name: 'ForwardRight',
+				type: 'RobotGoalDare',
+				description: '<p>Sometimes you want to use the same commands, but only slightly different every time. In this dare, you want to move forward and then right, but with a different distance every time. For this you can use an <strong>argument</strong> in the function. After the function name you give a name for the argument, and the argument then <strong>contains</strong> the number you put in when calling the function. You can then use this name when calling the commands in the function. We have created an example for you, try to see what happens when you step through it.</p>',
+				totalGoals: 1,
+				minGoals: 1,
+				goalReward: 50,
+				maxLines: 20,
+				lineReward: 10,
+				original: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\nforwardRight(7);\nforwardRight(7);\nforwardRight(6);\nforwardRight(6);\nforwardRight(5);\nforwardRight(5);\nforwardRight(4);\nforwardRight(4);\nforwardRight(3);\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);\nforwardRight(1);',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":50,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,true,false],[false,false,false,true,true,true,false,false],[false,false,false,false,true,false,false,false],[false,false,false,true,true,false,false,false],[false,false,true,true,true,true,false,false],[false,true,true,true,true,true,true,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,false,true],[false,true,true,true,false,false,true,true],[false,true,true,true,false,true,true,true],[false,true,true,false,false,false,true,true],[false,true,false,false,false,false,false,true],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
+					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
+				editor: {text: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\n'}
+			},
+			{
+				name: 'More functions',
+				type: 'RobotGoalDare',
+				description: '<p>For this one you probably need to make one (or more) functions, since you can use no more than <strong>17 lines</strong> of code.</p>',
+				totalGoals: 3,
+				minGoals: 3,
+				goalReward: 50,
+				maxLines: 17,
+				lineReward: 10,
+				original: 'function move(distance) {\n  robot.drive(distance);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(distance);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nmove(6);\nmove(4);\nmove(2);',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":7,"rows":7,"initialX":6,"initialY":6,"initialAngle":90,"mazeObjects":31,"verticalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,true,false],[false,false,false,false,false,true,true],[false,false,true,true,true,true,false],[false,false,false,true,true,true,true],[true,true,true,true,true,true,false],[false,true,true,true,true,true,true]],"horizontalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,false,false],[false,false,false,false,true,false,false],[false,false,true,false,false,false,false],[false,false,true,false,false,false,false],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]]}'},
+					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
+				editor: {}
+			},
+			{
+				name: 'More functions',
+				type: 'RobotGoalDare',
+				description: '<p>For this one you probably need to make one (or more) functions, since you can use no more than <strong>17 lines</strong> of code.</p>',
+				totalGoals: 3,
+				minGoals: 3,
+				goalReward: 50,
+				maxLines: 17,
+				lineReward: 10,
+				original: 'function move(distance) {\n  robot.drive(distance);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(distance);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nmove(6);\nmove(4);\nmove(2);',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":7,"rows":7,"initialX":6,"initialY":6,"initialAngle":90,"mazeObjects":31,"verticalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,true,false],[false,false,false,false,false,true,true],[false,false,true,true,true,true,false],[false,false,false,true,true,true,true],[true,true,true,true,true,true,false],[false,true,true,true,true,true,true]],"horizontalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,false,false],[false,false,false,false,true,false,false],[false,false,true,false,false,false,false],[false,false,true,false,false,false,false],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]]}'},
+					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+				},
+				editor: {}
+			},
+			{
+				name: 'Animal',
 				type: 'ImageMatchDare',
-				editor: {}
+				description: '<p>You can already apply some stuff you have learned to <strong>drawing shapes</strong> on a canvas. For this dare you have to draw a simple animal using rectangles. We have already drawn the head for you.</p><p>Try to figure out with the manipulation button what all the numbers do, and add the rectangles for the <strong>body and legs</strong>. You can also use the info tab for more information on drawing commands. Do not worry about the <var>var context = canvas.getContext("2d");</var> line for now. If you like, you can try to give the animal a color.</p>',
+				speed: 500,
+				minPercentage: 97,
+				maxLines: 10,
+				lineReward: 10,
+				original: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\ncontext.fillRect(50, 100, 100, 50);\ncontext.fillRect(50, 150, 30, 50);\ncontext.fillRect(120, 150, 30, 50);',
+				outputs: {
+					canvas: {size: 256},
+					info: {commandFilter: ['canvas.getContext', 'context.fillRect', 'context.fillStyle'], scope: false}
+				},
+				editor: {text: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\n'}
+			},
+			{
+				name: 'Zoo',
+				type: 'ImageMatchDare',
+				description: '<p>When you can draw one animal, you can draw a zoo, using a function. We have again provided you with a program that draws the head of some animals. If you find this dare too hard, you can leave it for now and try it again later.</p>',
+				speed: 200,
+				minPercentage: 97,
+				maxLines: 10,
+				lineReward: 10,
+				original: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n  context.fillRect(x+50, y+100, 100, 50);\n  context.fillRect(x+50, y+150, 30, 50);\n  context.fillRect(x+120, y+150, 30, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\nanimal(250, 250);',
+				outputs: {
+					canvas: {size: 512},
+					info: {commandFilter: ['jsmm.arithmetic.numbers', 'jsmm.function', 'canvas.getContext', 'context.fillRect', 'context.fillStyle'], scope: false}
+				},
+				editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'}
 			}
 		]
 	});
-
 	var $rollinrobots = $('<div></div>');
-	$dares.append($rollinrobots);
+	$dares.prepend($rollinrobots);
 	var rrDares = new dares.Dares(rrDM, $rollinrobots);
 
 	if (localStorage.getItem('initial-code') === null) {
@@ -156,7 +333,7 @@ $(function() {
 	});
 
 
-
+	window.fullEditorUI = fullEditorUI;
 
 
 

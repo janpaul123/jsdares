@@ -149,6 +149,12 @@ html {
 .intro {
 	margin-bottom: 40px;
 	position: relative;
+	overflow: hidden;
+
+	> div, > button {
+		float: left;
+		margin-right: 10px;
+	}
 }
 
 .footer {
@@ -162,10 +168,4 @@ html {
 
 .credits {
 	font-size: 10px;
-}
-
-#full-editor {
-	position: absolute;
-	top: 0px;
-	left: 50%;
 }
