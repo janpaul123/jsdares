@@ -27,7 +27,8 @@ widget/js/jquery.ui.colorPicker.js: browser.js jsmm-applet/colorpicker/jquery.ui
 	cp jsmm-applet/colorpicker/jquery.ui.colorPicker.js widget/js/jquery.ui.colorPicker.js
 
 clean:
-	rm widget/js/browser.js browser.js style.css widget/css/style.css
+	rm -f widget/js/browser.js browser.js style.css widget/css/style.css
+	cd jsmm-applet && $(MAKE) clean && cd ..
 
 # deploy
 deploy: widget home
