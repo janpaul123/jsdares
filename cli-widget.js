@@ -2,7 +2,7 @@
 "use strict";
 
 $(function() {
-	var applet = require('jsmm-applet');
+	var applet = require('./jsmm-applet');
 	window.applet = applet;
 
 	var dares = require('./dares');

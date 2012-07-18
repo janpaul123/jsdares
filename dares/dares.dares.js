@@ -1,7 +1,7 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var applet = require('jsmm-applet');
+var applet = require('../jsmm-applet');
 
 module.exports = function(dares) {
 	dares.Dares = function() { return this.init.apply(this, arguments); };
