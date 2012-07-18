@@ -4,13 +4,19 @@ exports.defineNodes = function (builder) {
 var defaultIni = function (loc) {
     this.loc = loc;
     return this;
-}
+};
 
 var def = function def(name, ini) {
     builder[name[0].toLowerCase()+name.slice(1)] = function (a,b,c,d,e,f,g,h) {
         var obj = {};
-        ini.call(obj,a,b,c,d,e,f,g,h);
         obj.type = name;
+        ini.call(obj,a,b,c,d,e,f,g,h);
+        if (obj.loc) {
+            obj.range = obj.loc.range || [0,0];
+            delete obj.loc;
+            obj.loc = arguments[ini.length-(name=='Literal' ? 2:1)];
+            delete obj.loc.range;
+        }
         return obj;
     };
 };
@@ -31,11 +37,6 @@ function convertExprToPattern (expr) {
 def('Program', function (elements,loc) {
     this.body = elements;
     this.loc = loc;
-    this.body.forEach(function (el) {
-      if (el.type == "VariableDeclaration" && el.kind == "let") {
-        el.kind = "var";
-      }
-    });
 });
 
 def('ExpressionStatement', function (expression, loc) {
@@ -58,8 +59,9 @@ def('Identifier', function (name,loc) {
 });
 
 // Literal expression node
-def('Literal', function (val, loc) {
+def('Literal', function (val, loc, raw) {
     this.value = val;
+    if (raw) this.raw = raw;
     this.loc = loc;
 });
 
@@ -68,8 +70,8 @@ def('ThisExpression', defaultIni);
 
 // Var statement node
 def('VariableDeclaration', function (kind, declarations, loc) {
-    this.kind = kind;
     this.declarations = declarations;
+    this.kind = kind;
     this.loc = loc;
 });
 
@@ -89,13 +91,18 @@ def('ObjectExpression', function (properties, loc) {
     this.loc = loc;
 });
 
+def('Property', function (key, value, kind, loc) {
+    this.key = key;
+    this.value = value;
+    this.kind = kind;
+    this.loc = loc;
+});
+
 // Function declaration node
 var funIni = function (ident, params, body, isGen, isExp, loc) {
     this.id = ident;
     this.params = params;
     this.body = body;
-    this.generator = isGen;
-    this.expression = isExp;
     this.loc = loc;
     if (!this.expression) {
         this.body.body.forEach(function (el) {
@@ -116,9 +123,9 @@ def('ReturnStatement', function (argument, loc) {
     this.loc = loc;
 });
 
-def('TryStatement', function (block, handler, finalizer, loc) {
+def('TryStatement', function (block, handlers, finalizer, loc) {
     this.block = block;
-    this.handler = handler;
+    this.handlers = handlers || [];
     this.finalizer = finalizer;
     this.loc = loc;
 });
@@ -153,8 +160,7 @@ def('ContinueStatement', function (label, loc) {
 
 def('SwitchStatement', function (discriminant, cases, lexical, loc) {
     this.discriminant = discriminant;
-    this.cases = cases;
-    this.lexical = !!lexical;
+    if (cases.length) this.cases = cases;
     this.loc = loc;
 });
 
@@ -174,8 +180,8 @@ def('WithStatement', function (object, body, loc) {
 // operators
 def('ConditionalExpression', function (test, consequent, alternate, loc) {
     this.test = test;
-    this.alternate = alternate;
     this.consequent = consequent;
+    this.alternate = alternate;
     this.loc = loc;
 });
 
@@ -257,8 +263,8 @@ def('WhileStatement', function (test, body, loc) {
 });
 
 def('DoWhileStatement', function (body, test, loc) {
-    this.test = test;
     this.body = body;
+    this.test = test;
     this.loc = loc;
 });
 
@@ -282,8 +288,8 @@ def('ForInStatement', function (left, right, body, each, loc) {
 
 def('IfStatement', function (test, consequent, alternate, loc) {
     this.test = test;
-    this.alternate = alternate;
     this.consequent = consequent;
+    this.alternate = alternate;
     this.loc = loc;
 });
 
@@ -298,5 +304,5 @@ def('ArrayPattern', function (elements, loc) {
 });
 
 return def;
-}
+};
 

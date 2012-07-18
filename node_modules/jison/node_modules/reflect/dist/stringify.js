@@ -578,7 +578,7 @@ function sourceElement(n, indent) {
     case "TryStatement":
         {
             var s = indent + "try" + substmt(n.block, indent, true);
-            var h = n.handler;
+            var h = n.handlers;
             var handlers = h === null ? [] : "length" in h ? h : [h];
             for (var i = 0; i < handlers.length; i++) {
                 var c = handlers[i];

@@ -1,5 +1,6 @@
 
 var Reflect = require('../dist/reflect').Reflect;
+var mozBuilder = require('../dist/reflect').mozBuilder;
 
 var print = console.log;
 
@@ -276,7 +277,7 @@ function runUnitTests() {
     for (var i = 0; i < tests.length; i++) {
         var b = tests[i], a;
         try {
-            a = Reflect.stringify(Reflect.parse(b, {loc: false}));
+            a = Reflect.stringify(Reflect.parse(b, {loc: false, builder: mozBuilder}));
             if (typeof a !== "string") {
                 throw new TypeError("Reflect.stringify returned " +
                                     (a !== null && typeof a === "object"

@@ -23,12 +23,13 @@ function generate (path) {
           "reflect.js": "dist/reflect.js",
           "parser.js": "dist/parser.js",
           "stringify.js": "dist/stringify.js",
+          "moznodes.js": "dist/moznodes.js",
           "nodes.js": "dist/nodes.js"
         };
     var script = bundler.bundle(normalizeModules(modules, path));
 
     var out = "var Reflect = (function() {\n" + script + ";\nreturn require('reflect').Reflect;\n})();";
-    require("sys").puts(out);
+    console.log(out);
 }
 
 var cwd = process.cwd();
