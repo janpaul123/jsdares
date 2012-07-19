@@ -1,20 +1,23 @@
-all: widget home
+dev:
+	node_modules/.bin/supervisor server-dev.js
 
-# widget
-widget: widget/js/browser.js widget/css/style.css widget/js/jquery.ui.colorPicker.js
+all: assets-dev home
 
-widget/js/browser.js: browser.js
-	cp browser.js widget/js/browser.js
+# assets-dev
+assets-dev: assets-dev/js/browser.js assets-dev/css/style.css assets-dev/js/jquery.ui.colorPicker.js
 
-widget/css/style.css: style.css
-	cp style.css widget/css/style.css
+assets-dev/js/browser.js: browser.js
+	cp browser.js assets-dev/js/browser.js
 
-browser.js: cli-widget.js dares/*.js jsmm-applet/*.js jsmm-applet/*/*.js jsmm-applet/*/*.jison jsmm-applet/*/*.coffee
+assets-dev/css/style.css: style.css
+	cp style.css assets-dev/css/style.css
+
+browser.js: cli-assets-dev.js dares/*.js jsmm-applet/*.js jsmm-applet/*/*.js jsmm-applet/*/*.jison jsmm-applet/*/*.coffee
 	cd jsmm-applet && $(MAKE) && cd ..
-	node_modules/.bin/browserify cli-widget.js -d -o browser.js
+	node_modules/.bin/browserify cli-assets-dev.js -d -o browser.js
 
-style.css: cli-widget.less dares/*.less jsmm-applet/*.less jsmm-applet/*/*.less bootstrap/less/*.less
-	node_modules/.bin/lessc cli-widget.less > style.css
+style.css: cli-assets-dev.less dares/*.less jsmm-applet/*.less jsmm-applet/*/*.less bootstrap/less/*.less
+	node_modules/.bin/lessc cli-assets-dev.less > style.css
 
 # home
 home: home/home.css
@@ -23,19 +26,19 @@ home/home.css: home/*.less
 	node_modules/.bin/lessc home/home.less > home/home.css	
 
 # color picker
-widget/js/jquery.ui.colorPicker.js: browser.js jsmm-applet/colorpicker/jquery.ui.colorPicker.js
-	cp jsmm-applet/colorpicker/jquery.ui.colorPicker.js widget/js/jquery.ui.colorPicker.js
+assets-dev/js/jquery.ui.colorPicker.js: browser.js jsmm-applet/colorpicker/jquery.ui.colorPicker.js
+	cp jsmm-applet/colorpicker/jquery.ui.colorPicker.js assets-dev/js/jquery.ui.colorPicker.js
 
 clean:
-	rm -f widget/js/browser.js browser.js style.css widget/css/style.css
+	rm -f assets-dev/js/browser.js browser.js style.css assets-dev/css/style.css
 	cd jsmm-applet && $(MAKE) clean && cd ..
 
 # deploy
-deploy: widget home
+deploy: assets-dev home
 	rm -rf deploy
 	cp -r home deploy
-	cp -r widget deploy/super-secret-preview
-	node_modules/.bin/browserify cli-widget.js -o production.js
+	cp -r assets-dev deploy/super-secret-preview
+	node_modules/.bin/browserify cli-assets-dev.js -o production.js
 	node_modules/.bin/uglifyjs -o deploy/super-secret-preview/js/browser.js production.js
 
-.PHONY: clean widget home deploy
+.PHONY: clean assets-dev home deploy dev

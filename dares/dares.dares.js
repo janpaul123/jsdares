@@ -11,6 +11,7 @@ module.exports = function(dares) {
 
 		init: function(delegate, $collection) {
 			this.delegate = delegate;
+			this.delegate.dares = this; // hack hack hack
 			this.$collection = $collection;
 			this.$collection.addClass('dares-collection');
 
@@ -36,7 +37,7 @@ module.exports = function(dares) {
 			this.ui.setCloseCallback(this.close.bind(this));
 			this.dare = null;
 			
-			this.updateDares();
+			//this.updateDares();
 		},
 
 		remove: function() {
@@ -57,7 +58,7 @@ module.exports = function(dares) {
 				var dare = content.dares[i];
 
 				var $item = $('<div class="dares-body-item"></div>');
-				if (dare.user.completed) {
+				if (dare.instance.completed) {
 					$item.addClass('dares-body-completed');
 				}
 
@@ -71,7 +72,7 @@ module.exports = function(dares) {
 					}
 				}
 				$item.append($name);
-				$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.user.highscore +'</span>');
+				$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.instance.highscore +'</span>');
 
 				this.$body.append($item);
 			}
@@ -92,13 +93,12 @@ module.exports = function(dares) {
 		},
 
 		updateHighscore: function(highscore) {
-			this.delegate.updateDareUser(this.index, 'completed', true);
-			this.delegate.updateDareUser(this.index, 'highscore', highscore);
+			this.delegate.updateHighscore(this.index, true, highscore);
 			this.updateDares();
 		},
 
-		updateCode: function(code) {
-			this.delegate.updateDareUser(this.index, 'text', code);
+		updateProgram: function(program) {
+			this.delegate.updateProgram(this.index, program);
 		},
 
 		close: function() {

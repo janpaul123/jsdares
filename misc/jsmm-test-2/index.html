@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="main">
+		<h1 id="title">js-- test interface 2</h1>
+
+		<div id="editor"></div>
+		
+		<div id="console" readonly="readonly"></div>
+		<!-- <canvas id="canvas" width="728" height="454"></canvas> -->
+
+		<div id="editor-bar" class="btn-toolbar">
+			<div id="step-group" class="btn-group">
+				<button id="step-back" class="btn btn-success"><i class="icon-arrow-left icon-white"></i></button>
+				<button id="step" class="btn btn-success"><i class="icon-arrow-right icon-white"></i> Step</button>
+				<button id="refresh" class="btn btn-success"><i class="icon-refresh icon-white"></i></button>
+			</div>
+
+			<div id="edit-highlight-group" class="btn-group">
+				<button id="highlight" class="btn btn-inverse"><i class="icon-screenshot icon-white"></i></button>
+				<button id="edit" class="btn btn-inverse"><i class="icon-edit icon-white"></i></button>
+			</div>
+			
+			<div id="extra-button" class="btn-group">
+				<button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" href="#">
+					<i class="icon-gift icon-white"></i>
+					Extras
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="extra-compile">Compile to JS</a></li>
+					<li><a href="#" id="extra-safe">Compile to "safe" JS</a></li>
+					<li><a href="#" id="extra-tree">View parse tree</a></li>
+					<li><a href="#" id="extra-nodes">View node list</a></li>
+					<li><a href="#" id="extra-tests">Run unit tests</a></li>
+					<li><a href="#" id="extra-stress">Run stress test</a></li>
+					<!-- <li><a href="#" id="extra-scope">View step scope</a></li>
+					<li><a href="#" id="extra-stack">View step stack</a></li>
+					<li><a href="#" id="extra-error">View raw error</a></li> -->
+				</ul>
+			</div>
+			<!-- 
+			<div class="btn-group">
+				<button id="about" class="btn btn-info"><i class="icon-info-sign icon-white"></i> About</button>
+			</div> -->
+		</div>
+		
+		<!-- <div id="toolbar" class="btn-toolbar">
+			<div id="console-button" class="btn-group toolbar-button">
+				<button class="btn btn-inverse">
+					<i class="icon-list-alt icon-white"></i>
+					console
+				</button>
+				<button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="console-log">console.log("Hi!");</a></li>
+					<li><a href="#" id="console-clear">console.clear();</a></li>
+					<li class="divider"></li>
+					<li><a href="#" id="console-example">Example</a></li>
+				</ul>
+			</div>
+
+			<div id="canvas-button" class="btn-group toolbar-button">
+				<button class="btn btn-inverse">
+					<i class="icon-picture icon-white"></i>
+					canvas
+				</button>
+				<button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="canvas-log">canvas.log("Hi!");</a></li>
+					<li><a href="#" id="canvas-clear">canvas.clear();</a></li>
+					<li class="divider"></li>
+					<li><a href="#" id="canvas-example">Example</a></li>
+				</ul>
+			</div>
+		</div> -->
+		
+		<!--
+		<div>
+			<button id="p1">Load sample 1</button>
+			<button id="p2">Load sample 2</button>
+			<button id="l1">Load store 1</button>
+			<button id="l2">Load store 2</button>
+			<button id="s1">Save to store 1</button>
+			<button id="s2">Save to store 2</button>
+		</div>
+		-->
+	</div>
+	
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jquery.ui.colorPicker.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/bootstrap-dropdown.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/bootstrap-tooltip.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/browser.js" charset="utf-8"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+body { 
+	background-color: #222;
+	margin: 0px;
+	padding: 0px;
+}
+
+#main {
+	padding: 0px;
+	background-color: #000;
+	width: 768px;
+	height: 1024px;
+	color: #eee;
+	font-family: Helvetica;
+	font-size: 16px;
+	position: relative;
+	line-height: 25px;
+	margin: 0px auto;
+}
+
+textarea, .textarea {
+	background-color: #333;
+	border: none;
+	font-family: "Courier", monospace;
+	color: #0d0;
+	margin: 0px;
+	padding: 10px;
+	font-size: 14px;
+	outline: none;
+	resize: none;
+	white-space: pre;
+	line-height: 16px;
+}
+
+#editor {
+	position: absolute;
+	top: 50px;
+	left: 20px;
+	width: 620px;
+	height: 450px;
+	background-color: #333;
+	overflow: auto;
+}
+
+#code {
+	position: absolute;
+	top: 0px;
+	left: 150px;
+	min-width: 430px;
+	min-height: 430px;
+	border-left: solid 1px #444;
+}
+
+/*#code*/.error {
+	border-left-color: #a54 !important;
+}
+
+/*#code*/.stepping {
+	border-left-color: #bbb !important;
+}
+
+#mirror {
+	position: absolute;
+	top: 000030px;
+	left: 000600px;
+}
+
+#margin {
+	font-family: "Courier", monospace;
+	color: #ddd;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 150px;
+	height: 10px;
+	overflow: visible;
+	z-index: 5;
+}
+
+#error, #arrow {
+	position: absolute;
+	top: 0px;
+	right: 5px;
+	cursor: pointer;
+	cursor: hand;
+	z-index: 10;
+}
+
+#error {
+	margin-top: -31px;
+}
+
+#arrow {
+	margin-top: -31px;
+}
+
+#messagebox {
+	position: absolute;
+	margin-top: -9px;
+	margin-left: -25px;
+	display: block;
+	top: 110px;
+	left: 270px;
+	background-color: rgba(30, 30, 30, 0.95);
+	font-size: 14px;
+	z-index: 10;
+	cursor: pointer;
+	cursor: hand;
+}
+
+#messagecol {
+	position: absolute;
+	left: 5px;
+	top: 5px;
+}
+
+#message {
+	margin-left: 25px;
+	margin-top: 2px;
+	max-width: 250px;
+	padding-bottom: 3px;
+	color: #0E0;
+	padding-right: 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.msg-value {
+	font-weight: bold;
+	color: #ee0;
+}
+
+#marking {
+	position: absolute;
+	background-color: rgba(50, 250, 50, 0.4);
+	margin-top: -28px;
+	margin-left: -19px;
+	height: 16px;
+	padding: 2px;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.lineMsg {
+	position: absolute;
+	font-size: 12px;
+	margin-top: -29px;
+	left: 4px;
+	right: 24px;
+	color: white;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: pre;
+	text-align: right;
+}
+
+#run {
+	position: absolute;
+	top: 250px;
+	left: 600px;
+}
+
+#console {
+	position: absolute;
+	top: 550px;
+	left: 20px;
+	right: 20px;
+	bottom: 20px;
+	width: 708px; /* for non-webkit */
+	height: 434px; /* for non-webkit */
+	word-wrap: normal;
+	white-space: pre-wrap;
+}
+
+#step {
+	position: absolute;
+	top: 50px;
+	left: 660px;
+}
+
+#console-button {
+	position: absolute;
+	top: 524px;
+	left: 18px;
+}
+
+#console-button .btn-inverse {
+	background-color: #2a2a2a;
+}
+
+#console-button .dropdown-menu {
+	background-color: #2a2a2a;
+	border-color: rgba(0, 0, 0, 0.1);
+}
+
+#console-button .dropdown-menu a {
+	font-family: "Courier", monospace;
+	font-size: 12px;
+	color: #fff;
+}
+
+#console-button .dropdown-menu .divider {
+	background-color: #bbb;
+	border-bottom-color: #2a2a2a;
+}
+
+#extra-button {
+	position: absolute;
+	top: 100px;
+	left: 660px;
+}
+
+#extra-button .dropdown-menu a {
+	font-size: 12px;
+}
+
+#about {
+	position: absolute;
+	left: 660px;
+	top: 140px;
+}
+
+#title {
+	position: absolute;
+	left: 22px;
+	top: 5px;
+	font-size: 58px;
+	line-height: 58px;
+}
+
+/* but in bootstrap, forgot btn-warning */
+.btn-warning .caret {
+  border-top-color: #ffffff;
+  opacity: 0.75;
+  filter: alpha(opacity=75);
+}

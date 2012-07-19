@@ -257,8 +257,8 @@ module.exports = function(dares) {
 			this.ui = ui;
 			this.options = options;
 			this.animation = null;
-			this.completed = this.options.user.completed;
-			this.highscore = this.options.user.highscore;
+			this.completed = this.options.instance.completed;
+			this.highscore = this.options.instance.highscore;
 
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
@@ -295,10 +295,10 @@ module.exports = function(dares) {
 		};
 
 		dare.initEditor = function() {
-			if (this.options.user.text !== undefined && this.options.user.text.length > 0) {
-				this.editor.setText(this.options.user.text);
+			if (this.options.instance.text) {
+				this.editor.setText(this.options.instance.text);
 			}
-			this.editor.setTextChangeCallback(this.delegate.updateCode.bind(this.delegate));
+			this.editor.setTextChangeCallback(this.delegate.updateProgram.bind(this.delegate));
 		};
 
 		dare.hasError = function() {
