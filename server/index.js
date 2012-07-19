@@ -82,6 +82,6 @@ module.exports = function(options) {
 			.use(lessMiddleware(options.less))
 			.use(browserify(options.browserify))
 			.use(connect['static'](options.assets))
-			.listen(3000);
+			.listen(options.port);
 	});
 };
