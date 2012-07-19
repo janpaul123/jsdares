@@ -1,6 +1,3 @@
-dev:
-	node_modules/.bin/supervisor server-dev.js
-
 all: assets-dev home
 
 # assets-dev
