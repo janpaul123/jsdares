@@ -138,9 +138,10 @@ module.exports = function(output) {
 
 		animationStart: function() {
 			this.animateTimeout = null;
-			this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', this.animationEnd.bind(this));
 			var animation = this.animationQueue[this.number];
 			var duration = (this.duration*animation.length).toFixed(5);
+			//this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', this.animationEnd.bind(this));
+			this.animateTimeout = window.setTimeout(this.animationEnd.bind(this), duration*1000);
 
 			if (animation.type === 'movement') {
 				clayer.setCss3(this.$robot, 'transition', 'left ' + duration + 's linear, top ' + duration + 's linear');
@@ -168,7 +169,8 @@ module.exports = function(output) {
 		},
 
 		animationEnd: function() {
-			this.clearTimeout();
+			//this.clearTimeout();
+			this.animateTimeout = null;
 			this.setLight('default');
 
 			if (this.number+1 < this.lastNumber && this.number < this.animationQueue.length-1) {

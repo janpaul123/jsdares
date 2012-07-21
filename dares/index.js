@@ -3,7 +3,7 @@
 
 var dares = {};
 
-require('./dares.dares')(dares);
+require('./dares.collection')(dares);
 require('./dares.content')(dares);
 require('./dares.common')(dares);
 require('./dares.consolematch')(dares);

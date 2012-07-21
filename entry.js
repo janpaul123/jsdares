@@ -2,5 +2,5 @@
 "use strict";
 
 $(function() {
-	require('./client')();
+	require('./client').init();
 });

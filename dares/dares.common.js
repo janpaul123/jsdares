@@ -317,9 +317,11 @@ module.exports = function(dares) {
 			if (!this.completed || points > this.highscore) {
 				this.completed = true;
 				this.highscore = points;
-				this.delegate.updateHighscore(this.highscore);
 				this.animation.addSegment(1, 0, this.animationHighscoreBlinkCallback.bind(this));
 				this.animation.addSegment(points, 5, this.animationHighscoreIncreaseCallback.bind(this));
+			}
+			if (this.completed) {
+				this.delegate.updateInstance(this.completed, this.highscore, this.editor.getText());
 			}
 		};
 
