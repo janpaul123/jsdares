@@ -6,8 +6,7 @@ module.exports = function(dares) {
 	dares.Collection.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
-		init: function(id, page, $collection) {
-			this.id = id;
+		init: function(page, $collection) {
 			this.page = page;
 			this.$collection = $collection;
 			this.$collection.addClass('dares-collection');
@@ -18,19 +17,30 @@ module.exports = function(dares) {
 			this.$body = $('<div class="dares-body"></div>');
 			this.$collection.append(this.$body);
 
-			this.page.getSync().getCollectionAndDaresAndInstances(this.id, this.updateContent.bind(this));
+			this.content = null;
 		},
 
 		remove: function() {
 			this.$header.remove();
 			this.$body.remove();
-			this.$modal.remove();
 			this.$collection.removeClass('dares-collection');
 		},
 
 		updateContent: function(content) {
 			this.content = content;
 			this.render();
+		},
+
+		updateWithInstance: function(instance) {
+			if (this.content !== null) {
+				for (var i=0; i<this.content.dares.length; i++) {
+					if (this.content.dares[i]._id === instance.dareId) {
+						this.content.dares[i].instance = instance;
+						this.render();
+						break;
+					}
+				}
+			}
 		},
 
 		render: function() {
@@ -52,7 +62,7 @@ module.exports = function(dares) {
 					$item.addClass('dares-body-completed');
 				}
 
-				$item.data('index', i);
+				$item.data('_id', dare._id);
 				$item.on('click', this.itemClick.bind(this));
 
 				var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
@@ -70,31 +80,7 @@ module.exports = function(dares) {
 
 		itemClick: function(event) {
 			var $target = $(event.delegateTarget);
-			var index = $target.data('index');
-			this.page.getSync().getDareAndInstance(this.content.dares[index]._id, (function(dare) {
-				this.content[index] = dare;
-				this.render();
-				this.index = index;
-				var ui = this.page.openModal(this);
-				new dares[dare.type](this, ui, dare);
-			}).bind(this));
-		},
-
-		selectDare: function(body, number) {
-			this.list.bodys[body].dares[number].selectDare();
-		},
-
-		updateInstance: function(completed, highscore, text) {
-			this.content.dares[this.index].instance.completed = completed;
-			this.content.dares[this.index].instance.highscore = highscore;
-			this.content.dares[this.index].instance.text = text;
-			this.render();
-			this.page.getSync().updateInstance(this.content.dares[this.index].instance);
-		},
-
-		updateProgram: function(text) {
-			this.content.dares[this.index].instance.text = text;
-			this.page.getSync().updateProgram(this.content.dares[this.index].instance);
+			this.page.openDare($target.data('_id'));
 		}
 	};
 };

@@ -32,7 +32,7 @@ module.exports.UI.prototype = {
 
 			this.$close = $('<a href="#" class="ui-close">&times;</a>');
 			this.$main.append(this.$close);
-			this.$close.on('click', this.closeModal.bind(this));
+			this.$close.on('click', (function(event) { event.preventDefault(); this.closeModal(); }).bind(this));
 		} else {
 			this.$modal = null;
 			this.$main = $main;
@@ -215,7 +215,6 @@ module.exports.UI.prototype = {
 		if (pos === undefined) {
 			if (str.indexOf('arrow-tab-') === 0) {
 				var $tab = this.tabsByName[str.substring('arrow-tab-'.length)].$tab;
-				console.log($tab, $tab.offset());
 				pos = ['arrow-left', $tab.position().left+$tab.width()+5, 29];
 			} else {
 				pos = str.split(',');
@@ -244,8 +243,7 @@ module.exports.UI.prototype = {
 		$('body').addClass('modal-open'); // for Bootstrap specific fixes
 	},
 
-	closeModal: function(event) {
-		event.preventDefault();
+	closeModal: function() {
 		this.removeAll();
 		this.$modal.removeClass('ui-modal-active');
 		this.$main.removeClass('ui-modal-ui-active');

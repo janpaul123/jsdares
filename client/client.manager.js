@@ -4,20 +4,26 @@
 module.exports = function(client) {
 	client.Manager = function() { return this.init.apply(this, arguments); };
 	client.Manager.prototype = {
+		pageConstructors: {
+			home: 'PageHome'
+		},
+
 		init: function($div) {
 			this.$div = $div;
 			this.sync = new client.Sync(this);
+			this.history = window.History;
+			this.history.Adapter.bind(window, 'statechange', this.stateChange.bind(this));
+
 			this.page = null;
-			this.showPage();
+			this.urlChange(window.location.pathname);
 		},
 
 		getSync: function() {
 			return this.sync;
 		},
 
-		showPage: function() {
-			this.removePage();
-			this.page = new client.PageHome(this, this.$div);
+		navigateTo: function(url) {
+			this.addHistory(url);
 		},
 
 		removePage: function() {
@@ -32,7 +38,29 @@ module.exports = function(client) {
 		},
 
 		connectionSuccess: function() {
-			
+
+		},
+
+		addHistory: function(url) {
+			this.history.pushState(null, null, url);
+		},
+
+		stateChange: function() {
+			var state = this.history.getState();
+			this.urlChange(state.hash);
+		},
+
+		urlChange: function(url) {
+			var splitUrl = (url || '/').substring(1).split('/');
+			if (this.pageConstructors[splitUrl[0]] === undefined) {
+				splitUrl = ['home'];
+			}
+			var type = this.pageConstructors[splitUrl[0]];
+			if (this.page === null || this.page.type !== type) {
+				this.removePage();
+				this.page = new client[type](this, this.$div);
+			}
+			this.page.navigateTo(splitUrl);
 		}
 	};
 };

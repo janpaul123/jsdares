@@ -267,6 +267,10 @@ module.exports = function(dares) {
 			this.ui.selectTab('dare');
 		};
 
+		dare.getId = function() {
+			return this.options._id;
+		};
+
 		dare.appendDescription = function($div) {
 			this.$description = $('<div class="dare-description"></div>');
 			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');

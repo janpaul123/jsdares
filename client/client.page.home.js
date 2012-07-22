@@ -7,6 +7,8 @@ var dares = require('../dares');
 module.exports = function(client) {
 	client.PageHome = function() { return this.init.apply(this, arguments); };
 	client.PageHome.prototype = {
+		type: 'PageHome',
+
 		init: function(delegate, $div) {
 			this.delegate = delegate;
 			this.$div = $div;
@@ -31,7 +33,7 @@ module.exports = function(client) {
 			this.$intro = $('<div class="intro"></div>');
 
 			var $collection1 = $('<div class="intro-collection1"></div>');
-			this.collection1 = new dares.Collection('5009684ce78955fbcf405844', this, $collection1);
+			this.collection1 = new dares.Collection(this, $collection1);
 			this.$intro.append($collection1);
 
 			this.$introButton = $('<button class="intro-full-editor" class="btn btn-large">Open full editor</button>');
@@ -40,6 +42,9 @@ module.exports = function(client) {
 
 			this.modalUI = new applet.UI();
 			this.modalUI.setCloseCallback(this.closeCallback.bind(this));
+			this.dareId = null;
+
+			this.updateCollections();
 		},
 
 		remove: function() {
@@ -54,14 +59,67 @@ module.exports = function(client) {
 			return this.delegate.getSync();
 		},
 
-		openModal: function(collection) {
-			this.modalUI.openModal();
-			this.exampleEditor.disable();
-			return this.modalUI;
+		openDare: function(_id) {
+			this.delegate.navigateTo('/home/' + _id);
+		},
+
+		updateCollections: function() {
+			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
+				this.collection1.updateContent(content);
+			}).bind(this));
+		},
+
+		updateCollectionsWithInstance: function(instance) {
+			this.collection1.updateWithInstance(instance);
+		},
+
+		updateInstance: function(completed, highscore, text) {
+			this.instance.completed = completed;
+			this.instance.highscore = highscore;
+			this.instance.text = text;
+			this.delegate.getSync().updateInstance(this.instance);
+			this.updateCollectionsWithInstance(this.instance);
+		},
+
+		updateProgram: function(text) {
+			this.instance.text = text;
+			this.delegate.getSync().updateProgram(this.instance);
 		},
 
 		closeCallback: function() {
-			this.exampleEditor.enable();
+			if (this.dareId !== null) {
+				this.delegate.navigateTo('/');
+			}
+		},
+
+		navigateTo: function(splitUrl) {
+			if ((splitUrl[1] || '').length > 0) {
+				this.exampleEditor.disable();
+				this.navigateOpenDare(splitUrl[1]);
+			} else {
+				this.exampleEditor.enable();
+				this.navigateCloseDare();
+			}
+		},
+
+		navigateOpenDare: function(_id) {
+			if (this.dareId !== _id) {
+				this.navigateCloseDare();
+				this.dareId = _id;
+
+				this.delegate.getSync().getDareAndInstance(_id, (function(dare) {
+					this.instance = dare.instance;
+					this.modalUI.openModal();
+					new dares[dare.type](this, this.modalUI, dare);
+				}).bind(this));
+			}
+		},
+
+		navigateCloseDare: function() {
+			if (this.dareId !== null) {
+				this.dareId = null;
+				this.modalUI.closeModal();
+			}
 		}
 	};
 };

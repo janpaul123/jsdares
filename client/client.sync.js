@@ -39,9 +39,8 @@ module.exports = function(client) {
 		},
 
 		apiGet: function(name, data, success) {
-			this.flushPostDelayed();
 			return $.ajax({
-				url: 'api/get/' + name,
+				url: '/api/get/' + name,
 				type: 'get',
 				data: data,
 				dataType: 'json',
@@ -51,9 +50,8 @@ module.exports = function(client) {
 		},
 
 		apiPost: function(name, data, success) {
-			this.flushPostDelayed();
 			return $.ajax({
-				url: 'api/post/' + name,
+				url: '/api/post/' + name,
 				type: 'post',
 				data: JSON.stringify(data),
 				contentType: 'application/json; charset=utf-8',
@@ -64,8 +62,9 @@ module.exports = function(client) {
 		},
 
 		apiPostDelayed: function(name, data) {
-			this.delayedPostData[name] =  data;
+			this.delayedPostData[name] = data;
 			if (this.postTimeout === null) {
+				this.flushPostDelayed();
 				this.postTimeout = setTimeout(this.flushPostDelayed.bind(this), 5000);
 			}
 		},

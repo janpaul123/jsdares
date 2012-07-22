@@ -362,7 +362,7 @@ module.exports = function(editor) {
 			this.stepBar = new editor.StepBar($stepBar, this.$stepBarContainer, false);
 			this.$stepBarContainer.append($stepBar);
 
-			this.$stepBarErrorIcon = $('<img class="editor-toolbar-run-step-bar-error-icon" src="img/margin-message-icon-error.png"/>');
+			this.$stepBarErrorIcon = $('<div class="editor-toolbar-run-step-bar-error-icon"/>');
 			this.$stepBarErrorIcon.on('click', this.errorIconClick.bind(this));
 			this.$stepBarContainer.append(this.$stepBarErrorIcon);
 
