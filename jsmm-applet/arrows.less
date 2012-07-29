@@ -3,6 +3,8 @@
 @arrow-body-length: 50px;
 @arrow-body-width: 20px;
 @arrow-color: hsl(30, 90%, 55%);
+@arrow-jump-amount: 20px;
+@arrow-jump-count: 6;
 
 .arrow-link {
 	color: @arrow-color;
@@ -12,7 +14,6 @@
 	&:hover {
 		color: @arrow-color;
 		text-decoration: none;
-		border-bottom: none;
 	}
 }
 
@@ -40,7 +41,7 @@
 		margin-top: round(-@arrow-head-width / 2);
 
 		&.arrow-animate {
-			.animation(arrow-bounce-anim-left, 0.4s, ease-out, infinite, alternate);
+			.animation(arrow-bounce-anim-left, 0.4s, ease-out, @arrow-jump-count, alternate);
 		}
 
 		.arrow-head {
@@ -69,7 +70,7 @@
 		margin-left: -(@arrow-head-length + @arrow-body-length);
 		
 		&.arrow-animate {
-			.animation(arrow-bounce-anim-right, 0.4s, ease-out, infinite, alternate);
+			.animation(arrow-bounce-anim-right, 0.4s, ease-out, @arrow-jump-count, alternate);
 		}
 
 		.arrow-head {
@@ -97,7 +98,7 @@
 		margin-left: round(-@arrow-head-width / 2);
 		
 		&.arrow-animate {
-			.animation(arrow-bounce-anim-up, 0.4s, ease-out, infinite, alternate);
+			.animation(arrow-bounce-anim-up, 0.4s, ease-out, @arrow-jump-count, alternate);
 		}
 
 		.arrow-head {
@@ -126,7 +127,7 @@
 		margin-top: -(@arrow-head-length + @arrow-body-length);
 		
 		&.arrow-animate {
-			.animation(arrow-bounce-anim-down, 0.4s, ease-out, infinite, alternate);
+			.animation(arrow-bounce-anim-down, 0.4s, ease-out, @arrow-jump-count, alternate);
 		}
 
 		.arrow-head {
@@ -152,7 +153,7 @@
 // hack hack hack
 .arrow-bounce-anim-up-content() {
 	from { margin-top: 0px }
-	to { margin-top: 10px; }
+	to { margin-top: @arrow-jump-amount; }
 }
 @keyframes arrow-bounce-anim-up { .arrow-bounce-anim-up-content(); }
 @-webkit-keyframes arrow-bounce-anim-up { .arrow-bounce-anim-up-content(); }
@@ -162,7 +163,7 @@
 
 .arrow-bounce-anim-down-content() {
 	from { margin-top: 0px }
-	to { margin-top: -10px; }
+	to { margin-top: -@arrow-jump-amount; }
 }
 @keyframes arrow-bounce-anim-down { .arrow-bounce-anim-down-content(); }
 @-webkit-keyframes arrow-bounce-anim-down { .arrow-bounce-anim-down-content(); }
@@ -172,7 +173,7 @@
 
 .arrow-bounce-anim-left-content() {
 	from { margin-left: 0px }
-	to { margin-left: 10px; }
+	to { margin-left: @arrow-jump-amount; }
 }
 @keyframes arrow-bounce-anim-left { .arrow-bounce-anim-left-content(); }
 @-webkit-keyframes arrow-bounce-anim-left { .arrow-bounce-anim-left-content(); }
@@ -182,7 +183,7 @@
 
 .arrow-bounce-anim-right-content() {
 	from { margin-left: 0px }
-	to { margin-left: -10px; }
+	to { margin-left: -@arrow-jump-amount; }
 }
 @keyframes arrow-bounce-anim-right { .arrow-bounce-anim-right-content(); }
 @-webkit-keyframes arrow-bounce-anim-right { .arrow-bounce-anim-right-content(); }

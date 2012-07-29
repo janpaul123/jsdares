@@ -194,7 +194,6 @@ module.exports.UI.prototype = {
 	},
 
 	arrowPositions: { // dir, left, top
-		'arrow-code': ['arrow-left', 750, 65],
 		'arrow-step': ['arrow-up', 655, 40],
 		'arrow-highlighting': ['arrow-up', 751, 40],
 		'arrow-manipulation': ['arrow-up', 785, 40],
@@ -220,15 +219,18 @@ module.exports.UI.prototype = {
 				pos = str.split(',');
 			}
 		}
+		console.log(pos);
 		this.$arrow.addClass('arrow-active');
 		this.$arrow.removeClass('arrow-left arrow-right arrow-up arrow-down arrow-animate');
 		this.$arrow.addClass(pos[0]);
-		this.$arrow.css('left', pos[1]);
-		this.$arrow.css('top', pos[2]);
+		this.$arrow.css('left', pos[1] + 'px');
+		this.$arrow.css('top', pos[2] + 'px');
 	},
 
 	animateArrow: function() {
-		this.$arrow.addClass('arrow-animate');
+		var $arrow = this.$arrow;
+		$arrow.removeClass('arrow-animate');
+		window.setTimeout(function() { $arrow.addClass('arrow-animate'); }, 0);
 	},
 
 	hideArrow: function() {
