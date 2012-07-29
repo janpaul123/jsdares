@@ -37,7 +37,7 @@ module.exports = function(server) {
 			this.createObjectId(req, res, req.query._id, function(id) {
 				this.db.collections.findById(id, this.wrapCallback(req, res, function(collection) {
 					if (!collection) this.throw404(req, res);
-					else this.db.dares.findItems({collectionId: collection._id}, this.wrapCallback(req, res, function(dares) {
+					else this.db.dares.findItems({collectionId: collection._id}, {sort: 'order'}, this.wrapCallback(req, res, function(dares) {
 						collection.dares = dares;
 						var dareIds = [];
 						for (var i=0; i<collection.dares.length; i++) {
