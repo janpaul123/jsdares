@@ -153,52 +153,46 @@ module.exports = function(output) {
 			// blocks
 			for (x=0; x<this.state.columns; x++) {
 				for (y=0; y<this.state.rows; y++) {
-					if (!this.readOnly || this.state.blockGoal[x][y]) {
-						$block = $('<div class="robot-maze-block"></div>');
-						$block.css('left', x*this.blockSize);
-						$block.css('top', y*this.blockSize);
-						$block.width(this.blockSize);
-						$block.height(this.blockSize);
-						$block.data('x', x);
-						$block.data('y', y);
-						if (this.state.blockGoal[x][y]) $block.addClass('robot-maze-block-goal');
-						this.$maze.append($block);
-						this.$blocks[x][y] = $block;
-					}
+					$block = $('<div class="robot-maze-block"></div>');
+					$block.css('left', x*this.blockSize);
+					$block.css('top', y*this.blockSize);
+					$block.width(this.blockSize);
+					$block.height(this.blockSize);
+					$block.data('x', x);
+					$block.data('y', y);
+					if (this.state.blockGoal[x][y]) $block.addClass('robot-maze-block-goal');
+					this.$maze.append($block);
+					this.$blocks[x][y] = $block;
 				}
 			}
 
 			// vertical lines
 			for (y=0; y<this.state.rows; y++) {
 				for (x=1; x<this.state.columns; x++) {
-					if (!this.readOnly || this.state.verticalActive[x][y]) {
-						$line = $('<div class="robot-maze-line-vertical"><div class="robot-maze-line-inside"></div></div>');
-						$line.css('left', x*this.blockSize);
-						$line.css('top', y*this.blockSize);
-						$line.height(this.blockSize);
-						$line.data('x', x);
-						$line.data('y', y);
-						if (this.state.verticalActive[x][y]) $line.addClass('robot-maze-line-active');
-						this.$maze.append($line);
-						this.$verticalLines[x][y] = $line;
-					}
+					$line = $('<div class="robot-maze-line-vertical"><div class="robot-maze-line-inside"></div></div>');
+					$line.css('left', x*this.blockSize);
+					$line.css('top', y*this.blockSize);
+					$line.height(this.blockSize);
+					$line.data('x', x);
+					$line.data('y', y);
+					if (this.state.verticalActive[x][y]) $line.addClass('robot-maze-line-active');
+					this.$maze.append($line);
+					this.$verticalLines[x][y] = $line;
 				}
 			}
 
 			// horizontal lines
 			for (x=0; x<this.state.columns; x++) {
 				for (y=1; y<this.state.rows; y++) {
-					if (!this.readOnly || this.state.horizontalActive[x][y]) {
-						$line = $('<div class="robot-maze-line-horizontal"><div class="robot-maze-line-inside"></div></div>');
-						$line.css('left', x*this.blockSize);
-						$line.css('top', y*this.blockSize);
-						$line.width(this.blockSize);
-						$line.data('x', x);
-						$line.data('y', y);
-						if (this.state.horizontalActive[x][y]) $line.addClass('robot-maze-line-active');
-						this.$maze.append($line);
-						this.$horizontalLines[x][y] = {$line: $line, active: false};
-					}
+					$line = $('<div class="robot-maze-line-horizontal"><div class="robot-maze-line-inside"></div></div>');
+					$line.css('left', x*this.blockSize);
+					$line.css('top', y*this.blockSize);
+					$line.width(this.blockSize);
+					$line.data('x', x);
+					$line.data('y', y);
+					if (this.state.horizontalActive[x][y]) $line.addClass('robot-maze-line-active');
+					this.$maze.append($line);
+					this.$horizontalLines[x][y] = {$line: $line, active: false};
 				}
 			}
 
