@@ -392,7 +392,7 @@ module.exports = function(jsmm) {
 		},
 
 		leaveCall: function() {
-			this.callStackNodes.pop();
+			return this.callStackNodes.pop();
 		},
 
 		enterFunction: function(node, vars, fullName) {

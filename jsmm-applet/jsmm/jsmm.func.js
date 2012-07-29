@@ -264,7 +264,7 @@ module.exports = function(jsmm) {
 		} else {
 			throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.identifier.getCode() + '</var> is not a function');
 		}
-		context.leaveCall(this);
+		context.leaveCall();
 
 		if (retVal === null) retVal = undefined;
 
@@ -324,15 +324,21 @@ module.exports = function(jsmm) {
 	
 	jsmm.nodes.FunctionDeclaration.prototype.runFuncEnter = function(context, args) {
 		if (args.length < this.nameArgs.length) {
-			throw new jsmm.msg.Error(this.id, 'Function expects <var>' + this.nameArgs.length + '</var> arguments, but got only <var>' + args.length + '</var> are given');
+			var but = 'only <var>' + args.length + '</var> are given';
+			if (args.length <= 0) {
+				but = 'none are given';
+			} else if (args.length === 1) {
+				but = 'only <var>1</var> is given';
+			}
+			throw new jsmm.msg.Error(context.leaveCall().id, 'Function expects <var>' + this.nameArgs.length + '</var> arguments, but ' + but);
 		}
 
 		var scopeVars = {}, msgFuncArgs = [];
 		for (var i=0; i<this.nameArgs.length; i++) {
 			if (args[i] === undefined) {
-				throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.nameArgs[i] + '</var> is <var>undefined</var>');
+				throw new jsmm.msg.Error(context.leaveCall().id, 'Argument <var>' + this.nameArgs[i] + '</var> is <var>undefined</var>');
 			} else if (args[i] === null) {
-				throw new jsmm.msg.Error(this.id, 'Variable <var>' + this.nameArgs[i] + '</var> is <var>null</var>');
+				throw new jsmm.msg.Error(context.leaveCall().id, 'Argument <var>' + this.nameArgs[i] + '</var> is <var>null</var>');
 			} else {
 				scopeVars[this.nameArgs[i]] = args[i];
 				msgFuncArgs.push(jsmm.stringify(args[i]));
