@@ -219,7 +219,6 @@ module.exports.UI.prototype = {
 				pos = str.split(',');
 			}
 		}
-		console.log(pos);
 		this.$arrow.addClass('arrow-active');
 		this.$arrow.removeClass('arrow-left arrow-right arrow-up arrow-down arrow-animate');
 		this.$arrow.addClass(pos[0]);
