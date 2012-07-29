@@ -123,7 +123,7 @@ module.exports = function(server) {
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Knight Jump',
 				type: 'RobotGoalDare',
-				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the <a href="#arrow-step">step button</a> to see what happens. We have also added a new tab, the <a href="#arrow-tab-info">info tab</a>, with more information about functions.</p>',
+				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands. In the provided <a href="#arrow-code">program</a>, the name of the function is <var>knightJump</var>, and you can call it by writing <var>knightJump();</var>.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the <a href="#arrow-step">step button</a> to see what happens. We have also added a new tab, the <a href="#arrow-tab-info">info tab</a>, with more information about functions.</p>',
 				totalGoals: 6,
 				minGoals: 6,
 				goalReward: 50,
@@ -132,7 +132,7 @@ module.exports = function(server) {
 				original: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();\nknightJump();\nrobot.turnLeft();\nknightJump();\nrobot.drive(1);\nknightJump();\nknightJump();\nknightJump();\n',
 				outputs: {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":6,"rows":6,"initialX":0,"initialY":2,"initialAngle":90,"mazeObjects":15,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,true,true],[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false],[true,false,false,false,false,false],[false,false,false,false,true,false],[false,true,true,false,false,false],[false,false,false,false,false,true],[false,false,true,false,false,false]]}'},
-					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
 				editor: {text: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();'},
 				order: 5
@@ -155,7 +155,7 @@ module.exports = function(server) {
 				original: 'function zigzag() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nzigzag();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();',
 				outputs: {
 					robot: {readOnly: true, previewBlockSize: 48, state: '{"columns":6,"rows":6,"initialX":0,"initialY":5,"initialAngle":90,"mazeObjects":26,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,true,false],[false,false,true,true,false,false],[false,true,false,false,false,false],[true,false,false,true,true,false],[false,true,false,false,false,false]],"horizontalActive":[[false,false,false,true,false,false],[false,false,true,false,true,false],[false,true,false,false,false,false],[false,false,true,false,false,false],[false,false,true,true,false,true],[false,false,false,false,true,false]],"blockGoal":[[false,false,true,false,true,false],[false,false,false,true,false,false],[true,false,false,false,false,false],[false,true,false,false,false,false],[true,false,false,true,false,false],[false,false,true,false,true,false]]}'},
-					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
 				editor: {},
 				order: 6
@@ -178,7 +178,7 @@ module.exports = function(server) {
 				original: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\nforwardRight(7);\nforwardRight(7);\nforwardRight(6);\nforwardRight(6);\nforwardRight(5);\nforwardRight(5);\nforwardRight(4);\nforwardRight(4);\nforwardRight(3);\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);\nforwardRight(1);',
 				outputs: {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":50,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,true,false],[false,false,false,true,true,true,false,false],[false,false,false,false,true,false,false,false],[false,false,false,true,true,false,false,false],[false,false,true,true,true,true,false,false],[false,true,true,true,true,true,true,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,false,true],[false,true,true,true,false,false,true,true],[false,true,true,true,false,true,true,true],[false,true,true,false,false,false,true,true],[false,true,false,false,false,false,false,true],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
-					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
 				editor: {text: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\n'},
 				order: 7
@@ -201,7 +201,7 @@ module.exports = function(server) {
 				original: 'function move(distance) {\n  robot.drive(distance);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(distance);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nmove(6);\nmove(4);\nmove(2);',
 				outputs: {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":7,"rows":7,"initialX":6,"initialY":6,"initialAngle":90,"mazeObjects":31,"verticalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,true,false],[false,false,false,false,false,true,true],[false,false,true,true,true,true,false],[false,false,false,true,true,true,true],[true,true,true,true,true,true,false],[false,true,true,true,true,true,true]],"horizontalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,false,false],[false,false,false,false,true,false,false],[false,false,true,false,false,false,false],[false,false,true,false,false,false,false],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]]}'},
-					info: {commandFilter: ['jsmm.function', 'robot.drive', 'robot.turnLeft', 'robot.turnRight'], scope: false}
+					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
 				editor: {},
 				order: 8
@@ -223,7 +223,7 @@ module.exports = function(server) {
 				original: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\ncontext.fillRect(50, 100, 100, 50);\ncontext.fillRect(50, 150, 30, 50);\ncontext.fillRect(120, 150, 30, 50);',
 				outputs: {
 					canvas: {size: 256},
-					info: {commandFilter: ['canvas.getContext', 'context.fillRect', 'context.fillStyle'], scope: false}
+					info: {commands: [{id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
 				},
 				editor: {text: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\n'},
 				order: 9
@@ -245,7 +245,7 @@ module.exports = function(server) {
 				original: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n  context.fillRect(x+50, y+100, 100, 50);\n  context.fillRect(x+50, y+150, 30, 50);\n  context.fillRect(x+120, y+150, 30, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\nanimal(250, 250);',
 				outputs: {
 					canvas: {size: 512},
-					info: {commandFilter: ['jsmm.arithmetic.numbers', 'jsmm.function', 'canvas.getContext', 'context.fillRect', 'context.fillStyle'], scope: false}
+					info: {commands: ['jsmm.arithmetic.numbers', {id: 'jsmm.function', examples: [0]}, {id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
 				},
 				editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'},
 				order: 10

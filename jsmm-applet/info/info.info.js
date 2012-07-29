@@ -281,30 +281,28 @@ module.exports = function(info) {
 		},
 
 		addTable: function(table) {
-			if (table.list.length > 0) {
-				var $table = $('<div class="info-table"></div>');
-				$table.html(table.html);
-				this.$tables.append($table);
+			var $table = $('<div class="info-table"></div>');
+			$table.html(table.html);
+			this.$tables.append($table);
 
-				for (var i=0; i<table.list.length; i++) {
-					var command = table.list[i];
+			for (var id in table.list) {
+				var command = table.list[id];
 
-					var $item = $('<div class="info-table-item"></div>');
-					var $cell = $('<div class="info-table-cell"></div>');
-					this.makeCell(command, $cell);
-					$item.append($cell);
+				var $item = $('<div class="info-table-item"></div>');
+				var $cell = $('<div class="info-table-cell"></div>');
+				this.makeCell(command, $cell);
+				$item.append($cell);
 
-					var $content = $('<div class="info-table-content"></div>');
-					$content.hide();
-					$item.append($content);
+				var $content = $('<div class="info-table-content"></div>');
+				$content.hide();
+				$item.append($content);
 
-					$item.data('command', command);
-					$item.on('click', this.itemClick);
-					$item.on('mousemove', this.mouseMove);
+				$item.data('command', command);
+				$item.on('click', this.itemClick);
+				$item.on('mousemove', this.mouseMove);
 
-					$table.append($item);
-					this.commands[command.id] = {command: command, $item: $item};
-				}
+				$table.append($item);
+				this.commands[id] = {command: command, $item: $item};
 			}
 		},
 
@@ -389,10 +387,24 @@ module.exports = function(info) {
 			} else {
 				this.$tables.find('.info-table-item-active').removeClass('info-table-item-active').children('.info-table-content').slideUp(200);
 				$content.show();
-				command.makeContent(this, $content);
+				this.makeContent(command, $content);
 				$target.addClass('info-table-item-active');
 				$content.hide();
 				$content.slideDown(200);
+			}
+		},
+
+		makeContent: function(command, $content) {
+			$content.html(command.text);
+			for (var i=0; i<command.examples.length; i++) {
+				var example = command.examples[i];
+				if (example.type === 'robot') {
+					info.robotExample(this, $content, example.code, example.state);
+				} else if (example.type === 'canvas') {
+					info.canvasExample(this, $content, example.code);
+				} else if (example.type === 'console') {
+					info.consoleExample(this, $content, example.code, example.result);
+				}
 			}
 		},
 
@@ -434,7 +446,7 @@ module.exports = function(info) {
 			}
 
 			this.table = new info.InfoTable(this.$div, this);
-			this.table.addCommands(this.filterCommands(options.commandFilter));
+			this.table.addCommands(this.filterCommands(options.commands));
 
 			this.editor = editor;
 		},
@@ -510,14 +522,25 @@ module.exports = function(info) {
 			} else {
 				var tables = [];
 				for (var i=0; i<info.tables.length; i++) {
-					tables[i] = {html: info.tables[i].html, list: []};
-					for (var j=0; j<info.tables[i].list.length; j++) {
-						var command = info.tables[i].list[j];
-						for (var k=0; k<filter.length; k++) {
-							if (command.id.indexOf(filter[k]) === 0) {
-								tables[i].list.push(command);
-								break;
+					var table = null;
+					for (var j=0; j<filter.length; j++) {
+						var id = filter[j].id;
+						var item = info.tables[i].list[id];
+
+						if (item !== undefined) {
+							if (table === null) {
+								table = {html: info.tables[i].html, list: {}};
+								tables.push(table);
 							}
+							tables[i].list[id] = {name: item.name, text: item.text, examples: item.examples};
+
+							if (filter[j].examples !== undefined) {
+								tables[i].list[id].examples = [];
+								for (var k=0; k<filter[j].examples.length; k++) {
+									tables[i].list[id].examples.push(item.examples[filter[j].examples[k]]);
+								}
+							}
+							break;
 						}
 					}
 				}
