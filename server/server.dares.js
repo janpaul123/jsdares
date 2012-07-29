@@ -35,7 +35,7 @@ module.exports = function(server) {
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Another wall',
 				type: 'RobotGoalDare',
-				description: '<p>Again, move the robot to the green square. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p>',
+				description: '<p>Again, move the robot to the green square. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Click on the <a href="#arrow-up,557,70">error icon</a> to show what is wrong.</p>',
 				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
@@ -45,7 +45,7 @@ module.exports = function(server) {
 				outputs: {
 					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":5,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'}
 				},
-				editor: {},
+				editor: {text: 'robot.drive(3);\nrobot.turnRight();\n'},
 				order: 1
 			},
 			{upsert: true}
