@@ -245,7 +245,7 @@ module.exports = function(server) {
 				original: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n  context.fillRect(x+50, y+100, 100, 50);\n  context.fillRect(x+50, y+150, 30, 50);\n  context.fillRect(x+120, y+150, 30, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\nanimal(250, 250);',
 				outputs: {
 					canvas: {size: 512},
-					info: {commands: ['jsmm.arithmetic.numbers', {id: 'jsmm.function', examples: [0]}, {id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
+					info: {commands: [{id: 'jsmm.arithmetic.numbers', examples: [1]}, {id: 'jsmm.function', examples: [0]}, {id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
 				},
 				editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'},
 				order: 10

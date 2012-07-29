@@ -532,15 +532,14 @@ module.exports = function(info) {
 								table = {html: info.tables[i].html, list: {}};
 								tables.push(table);
 							}
-							tables[i].list[id] = {name: item.name, text: item.text, examples: item.examples};
+							table.list[id] = {name: item.name, text: item.text, examples: item.examples};
 
 							if (filter[j].examples !== undefined) {
-								tables[i].list[id].examples = [];
+								table.list[id].examples = [];
 								for (var k=0; k<filter[j].examples.length; k++) {
-									tables[i].list[id].examples.push(item.examples[filter[j].examples[k]]);
+									table.list[id].examples.push(item.examples[filter[j].examples[k]]);
 								}
 							}
-							break;
 						}
 					}
 				}
