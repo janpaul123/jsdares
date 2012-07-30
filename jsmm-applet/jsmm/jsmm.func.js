@@ -109,6 +109,12 @@ module.exports = function(jsmm) {
 			} else if (typeof value2 !== 'boolean') {
 				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value2) + '</var> is not a boolean');
 			}
+		} else if (['==', '!='].indexOf(symbol) >= 0) {
+			if (['boolean', 'number', 'string'].indexOf(typeof value1) < 0) {
+				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value1) + '</var> is not a number, string, or boolean');
+			} else if (['boolean', 'number', 'string'].indexOf(typeof value2) < 0) {
+				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value2) + '</var> is not a number, string, or boolean');
+			}
 		}
 		
 		switch(symbol) {
