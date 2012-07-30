@@ -5,7 +5,8 @@ module.exports = function(client) {
 	client.Manager = function() { return this.init.apply(this, arguments); };
 	client.Manager.prototype = {
 		pageConstructors: {
-			home: 'PageHome'
+			home: 'PageHome',
+			full: 'PageHome'
 		},
 
 		init: function($div) {

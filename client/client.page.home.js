@@ -36,13 +36,15 @@ module.exports = function(client) {
 			this.collection1 = new dares.Collection(this, $collection1);
 			this.$intro.append($collection1);
 
-			this.$introButton = $('<button class="intro-full-editor" class="btn btn-large">Open full editor</button>');
+			this.$introButton = $('<button class="intro-full-editor btn btn-large">Open full editor</button>');
+			this.$introButton.on('click', (function(event) { this.delegate.navigateTo('/full'); }).bind(this));
 			this.$intro.append(this.$introButton);
 			this.$div.append(this.$intro);
 
 			this.modalUI = new applet.UI();
 			this.modalUI.setCloseCallback(this.closeCallback.bind(this));
 			this.dareId = null;
+			this.fullEditor = null;
 
 			this.updateCollections();
 		},
@@ -87,24 +89,23 @@ module.exports = function(client) {
 		},
 
 		closeCallback: function() {
-			if (this.dareId !== null) {
-				this.delegate.navigateTo('/');
-			}
+			this.delegate.navigateTo('/');
 		},
 
 		navigateTo: function(splitUrl) {
 			if ((splitUrl[1] || '').length > 0) {
-				this.exampleEditor.disable();
 				this.navigateOpenDare(splitUrl[1]);
+			} else if (splitUrl[0] === 'full') {
+				this.navigateFullEditor();
 			} else {
-				this.exampleEditor.enable();
 				this.navigateCloseDare();
 			}
 		},
 
 		navigateOpenDare: function(_id) {
+			this.exampleEditor.disable();
+			this.closeModal();
 			if (this.dareId !== _id) {
-				this.navigateCloseDare();
 				this.dareId = _id;
 
 				this.delegate.getSync().getDareAndInstance(_id, (function(dare) {
@@ -116,8 +117,33 @@ module.exports = function(client) {
 		},
 
 		navigateCloseDare: function() {
+			this.closeModal();
+			this.exampleEditor.enable();
+		},
+
+		navigateFullEditor: function() {
+			this.exampleEditor.disable();
+			this.modalUI.openModal();
+			this.fullEditor = this.modalUI.addEditor({text: localStorage.getItem('initial-code')});
+			this.fullEditor.setTextChangeCallback(function(text) {
+				localStorage.setItem('initial-code', text);
+			});
+			this.modalUI.loadOutputs({
+				robot: {state: localStorage.getItem('initial-robot')}, canvas: {}, console: {}, info: {}, input: {mouseObjects: ['canvas']}, Math: {}
+			});
+			this.modalUI.getOutput('robot').setStateChangeCallback(function(state) {
+				localStorage.setItem('initial-robot', state);
+			});
+			this.modalUI.selectTab('robot');
+		},
+
+		closeModal: function() {
 			if (this.dareId !== null) {
 				this.dareId = null;
+				this.modalUI.closeModal();
+			}
+			if (this.fullEditor !== null) {
+				this.fullEditor = null;
 				this.modalUI.closeModal();
 			}
 		}

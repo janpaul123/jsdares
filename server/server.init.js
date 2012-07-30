@@ -31,7 +31,7 @@ module.exports = function(server) {
 				.use(lessMiddleware(options.less))
 				.use(browserify(options.browserify))
 				.use('', function(req, res, next) {
-					if(req.url.indexOf('/home') === 0) req.url = '/';
+					if(req.url.indexOf('/home') === 0 || req.url.indexOf('/full') === 0) req.url = '/';
 					next();
 				})
 				.use(connect['static'](options.assets))
