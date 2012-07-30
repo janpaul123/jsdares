@@ -6,7 +6,6 @@ var uuid = require('node-uuid');
 
 module.exports = function(server) {
 	server.API = function() { return this.init.apply(this, arguments); };
-
 	server.API.prototype = {
 		init: function(db) {
 			this.db = db;

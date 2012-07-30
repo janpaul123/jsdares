@@ -30,6 +30,10 @@ module.exports = function(server) {
 				.use('/api', api.getMiddleware())
 				.use(lessMiddleware(options.less))
 				.use(browserify(options.browserify))
+				.use('', function(req, res, next) {
+					if(req.url.indexOf('/home') === 0) req.url = '/';
+					next();
+				})
 				.use(connect['static'](options.assets))
 				.listen(options.port);
 		});
