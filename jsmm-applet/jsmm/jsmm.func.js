@@ -98,10 +98,18 @@ module.exports = function(jsmm) {
 				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since it is a division by zero');
 			}
 		} else if (['+', '+='].indexOf(symbol) >= 0) {
-			if (['number', 'string'].indexOf(typeof value1) < 0) {
-				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value1) + '</var> is not a number or string');
-			} else if (['number', 'string'].indexOf(typeof value2) < 0) {
-				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value2) + '</var> is not a number or string');
+			if ([typeof value1, typeof value2].indexOf('string') >= 0) {
+				if (['number', 'boolean', 'string'].indexOf(typeof value1) < 0) {
+					throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value1) + '</var> is not a number, string, or boolean');
+				} else if (['number', 'boolean', 'string'].indexOf(typeof value2) < 0) {
+					throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value2) + '</var> is not a number, string, or boolean');
+				}
+			} else {
+				if (typeof value1 !== 'number') {
+					throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value1) + '</var> is not a number or string');
+				} else if (typeof value2 !== 'number') {
+					throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value2) + '</var> is not a number or string');
+				}
 			}
 		} else if (['&&', '||'].indexOf(symbol) >= 0) {
 			if (typeof value1 !== 'boolean') {
