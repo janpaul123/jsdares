@@ -44,6 +44,8 @@ module.exports = function(client) {
 
 		addHistory: function(url) {
 			this.history.pushState(null, null, url);
+			/*global _gaq*/
+			_gaq.push(['_trackPageview', url]); // Google Analytics
 		},
 
 		stateChange: function() {
