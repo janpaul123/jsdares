@@ -369,11 +369,11 @@ module.exports = function(editor) {
 		},
 
 		columnToX: function(column) {
-			return column*this.charWidth;
+			return Math.max(0, Math.min(column*this.charWidth, this.$surface.css('width').replace('px', '')-7));
 		},
 
 		lineToY: function(line) {
-			return (line-1)*this.lineHeight;
+			return Math.max(0, (line-1)*this.lineHeight);
 		},
 
 		addElement: function($element) {
