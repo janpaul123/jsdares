@@ -275,10 +275,8 @@ module.exports = function(editor) {
 				}
 				this.updateHighlighting();
 				this.callToolbar('update', this.runner);
-				this.callOutputs('outputSetError', this.runner.hasError());
-			} else {
-				this.callOutputs('outputSetError', false);
 			}
+			this.callOutputs('outputSetError', this.runner.hasError());
 			if (this.canHighlightTime()) {
 				this.enableTimeHighlighting();
 				if (this.activeTimeHighlights.length > 0) {
