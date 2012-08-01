@@ -2,9 +2,24 @@
 @import "../jsmm-applet/index.less";
 @import "../dares/index.less";
 
+//@import ~"url(http://fonts.googleapis.com/css?family=Arimo:400,700)";
+@import ~"url(http://fonts.googleapis.com/css?family=Arimo)";
+
 html {
 	height: 100%;
 	// -webkit-font-smoothing: antialiased;
+}
+
+// some bootstrap tweaks
+body, input, button, select, textarea {
+	font-family: Arimo, Helvetica, Arial, sans-serif;
+}
+
+.tooltip {
+	font-size: 13px;
+	.tooltip-inner {
+		padding: 6px 8px;
+	}
 }
 
 .main {

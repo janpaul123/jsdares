@@ -6,7 +6,7 @@
 //@serifFontFamily:       Georgia, "Times New Roman", Times, serif;
 //@monoFontFamily:        Menlo, Monaco, Consolas, "Courier New", monospace;
 
-@code-font-family: "Consolas", "Lucida Console", "Courier", monospace;
+@code-font-family: "Consolas", "Lucida Console", "Courier New", monospace;
 @code-color: #0d0;
 @code-font-size: 14px;
 @code-line-height: 16px;
@@ -67,7 +67,6 @@ p {
 
 @code-well-background-color: #111;
 .code-well() {
-	.code-foreground();
 	background-color: @code-well-background-color;
 	@shadow: 0px 1px 3px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
 	.box-shadow(@shadow);
@@ -84,6 +83,7 @@ p {
 	background-color: #111;
 	padding: 3px 6px;
 	color: white;
+	white-space: nowrap;
 }
 
 .icon-trophy {
