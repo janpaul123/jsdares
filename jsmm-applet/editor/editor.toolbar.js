@@ -561,7 +561,7 @@ module.exports = function(editor) {
 			this.lostFocus = this.lostFocus.bind(this);
 			$(document).on('keydown', this.keyDown);
 			$(document).on('keyup', this.keyUp);
-			$(document).on('blur', this.lostFocus);
+			$(window).on('blur', this.lostFocus);
 
 			this.keys = {};
 			this.timers = {};
@@ -577,7 +577,7 @@ module.exports = function(editor) {
 			this.clearAllKeys();
 			$(document).off('keydown', this.keyDown);
 			$(document).off('keyup', this.keyUp);
-			$(document).off('blur', this.lostFocus);
+			$(window).off('blur', this.lostFocus);
 			this.$div.html('');
 			this.$div.removeClass('editor-toolbar editor-toolbar-interactive');
 		},

@@ -254,7 +254,7 @@ module.exports = function(server) {
 		db.collections.update({"_id" : new db.ObjectID("30000000078955fbcf405844")},
 			{
 				_id: new db.ObjectID("30000000078955fbcf405844"),
-				difficulty: 1,
+				difficulty: 2,
 				title : "Famous people"
 			},
 			{upsert: true}
