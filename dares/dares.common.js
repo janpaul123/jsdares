@@ -274,7 +274,7 @@ module.exports = function(dares) {
 		dare.appendDescription = function($div) {
 			this.$description = $('<div class="dare-description"></div>');
 			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
-			this.ui.addArrows(this.$description);
+			this.ui.prepareTextElement(this.$description);
 			$div.append(this.$description);
 
 			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');

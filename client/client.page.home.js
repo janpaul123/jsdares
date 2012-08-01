@@ -36,6 +36,10 @@ module.exports = function(client) {
 			this.collection1 = new dares.Collection(this, $collection1);
 			this.$intro.append($collection1);
 
+			var $collection2 = $('<div class="intro-collection2"></div>');
+			this.collection2 = new dares.Collection(this, $collection2);
+			this.$intro.append($collection2);
+
 			this.$introButton = $('<button class="intro-full-editor btn btn-large">Open full editor</button>');
 			this.$introButton.on('click', (function(event) { this.delegate.navigateTo('/full'); }).bind(this));
 			this.$intro.append(this.$introButton);
@@ -52,6 +56,7 @@ module.exports = function(client) {
 		remove: function() {
 			this.exampleUI.remove();
 			this.collection1.remove();
+			this.collection2.remove();
 			this.$example.remove();
 			this.$how.remove();
 			this.$intro.remove();
@@ -69,10 +74,14 @@ module.exports = function(client) {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
 				this.collection1.updateContent(content);
 			}).bind(this));
+			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', (function(content) {
+				this.collection2.updateContent(content);
+			}).bind(this));
 		},
 
 		updateCollectionsWithInstance: function(instance) {
 			this.collection1.updateWithInstance(instance);
+			this.collection2.updateWithInstance(instance);
 		},
 
 		updateInstance: function(completed, highscore, text) {

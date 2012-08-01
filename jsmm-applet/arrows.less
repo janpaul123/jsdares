@@ -162,8 +162,8 @@
 @-o-keyframes arrow-bounce-anim-up { .arrow-bounce-anim-up-content(); }
 
 .arrow-bounce-anim-down-content() {
-	from { margin-top: 0px }
-	to { margin-top: -@arrow-jump-amount; }
+	from { margin-top: -(@arrow-head-length + @arrow-body-length) }
+	to { margin-top: -(@arrow-head-length + @arrow-body-length)-@arrow-jump-amount; }
 }
 @keyframes arrow-bounce-anim-down { .arrow-bounce-anim-down-content(); }
 @-webkit-keyframes arrow-bounce-anim-down { .arrow-bounce-anim-down-content(); }
@@ -182,8 +182,8 @@
 @-o-keyframes arrow-bounce-anim-left { .arrow-bounce-anim-left-content(); }
 
 .arrow-bounce-anim-right-content() {
-	from { margin-left: 0px }
-	to { margin-left: -@arrow-jump-amount; }
+	from { margin-left: -(@arrow-head-length + @arrow-body-length) }
+	to { margin-left: -(@arrow-head-length + @arrow-body-length)-@arrow-jump-amount; }
 }
 @keyframes arrow-bounce-anim-right { .arrow-bounce-anim-right-content(); }
 @-webkit-keyframes arrow-bounce-anim-right { .arrow-bounce-anim-right-content(); }

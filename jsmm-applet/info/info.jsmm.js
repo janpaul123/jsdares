@@ -5,7 +5,7 @@ var robot = require('../robot');
 
 module.exports = function(info) {
 	info.tables.push({
-		html: '<p><span class="info-output"><i class="icon-wrench icon-white"></i> javascript</span></p><p>Below you find the basic constructs of the <strong>JavaScript</strong> language. Programs are executed from <strong>top to bottom</strong>, one statement after another. Use the <strong>Step</strong> button to see in detail how your program is executed.</p>',
+		html: '<p><span class="info-output"><i class="icon-wrench icon-white"></i> javascript</span></p><p>Below you find the basic constructs of the <strong>JavaScript</strong> language. Programs are executed from <strong>top to bottom</strong>, one statement after another. Use the <a href="#arrow-step">step button</a> to see in detail how your program is executed.</p>',
 		list: {
 			'jsmm.number': {
 				name: 'number',
@@ -23,7 +23,7 @@ module.exports = function(info) {
 			},
 			'jsmm.boolean': {
 				name: 'boolean',
-				text: '<p>A <strong>boolean</strong> is something that is either <strong>true</strong> or <strong>false</strong>, and we write this simply by writing <var>true</var> or <var>false</var>. They are used, for example, in comparisons and logic operators.</p>',
+				text: '<p>A <strong>boolean</strong> is something that is either <strong>true</strong> or <strong>false</strong>, and we use them in a program simply by writing <var>true</var> or <var>false</var>. They are used, for example, in comparisons and logic operators.</p>',
 				examples: [
 					{type: 'console', code: 'console.log(true);\nconsole.log(false);\nconsole.log(10 > 0);'}
 				]
@@ -45,7 +45,7 @@ module.exports = function(info) {
 			},
 			'jsmm.arithmetic.numbers': {
 				name: '+, -, *, /, % <small>(numbers only)</small>',
-				text: '<p>These are the basic <strong>math</strong> operators: <var>+</var> is addition, <var>-</var> is subtraction, <var>*</var> is multiplication, and <var>/</var> is division. The last one is <var>%</var>, remainder, which is a bit more uncommon. For more information about these operators, you can search online.</p>',
+				text: '<p>These are the basic <strong>math</strong> operators: <var>+</var> is addition, <var>-</var> is subtraction, <var>*</var> is multiplication, and <var>/</var> is division. Finally there is <var>%</var>, which gives the remainder of a division.</p>',
 				examples: [
 					{type: 'console', code: 'console.log(4+6);\nconsole.log(10-3);\nconsole.log(5*10);\nconsole.log(81/9);\nconsole.log(18%5);'},
 					{type: 'robot', code: 'robot.drive(5-2);'}
@@ -61,9 +61,9 @@ module.exports = function(info) {
 			},
 			'jsmm.arithmetic.strings': {
 				name: '+, += <small>(string concatenation)</small>',
-				text: '<p><var>+</var> is not only used for addition, but also for <strong>concatenating</strong> strings with strings, or strings with numbers. For example <var>"Hello " + "World!"</var> results in <var>"Hello World!"</var>. The shorthand <var>+=</var> also works.</p>',
+				text: '<p><var>+</var> is not only used for addition, but also for <strong>concatenating</strong> strings with strings, or strings with numbers. For example <var>"Hello " + "world!"</var> results in <var>"Hello world!"</var>. The shorthand <var>+=</var> also works.</p>',
 				examples: [
-					{type: 'console', code: 'console.log("Hello " + "World!");\n\nvar text = "Age: ";\ntext += 42;\nconsole.log(text);'}
+					{type: 'console', code: 'console.log("Hello " + "world!");\n\nvar text = "Age: ";\ntext += 42;\nconsole.log(text);'}
 				]
 			},
 			'jsmm.arithmetic.increment': {
@@ -71,13 +71,6 @@ module.exports = function(info) {
 				text: '<p>These two are even shorter <strong>shorthands</strong>. <var>a++;</var> is the same as writing <var>a = a + 1;</var>, or increasing the variable <var>a</var> by one. <var>a--;</var> means decreasing the variable by one, or <var>a = a - 1;</var>.</p>',
 				examples: [
 					{type: 'console', code: 'var counter = 1;\nconsole.log(counter);\ncounter++;\nconsole.log(counter);\ncounter++;\nconsole.log(counter);\ncounter--;\nconsole.log(counter);\ncounter--;\nconsole.log(counter);'}
-				]
-			},
-			'jsmm.logic.inversion': {
-				name: '! <small>(booleans only)</small>',
-				text: '<p>To <strong>invert</strong> a boolean, you can use <var>!</var>. For example, <var>!true</var> is just <var>false</var>.</p>',
-				examples: [
-					{type: 'console', code: 'console.log(!true);\nconsole.log(!(5 == 7));'}
 				]
 			},
 			'jsmm.logic.equality': {
@@ -94,9 +87,16 @@ module.exports = function(info) {
 					{type: 'console', code: 'console.log(10 > 5);\nconsole.log(5 >= 5);\nconsole.log(3 < 5);\nconsole.log(5 < 3);'}
 				]
 			},
+			'jsmm.logic.inversion': {
+				name: '! <small>(booleans only)</small>',
+				text: '<p>To <strong>invert</strong> a boolean, you can use <var>!</var>. For example, <var>!true</var> is just <var>false</var>.</p>',
+				examples: [
+					{type: 'console', code: 'console.log(!true);\nconsole.log(!(5 == 7));'}
+				]
+			},
 			'jsmm.logic.booleans': {
 				name: '&&, || <small>(booleans only)</small>',
-				text: '<p>These operators are used to <strong>combine</strong> boolean values (<var>true</var> and <var>false</var>). <var>a && b</var> returns <var>true</var> if <strong>both</strong> <var>a</var> and <var>b</var> are <var>true</var>, so it is also called <em>and</em>. <var>a || b</var> returns <var>true</var> is <strong>either</strong> of them is <var>true</var>, so it is also called <em>or</em>.</p>',
+				text: '<p>These operators are used to <strong>combine</strong> boolean values. <var>a && b</var> returns <var>true</var> if <strong>both</strong> <var>a</var> and <var>b</var> are <var>true</var>, so it is also called <strong>and</strong>. <var>a || b</var> returns <var>true</var> if <strong>either</strong> of them is <var>true</var>, so it is also called <strong>or</strong>.</p>',
 				examples: [
 					{type: 'console', code: 'console.log(true && true);\nconsole.log(true && false);\nconsole.log(true || false);\nconsole.log(false || !(10 == 11));\nconsole.log(false || false);'}
 				]
@@ -136,7 +136,8 @@ module.exports = function(info) {
 				text: '<p>Functions are used to avoid having to write the <strong>same code</strong> over and over again. They are pieces of code that you can <strong>call</strong> from other points in the program. Between parentheses you can specify variables that should be passed into the function, these are called <strong>arguments</strong>.</p>',
 				examples: [
 					{type: 'robot', code: 'function forwardRight(dist) {\n  robot.drive(dist);\n  robot.turnRight();\n}\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);'},
-					{type: 'console', code: 'function printAmPm(hour) {\n  if (hour == 0) {\n    console.log(\"12am\");\n  } else if (hour < 12) {\n    console.log(hour + \"am\");\n  } else if (hour == 12) {\n    console.log(\"12pm\");\n  } else {\n    console.log((hour-12) + \"pm\");\n  }\n}\n\nprintAmPm(15);\nprintAmPm(0);\nprintAmPm(5);\nprintAmPm(12);'},
+					//{type: 'console', code: 'function printAmPm(hour) {\n  if (hour == 0) {\n    console.log(\"12am\");\n  } else if (hour < 12) {\n    console.log(hour + \"am\");\n  } else if (hour == 12) {\n    console.log(\"12pm\");\n  } else {\n    console.log((hour-12) + \"pm\");\n  }\n}\n\nprintAmPm(15);\nprintAmPm(0);\nprintAmPm(5);\nprintAmPm(12);'},
+					{type: 'console', code: 'function printStuff(a, b, c) {\n  console.log("a: " + a);\n  console.log("b: " + b);\n  console.log("c: " + c);\n}\n\nprintStuff("Hi!", 10, "");\nprintStuff(3*3, "Boo!", true);'},
 					{type: 'canvas', code: '\nfunction smiley(x, y) {\n  context.fillRect(x+7, y+6, 5, 5);\n  context.fillRect(x+18, y+6, 5, 5);\n  context.beginPath();\n  context.arc(x+15,y+9,12,0.5,-3.6);\n  context.fill();\n}\nsmiley(10, 10);\nsmiley(20, 80);\nsmiley(60, 100);\nsmiley(80, 60);\ncontext.fillStyle = "#0aa";\nsmiley(100, 20);'}
 				]
 			},

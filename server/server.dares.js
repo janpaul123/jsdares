@@ -6,9 +6,17 @@ var uuid = require('node-uuid');
 
 module.exports = function(server) {
 	server.dares = function(db) {
-		db.dares.update({"_id" : new db.ObjectID("50096896e78955fbcf405845")},
+		db.collections.update({"_id" : new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("50096896e78955fbcf405845"),
+				_id: new db.ObjectID("5009684ce78955fbcf405844"),
+				difficulty: 1,
+				title : "Rollin' Robots"
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Stepping', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+			{
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Stepping',
 				type: 'RobotGoalDare',
@@ -29,9 +37,8 @@ module.exports = function(server) {
 		);
 
 		
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000000")},
+		db.dares.update({name: 'Another wall', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000000"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Another wall',
 				type: 'RobotGoalDare',
@@ -51,9 +58,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000001")},
+		db.dares.update({name: 'Highlighting', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000001"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Highlighting',
 				type: 'RobotGoalDare',
@@ -73,9 +79,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000002")},
+		db.dares.update({name: 'Multiple goals', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000002"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Multiple goals',
 				type: 'RobotGoalDare',
@@ -95,9 +100,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000003")},
+		db.dares.update({name: 'Manipulation', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000003"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Manipulation',
 				type: 'RobotGoalDare',
@@ -117,11 +121,10 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000004")},
+		db.dares.update({name: 'Knight jump', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000004"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
-				name: 'Knight Jump',
+				name: 'Knight jump',
 				type: 'RobotGoalDare',
 				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands. In the provided <a href="#arrow-left,780,58">program</a>, the name of the function is <var>knightJump</var>, and you can call it by writing <var>knightJump();</var>.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the <a href="#arrow-step">step button</a> to see what happens. We have also added a new tab, the <a href="#arrow-tab-info">info tab</a>, with more information about functions.</p>',
 				totalGoals: 6,
@@ -140,9 +143,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000005")},
+		db.dares.update({name: 'Zig-zag', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000005"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Zig-zag',
 				type: 'RobotGoalDare',
@@ -163,9 +165,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000006")},
+		db.dares.update({name: 'ForwardRight', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000006"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'ForwardRight',
 				type: 'RobotGoalDare',
@@ -186,9 +187,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000007")},
+		db.dares.update({name: 'More functions', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000007"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'More functions',
 				type: 'RobotGoalDare',
@@ -209,9 +209,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000008")},
+		db.dares.update({name: 'Animal', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000008"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Animal',
 				type: 'ImageMatchDare',
@@ -231,9 +230,8 @@ module.exports = function(server) {
 			{upsert: true}
 		);
 
-		db.dares.update({"_id" : new db.ObjectID("400000000000000000000009")},
+		db.dares.update({name: 'Zoo', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
 			{
-				"_id" : new db.ObjectID("400000000000000000000009"),
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Zoo',
 				type: 'ImageMatchDare',
@@ -248,6 +246,249 @@ module.exports = function(server) {
 					info: {commands: [{id: 'jsmm.arithmetic.numbers', examples: [1]}, {id: 'jsmm.function', examples: [0]}, {id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
 				},
 				editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'},
+				order: 10
+			},
+			{upsert: true}
+		);
+
+		db.collections.update({"_id" : new db.ObjectID("30000000078955fbcf405844")},
+			{
+				_id: new db.ObjectID("30000000078955fbcf405844"),
+				difficulty: 1,
+				title : "Famous people"
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Hello world!', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Hello world!',
+				type: 'ConsoleMatchDare',
+				description: '<p>In this dare we will use the <a href="#arrow-tab-console">console</a>, which is simply a box that contains text. With <var>console.log</var> you can add any value to the console. For example, <var>console.log(10);</var> adds the number <var>10</var> to the console.</p><p>You can also use strings, which are pieces of text, such as <var>"Hello!"</var>. Strings start and end with quotations (<var>"</var>). For this dare you have to write a few sentences to the console.</p>',
+				speed: 500,
+				minPercentage: 97,
+				maxLines: 5,
+				lineReward: 10,
+				original: 'console.log("Hello world!");\nconsole.log("Right now I am learning programming.");\nconsole.log("Soon I will make more interesting programs.");',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'console.log'}], scope: false}
+				},
+				editor: {text: 'console.log("Hello world!");\n'},
+				order: 0
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Some people', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Some people',
+				type: 'ConsoleMatchDare',
+				description: '<p>For this dare you need to make a list of some famous people in computing, with their names and birth years, like the example below. We have already added the list for you, but you need to finish the function <var>person</var>.</p><p>In order to combine two strings, you can use <var>+</var>. For example, <var>"Hello " + "world!"</var> gives <var>"Hello world!"</var>.',
+				speed: 50,
+				minPercentage: 97,
+				maxLines: 20,
+				lineReward: 10,
+				original: 'function person(name, born) {\n  console.log("Name    : " + name);\n  console.log("Born in : " + born);\n  console.log("");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}], scope: false}
+				},
+				editor: {text: 'function person(name, born) {\n  console.log(name + "...");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'},
+				order: 1
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Calculating', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Calculating',
+				type: 'ConsoleMatchDare',
+				description: '<p>Computers are very good at making calculations. In this dare you have a function <var>calculate</var>, with two arguments, <var>a</var> and <var>b</var>. You have to log the values of these variables, and then their multiplication.</p><p>To multiply two numbers you can use <var>*</var>, for example <var>3*11</var> gives <var>33</var>.</p>',
+				speed: 200,
+				minPercentage: 97,
+				maxLines: 12,
+				lineReward: 10,
+				original: 'function calculate(a, b) {\n  console.log("a is " + a);\n  console.log("b is " + b);\n  console.log("a times b is " + a*b);\n  console.log("");\n}\n\ncalculate(1, 1);\ncalculate(3, 5);\ncalculate(9, 8);\ncalculate(123456789, 0);\ncalculate(299792458, 3600);',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}], scope: false}
+				},
+				editor: {text: 'function calculate(a, b) {\n}\n\ncalculate(1, 1);\ncalculate(3, 5);\ncalculate(9, 8);\ncalculate(123456789, 0);\ncalculate(299792458, 3600);'},
+				order: 2
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'More math', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'More math',
+				type: 'ConsoleMatchDare',
+				description: '<p>For this dare you have to use all the basic math operators: addition, subtraction, multiplication, and division. See the <a href="#arrow-tab-info">info tab</a> to find out which is which. We already added the line for multiplication. For bonus points, you can try to figure out what the last call to <var>calculate</var> should be.</p>',
+				speed: 200,
+				minPercentage: 80,
+				maxLines: 13,
+				lineReward: 10,
+				original: 'function calculate(a, b) {\n  console.log("a + b = " + (a+b));\n  console.log("a - b = " + (a-b));\n  console.log("a * b = " + (a*b));\n  console.log("a / b = " + (a/b));\n  console.log("");\n}\n\ncalculate(8, 4);\ncalculate(10, 20);\ncalculate(0.5, 0.75);\ncalculate(-500, 500);\ncalculate(5, 4);',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: false}
+				},
+				editor: {text: 'function calculate(a, b) {\n  console.log("a * b = " + (a*b));\n}\n\ncalculate(8, 4);\ncalculate(10, 20);\ncalculate(0.5, 0.75);\ncalculate(-500, 500);\n'},
+				order: 3
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Years ago', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Years ago',
+				type: 'ConsoleMatchDare',
+				description: '<p>Using subtraction you can now calculate how many years before 2012 the famous people were born.</p>',
+				speed: 200,
+				minPercentage: 97,
+				maxLines: 22,
+				lineReward: 10,
+				original: 'function person(name, born) {\n  console.log("Name    : " + name);\n  console.log("Born in : " + born);\n  console.log("(" + (2012-born) + " years ago)");\n  console.log("");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: false}
+				},
+				editor: {text: 'function person(name, born) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'},
+				order: 4
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Comparisons', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Comparisons',
+				type: 'ConsoleMatchDare',
+				description: '<p>In this dare you have to compare numbers. There are a couple of operators for this, for example <var>a &lt; b</var> compares if <var>a</var> is less than <var>b</var>. See the <a href="#arrow-tab-info">info tab</a> for a full list.</p><p>Every comparison operator returns a <strong>boolean</strong>, which is a value that is either <var>true</var> or <var>false</var>. You can use <var>console.log</var> to print booleans to the console, just as with numbers and strings. For example, <var>5 &lt; 10</var> gives <var>true</var>.</p>',
+				speed: 200,
+				minPercentage: 97,
+				maxLines: 11,
+				lineReward: 10,
+				original: 'function comparisons(number) {\n  console.log(number + " less than 10: " + (number < 10));\n  console.log(number + " equal to 10: " + (number == 10));\n  console.log(number + " more than 10: " + (number > 10));\n  console.log("");\n}\n\ncomparisons(-10);\ncomparisons(5);\ncomparisons(10);\ncomparisons(15);',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: false}
+				},
+				editor: {},
+				order: 5
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Counting', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Counting',
+				type: 'ConsoleMatchDare',
+				description: '<p>The provided program prints the powers of 2 to the console. It uses a <strong>variable</strong> named <var>counter</var>, and a <strong>while loop</strong>. Try to figure out how it works by using the <a href="#arrow-step">step button</a> and <a href="#arrow-tab-info">info tab</a>. Then modify the program so that instead it prints the numbers from 1 to 20.</p><p>',
+				speed: 200,
+				minPercentage: 97,
+				maxLines: 5,
+				lineReward: 10,
+				original: 'var counter = 1;\nwhile(counter <= 20) {\n  console.log(counter);\n  counter = counter+1;\n}\n',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
+				},
+				editor: {text: 'var counter = 1;\nwhile(counter < 300) {\n  console.log(counter);\n  counter = counter*2;\n}\n'},
+				order: 6
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Spiraling out of control', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Spiraling out of control',
+				type: 'RobotGoalDare',
+				description: '<p>The robot has to follow a certain pattern, as you can see in the program. However, the current program is a bit long and repetitive. Make it shorter by using a counter and a while loop.</p>',
+				totalGoals: 1,
+				minGoals: 1,
+				goalReward: 50,
+				maxLines: 7,
+				lineReward: 10,
+				original: 'var counter = 1;\nwhile(counter <= 7) {\n  robot.drive(counter);\n  robot.turnLeft();\n  counter++;\n}',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":4,"initialY":3,"initialAngle":90,"mazeObjects":45,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,false,false],[false,false,false,true,true,false,false,false],[false,false,false,true,false,false,false,false],[false,false,true,true,false,false,false,false],[false,true,true,true,true,false,false,false],[true,true,true,true,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,true,false],[false,true,true,true,false,true,true,false],[false,true,true,false,true,true,true,false],[false,true,false,false,false,true,true,false],[false,false,false,false,false,false,true,false],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,true],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: true}
+				},
+				editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnLeft();\nrobot.drive(5);\nrobot.turnLeft();\nrobot.drive(6);\nrobot.turnLeft();\nrobot.drive(7);\nrobot.turnLeft();\n'},
+				order: 7
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Good morning, good afternoon', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Good morning, good afternoon',
+				type: 'ConsoleMatchDare',
+				description: '<p>The while-loop is used to keep repeating while some condition is true, but it is also useful to test only once whether some condition is true or false. For this you can use the <strong>if-else-statement</strong>, as seen in the <a href="#arrow-left,740,73">example</a>. If the condition is true, the program continues to the first brackets. Else, it jumps to the <var>else</var> brackets. Complete the program using a while-loop to call the function a number of times.</p>',
+				speed: 200,
+				minPercentage: 97,
+				maxLines: 10,
+				lineReward: 10,
+				original: 'function hello(hour) {\n  if (hour < 12) {\n    console.log("Good morning at " + hour);\n  } else {\n    console.log("Good afternoon at " + hour);\n  }\n}\n\nvar hour = 5;\nwhile(hour <= 19) {\n  hello(hour);\n  hour = hour + 1;\n}',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.if'}, {id: 'jsmm.else'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
+				},
+				editor: {text: 'function hello(hour) {\n  if (hour < 12) {\n    console.log("Good morning");\n  } else {\n    console.log("");\n  }\n}\n\nhello(10);\n'},
+				order: 8
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'More information', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'More information',
+				type: 'ConsoleMatchDare',
+				description: '<p>Extend the table of famous people to include the year of death for those who have passed away. For those still alive, hide this line entirely.</p>',
+				speed: 50,
+				minPercentage: 97,
+				maxLines: 22,
+				lineReward: 10,
+				original: 'function person(name, born, died, knownFor) {\n  console.log("Name      : " + name);\n  console.log("Born in   : " + born);\n  if (died > 0) {\n    console.log("Died in   : " + died);\n  }\n  console.log("Known for : " + knownFor);\n  console.log("");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815, 1871, "first computer");\nperson("Ada Lovelace", 1815, 1852, "first programmer");\nperson("George Boole", 1815, 1864, "Boolean logic");\nperson("Grace Hopper", 1906, 1992, "first language");\nperson("Alan Turing", 1912, 1954, "Turing machine");\nperson("Douglas Engelbart", 1925, 0, "Computer mouse");\nperson("Bill Gates", 1955, 0, "Microsoft");\nperson("Steve Jobs", 1955, 2011, "Apple");\nperson("Linus Torvalds", 1969, 0, "Linux");\nperson("Tim Berners-Lee", 1955, 0, "World Wide Web");\nconsole.log("And many more...");',
+				outputs: {
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.if'}, {id: 'jsmm.else'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
+				},
+				editor: {text: 'function person(name, born, died, knownFor) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815, 1871, "first computer");\nperson("Ada Lovelace", 1815, 1852, "first programmer");\nperson("George Boole", 1815, 1864, "Boolean logic");\nperson("Grace Hopper", 1906, 1992, "first language");\nperson("Alan Turing", 1912, 1954, "Turing machine");\nperson("Douglas Engelbart", 1925, 0, "Computer mouse");\nperson("Bill Gates", 1955, 0, "Microsoft");\nperson("Steve Jobs", 1955, 2011, "Apple");\nperson("Linus Torvalds", 1969, 0, "Linux");\nperson("Tim Berners-Lee", 1955, 0, "World Wide Web");\nconsole.log("And many more...");'},
+				order: 9
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({name: 'Walls, walls, walls', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+			{
+				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				name: 'Walls, walls, walls',
+				type: 'RobotGoalDare',
+				description: '<p>The robot can detect whether it is facing a wall, using <var>robot.detectWall()</var>. This returns <var>true</var> if there is a wall, and <var>false</var> if there isn\'t, as demonstrated using the <a href="#arrow-tab-console">console</a>. This maze is set up so that at every wall the robot has to turn left. Make the robot navigate the maze using a loop instead of specifying its entire path in advance.</p>',
+				totalGoals: 7,
+				minGoals: 7,
+				goalReward: 50,
+				maxLines: 10,
+				lineReward: 10,
+				original: 'var counter = 0;\nwhile(counter <= 40) {\n  robot.drive(1);\n  if (robot.detectWall()) {\n    robot.turnLeft();\n  }\n  counter++;\n}',
+				outputs: {
+					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":7,"initialY":7,"initialAngle":90,"mazeObjects":34,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,true,false,true,false,false,false],[false,false,true,false,false,false,false,false],[false,true,false,false,false,false,true,false],[false,true,false,false,false,true,true,false],[false,false,false,false,false,true,false,false],[false,false,false,false,false,true,false,false],[false,false,false,true,false,false,true,false]],"horizontalActive":[[false,false,false,false,true,false,false,false],[false,false,true,true,true,false,false,true],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,true],[false,false,false,false,true,true,true,false],[false,false,false,true,true,false,false,true],[false,true,false,false,false,false,false,false]],"blockGoal":[[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,true,false],[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,true,true,false,true,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
+					console: {},
+					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.if'}, {id: 'jsmm.else'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}, {id: 'robot.detectWall'}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
+				},
+				editor: {text: 'var counter = 0;\nwhile(counter <= 5) {\n  robot.drive(1);\n  console.log(robot.detectWall());\n  counter++;\n}'},
 				order: 10
 			},
 			{upsert: true}

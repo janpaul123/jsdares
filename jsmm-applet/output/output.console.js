@@ -11,7 +11,7 @@ module.exports = function(output) {
 					name: 'log',
 					info: 'console.log',
 					type: 'function',
-					example: 'log("Hello World!")',
+					example: 'log("Hello world!")',
 					string: '[function console.log]',
 					func: this.log.bind(this),
 					cost: 3
@@ -39,9 +39,9 @@ module.exports = function(output) {
 	};
 
 	var makeLog = function(value) {
-		if (typeof value === 'object') return value.string;
-		else if (value === undefined) return '';
-		else return '' + value;
+		if (typeof value === 'object') return value.string + '\n';
+		else if (value === undefined) return '\n';
+		else return '' + value + '\n';
 	};
 
 	output.SimpleConsole = function() { return this.init.apply(this, arguments); };
@@ -57,7 +57,7 @@ module.exports = function(output) {
 		log: function(context, name, args) {
 			var text = makeLog(args[0]);
 			this.calls.push({text: text, color: this.color});
-			this.text += text + '\n';
+			this.text += text;
 		},
 
 		clear: function() {
@@ -119,7 +119,7 @@ module.exports = function(output) {
 
 		log: function(context, name, args) {
 			var text = makeLog(args[0]);
-			this.text += text + '\n';
+			this.text += text;
 
 			var $element = $('<div class="console-line"></div>');
 			$element.text(text);

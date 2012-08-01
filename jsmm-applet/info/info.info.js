@@ -122,7 +122,8 @@ module.exports = function(info) {
 			this.$scopeContainer = $('<div class="info-scope-container"></div>');
 			$div.append(this.$scopeContainer);
 
-			this.$scopeContainer.append('<p><span class="info-output"><i class="icon-eye-open icon-white"></i> scope</span></p><p>This list shows the variables that are declared in your program, along with their values. At the beginning the only variables are those that we provide, such as <var>robot</var> or <var>canvas</var>. You can add your own variables and functions using <var>var</var> and <var>function</var>.</p>');
+			this.$scopeContainer.append('<p><span class="info-output"><i class="icon-eye-open icon-white"></i> scope</span></p><p>This list shows the variables that are declared in your <a href="#arrow-right,575,57">program</a>, along with their values. At the beginning the only variables are those that we provide, such as <var>robot</var> or <var>canvas</var>. You can add your own variables and functions using <var>var</var> and <var>function</var>.</p>');
+			this.info.prepareTextElement(this.$scopeContainer);
 
 			this.$scope = $('<div class="info-scope"></div>');
 			this.$scopeContainer.append(this.$scope);
@@ -304,6 +305,8 @@ module.exports = function(info) {
 				$table.append($item);
 				this.commands[id] = {command: command, $item: $item};
 			}
+
+			this.info.prepareTextElement($table);
 		},
 
 		remove: function() {
@@ -438,6 +441,7 @@ module.exports = function(info) {
 		init: function(editor, options, $div) {
 			this.$div = $div;
 			this.$div.addClass('output info');
+			this.prepareTextElement = options.prepareTextElement;
 			
 			if (options.scope === undefined || options.scope) {
 				this.scope = new info.InfoScope(this.$div, this);

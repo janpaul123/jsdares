@@ -101,6 +101,8 @@ module.exports.UI.prototype = {
 
 	loadOutputs: function(outputs) {
 		for (var name in outputs) {
+			outputs[name].prepareTextElement = this.prepareTextElement.bind(this);
+
 			var output;
 			if (this.paneOutputs.indexOf(name) >= 0) {
 				output = new this.constructors[name](this.editor, outputs[name], this.addTab(name));
@@ -200,7 +202,7 @@ module.exports.UI.prototype = {
 		'arrow-close': ['arrow-up', 1066, 3]
 	},
 
-	addArrows: function($el) {
+	prepareTextElement: function($el) {
 		var $links = $el.find('a[href^="#arrow"]');
 		var that = this;
 		$links.on('mouseenter', function() { that.showArrow($(this).attr('href').substring(1)); });

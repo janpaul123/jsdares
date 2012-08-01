@@ -228,7 +228,6 @@ module.exports = function(dares) {
 		},
 
 		animationMatchingCallback: function(i) {
-			console.log(i);
 			var rectangle = null;
 
 			for (var j=0; j<this.stepSize && this.stepSize*i+j < this.animationRects.length; j++) {
