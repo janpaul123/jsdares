@@ -121,6 +121,12 @@ module.exports = function(client) {
 					this.instance = dare.instance;
 					this.modalUI.openModal();
 					new dares[dare.type](this, this.modalUI, dare);
+
+					window.clearInterval(this.countInterval);
+					this.countInterval = window.setInterval(function() {
+						var time = parseInt(localStorage.getItem(dare.name + ' time') || 0, 10);
+						localStorage.setItem(dare.name + ' time', time+1);
+					}, 1000);
 				}).bind(this));
 			}
 		},
@@ -163,6 +169,7 @@ module.exports = function(client) {
 				this.fullEditor = null;
 				this.modalUI.closeModal();
 			}
+			window.clearInterval(this.countInterval);
 		}
 	};
 };
