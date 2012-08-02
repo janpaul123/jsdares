@@ -25,12 +25,11 @@ module.exports = function(server) {
 
 			server.dares(database);
 
-			var app = connect()
-				.use(connect.logger('tiny'));
-			
-			if (options.logs.requests) app.use('/api', api.getMiddleware());
+			var app = connect();
+			if (options.logs.requests) app.use(connect.logger('tiny'));
 
-				app.use(lessMiddleware(options.less))
+			app.use('/api', api.getMiddleware())
+				.use(lessMiddleware(options.less))
 				.use(browserify(options.browserify))
 				.use('', function(req, res, next) {
 					if(req.url.indexOf('/home') === 0 || req.url.indexOf('/full') === 0) req.url = '/';
