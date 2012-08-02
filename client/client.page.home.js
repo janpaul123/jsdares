@@ -31,6 +31,9 @@ module.exports = function(client) {
 			this.$div.append(this.$how);
 
 			this.$intro = $('<div class="intro"></div>');
+			this.$arrow = $('<div class="arrow arrow-left arrow-animate-infinity intro-arrow"><div class="arrow-head"></div><div class="arrow-body"></div></div>');
+			this.$intro.append(this.$arrow);
+			this.$arrow.hide();
 
 			var $collection1 = $('<div class="intro-collection1"></div>');
 			this.collection1 = new dares.Collection(this, $collection1);
@@ -73,6 +76,9 @@ module.exports = function(client) {
 		updateCollections: function() {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
 				this.collection1.updateContent(content);
+				if (!content.dares[0].instance.completed) {
+					this.$arrow.show();
+				}
 			}).bind(this));
 			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', (function(content) {
 				this.collection2.updateContent(content);
@@ -102,6 +108,7 @@ module.exports = function(client) {
 		},
 
 		navigateTo: function(splitUrl) {
+			this.$arrow.hide();
 			if ((splitUrl[1] || '').length > 0) {
 				this.navigateOpenDare(splitUrl[1]);
 			} else if (splitUrl[0] === 'full') {

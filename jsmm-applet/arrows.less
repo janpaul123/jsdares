@@ -44,6 +44,10 @@
 			.animation(arrow-bounce-anim-left, 0.4s, ease-out, @arrow-jump-count, alternate);
 		}
 
+		&.arrow-animate-infinity {
+			.animation(arrow-bounce-anim-left, 0.4s, ease-out, infinite, alternate);
+		}
+
 		.arrow-head {
 			position: absolute;
 			left: 0px;
@@ -71,6 +75,10 @@
 		
 		&.arrow-animate {
 			.animation(arrow-bounce-anim-right, 0.4s, ease-out, @arrow-jump-count, alternate);
+		}
+
+		&.arrow-animate-infinity {
+			.animation(arrow-bounce-anim-right, 0.4s, ease-out, infinite, alternate);
 		}
 
 		.arrow-head {
@@ -101,6 +109,10 @@
 			.animation(arrow-bounce-anim-up, 0.4s, ease-out, @arrow-jump-count, alternate);
 		}
 
+		&.arrow-animate-infinity {
+			.animation(arrow-bounce-anim-up, 0.4s, ease-out, infinite, alternate);
+		}
+
 		.arrow-head {
 			position: absolute;
 			left: 0px;
@@ -128,6 +140,10 @@
 		
 		&.arrow-animate {
 			.animation(arrow-bounce-anim-down, 0.4s, ease-out, @arrow-jump-count, alternate);
+		}
+
+		&.arrow-animate-infinity {
+			.animation(arrow-bounce-anim-down, 0.4s, ease-out, infinite, alternate);
 		}
 
 		.arrow-head {
