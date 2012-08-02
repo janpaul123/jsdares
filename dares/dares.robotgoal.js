@@ -80,6 +80,10 @@ module.exports = function(dares) {
 			this.$originalRobotContainer.on('click', this.animateRobot.bind(this));
 			this.$div.append(this.$originalRobotContainer);
 
+			if (options.hidePreview) {
+				this.$originalRobotContainer.hide();
+			}
+
 			this.$originalRobot = $('<div class="dare-robotgoal-original"></div>');
 			this.$originalRobotContainer.append(this.$originalRobot);
 			this.$originalRobotContainer.append('<div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div>');

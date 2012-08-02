@@ -78,6 +78,10 @@ module.exports = function(dares) {
 			this.$div.append(this.$resultCanvas);
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
+			if (options.hidePreview) {
+				this.$originalCanvasContainer.hide();
+			}
+
 			this.originalAnim = new dares.AnimatedCanvas();
 			this.originalAnim.run(this.options.original);
 			this.drawImage(0);

@@ -110,6 +110,10 @@ module.exports = function(dares) {
 			this.originalAnim = new dares.AnimatedConsole(this.$originalConsole);
 			this.originalAnim.run(this.options.original);
 
+			if (options.hidePreview) {
+				this.$originalConsoleContainer.hide();
+			}
+
 			this.initOffsets();
 			this.$originalConsole.width(this.$originalConsole.width() + this.charWidth);
 			this.$resultConsole.attr('width', this.$originalConsole.width());

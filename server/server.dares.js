@@ -20,12 +20,13 @@ module.exports = function(server) {
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Stepping',
 				type: 'RobotGoalDare',
-				description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-left,750,65">program</a>, which makes a robot move. You can see the robot when clicking on the <a href="#arrow-tab-robot">robot tab</a>. You can use the <a href="#arrow-step">step button</a> to see what the program does.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
+				description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-left,750,65">program</a>, which makes a robot move. You can see the robot by clicking on the <a href="#arrow-tab-robot">robot tab</a>. You can use the <a href="#arrow-step">step button</a> to see what the program does.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
 				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
 				maxLines: 0,
 				lineReward: 0,
+				hidePreview: true,
 				original: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(3);',
 				outputs: {
 					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":4,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false]]}'}
@@ -42,7 +43,7 @@ module.exports = function(server) {
 				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
 				name: 'Another wall',
 				type: 'RobotGoalDare',
-				description: '<p>Again, move the robot to the green square. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Click on the <a href="#arrow-up,557,70">error icon</a> to show what is wrong.</p>',
+				description: '<p>Again, move the robot to the green square, as demonstrated in the <a href="#arrow-left,535,180">preview</a>. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Click on the <a href="#arrow-up,557,70">error icon</a> to see what is wrong.</p>',
 				totalGoals: 1,
 				minGoals: 1,
 				goalReward: 50,
