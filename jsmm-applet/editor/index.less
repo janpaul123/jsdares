@@ -143,7 +143,7 @@
 	margin-top: -1px;
 	cursor: pointer;
 
-	&:hover {
+	&:hover, .active {
 		background-color: @editor-marking-color-active;
 	}
 }
@@ -222,7 +222,8 @@
 
 /// EDITABLES ///
 .editor-number-editable, .editor-number-editable-dragging {
-	cursor: col-resize !important;
+	// cursor: col-resize !important;
+	cursor: none !important;
 }
 
 /// COLORPICKER ///

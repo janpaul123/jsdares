@@ -77,7 +77,7 @@ module.exports = function(client) {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
 				this.collection1.updateContent(content);
 				if (!content.dares[0].instance.completed) {
-					this.$arrow.show();
+					if (this.$arrow !== null) this.$arrow.show();
 				}
 			}).bind(this));
 			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', (function(content) {
@@ -108,7 +108,11 @@ module.exports = function(client) {
 		},
 
 		navigateTo: function(splitUrl) {
-			this.$arrow.hide();
+			if (this.$arrow !== null && !(splitUrl[0] === 'home' && splitUrl[1] === undefined)) {
+				this.$arrow.remove();
+				this.$arrow = null;
+			}
+
 			if ((splitUrl[1] || '').length > 0) {
 				this.navigateOpenDare(splitUrl[1]);
 			} else if (splitUrl[0] === 'full') {

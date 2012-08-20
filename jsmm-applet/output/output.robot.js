@@ -69,7 +69,7 @@ var drive = function(object, args) {
 		throw '<var>forward</var> accepts no more than <var>1</var> argument';
 	} else if (typeof amount !== 'number' || !isFinite(amount)) {
 		throw 'Argument has to be a valid number';
-	} else if (Math.round(amount) !== amount && this.state.mazeObjects > 0) {
+	} else if (Math.round(amount) !== amount && object.state.mazeObjects > 0) {
 		throw 'Fractional amounts are only allowed when the maze is empty';
 	} else if (amount !== 0) {
 		var goals = null;
