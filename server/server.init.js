@@ -11,7 +11,7 @@ module.exports = function(server) {
 	server.init = function(options) {
 		console.log('mongo' , options.mongodb);
 		var database = mongo.db(options.mongodb);
-		var api = new server.API(database);
+		var api = new server.API(options.api, database);
 		database.bind('users');
 		database.bind('collections');
 		database.bind('dares');

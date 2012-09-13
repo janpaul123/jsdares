@@ -3,11 +3,18 @@
 
 var connect = require('connect');
 var uuid = require('node-uuid');
+var crypto = require('crypto');
+
+var localAuth = {
+	iterations: 50000,
+	keyLen: 128
+};
 
 module.exports = function(server) {
 	server.API = function() { return this.init.apply(this, arguments); };
 	server.API.prototype = {
-		init: function(db) {
+		init: function(options, db) {
+			this.options = options;
 			this.db = db;
 		},
 
@@ -23,7 +30,10 @@ module.exports = function(server) {
 				.use('/get/dareAndInstance', this.getDareAndInstance.bind(this))
 				.use('/post', connect.json())
 				.use('/post/program', this.postProgram.bind(this))
-				.use('/post/instance', this.postInstance.bind(this));
+				.use('/post/instance', this.postInstance.bind(this))
+				.use('/post/register', this.postRegister.bind(this))
+				.use('/post/login', this.postLogin.bind(this))
+				.use('/post/logout', this.postLogout.bind(this));
 		},
 
 		getCollection: function(req, res, next) {
@@ -35,7 +45,7 @@ module.exports = function(server) {
 		getCollectionAndDaresAndInstances: function(req, res, next) {
 			this.createObjectId(req, res, req.query._id, function(id) {
 				this.db.collections.findById(id, this.wrapCallback(req, res, function(collection) {
-					if (!collection) this.throw404(req, res);
+					if (!collection) this.error(req, res, 404);
 					else this.db.dares.findItems({collectionId: collection._id}, {sort: 'order'}, this.wrapCallback(req, res, function(dares) {
 						collection.dares = dares;
 						var dareIds = [];
@@ -105,6 +115,60 @@ module.exports = function(server) {
 			});
 		},
 
+		postRegister: function(req, res, next) {
+			this.db.users.findById(req.session.userId, this.wrapCallback(req, res, function(user) {
+				if (!user) {
+					this.error(req, res, 404);
+				} else if (req.body.password !== req.body.password2) {
+					this.error(req, res, 400, 'Passwords do not match');
+				} else if (!req.body.username) {
+					this.error(req, res, 400, 'Empty username');
+				} else if (!req.body.password) {
+					this.error(req, res, 400, 'Empty password');
+				} else {
+					this.db.users.findOne({'auth.local.username': req.body.username}, this.wrapCallback(req, res, function(user) {
+						if (user) {
+							this.error(req, res, 400, 'Username already exists');
+						} else {
+							var salt = uuid.v4();
+							console.log('making hash');
+							this.getHash(req.body.password, salt, this.wrapCallback(req, res, function(hash) {
+								console.log('hash made : ' + hash);
+								this.db.users.update(
+									{_id: req.session.userId},
+									{$set: {'auth.local.username': req.body.username, 'auth.local.hash': hash, 'auth.local.salt': salt}},
+									{safe: true},
+									this.postResponseCallback(req, res)
+								);
+							}));
+						}
+					}));
+				}
+			}));
+		},
+
+		postLogin: function(req, res, next) {
+			this.db.users.findOne({'auth.local.username': req.body.username}, this.wrapCallback(req, res, function(user) {
+				if (user) {
+					this.getHash(req.body.password, user.auth.local.salt, this.wrapCallback(req, res, function(hash) {
+						if (hash === user.auth.local.hash) {
+							req.session.userId = user.id; // TODO: merge with current user id
+							res.end('"ok"');
+						} else {
+							this.error(req, res, 404);
+						}
+					}));
+				} else {
+					this.error(req, res, 404);
+				}
+			}));
+		},
+
+		postLogout: function(req, res, next) {
+			req.session.userId = undefined;
+			res.end('"ok"');
+		},
+
 		setUserId: function(req, res, next) {
 			var pause = connect.utils.pause(req);
 
@@ -118,14 +182,14 @@ module.exports = function(server) {
 			}).bind(this);
 
 			if (req.session.userId) {
-				this.db.users.findById(req.session.userId, function(err, user) {
+				this.db.users.findById(req.session.userId, this.wrapCallback(req, res, function(user) {
 					if (!user) {
 						newUserId();
 					} else {
 						next();
 						pause.resume();
 					}
-				});
+				}));
 			} else {
 				newUserId();
 			}
@@ -135,13 +199,18 @@ module.exports = function(server) {
 			return this.wrapCallback(req, res, function(array) {
 				for (var i=0; i<array.length; i++) {
 					if (array[i].userId && array[i].userId !== req.session.userId) {
-						console.warn('401 @ ' + req.method + ': ' + req.originalUrl + ' @ BODY: ' + JSON.stringify(req.body) + ' USER: ' + req.session.userId);
-						res.statusCode = 401;
-						res.end('"Not authorized"');
+						this.error(req, res, 401);
 						return;
 					}
 				}
 				(callback.bind(this))(array);
+			});
+		},
+
+		getHash: function(password, salt, callback) {
+			crypto.pbkdf2(password, salt, localAuth.iterations, localAuth.keyLen, function(error, hash) {
+				if (error) callback(error);
+				else callback(null, new Buffer(hash, 'binary').toString('hex'));
 			});
 		},
 
@@ -150,14 +219,14 @@ module.exports = function(server) {
 				var objectId = new this.db.ObjectID(id);
 				(callback.bind(this))(objectId);
 			} catch(error) {
-				this.throw404(req, res);
+				this.error(req, res, 404);
 			}
 		},
 
 		getResponseCallback: function(req, res) {
 			return this.wrapCallback(req, res, function(doc) {
 				if (doc) res.end(JSON.stringify(doc));
-				else this.throw404();
+				else this.error(req, res, 404);
 			});
 		},
 
@@ -169,21 +238,25 @@ module.exports = function(server) {
 
 		wrapCallback: function(req, res, callback) {
 			return (function(error, doc) {
-				if (error) this.throw500(req, res, error);
+				if (error) this.error(req, res, 500, error);
 				else (callback.bind(this))(doc);
 			}).bind(this);
 		},
 
-		throw500: function(req, res, error) {
-			console.error('500 @ ' + req.method + ': ' + req.originalUrl + ' @ BODY: ' + JSON.stringify(req.body) + ' USER: ' + req.session.userId + ' @ ERROR: ' + error);
-			res.statusCode = 500;
-			res.end(JSON.stringify('Server error: ' + error));
-		},
-
-		throw404: function(req, res) {
-			console.log('404 @ ' + req.method + ': ' + req.originalUrl + ' @ BODY: ' + JSON.stringify(req.body) + ' USER: ' + req.session.userId);
-			res.statusCode = 404;
-			res.end('"Not found"');
+		error: function(req, res, code, error) {
+			if (this.options.errors[code]) {
+				console.error(code + ' @ ' + req.method + ': ' + req.originalUrl + ' @ BODY: ' + JSON.stringify(req.body) + ' USER: ' + req.session.userId + (error ? (' @ ERROR: ' + error) : ''));
+			}
+			res.statusCode = code;
+			if (code === 400) {
+				res.end(JSON.stringify('Input error: ' + error));
+			} else if (code === 401) {
+				res.end('"Not authorized"');
+			} else if (code === 404) {
+				res.end('"Not found"');
+			} else if (code === 500) {
+				res.end(JSON.stringify('Server error: ' + error));
+			}
 		}
 	};
 };
