@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
+var existsSync = fs.existsSync || path.existsSync;
 
 var mkdirp = require('mkdirp');
 var detective = require('detective');
@@ -9,7 +10,7 @@ module.exports = function (cacheFile) {
     mkdirp.sync(path.dirname(cacheFile), 0700);
     
     var cache = {};
-    if (path.existsSync(cacheFile)) {
+    if (existsSync(cacheFile)) {
         var body = fs.readFileSync(cacheFile);
         try {
             cache = JSON.parse(body);
