@@ -4,18 +4,20 @@
 var connect = require('connect');
 var uuid = require('node-uuid');
 var crypto = require('crypto');
+var shared = require('../shared');
 
 var localAuth = {
-	iterations: 50000,
+	iterations: 30000,
 	keyLen: 128
 };
 
 module.exports = function(server) {
 	server.API = function() { return this.init.apply(this, arguments); };
 	server.API.prototype = {
-		init: function(options, db) {
+		init: function(options, db, mailer) {
 			this.options = options;
 			this.db = db;
+			this.mailer = mailer;
 		},
 
 		getMiddleware: function() {
@@ -119,27 +121,38 @@ module.exports = function(server) {
 			this.db.users.findById(req.session.userId, this.wrapCallback(req, res, function(user) {
 				if (!user) {
 					this.error(req, res, 404);
-				} else if (req.body.password !== req.body.password2) {
-					this.error(req, res, 400, 'Passwords do not match');
-				} else if (!req.body.username) {
-					this.error(req, res, 400, 'Empty username');
-				} else if (!req.body.password) {
-					this.error(req, res, 400, 'Empty password');
+				} else if (!req.body.username || !shared.validation.username(req.body.username)) {
+					this.error(req, res, 400, 'Invalid username');
+				} else if (!req.body.password || !shared.validation.password(req.body.password)) {
+					this.error(req, res, 400, 'Invalid password');
+				} else if (!req.body.email || !shared.validation.email(req.body.email)) {
+					this.error(req, res, 400, 'Invalid email');
 				} else {
 					this.db.users.findOne({'auth.local.username': req.body.username}, this.wrapCallback(req, res, function(user) {
 						if (user) {
 							this.error(req, res, 400, 'Username already exists');
 						} else {
-							var salt = uuid.v4();
-							console.log('making hash');
-							this.getHash(req.body.password, salt, this.wrapCallback(req, res, function(hash) {
-								console.log('hash made : ' + hash);
-								this.db.users.update(
-									{_id: req.session.userId},
-									{$set: {'auth.local.username': req.body.username, 'auth.local.hash': hash, 'auth.local.salt': salt}},
-									{safe: true},
-									this.postResponseCallback(req, res)
-								);
+							this.db.users.findOne({'auth.local.email': req.body.email}, this.wrapCallback(req, res, function(user2) {
+								if (user2) {
+									this.error(req, res, 400, 'Email already exists');
+								} else {
+									var salt = uuid.v4(), password = uuid.v4().substr(-12);
+									this.getHash(req.body.password, salt, this.wrapCallback(req, res, function(hash) {
+										this.mailer.sendRegister(req.body.email, req.body.username);
+										this.db.users.update(
+											{_id: req.session.userId},
+											{$set: {
+												'auth.local.email': req.body.email,
+												'auth.local.username': req.body.username,
+												'auth.local.hash': hash,
+												'auth.local.salt': salt,
+												'ips.registration' : this.getIP(req)
+											}},
+											{safe: true},
+											this.postResponseCallback(req, res)
+										);
+									}));
+								}
 							}));
 						}
 					}));
@@ -152,9 +165,17 @@ module.exports = function(server) {
 				if (user) {
 					this.getHash(req.body.password, user.auth.local.salt, this.wrapCallback(req, res, function(hash) {
 						if (hash === user.auth.local.hash) {
-							req.session.userId = user.id; // TODO: merge with current user id
+							this.db.users.update(
+								{_id: user._id},
+								{$set: {'ips.login' : this.getIP(req)}}
+							);
+							req.session.userId = user._id; // TODO: merge with current user id
 							res.end('"ok"');
 						} else {
+							this.db.users.update(
+								{_id: user._id},
+								{$set: {'ips.passwordError' : this.getIP(req)}}
+							);
 							this.error(req, res, 404);
 						}
 					}));
@@ -174,7 +195,7 @@ module.exports = function(server) {
 
 			var newUserId = (function() {
 				req.session.userId = uuid.v4();
-				this.db.users.insert({_id: req.session.userId}, {safe:true}, this.wrapCallback(req, res, function(users) {
+				this.db.users.insert({_id: req.session.userId, ips: {initial : this.getIP(req)}}, {safe:true}, this.wrapCallback(req, res, function(users) {
 					console.log('New user: ' + req.session.userId);
 					next();
 					pause.resume();
@@ -212,6 +233,10 @@ module.exports = function(server) {
 				if (error) callback(error);
 				else callback(null, new Buffer(hash, 'binary').toString('hex'));
 			});
+		},
+
+		getIP: function(req) {
+			return req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 		},
 
 		createObjectId: function(req, res, id, callback) {
