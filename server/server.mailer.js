@@ -22,7 +22,7 @@ module.exports = function(server) {
 		},
 
 		sendRegister: function(email, username) {
-			this.send('register', {to: {name: username, email: email}, subject: "Nice! You've just joined jsdare.", username: username});
+			this.send('register', {to: {name: username, email: email}, subject: "Nice! You've just joined jsdares.", username: username});
 		},
 
 		send: function(type, data) {

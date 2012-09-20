@@ -3,7 +3,7 @@
 
 module.exports = function(client) {
 	client.init = function() {
-		var manager = new client.Manager($('#content'));
+		var manager = new client.Manager();
 
 		$('#header-title').on('click', function(event) {
 			event.preventDefault();

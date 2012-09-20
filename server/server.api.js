@@ -30,6 +30,9 @@ module.exports = function(server) {
 				.use('/get/collectionAndDaresAndInstances', this.getCollectionAndDaresAndInstances.bind(this))
 				.use('/get/dare', this.getDare.bind(this))
 				.use('/get/dareAndInstance', this.getDareAndInstance.bind(this))
+				.use('/get/checkUsername', this.getCheckUsername.bind(this))
+				.use('/get/checkEmail', this.getCheckEmail.bind(this))
+				.use('/get/loginData', this.getLoginData.bind(this))
 				.use('/post', connect.json())
 				.use('/post/program', this.postProgram.bind(this))
 				.use('/post/instance', this.postInstance.bind(this))
@@ -64,7 +67,7 @@ module.exports = function(server) {
 									}
 								}
 							}
-							res.end(JSON.stringify(collection));
+							this.end(req, res, collection);
 						}));
 					}));
 				}));
@@ -83,11 +86,11 @@ module.exports = function(server) {
 					this.db.instances.findOne({userId: req.session.userId, dareId: dare._id}, this.wrapCallback(req, res, function(instance) {
 						if (instance) {
 							dare.instance = instance;
-							res.end(JSON.stringify(dare));
+							this.end(req, res, dare);
 						} else {
 							this.db.instances.insert({ userId: req.session.userId, dareId: dare._id }, {safe: true}, this.wrapCallback(req, res, function(instances) {
 								dare.instance = instances[0];
-								res.end(JSON.stringify(dare));
+								this.end(req, res, dare);
 							}));
 						}
 					}));
@@ -99,7 +102,7 @@ module.exports = function(server) {
 			this.createObjectId(req, res, req.body._id, function(id) {
 				this.db.instances.findItems({_id: id}, this.userIdCallback(req, res, function(array) {
 					this.db.instances.update({_id: id}, {$set: {text: req.body.text}});
-					res.end('"ok"');
+					this.end(req, res);
 				}));
 			});
 		},
@@ -128,28 +131,34 @@ module.exports = function(server) {
 				} else if (!req.body.email || !shared.validation.email(req.body.email)) {
 					this.error(req, res, 400, 'Invalid email');
 				} else {
-					this.db.users.findOne({'auth.local.username': req.body.username}, this.wrapCallback(req, res, function(user) {
+					this.db.users.findOne({'auth.local.username': req.body.username.toLowerCase()}, this.wrapCallback(req, res, function(user) {
 						if (user) {
 							this.error(req, res, 400, 'Username already exists');
 						} else {
-							this.db.users.findOne({'auth.local.email': req.body.email}, this.wrapCallback(req, res, function(user2) {
+							this.db.users.findOne({'auth.local.email': req.body.email.toLowerCase()}, this.wrapCallback(req, res, function(user2) {
 								if (user2) {
 									this.error(req, res, 400, 'Email already exists');
 								} else {
 									var salt = uuid.v4(), password = uuid.v4().substr(-12);
 									this.getHash(req.body.password, salt, this.wrapCallback(req, res, function(hash) {
-										this.mailer.sendRegister(req.body.email, req.body.username);
+										this.mailer.sendRegister(req.body.email.toLowerCase(), req.body.username);
 										this.db.users.update(
 											{_id: req.session.userId},
 											{$set: {
-												'auth.local.email': req.body.email,
-												'auth.local.username': req.body.username,
+												'screenname': req.body.username,
+												'auth.local.email': req.body.email.toLowerCase(),
+												'auth.local.username': req.body.username.toLowerCase(),
 												'auth.local.hash': hash,
 												'auth.local.salt': salt,
 												'ips.registration' : this.getIP(req)
 											}},
 											{safe: true},
-											this.postResponseCallback(req, res)
+											this.wrapCallback(req, res, function(doc) {
+												console.log('NEW USER: ' + req.body.username);
+												this.setUserId(req, res, (function() {
+													this.end(req, res);
+												}).bind(this));
+											})
 										);
 									}));
 								}
@@ -161,7 +170,7 @@ module.exports = function(server) {
 		},
 
 		postLogin: function(req, res, next) {
-			this.db.users.findOne({'auth.local.username': req.body.username}, this.wrapCallback(req, res, function(user) {
+			this.db.users.findOne({'auth.local.username': req.body.username.toLowerCase()}, this.wrapCallback(req, res, function(user) {
 				if (user) {
 					this.getHash(req.body.password, user.auth.local.salt, this.wrapCallback(req, res, function(hash) {
 						if (hash === user.auth.local.hash) {
@@ -170,7 +179,9 @@ module.exports = function(server) {
 								{$set: {'ips.login' : this.getIP(req)}}
 							);
 							req.session.userId = user._id; // TODO: merge with current user id
-							res.end('"ok"');
+							this.setUserId(req, res, (function() {
+								this.end(req, res);
+							}).bind(this));
 						} else {
 							this.db.users.update(
 								{_id: user._id},
@@ -187,7 +198,41 @@ module.exports = function(server) {
 
 		postLogout: function(req, res, next) {
 			req.session.userId = undefined;
-			res.end('"ok"');
+			this.setUserId(req, res, (function() {
+				this.end(req, res);
+			}).bind(this));
+		},
+
+		getCheckUsername: function(req, res, next) {
+			if (req.query.username && shared.validation.username(req.query.username)) {
+				this.db.users.findOne({'auth.local.username': req.query.username.toLowerCase()}, this.wrapCallback(req, res, function(user) {
+					if (user) {
+						this.error(req, res, 400, 'Username exists already');
+					} else {
+						this.end(req, res);
+					}
+				}));
+			} else {
+				this.error(req, res, 400, 'Invalid username');
+			}
+		},
+
+		getCheckEmail: function(req, res, next) {
+			if (req.query.email && shared.validation.email(req.query.email)) {
+				this.db.users.findOne({'auth.local.email': req.query.email.toLowerCase()}, this.wrapCallback(req, res, function(user) {
+					if (user) {
+						this.error(req, res, 400, 'Email exists already');
+					} else {
+						this.end(req, res);
+					}
+				}));
+			} else {
+				this.error(req, res, 400, 'Invalid email');
+			}
+		},
+
+		getLoginData: function(req, res, next) {
+			this.end(req, res);
 		},
 
 		setUserId: function(req, res, next) {
@@ -196,7 +241,8 @@ module.exports = function(server) {
 			var newUserId = (function() {
 				req.session.userId = uuid.v4();
 				this.db.users.insert({_id: req.session.userId, ips: {initial : this.getIP(req)}}, {safe:true}, this.wrapCallback(req, res, function(users) {
-					console.log('New user: ' + req.session.userId);
+					console.log('New session: ' + req.session.userId);
+					req.session.loginData = {};
 					next();
 					pause.resume();
 				}));
@@ -207,6 +253,11 @@ module.exports = function(server) {
 					if (!user) {
 						newUserId();
 					} else {
+						if (user.auth && user.auth.local) {
+							req.session.loginData = {loggedin: true, screenname: user.screenname, points: 0};
+						} else {
+							req.session.loginData = {};
+						}
 						next();
 						pause.resume();
 					}
@@ -249,16 +300,27 @@ module.exports = function(server) {
 		},
 
 		getResponseCallback: function(req, res) {
-			return this.wrapCallback(req, res, function(doc) {
-				if (doc) res.end(JSON.stringify(doc));
+			return this.wrapCallback(req, res, (function(doc) {
+				if (doc) this.end(req, res, doc);
 				else this.error(req, res, 404);
-			});
+			}).bind(this));
 		},
 
 		postResponseCallback: function(req, res) {
 			return this.wrapCallback(req, res, function(doc) {
-				res.end('"ok"');
+				this.end(req, res);
 			});
+		},
+
+		end: function(req, res, doc) {
+			res.end(JSON.stringify(this.addLoginData(req, doc || {})));
+		},
+
+		addLoginData: function(req, output) {
+			if (req.session && req.session.loginData) {
+				output.loginData = req.session.loginData;
+			}
+			return output;
 		},
 
 		wrapCallback: function(req, res, callback) {
@@ -274,13 +336,13 @@ module.exports = function(server) {
 			}
 			res.statusCode = code;
 			if (code === 400) {
-				res.end(JSON.stringify('Input error: ' + error));
+				res.end('Input error: ' + error);
 			} else if (code === 401) {
-				res.end('"Not authorized"');
+				res.end('Not authorized');
 			} else if (code === 404) {
-				res.end('"Not found"');
+				res.end('Not found');
 			} else if (code === 500) {
-				res.end(JSON.stringify('Server error: ' + error));
+				res.end('Server error: ' + error);
 			}
 		}
 	};

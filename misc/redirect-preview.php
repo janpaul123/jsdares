@@ -1,3 +1,3 @@
 <?php
 
-header('Location: http://preview.jsdare.com');
+header('Location: http://preview.jsdares.com');

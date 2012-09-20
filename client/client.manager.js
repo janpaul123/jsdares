@@ -9,8 +9,9 @@ module.exports = function(client) {
 			full: 'PageHome'
 		},
 
-		init: function($div) {
-			this.$div = $div;
+		init: function() {
+			this.$div = $('#content');
+			this.login = new client.Login(this);
 			this.sync = new client.Sync(this);
 			this.history = window.History;
 			this.history.Adapter.bind(window, 'statechange', this.stateChange.bind(this));
@@ -35,11 +36,16 @@ module.exports = function(client) {
 		},
 
 		connectionError: function(error) {
-			console.error('Connection error: ' + error);
+			if (console) {
+				console.error('Connection error: ' + error);
+			}
 		},
 
-		connectionSuccess: function() {
-
+		connectionSuccess: function(response) {
+			console.log(response);
+			if (response.loginData) {
+				this.login.update(response.loginData);
+			}
 		},
 
 		addHistory: function(url) {
