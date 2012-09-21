@@ -32,6 +32,8 @@ body, input, button, select, textarea {
 	position: relative;
 
 	.header-title {
+		position: relative;
+		z-index: 2;
 		font-size: 70px;
 		line-height: 70px;
 		margin-left: 5px;
@@ -49,36 +51,39 @@ body, input, button, select, textarea {
 		}
 	}
 
-	.header-menu {
-		position: absolute;
-		right: 5px;
-		top: 10px;
-		display: none;
+	#header-menu {
+		position: relative;
+		z-index: 1;
+		margin-bottom: 10px;
+		width: 100%;
+		margin-top: -40px;
 
-		a {
-			color: #333;
-			font-size: 24px;
-			font-variant: small-caps;
+		.header-menu-first {
+			margin-left: 300px;
 		}
 
-		.header-separator {
-			border-left: 1px solid #555;
-			margin: 0 8px;
-			display: inline-block;
-			height: 20px;
-			position: relative;
-			top: 4px;
+		li a {
+			color: hsl(0, 0%, 40%);
+			font-size: 26px;
+			font-variant: small-caps;
+			padding-top: 6px;
+
+			.icon {
+				vertical-align: middle;
+				margin-top: -2px;
+			}
+		}
+
+		.active > a, .active > a:hover {
+			color: hsl(0, 0%, 20%);
 		}
 	}
 
-	// .header-special {
-	// 	position: absolute;
-	// 	right: 0px;
-	// 	top: 0px;
-	// 	font-weight: lighter;
-	// 	padding: 10px 0;
-	// 	border-radius: 5px;
-	// }
+	#header-arrow {
+		position: absolute;
+		right: 14px;
+		top: 45px;
+	}
 
 	#header-login {
 		position: absolute;
@@ -114,11 +119,7 @@ body, input, button, select, textarea {
 		}
 
 		.login-details {
-			line-height: 28px;
 			margin-right: 10px;
-			background-color: hsl(0, 0%, 90%);
-			padding: 0 10px;
-			border-radius: 3px;
 
 			.login-details-name {
 				margin-right: 5px;

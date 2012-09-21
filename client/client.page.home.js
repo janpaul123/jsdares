@@ -70,7 +70,7 @@ module.exports = function(client) {
 		},
 
 		openDare: function(_id) {
-			this.delegate.navigateTo('/home/' + _id);
+			this.delegate.navigateTo('/intro/' + _id);
 		},
 
 		updateCollections: function() {
@@ -108,7 +108,7 @@ module.exports = function(client) {
 		},
 
 		navigateTo: function(splitUrl) {
-			if (this.$arrow !== null && !(splitUrl[0] === 'home' && splitUrl[1] === undefined)) {
+			if (this.$arrow !== null && !(splitUrl[0] === 'intro' && splitUrl[1] === undefined)) {
 				this.$arrow.remove();
 				this.$arrow = null;
 			}

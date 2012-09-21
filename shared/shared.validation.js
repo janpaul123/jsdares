@@ -12,7 +12,7 @@ module.exports = function(shared) {
 		},
 
 		email: function(input) {
-			return (input.indexOf('@') > 0) && (input.indexOf('.') > input.indexOf('@'));
+			return (input.indexOf('@') > 0) && (input.lastIndexOf('.') > input.indexOf('@'));
 		}
 	};
 };

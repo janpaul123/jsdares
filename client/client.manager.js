@@ -5,12 +5,13 @@ module.exports = function(client) {
 	client.Manager = function() { return this.init.apply(this, arguments); };
 	client.Manager.prototype = {
 		pageConstructors: {
-			home: 'PageHome',
-			full: 'PageHome'
+			'intro': 'PageHome',
+			'full': 'PageHome'
 		},
 
 		init: function() {
 			this.$div = $('#content');
+			this.menu = new client.MenuHeader(this);
 			this.login = new client.Login(this);
 			this.sync = new client.Sync(this);
 			this.history = window.History;
@@ -42,9 +43,9 @@ module.exports = function(client) {
 		},
 
 		connectionSuccess: function(response) {
-			console.log(response);
 			if (response.loginData) {
 				this.login.update(response.loginData);
+				this.menu.showLocks(!response.loginData.loggedIn);
 			}
 		},
 
@@ -62,14 +63,16 @@ module.exports = function(client) {
 		urlChange: function(url) {
 			var splitUrl = (url || '/').substring(1).split('/');
 			if (this.pageConstructors[splitUrl[0]] === undefined) {
-				splitUrl = ['home'];
+				splitUrl = ['intro'];
 			}
+
 			var type = this.pageConstructors[splitUrl[0]];
 			if (this.page === null || this.page.type !== type) {
 				this.removePage();
 				this.page = new client[type](this, this.$div);
 			}
 			this.page.navigateTo(splitUrl);
+			this.menu.navigateTo(splitUrl);
 		}
 	};
 };

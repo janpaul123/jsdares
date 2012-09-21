@@ -254,7 +254,7 @@ module.exports = function(server) {
 						newUserId();
 					} else {
 						if (user.auth && user.auth.local) {
-							req.session.loginData = {loggedin: true, screenname: user.screenname, points: 0};
+							req.session.loginData = {loggedIn: true, screenname: user.screenname, points: 0};
 						} else {
 							req.session.loginData = {};
 						}

@@ -61,7 +61,7 @@ module.exports = function(client) {
 			this.$logout = $('<button type="submit" class="btn login-logout">Logout</button>');
 			this.$name = $('<span class="login-details-name"></span>');
 			this.$points = $('<span class="login-details-points"></span>');
-			this.$details = $('<div class="login-details"></div>');
+			this.$details = $('<div class="login-details btn"></div>');
 			this.$details.append(this.$name, $('<i class="icon icon-trophy"></i> '), this.$points);
 			this.$div.append(this.$logout, this.$details);
 
@@ -69,9 +69,9 @@ module.exports = function(client) {
 		},
 
 		update: function(data) {
-			if (!data.loggedin && !this.$form) {
+			if (!data.loggedIn && !this.$form) {
 				this.showLogin();
-			} else if (data.loggedin) {
+			} else if (data.loggedIn) {
 				if (!this.$details) {
 					this.showLogout();
 				}

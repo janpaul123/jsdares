@@ -6,6 +6,7 @@ var mongo = require('mongoskin');
 var uuid = require('node-uuid');
 var lessMiddleware = require('less-middleware');
 var browserify = require('browserify');
+var mainUrls = ['intro', 'full'];
 
 module.exports = function(server) {
 	server.init = function(options) {
@@ -33,7 +34,7 @@ module.exports = function(server) {
 				.use(lessMiddleware(options.less))
 				.use(browserify(options.browserify))
 				.use('', function(req, res, next) {
-					if(req.url.indexOf('/home') === 0 || req.url.indexOf('/full') === 0) req.url = '/';
+					if (mainUrls.indexOf(req.url.split('/')[1] || 'intro') >= 0) req.url = '/';
 					next();
 				})
 				.use(connect['static'](options.assets))
