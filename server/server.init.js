@@ -6,7 +6,7 @@ var mongo = require('mongoskin');
 var uuid = require('node-uuid');
 var lessMiddleware = require('less-middleware');
 var browserify = require('browserify');
-var mainUrls = ['intro', 'full'];
+var mainUrls = ['intro', 'full', 'create'];
 
 module.exports = function(server) {
 	server.init = function(options) {

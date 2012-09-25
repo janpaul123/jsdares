@@ -2,6 +2,10 @@
 "use strict";
 
 module.exports = function(output) {
+	var getScopeObjects = function() {
+		return {console: this.getAugmentedObject()};
+	};
+
 	var getAugmentedObject = function() {
 		return {
 			type: 'object',
@@ -46,6 +50,7 @@ module.exports = function(output) {
 
 	output.SimpleConsole = function() { return this.init.apply(this, arguments); };
 	output.SimpleConsole.prototype = {
+		getScopeObjects: getScopeObjects,
 		getAugmentedObject: getAugmentedObject,
 
 		init: function() {
@@ -80,6 +85,7 @@ module.exports = function(output) {
 
 	output.Console = function() { return this.init.apply(this, arguments); };
 	output.Console.prototype = {
+		getScopeObjects: getScopeObjects,
 		getAugmentedObject: getAugmentedObject,
 
 		init: function(editor, options, $div) {

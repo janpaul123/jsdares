@@ -41,6 +41,10 @@ module.exports = function(output) {
 		textBaseline: {type: 'variable', example: 'textBaseline = "top"', start: 'alphabetic', validate: ['alphabetic', 'top', 'hanging', 'middle', 'ideographic', 'bottom']}
 	};
 
+	var getScopeObjects = function() {
+		return {canvas: this.getAugmentedObject()};
+	};
+
 	var getAugmentedObject = function() {
 		return {
 			type: 'object',
@@ -150,6 +154,8 @@ module.exports = function(output) {
 			return isFinite(value);
 		} else if (validate === 'positive') {
 			return isFinite(value) && value > 0;
+		} else if (validate === 'alpha') {
+			return isFinite(value) && value >= 0 && value <= 1;
 		} else if (validate === 'font') {
 			// TODO: proper font handling
 			return true;
@@ -168,6 +174,7 @@ module.exports = function(output) {
 
 	output.SimpleCanvas = function() { return this.init.apply(this, arguments); };
 	output.SimpleCanvas.prototype = {
+		getScopeObjects: getScopeObjects,
 		getAugmentedObject: getAugmentedObject,
 		getContextObject: getContextObject,
 
@@ -267,6 +274,7 @@ module.exports = function(output) {
 
 	output.Canvas = function() { return this.init.apply(this, arguments); };
 	output.Canvas.prototype = {
+		getScopeObjects: getScopeObjects,
 		getAugmentedObject: getAugmentedObject,
 		getContextObject: getContextObject,
 

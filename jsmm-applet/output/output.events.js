@@ -2,8 +2,8 @@
 "use strict";
 
 module.exports = function(output) {
-	output.Input = function() { return this.init.apply(this, arguments); };
-	output.Input.prototype = {
+	output.Events = function() { return this.init.apply(this, arguments); };
+	output.Events.prototype = {
 		init: function(editor, options) {
 			this.editor = editor;
 
@@ -65,6 +65,10 @@ module.exports = function(output) {
 						this.editor.makeInteractive(this.makeSignature());
 					}).bind(this)
 			};
+		},
+
+		getScopeObjects: function() {
+			return {document: this.getAugmentedDocumentObject(), window: this.getAugmentedWindowObject()};
 		},
 
 		getAugmentedDocumentObject: function() {

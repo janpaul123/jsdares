@@ -2,9 +2,9 @@
 "use strict";
 
 var menu = [
-	{title: 'introduction', url: '', urls: ['', 'intro', 'full'], locked: false},
-	{title: 'learn', url: 'learn', urls: ['learn'], locked: true},
-	{title: 'create', url: 'create', urls: ['create'], locked: true}
+	{title: 'INTRODUCTION', url: '', urls: ['', 'intro', 'full'], locked: false},
+	{title: 'LEARN', url: 'learn', urls: ['learn'], locked: true},
+	{title: 'CREATE', url: 'create', urls: ['create'], locked: true}
 ];
 
 module.exports = function(client) {

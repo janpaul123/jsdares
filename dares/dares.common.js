@@ -1,6 +1,8 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var shared = require('../shared');
+
 module.exports = function(dares) {
 	dares.LinePoints = function() { return this.init.apply(this, arguments); };
 	dares.LinePoints.prototype = {
@@ -256,14 +258,17 @@ module.exports = function(dares) {
 			this.delegate = delegate;
 			this.ui = ui;
 			this.options = options;
+			this.dareOptions = options.allDares[options.type];
+			// this.options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
+			console.log(this.options);
 			this.animation = null;
 			this.completed = this.options.instance.completed;
 			this.highscore = this.options.instance.highscore;
 
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
-			this.ui.registerObject(this);
-			this.ui.loadOutputs(this.options.outputs);
+			this.ui.registerAdditionalObject('dare', this);
+			this.ui.loadOutputs(this.options.outputs, this.options.allOutputs);
 			this.ui.selectTab('dare');
 		};
 
@@ -288,8 +293,8 @@ module.exports = function(dares) {
 			this.$points.hide();
 
 			this.linePoints = null;
-			if (this.options.maxLines > 0) {
-				this.linePoints = new dares.LinePoints(this.$points, this.options.maxLines, this.options.lineReward);
+			if (this.dareOptions.maxLines > 0) {
+				this.linePoints = new dares.LinePoints(this.$points, this.dareOptions.maxLines, this.dareOptions.lineReward);
 			}
 			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name);
 			if (this.completed) {
@@ -330,7 +335,7 @@ module.exports = function(dares) {
 		};
 
 		dare.hasValidNumberOfLines = function() {
-			return this.linePoints === null || this.editor.getContentLines().length <= this.options.maxLines;
+			return this.linePoints === null || this.editor.getContentLines().length <= this.dareOptions.maxLines;
 		};
 
 		dare.addLineAnimation = function() {
@@ -338,7 +343,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(1, 500, this.animationLinesStartCallback.bind(this));
 			this.animation.addSegment(this.contentLines.length, Math.min(500, Math.max(1300/this.contentLines.length, 50)), this.animationLinesCallback.bind(this));
 			this.animation.addRemoveSegment(0, this.animationLinesFinishCallback.bind(this));
-			return (this.options.maxLines-this.contentLines.length)*this.options.lineReward;
+			return (this.dareOptions.maxLines-this.contentLines.length)*this.dareOptions.lineReward;
 		};
 
 		dare.addToAnimation = function(points, enough) {

@@ -10,15 +10,15 @@ module.exports.robot = require('./robot');
 
 module.exports.UI = function() { return this.init.apply(this, arguments); };
 module.exports.UI.prototype = {
-	icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign', home: 'icon-home'},
+	icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign', home: 'icon-home', 'editor': 'icon-pencil'},
 	paneOutputs: ['robot', 'console', 'canvas', 'info'],
 	constructors: {
 		robot: module.exports.output.Robot,
 		console: module.exports.output.Console,
 		canvas: module.exports.output.Canvas,
 		info: module.exports.info.Info,
-		input: module.exports.output.Input,
-		Math: module.exports.output.Math
+		events: module.exports.output.Events,
+		math: module.exports.output.Math
 	},
 
 	init: function($main, globalOptions) {
@@ -62,7 +62,8 @@ module.exports.UI.prototype = {
 		this.$main.append(this.$editor);
 		this.$main.append(this.$toolbar);
 
-		this.objects = [];
+		this.outputs = {};
+		this.additionalObjects = {};
 		this.editor = null;
 		this.closeCallback = null;
 		this.removeAll();
@@ -82,9 +83,23 @@ module.exports.UI.prototype = {
 		}
 	},
 
+	removeOutputs: function() {
+		for (var name in this.outputs) {
+			this.outputs[name].remove();
+			if (this.tabsByName[name]) {
+				this.tabsByName[name].$tab.remove();
+				this.tabsByName[name].$pane.remove();
+				this.tabsByName[name] = undefined;
+				this.numTabs--;
+			}
+		}
+		this.outputs = {};
+	},
+
 	removeAll: function() {
-		for (var i=0; i<this.objects.length; i++) {
-			this.objects[i].remove();
+		this.removeOutputs();
+		for (var name in this.additionalObjects) {
+			this.additionalObjects[name].remove();
 		}
 		if (this.editor !== null) {
 			this.editor.remove();
@@ -93,49 +108,54 @@ module.exports.UI.prototype = {
 		this.$content.children('div').remove();
 
 		this.scope = {};
-		this.objects = [];
-		this.outputs = {};
-		this.tabs = [];
+		this.additionalObjects = {};
 		this.tabsByName = {};
+		this.numTabs = 0;
 	},
 
-	loadOutputs: function(outputs) {
-		for (var name in outputs) {
-			outputs[name].prepareTextElement = this.prepareTextElement.bind(this);
+	loadOutputs: function(outputs, options) {
+		for (var i=0; i<outputs.length; i++) {
+			var name = outputs[i];
+			options[name].prepareTextElement = this.prepareTextElement.bind(this);
 
 			var output;
 			if (this.paneOutputs.indexOf(name) >= 0) {
-				output = new this.constructors[name](this.editor, outputs[name], this.addTab(name));
+				output = new this.constructors[name](this.editor, options[name], this.addTab(name));
 			} else {
-				output = new this.constructors[name](this.editor, outputs[name]);
+				output = new this.constructors[name](this.editor, options[name]);
 			}
-			this.registerObject(output);
 			this.outputs[name] = output;
 
-			if (name === 'input') {
+			this.addToScope(output.getScopeObjects());
+
+			if (name === 'events') {
 				this.scope.document = output.getAugmentedDocumentObject();
 				this.scope.window = output.getAugmentedWindowObject();
 
-				var mouseObjects = outputs[name].mouseObjects || [];
-				for (var i=0; i<mouseObjects.length; i++) {
-					var outputName = mouseObjects[i];
+				var mouseObjects = options[name].mouseObjects || [];
+				for (var j=0; j<mouseObjects.length; j++) {
+					var outputName = mouseObjects[j];
 					output.addMouseEvents(this.outputs[outputName].getMouseElement(), outputName, this.scope[outputName]);
 				}
-			} else if (output.getAugmentedObject !== undefined) {
-				this.scope[name] = output.getAugmentedObject();
 			}
 		}
 
 		this.editor.updateSettings(new module.exports.jsmm.Runner(this.editor, this.scope), this.outputs);
 	},
 
-	registerObject: function(obj) {
-		this.objects.push(obj);
+	addToScope: function(objects) {
+		for (var name in objects) {
+			this.scope[name] = objects[name];
+		}
+	},
+
+	registerAdditionalObject: function(name, obj) {
+		this.additionalObjects[name] = obj;
 	},
 
 	addTab: function(name) {
 		var $tab = $('<li></li>');
-		setTimeout(function() { $tab.addClass('tab-button-enabled'); }, 200*this.tabs.length + 300);
+		setTimeout(function() { $tab.addClass('tab-button-enabled'); }, 200*this.numTabs + 300);
 		this.$tabs.append($tab);
 
 		var $link = $('<a href="#"><i class="' + this.icons[name] + ' icon-white"></i> ' + name + '</a>');
@@ -152,7 +172,7 @@ module.exports.UI.prototype = {
 		var $output = $('<div class="tab-output"></div>');
 		$pane.append($output);
 
-		this.tabs.push(name);
+		this.numTabs++;
 		this.tabsByName[name] = {$pane: $pane, $tab: $tab};
 		return $output;
 	},

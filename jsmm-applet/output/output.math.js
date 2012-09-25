@@ -40,6 +40,10 @@ module.exports = function(output) {
 			SQRT2: {type: 'variable', example: 'SQRT2'}
 		},
 
+		getScopeObjects: function() {
+			return {Math: this.getAugmentedObject()};
+		},
+
 		getAugmentedObject: function() {
 			var obj = {type: 'object', string: '[object Math]', properties: {
 				random: {

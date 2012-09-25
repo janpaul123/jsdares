@@ -461,6 +461,10 @@ module.exports = function(info) {
 			this.table.remove();
 		},
 
+		getScopeObjects: function() {
+			return {};
+		},
+
 		outputClearAllEvents: function() {
 			this.events = [];
 			this.currentEvent = null;

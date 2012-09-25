@@ -6,7 +6,8 @@ module.exports = function(client) {
 	client.Manager.prototype = {
 		pageConstructors: {
 			'intro': 'PageHome',
-			'full': 'PageHome'
+			'full': 'PageHome',
+			'create': 'PageCreate'
 		},
 
 		init: function() {

@@ -1,0 +1,162 @@
+@dare-editor-arrow-size: 6px;
+@dare-editor-box-color: hsla(0, 0%, 15%, 0.9);
+
+.dare-editor {
+	padding: 15px;
+
+	input {
+		text-align: right;
+	}
+
+	.dare-editor-top-toolbar, .dare-editor-program-group, .dare-editor-dare-container, .dare-editor-output-container {
+		position: relative;
+		background-color: @dare-editor-box-color;
+		padding: 5px;
+		.border-radius(5px);
+	}
+
+	.dare-editor-top-toolbar {
+		display: inline-block;
+		margin-top: 0px;
+		padding-bottom: 0px;
+	}
+
+	.dare-editor-type-group {
+		margin-top: 5px;
+	}
+
+	.dare-editor-program-group {
+		position: absolute;
+		right: 8px;
+		top: 15px;
+
+		.dare-editor-program-group-arrow {
+				#popoverArrow > .left(@dare-editor-arrow-size, @dare-editor-box-color);
+				position: absolute;
+				margin-right: -@dare-editor-arrow-size;
+		}
+	}
+
+	.dare-editor-dare-container, .dare-editor-output-container {
+		margin-top: @dare-editor-arrow-size + 3px;
+		margin-bottom: 10px;
+		padding: 20px 10px 1px;
+
+		.dare-editor-dare-container-arrow, .dare-editor-output-container-arrow {
+				#popoverArrow > .bottom(@dare-editor-arrow-size, @dare-editor-box-color);
+				position: absolute;
+				margin-top: -@dare-editor-arrow-size;
+		}
+
+		.controls {
+			font-weight: normal;
+			font-size: 13px;
+			line-height: 18px;
+		}
+	}
+
+	.dare-editor-robotgoal {
+		display: none;
+	}
+
+	.dare-editor-robotgoal-container {
+		.dare-editor-robotgoal {
+			display: block;
+		}
+	}
+
+	.dare-editor-imagematch {
+		display: none;
+	}
+
+	.dare-editor-imagematch-container {
+		.dare-editor-imagematch {
+			display: block;
+		}
+	}
+
+	.dare-editor-consolematch {
+		display: none;
+	}
+
+	.dare-editor-consolematch-container {
+		.dare-editor-consolematch {
+			display: block;
+		}
+	}
+
+	.dare-editor-robot {
+		display: none;
+	}
+
+	.dare-editor-robot-container {
+		.dare-editor-robot {
+			display: block;
+		}
+	}
+
+	.dare-editor-canvas {
+		display: none;
+	}
+
+	.dare-editor-canvas-container {
+		.dare-editor-canvas {
+			display: block;
+		}
+	}
+
+	.dare-editor-console {
+		display: none;
+	}
+
+	.dare-editor-console-container {
+		.dare-editor-console {
+			display: block;
+		}
+	}
+
+	.dare-editor-info {
+		display: none;
+	}
+
+	.dare-editor-info-container {
+		.dare-editor-info {
+			display: block;
+		}
+	}
+
+	.dare-editor-events {
+		display: none;
+	}
+
+	.dare-editor-events-container {
+		.dare-editor-events {
+			display: block;
+		}
+	}
+
+	.dare-editor-math {
+		display: none;
+	}
+
+	.dare-editor-math-container {
+		.dare-editor-math {
+			display: block;
+		}
+	}
+
+	.dare-editor-global {
+		display: none;
+
+		input {
+			text-align: left;
+		}
+	}
+
+	.dare-editor-global-container {
+		.dare-editor-global {
+			display: block;
+		}
+	}
+
+}

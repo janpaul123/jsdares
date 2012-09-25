@@ -5,6 +5,10 @@ var robot = require('../robot');
 var clayer = require('../clayer');
 var blockSize = 64;
 
+var getScopeObjects = function() {
+	return {robot: this.getAugmentedObject()};
+};
+
 var getAugmentedObject = function() {
 	return {
 		type: 'object',
@@ -164,6 +168,7 @@ var detectGoal = function(object) {
 module.exports = function(output) {
 	output.SimpleRobot = function() { return this.init.apply(this, arguments); };
 	output.SimpleRobot.prototype = {
+		getScopeObjects: getScopeObjects,
 		getAugmentedObject: getAugmentedObject,
 
 		init: function(state) {
@@ -212,6 +217,7 @@ module.exports = function(output) {
 
 	output.Robot = function() { return this.init.apply(this, arguments); };
 	output.Robot.prototype = {
+		getScopeObjects: getScopeObjects,
 		getAugmentedObject: getAugmentedObject,
 
 		init: function(editor, options, $div) {
