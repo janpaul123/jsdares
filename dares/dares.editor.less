@@ -19,6 +19,21 @@
 		display: inline-block;
 		margin-top: 0px;
 		padding-bottom: 0px;
+
+		.dare-editor-top-toolbar-loader, .dare-editor-top-toolbar-error {
+			position: absolute;
+			right: -25px;
+			top: 11px;
+		}
+
+		.dare-editor-top-toolbar-error {
+			.opacity(80);
+			cursor: pointer;
+		}
+
+		.dare-editor-top-toolbar-error:hover {
+			.opacity(100);
+		}
 	}
 
 	.dare-editor-type-group {

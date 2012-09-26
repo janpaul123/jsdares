@@ -51,6 +51,12 @@ module.exports = function(dares) {
 			$shareGroup.tooltip({'title': 'Feature not yet available', placement: 'bottom'});
 			$topToolbar.append($shareGroup);
 
+			this.$saveSpinner = $('<i class="icon icon-white icon-loader dare-editor-top-toolbar-loader hide"></i>');
+			$topToolbar.append(this.$saveSpinner);
+			this.$saveError = $('<i class="icon icon-white icon-exclamation-sign-color dare-editor-top-toolbar-error hide"></i>');
+			this.$saveError.tooltip({'title': 'Connection error', placement: 'bottom'});
+			$topToolbar.append(this.$saveError);
+
 			var $programGroup = $('<div class="btn-group dare-editor-program-group"><div class="dare-editor-program-group-arrow"></div></div>');
 			this.$targetProgramButton = $('<button class="btn btn-inverse">Target program</button>');
 			this.$targetProgramButton.tooltip({'title': 'Program that is shown as an example', placement: 'bottom'});
@@ -153,7 +159,19 @@ module.exports = function(dares) {
 		},
 
 		saveHandler: function() {
+			this.$saveSpinner.removeClass('hide');
+			this.$saveError.addClass('hide');
+			this.delegate.getSync().updateDare(this.options, this.saveSuccessHandler.bind(this), this.saveErrorHandler.bind(this));
+		},
 
+		saveSuccessHandler: function() {
+			this.$saveSpinner.addClass('hide');
+			this.$saveError.addClass('hide');
+		},
+
+		saveErrorHandler: function() {
+			this.$saveSpinner.addClass('hide');
+			this.$saveError.removeClass('hide');
 		},
 
 		typeButtonClickHandler: function(event) {

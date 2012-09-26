@@ -60,11 +60,32 @@ module.exports = function(shared) {
 		name: {type: 'text', def: 'Untitled Dare'},
 		description: {type: 'text', def: ''},
 		original: {type: 'text', def: ''},
+		_id: {type: 'nosanitize', def: null},
+		userId: {type: 'nosanitize', def: null},
 		instance: {type: 'nosanitize', def: null},
 		sanitize: function(object) {
 			if (object.type === 'RobotGoal' && object.outputs.indexOf('robot') < 0) object.outputs.push('robot');
 			else if (object.type === 'ImageMatch' && object.outputs.indexOf('canvas') < 0) object.outputs.push('canvas');
 			else if (object.type === 'ConsoleMatch' && object.outputs.indexOf('console') < 0) object.outputs.push('console');
+			return object;
+		}
+	};
+
+	shared.dares.dareOptionsEdit = {
+		allDares: {type: 'nosanitize', def: null},
+		allOutputs: {type: 'nosanitize', def: null},
+		editor: {type: 'nosanitize', def: null},
+		type: {type: 'nosanitize', def: null},
+		outputs: {type: 'nosanitize', def: null},
+		name: {type: 'nosanitize', def: null},
+		description: {type: 'nosanitize', def: null},
+		original: {type: 'nosanitize', def: null},
+		instance: {type: 'nosanitize', def: null},
+		_id: {type: 'nosanitize', def: null},
+		// no userId
+		// no instance
+		sanitize: function(object) {
+			return shared.dares.sanitizeInput(object, shared.dares.dareOptions);
 		}
 	};
 
@@ -76,10 +97,11 @@ module.exports = function(shared) {
 			for (var name in options) {
 				if (name !== 'sanitize') {
 					newObject[name] = shared.dares.sanitizeInput((input || {})[name], options[name]);
+					if (newObject[name] === undefined) delete newObject[name];
 				}
 			}
 			if (options.sanitize !== undefined) {
-				options.sanitize(newObject);
+				newObject = options.sanitize(newObject) || newObject;
 			}
 			return newObject;
 		}

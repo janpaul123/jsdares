@@ -42,6 +42,14 @@ module.exports = function(client) {
 			this.apiPost('instance', instance, success);
 		},
 
+		createDare: function(success, error) {
+			this.apiPost('dareCreate', success, error);
+		},
+
+		updateDare: function(dare, success, error) {
+			this.apiPost('dareEdit', dare, success, error);
+		},
+
 		register: function(username, password, email, success, error) {
 			this.apiPost('register', {username: username, password: password, email: email}, success, error);
 		},
