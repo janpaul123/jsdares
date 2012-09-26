@@ -69,18 +69,24 @@ module.exports = function(client) {
 			return this.delegate.getSync();
 		},
 
-		openDare: function(_id) {
+		viewDare: function(_id) {
 			this.delegate.navigateTo('/dare/' + _id);
+		},
+
+		editDare: function(_id) {
+			this.delegate.navigateTo('/edit/' + _id);
 		},
 
 		updateCollections: function() {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
+				if (content.loginData.admin) content.edit = true;
 				this.collection1.updateContent(content);
 				if (!content.dares[0].instance.completed) {
 					if (this.$arrow !== null) this.$arrow.show();
 				}
 			}).bind(this));
 			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', (function(content) {
+				if (content.loginData.admin) content.edit = true;
 				this.collection2.updateContent(content);
 			}).bind(this));
 		},
@@ -97,7 +103,7 @@ module.exports = function(client) {
 
 			window.bla = this.exampleEditor;
 
-			if (splitUrl[0] === 'dare') {
+			if (splitUrl[0] === 'dare' || splitUrl[0] === 'edit') {
 				this.exampleEditor.disable();
 				this.closeModal();
 			} else if (splitUrl[0] === 'full') {

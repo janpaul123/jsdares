@@ -30,7 +30,7 @@
 			padding: 10px;
 			cursor: pointer;
 
-			> span {
+			> span, > button {
 				display: inline-block;
 				.ie7-inline-block();
 				font-size: 14px;
@@ -38,6 +38,12 @@
 				&.dares-body-cell-hide {
 					.opacity(20);
 				}
+			}
+
+			button {
+				font-size: 13px;
+				margin-top: -8px;
+				margin-bottom: -7px;
 			}
 
 			.dares-body-name {
@@ -57,8 +63,17 @@
 				text-align: right;
 			}
 
+			.dares-body-edit {
+				visibility: hidden;
+				margin-left: 20px;
+			}
+
 			&:hover {
 				background-color: lighten(hsl(120, 30%, 85%), 2%);
+
+				.dares-body-edit {
+					visibility: visible;
+				}
 			}
 
 			&.dares-body-completed {
@@ -72,6 +87,18 @@
 					visibility: visible;
 				}
 			}
+		}
+	}
+
+	&.dares-collection-view {
+		.dares-body-edit {
+			display: none !important;
+		}
+	}
+
+	&.dares-collection-edit {
+		.dares-body-highscore {
+			display: none !important;
 		}
 	}
 }
