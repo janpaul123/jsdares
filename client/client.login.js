@@ -10,6 +10,7 @@ module.exports = function(client) {
 		init: function(delegate) {
 			this.delegate = delegate;
 			this.$div = $('#header-login');
+
 			this.timeout = null;
 			this.setTimeout(500); // half a second
 		},
@@ -34,8 +35,10 @@ module.exports = function(client) {
 			if (this.$points) this.$points.remove();
 			if (this.$details) this.$details.remove();
 
+			if (this.$connectionError) this.$connectionError.remove();
+
 			this.$username = this.$password = this.$login = this.register = this.$group = this.$invalid =
-			this.$form = this.$loader = this.$logout = this.$name = this.$points =  this.$details = undefined;
+			this.$form = this.$loader = this.$logout = this.$name = this.$points =  this.$details = this.$connectionError = undefined;
 		},
 
 		showLogin: function() {
@@ -47,8 +50,11 @@ module.exports = function(client) {
 			this.$register = $('<input type="button" tabindex="4" class="btn" value="Register"></input>');
 			this.$group = $('<div class="btn-group"></div>');
 			this.$group.append(this.$login, this.$register);
-			this.$invalid = $('<div class="login-invalid hide">Invalid username or password</div>');
-			this.$form.append(this.$group, this.$password, this.$username, this.$invalid);
+			this.$invalid = $('<i class="icon icon-exclamation-sign-color login-error hide"></i>');
+			this.$invalid.tooltip({'title': 'Invalid username or password', placement: 'bottom'});
+			this.$connectionError = $('<i class="icon icon-exclamation-sign-color login-error hide"></i>');
+			this.$connectionError.tooltip({'title': 'Connection error', placement: 'bottom'});
+			this.$form.append(this.$group, this.$password, this.$username, this.$invalid, this.$connectionError);
 			this.$loader = $('<i class="icon icon-loader login-loader hide"></i>');
 			this.$div.append(this.$form, this.$loader);
 
@@ -64,7 +70,9 @@ module.exports = function(client) {
 			this.$details = $('<div class="login-details btn"></div>');
 			this.$nameIcon = $('<i class="icon icon-user"></i>');
 			this.$details.append(this.$nameIcon, ' ', this.$name, $('<i class="icon icon-trophy"></i> '), this.$points);
-			this.$div.append(this.$logout, this.$details);
+			this.$connectionError = $('<i class="icon icon-exclamation-sign-color login-error hide"></i>');
+			this.$connectionError.tooltip({'title': 'Connection error', placement: 'bottom'});
+			this.$div.append(this.$logout, this.$details, this.$connectionError);
 
 			this.$logout.on('click', this.logoutHandler.bind(this));
 		},
@@ -88,6 +96,7 @@ module.exports = function(client) {
 			event.preventDefault();
 
 			var username = this.$username.val(), password = this.$password.val();
+			this.hideConnectionError();
 			if (!shared.validation.username(username) || !shared.validation.password(password)) {
 				this.$invalid.removeClass('hide');
 			} else {
@@ -97,6 +106,7 @@ module.exports = function(client) {
 					this.$loader.addClass('hide');
 					if (error.status === 404) {
 						this.$invalid.removeClass('hide');
+						this.hideConnectionError();
 						return false;
 					}
 				}).bind(this));
@@ -124,6 +134,15 @@ module.exports = function(client) {
 				this.timeout = null;
 				this.delegate.getSync().getLoginData();
 			}).bind(this), time);
+		},
+
+		showConnectionError: function() {
+			if (this.$connectionError) this.$connectionError.removeClass('hide');
+			if (this.$invalid) this.$invalid.addClass('hide');
+		},
+
+		hideConnectionError: function() {
+			if (this.$connectionError) this.$connectionError.addClass('hide');
 		}
 	};
 

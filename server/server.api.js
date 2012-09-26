@@ -173,7 +173,6 @@ module.exports = function(server) {
 		postDareEdit: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				var dare = shared.dares.sanitizeInput(req.body, shared.dares.dareOptionsEdit);
-				console.log(dare);
 				this.createObjectId(req, res, dare._id, function(id) {
 					delete dare._id;
 					this.db.dares.findOne({_id: id}, this.userIdCallback(req, res, function(array) {
@@ -340,7 +339,6 @@ module.exports = function(server) {
 								req.session.loginData = {};
 							}
 							req.session.loginData.admin = user.admin || false;
-							console.log(user);
 							next();
 							pause.resume();
 						}

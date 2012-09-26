@@ -51,13 +51,14 @@ module.exports = function(client) {
 		},
 
 		connectionError: function(error) {
+			this.login.showConnectionError();
 			if (console) {
 				console.error('Connection error: ' + error);
 			}
 		},
 
 		connectionSuccess: function(response) {
-			console.log(response.loginData);
+			this.login.hideConnectionError();
 			if (response.loginData) {
 				this.loginData = response.loginData;
 				this.login.update(this.loginData);

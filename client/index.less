@@ -95,7 +95,7 @@ body, input, button, select, textarea {
 			margin: 0;
 		}
 
-		.login-field-username, .login-field-password, .btn-group, .login-invalid, .login-loader, .login-logout, .login-details {
+		.login-field-username, .login-field-password, .btn-group, .login-error, .login-loader, .login-logout, .login-details {
 			float: right;
 			margin-right: 5px;
 		}
@@ -104,13 +104,14 @@ body, input, button, select, textarea {
 			margin-right: 0;
 		}
 
-		.login-invalid {
-			margin-right: 10px;
-			font-weight: bold;
-			line-height: 28px;
-			background-color: hsl(0, 70%, 85%);
-			padding: 0px 5px;
-			.border-radius(3px);
+		.login-error {
+			margin: 5px 10px 0;
+			cursor: pointer;
+			.opacity(80);
+
+			&:hover {
+				.opacity(100);
+			}
 		}
 
 		.login-loader {
