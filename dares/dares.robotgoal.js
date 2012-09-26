@@ -71,7 +71,7 @@ module.exports = function(dares) {
 	dares.RobotGoalDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
 			this.initOptions(delegate, ui, options);
-			this.previewBlockSize = options.outputs.robot.previewBlockSize || 48;
+			this.previewBlockSize = this.dareOptions.previewBlockSize || 48;
 
 			this.$div.addClass('dare dare-robotgoal');
 			this.robot = this.ui.getOutput('robot');
@@ -80,7 +80,7 @@ module.exports = function(dares) {
 			this.$originalRobotContainer.on('click', this.animateRobot.bind(this));
 			this.$div.append(this.$originalRobotContainer);
 
-			if (options.hidePreview) {
+			if (this.dareOptions.hidePreview) {
 				this.$originalRobotContainer.hide();
 			}
 

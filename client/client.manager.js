@@ -1,15 +1,20 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var applet = require('../jsmm-applet');
+var dares = require('../dares');
+
+var pageConstructors = [
+	{regex: /^dare/, type: 'PageHome'},
+	{regex: /^full/, type: 'PageHome'},
+	{regex: /^create/, type: 'PageCreate'},
+	{regex: /^superheroes$/, type: 'PageUsersList'},
+	{regex: /^superheroes/, type: 'PageUsersSingle'}
+];
+
 module.exports = function(client) {
 	client.Manager = function() { return this.init.apply(this, arguments); };
 	client.Manager.prototype = {
-		pageConstructors: {
-			'intro': 'PageHome',
-			'full': 'PageHome',
-			'create': 'PageCreate'
-		},
-
 		init: function() {
 			this.$div = $('#content');
 			this.menu = new client.MenuHeader(this);
@@ -17,6 +22,10 @@ module.exports = function(client) {
 			this.sync = new client.Sync(this);
 			this.history = window.History;
 			this.history.Adapter.bind(window, 'statechange', this.stateChange.bind(this));
+			this.loginData = {};
+
+			this.modalUI = new applet.UI();
+			this.modalUI.setCloseCallback(this.closeDareCallback.bind(this));
 
 			this.page = null;
 			this.urlChange(window.location.pathname);
@@ -24,6 +33,10 @@ module.exports = function(client) {
 
 		getSync: function() {
 			return this.sync;
+		},
+
+		getLoginData: function() {
+			return this.loginData;
 		},
 
 		navigateTo: function(url) {
@@ -44,9 +57,11 @@ module.exports = function(client) {
 		},
 
 		connectionSuccess: function(response) {
+			console.log(response.loginData);
 			if (response.loginData) {
-				this.login.update(response.loginData);
-				this.menu.showLocks(!response.loginData.loggedIn);
+				this.loginData = response.loginData;
+				this.login.update(this.loginData);
+				this.menu.showLocks(!this.loginData.loggedIn);
 			}
 		},
 
@@ -62,18 +77,67 @@ module.exports = function(client) {
 		},
 
 		urlChange: function(url) {
-			var splitUrl = (url || '/').substring(1).split('/');
-			if (this.pageConstructors[splitUrl[0]] === undefined) {
-				splitUrl = ['intro'];
-			}
+			this.modalUI.closeModal();
 
-			var type = this.pageConstructors[splitUrl[0]];
+			url = (url || '/').substring(1);
+
+			var type = null;
+			for (var i=0; i<pageConstructors.length; i++) {
+				if (pageConstructors[i].regex.test(url)) {
+					type = pageConstructors[i].type;
+					break;
+				}
+			}
+			
+			if (type === null) {
+				type = 'PageHome';
+				url = '';
+			}
+			this.splitUrl = url.split('/');
+
 			if (this.page === null || this.page.type !== type) {
 				this.removePage();
 				this.page = new client[type](this, this.$div);
 			}
-			this.page.navigateTo(splitUrl);
-			this.menu.navigateTo(splitUrl);
+			this.page.navigateTo(this.splitUrl);
+			this.menu.navigateTo(this.splitUrl);
+			this.navigateDare(this.splitUrl);
+		},
+
+		navigateDare: function(splitUrl) {
+			if (this.splitUrl[this.splitUrl.length-2] === 'dare') {
+				this.viewDare(this.splitUrl[this.splitUrl.length-1]);
+			} else if (this.splitUrl[this.splitUrl.length-2] === 'edit') {
+				this.editDare(this.splitUrl[this.splitUrl.length-1]);
+			}
+		},
+
+		viewDare: function(id) {
+			this.dareId = id;
+			this.getSync().getDareAndInstance(id, (function(dare) {
+				if (dare._id === this.dareId) {
+					this.instance = dare.instance;
+					this.modalUI.openModal();
+					new dares[dare.type + 'Dare'](this, this.modalUI, dare);
+				}
+			}).bind(this));
+		},
+
+		editDare: function(id) {
+			this.dareId = id;
+			this.getSync().getDareEdit(id, (function(dare) {
+				if (dare._id === this.dareId) {
+					this.instance = dare.instance;
+					this.modalUI.openModal();
+					new dares.Editor(this, this.modalUI, dare);
+				}
+			}).bind(this));
+		},
+
+		closeDareCallback: function() {
+			if (['dare', 'edit'].indexOf(this.splitUrl[this.splitUrl.length-2] >= 0)) {
+				this.navigateTo('/' + this.splitUrl.slice(0, -2).join('/'));
+			}
 		}
 	};
 };

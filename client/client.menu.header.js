@@ -64,7 +64,10 @@ module.exports = function(client) {
 
 		navigateTo: function(splitUrl) {
 			this.$div.children('li').removeClass('active');
-			this.$tabs[this.urls[splitUrl[0] || 'home']].addClass('active');
+			var index = this.urls[splitUrl[0] || ''];
+			if (index !== undefined) {
+				this.$tabs[index].addClass('active');
+			}
 		},
 
 		showLocks: function(show) {

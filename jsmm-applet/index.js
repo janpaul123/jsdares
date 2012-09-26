@@ -32,7 +32,7 @@ module.exports.UI.prototype = {
 
 			this.$close = $('<a href="#" class="ui-close">&times;</a>');
 			this.$main.append(this.$close);
-			this.$close.on('click', (function(event) { event.preventDefault(); this.closeModal(); }).bind(this));
+			this.$close.on('click', this.closeHandler.bind(this));
 		} else {
 			this.$modal = null;
 			this.$main = $main;
@@ -215,6 +215,21 @@ module.exports.UI.prototype = {
 		this.closeCallback = callback;
 	},
 
+	openModal: function() {
+		this.$modal.addClass('ui-modal-active');
+		var $main = this.$main;
+		setTimeout(function() { $main.addClass('ui-modal-ui-active'); }, 0);
+		$('body').addClass('modal-open'); // for Bootstrap specific fixes
+	},
+
+	closeModal: function() {
+		this.removeAll();
+		this.$modal.removeClass('ui-modal-active');
+		this.$main.removeClass('ui-modal-ui-active');
+		$('body').removeClass('modal-open');
+	},
+
+	/// INTERNAL FUNCTIONS ///
 	arrowPositions: { // dir, left, top
 		'arrow-step': ['arrow-up', 655, 40],
 		'arrow-highlighting': ['arrow-up', 751, 40],
@@ -257,20 +272,12 @@ module.exports.UI.prototype = {
 	hideArrow: function() {
 		this.$arrow.removeClass('arrow-active');
 	},
-
-	/// INTERNAL FUNCTIONS ///
-	openModal: function() {
-		this.$modal.addClass('ui-modal-active');
-		var $main = this.$main;
-		setTimeout(function() { $main.addClass('ui-modal-ui-active'); }, 0);
-		$('body').addClass('modal-open'); // for Bootstrap specific fixes
-	},
-
-	closeModal: function() {
-		this.removeAll();
-		this.$modal.removeClass('ui-modal-active');
-		this.$main.removeClass('ui-modal-ui-active');
-		$('body').removeClass('modal-open');
-		if (this.closeCallback !== null) this.closeCallback();
+	
+	closeHandler: function(event) {
+		event.preventDefault();
+		this.closeModal();
+		if (this.closeCallback !== null) {
+			this.closeCallback();
+		}
 	}
 };

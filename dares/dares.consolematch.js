@@ -110,7 +110,7 @@ module.exports = function(dares) {
 			this.originalAnim = new dares.AnimatedConsole(this.$originalConsole);
 			this.originalAnim.run(this.options.original);
 
-			if (options.dareOptions.hidePreview) {
+			if (this.dareOptions.hidePreview) {
 				this.$originalConsoleContainer.hide();
 			}
 

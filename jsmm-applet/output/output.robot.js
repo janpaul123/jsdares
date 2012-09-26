@@ -489,6 +489,16 @@ module.exports = function(output) {
 			return JSON.stringify(this.state);
 		},
 
+		getTotalGoals: function() {
+			var total = 0;
+			for (var x=0; x<this.state.columns; x++) {
+				for (var y=0; y<this.state.rows; y++) {
+					if (this.state.blockGoal[x][y]) total++;
+				}
+			}
+			return total;
+		},
+
 		/// INTERNAL FUNCTIONS ///
 		initialState: function(options) {
 			var columns = options.columns || 8, rows = options.rows || 8;

@@ -6,18 +6,53 @@ var uuid = require('node-uuid');
 
 module.exports = function(server) {
 	server.dares = function(db) {
-		db.collections.update({"_id" : new db.ObjectID("5009684ce78955fbcf405844")},
+		db.collections.update({_id : new db.ObjectID('5009684ce78955fbcf405844')},
 			{
-				_id: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('5009684ce78955fbcf405844'),
 				difficulty: 1,
-				title : "Rollin' Robots"
+				title: "Rollin' Robots",
+				dareIds: [
+					new db.ObjectID('300000000000000000000000'),
+					new db.ObjectID('300000000000000000000001'),
+					new db.ObjectID('300000000000000000000002'),
+					new db.ObjectID('300000000000000000000003'),
+					new db.ObjectID('300000000000000000000004'),
+					new db.ObjectID('300000000000000000000005'),
+					new db.ObjectID('300000000000000000000006'),
+					new db.ObjectID('300000000000000000000007'),
+					new db.ObjectID('300000000000000000000008'),
+					new db.ObjectID('300000000000000000000009'),
+					new db.ObjectID('300000000000000000000010')
+				]
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Stepping', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.collections.update({_id : new db.ObjectID('30000000078955fbcf405844')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('30000000078955fbcf405844'),
+				difficulty: 2,
+				title: "Famous people",
+				dareIds: [
+					new db.ObjectID('300000000000000000000100'),
+					new db.ObjectID('300000000000000000000101'),
+					new db.ObjectID('300000000000000000000102'),
+					new db.ObjectID('300000000000000000000103'),
+					new db.ObjectID('300000000000000000000104'),
+					new db.ObjectID('300000000000000000000105'),
+					new db.ObjectID('300000000000000000000106'),
+					new db.ObjectID('300000000000000000000107'),
+					new db.ObjectID('300000000000000000000108'),
+					new db.ObjectID('300000000000000000000109'),
+					new db.ObjectID('300000000000000000000110')
+				]
+			},
+			{upsert: true}
+		);
+
+		db.dares.update({_id: new db.ObjectID('300000000000000000000000')},
+			{
+				_id: new db.ObjectID('300000000000000000000000'),
 				name: 'Stepping',
 				type: 'RobotGoal',
 				description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-left,750,65">program</a>, which makes a robot move. You can see the robot by clicking on the <a href="#arrow-tab-robot">robot tab</a>. You can use the <a href="#arrow-step">step button</a> to see what the program does.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
@@ -36,16 +71,14 @@ module.exports = function(server) {
 				allOutputs: {
 					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":4,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false]]}'}
 				},
-				editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\n'},
-				order: 0
+				editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\n'}
 			},
 			{upsert: true}
 		);
-
 		
-		db.dares.update({name: 'Another wall', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000001')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000001'),
 				name: 'Another wall',
 				type: 'RobotGoal',
 				description: '<p>Again, move the robot to the green square, as demonstrated in the <a href="#arrow-left,535,180">preview</a>. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Click on the <a href="#arrow-up,557,70">error icon</a> to see what is wrong.</p>',
@@ -63,15 +96,14 @@ module.exports = function(server) {
 				allOutputs: {
 					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":5,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'}
 				},
-				editor: {text: 'robot.drive(3);\nrobot.turnRight();\n'},
-				order: 1
+				editor: {text: 'robot.drive(3);\nrobot.turnRight();\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Highlighting', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000002')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000002'),
 				name: 'Highlighting',
 				type: 'RobotGoal',
 				description: '<p>Stepping is very useful, but to see more quickly which command does what, you can use the <a href="#arrow-highlighting">highlighting button</a>. When using highlighting, move the mouse over the code, or over the path of the robot. After that, move the robot to the green square in as few lines as you can.</p>',
@@ -89,15 +121,14 @@ module.exports = function(server) {
 				allOutputs: {
 					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":4,"initialY":4,"initialAngle":90,"mazeObjects":12,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,true,true,true],[true,true,true,true,false],[false,true,true,true,true]],"horizontalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,true,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'}
 				},
-				editor: {text: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\n'},
-				order: 2
+				editor: {text: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Multiple goals', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000003')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000003'),
 				name: 'Multiple goals',
 				type: 'RobotGoal',
 				description: '<p>This time you have to visit <strong>all three</strong> goals, in any order. Programmers always look for the fastest solution. Can you find a fast route?</p>',
@@ -115,15 +146,14 @@ module.exports = function(server) {
 				allOutputs: {
 					robot: {readOnly: true, state: '{"columns":5,"rows":5,"initialX":1,"initialY":4,"initialAngle":90,"mazeObjects":12,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,true,false,false],[false,true,false,true,false],[false,false,true,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,true,false,false],[false,true,false,true,false],[false,false,true,false,true],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,true,false]]}'}
 				},
-				editor: {},
-				order: 3
+				editor: {}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Manipulation', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000004')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000004'),
 				name: 'Manipulation',
 				type: 'RobotGoal',
 				description: '<p>For this dare you just have to edit the numbers in the program. You can use the <a href="#arrow-manipulation">manipulation button</a> to do this easily. Note that you cannot use extra lines of code, but you can get <strong>extra points</strong> by visiting all goals!</p>',
@@ -141,15 +171,14 @@ module.exports = function(server) {
 				allOutputs: {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":7,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"blockGoal":[[true,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,true],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[true,false,false,false,false,false,false,true],[false,false,false,false,true,false,false,false]],"numGoals":1}'}
 				},
-				editor: {text: 'robot.drive(3);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\n'},
-				order: 4
+				editor: {text: 'robot.drive(3);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Knight jump', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000005')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000005'),
 				name: 'Knight jump',
 				type: 'RobotGoal',
 				description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands. In the provided <a href="#arrow-left,780,58">program</a>, the name of the function is <var>knightJump</var>, and you can call it by writing <var>knightJump();</var>.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the <a href="#arrow-step">step button</a> to see what happens. We have also added a new tab, the <a href="#arrow-tab-info">info tab</a>, with more information about functions.</p>',
@@ -168,15 +197,14 @@ module.exports = function(server) {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":6,"rows":6,"initialX":0,"initialY":2,"initialAngle":90,"mazeObjects":15,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,true,true],[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false],[true,false,false,false,false,false],[false,false,false,false,true,false],[false,true,true,false,false,false],[false,false,false,false,false,true],[false,false,true,false,false,false]]}'},
 					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
-				editor: {text: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();'},
-				order: 5
+				editor: {text: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Zig-zag', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000006')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000006'),
 				name: 'Zig-zag',
 				type: 'RobotGoal',
 				description: '<p>For this you need to write your <strong>own</strong> function. You can try writing a program without a function, but note that you can only use <strong>20 lines</strong> (not counting empty lines and lines with only <var>}</var>).</p>',
@@ -195,15 +223,14 @@ module.exports = function(server) {
 					robot: {readOnly: true, previewBlockSize: 48, state: '{"columns":6,"rows":6,"initialX":0,"initialY":5,"initialAngle":90,"mazeObjects":26,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,true,false],[false,false,true,true,false,false],[false,true,false,false,false,false],[true,false,false,true,true,false],[false,true,false,false,false,false]],"horizontalActive":[[false,false,false,true,false,false],[false,false,true,false,true,false],[false,true,false,false,false,false],[false,false,true,false,false,false],[false,false,true,true,false,true],[false,false,false,false,true,false]],"blockGoal":[[false,false,true,false,true,false],[false,false,false,true,false,false],[true,false,false,false,false,false],[false,true,false,false,false,false],[true,false,false,true,false,false],[false,false,true,false,true,false]]}'},
 					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
-				editor: {},
-				order: 6
+				editor: {}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'ForwardRight', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000007')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000007'),
 				name: 'ForwardRight',
 				type: 'RobotGoal',
 				description: '<p>Sometimes you want to use the same commands, but only slightly different every time. In this dare, you want to move forward and then right, but with a different distance every time.</p><p>For this you can use an <strong>argument</strong> in the function. After the function name you give a name for the argument, and the argument then <strong>contains</strong> the number you put in when calling the function. You can then use this name when calling the commands in the function.</p><p>We have created an example for you, try to see what happens when you <a href="#arrow-step">step</a> through it.</p>',
@@ -222,15 +249,14 @@ module.exports = function(server) {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":50,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,true,false],[false,false,false,true,true,true,false,false],[false,false,false,false,true,false,false,false],[false,false,false,true,true,false,false,false],[false,false,true,true,true,true,false,false],[false,true,true,true,true,true,true,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,false,true],[false,true,true,true,false,false,true,true],[false,true,true,true,false,true,true,true],[false,true,true,false,false,false,true,true],[false,true,false,false,false,false,false,true],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
 					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
-				editor: {text: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\n'},
-				order: 7
+				editor: {text: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'More functions', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000008')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000008'),
 				name: 'More functions',
 				type: 'RobotGoal',
 				description: '<p>For this one you probably need to make one (or more) functions, since you can use no more than <strong>17 lines</strong> of code.</p>',
@@ -249,15 +275,14 @@ module.exports = function(server) {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":7,"rows":7,"initialX":6,"initialY":6,"initialAngle":90,"mazeObjects":31,"verticalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,true,false],[false,false,false,false,false,true,true],[false,false,true,true,true,true,false],[false,false,false,true,true,true,true],[true,true,true,true,true,true,false],[false,true,true,true,true,true,true]],"horizontalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,false,false],[false,false,false,false,true,false,false],[false,false,true,false,false,false,false],[false,false,true,false,false,false,false],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]]}'},
 					info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 				},
-				editor: {},
-				order: 8
+				editor: {}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Animal', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000009')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000009'),
 				name: 'Animal',
 				type: 'ImageMatch',
 				description: '<p>You can already apply some stuff you have learned to <strong>drawing shapes</strong> on a canvas. For this dare you have to draw a simple animal using rectangles. We have already drawn the head for you.</p><p>Try to figure out with the <a href="#arrow-manipulation">manipulation button</a> what all the numbers do, and add the rectangles for the <strong>body and legs</strong>. You can also use the <a href="#arrow-tab-info">info tab</a> for more information on drawing commands. Do not worry about the <var>var context = canvas.getContext("2d");</var> line for now. If you like, you can try to give the animal a color.</p>',
@@ -275,15 +300,14 @@ module.exports = function(server) {
 					canvas: {size: 256},
 					info: {commands: [{id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
 				},
-				editor: {text: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\n'},
-				order: 9
+				editor: {text: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Zoo', collectionId: new db.ObjectID("5009684ce78955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000010')},
 			{
-				collectionId: new db.ObjectID("5009684ce78955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000010'),
 				name: 'Zoo',
 				type: 'ImageMatch',
 				description: '<p>When you can draw one animal, you can draw a zoo, using a function. We have again provided you with a program that draws the head of some animals. If you find this dare too hard, you can leave it for now and try it again later.</p>',
@@ -301,24 +325,14 @@ module.exports = function(server) {
 					canvas: {size: 512},
 					info: {commands: [{id: 'jsmm.arithmetic.numbers', examples: [1]}, {id: 'jsmm.function', examples: [0]}, {id: 'canvas.getContext'}, {id: 'context.fillRect'}, {id: 'context.fillStyle'}], scope: false}
 				},
-				editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'},
-				order: 10
+				editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.collections.update({"_id" : new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000100')},
 			{
-				_id: new db.ObjectID("30000000078955fbcf405844"),
-				difficulty: 2,
-				title : "Famous people"
-			},
-			{upsert: true}
-		);
-
-		db.dares.update({name: 'Hello world!', collectionId: new db.ObjectID("30000000078955fbcf405844")},
-			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000100'),
 				name: 'Hello world!',
 				type: 'ConsoleMatch',
 				description: '<p>In this dare we will use the <a href="#arrow-tab-console">console</a>, which is simply a box that contains text. With <var>console.log</var> you can add any value to the console. For example, <var>console.log(10);</var> adds the number <var>10</var> to the console.</p><p>You can also use strings, which are pieces of text, such as <var>"Hello!"</var>. Strings start and end with quotations (<var>"</var>). For this dare you have to write a few sentences to the console.</p>',
@@ -336,15 +350,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'console.log'}], scope: false}
 				},
-				editor: {text: 'console.log("Hello world!");\n'},
-				order: 0
+				editor: {text: 'console.log("Hello world!");\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Some people', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000101')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000101'),
 				name: 'Some people',
 				type: 'ConsoleMatch',
 				description: '<p>For this dare you need to make a list of some famous people in computing, with their names and birth years, like the example below. We have already added the list for you, but you need to finish the function <var>person</var>.</p><p>In order to combine two strings, you can use <var>+</var>. For example, <var>"Hello " + "world!"</var> gives <var>"Hello world!"</var>.',
@@ -362,15 +375,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}], scope: false}
 				},
-				editor: {text: 'function person(name, born) {\n  console.log(name + "...");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'},
-				order: 1
+				editor: {text: 'function person(name, born) {\n  console.log(name + "...");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Calculating', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000102')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000102'),
 				name: 'Calculating',
 				type: 'ConsoleMatch',
 				description: '<p>Computers are very good at making calculations. In this dare you have a function <var>calculate</var>, with two arguments, <var>a</var> and <var>b</var>. You have to log the values of these variables, and then their multiplication.</p><p>To multiply two numbers you can use <var>*</var>, for example <var>3*11</var> gives <var>33</var>.</p>',
@@ -388,15 +400,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}], scope: false}
 				},
-				editor: {text: 'function calculate(a, b) {\n}\n\ncalculate(1, 1);\ncalculate(3, 5);\ncalculate(9, 8);\ncalculate(123456789, 0);\ncalculate(299792458, 3600);'},
-				order: 2
+				editor: {text: 'function calculate(a, b) {\n}\n\ncalculate(1, 1);\ncalculate(3, 5);\ncalculate(9, 8);\ncalculate(123456789, 0);\ncalculate(299792458, 3600);'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'More math', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000103')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000103'),
 				name: 'More math',
 				type: 'ConsoleMatch',
 				description: '<p>For this dare you have to use all the basic math operators: addition, subtraction, multiplication, and division. See the <a href="#arrow-tab-info">info tab</a> to find out which is which. We already added the line for multiplication. For bonus points, you can try to figure out what the last call to <var>calculate</var> should be.</p>',
@@ -414,15 +425,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: false}
 				},
-				editor: {text: 'function calculate(a, b) {\n  console.log("a * b = " + (a*b));\n}\n\ncalculate(8, 4);\ncalculate(10, 20);\ncalculate(0.5, 0.75);\ncalculate(-500, 500);\n'},
-				order: 3
+				editor: {text: 'function calculate(a, b) {\n  console.log("a * b = " + (a*b));\n}\n\ncalculate(8, 4);\ncalculate(10, 20);\ncalculate(0.5, 0.75);\ncalculate(-500, 500);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Years ago', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000104')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000104'),
 				name: 'Years ago',
 				type: 'ConsoleMatch',
 				description: '<p>Using subtraction you can now calculate how many years before 2012 the famous people were born.</p>',
@@ -440,15 +450,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: false}
 				},
-				editor: {text: 'function person(name, born) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'},
-				order: 4
+				editor: {text: 'function person(name, born) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Comparisons', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000105')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000105'),
 				name: 'Comparisons',
 				type: 'ConsoleMatch',
 				description: '<p>In this dare you have to compare numbers. There are a couple of operators for this, for example <var>a &lt; b</var> compares if <var>a</var> is less than <var>b</var>. See the <a href="#arrow-tab-info">info tab</a> for a full list.</p><p>Every comparison operator returns a <strong>boolean</strong>, which is a value that is either <var>true</var> or <var>false</var>. You can use <var>console.log</var> to print booleans to the console, just as with numbers and strings. For example, <var>5 &lt; 10</var> gives <var>true</var>.</p>',
@@ -466,15 +475,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: false}
 				},
-				editor: {},
-				order: 5
+				editor: {}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Counting', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000106')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000106'),
 				name: 'Counting',
 				type: 'ConsoleMatch',
 				description: '<p>The provided program prints the powers of 2 to the console. It uses a <strong>variable</strong> named <var>counter</var>, and a <strong>while loop</strong>. Try to figure out how it works by using the <a href="#arrow-step">step button</a> and <a href="#arrow-tab-info">info tab</a>. Then modify the program so that instead it prints the numbers from 1 to 20.</p><p>',
@@ -492,15 +500,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
 				},
-				editor: {text: 'var counter = 1;\nwhile(counter < 300) {\n  console.log(counter);\n  counter = counter*2;\n}\n'},
-				order: 6
+				editor: {text: 'var counter = 1;\nwhile(counter < 300) {\n  console.log(counter);\n  counter = counter*2;\n}\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Spiraling out of control', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000107')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000107'),
 				name: 'Spiraling out of control',
 				type: 'RobotGoal',
 				description: '<p>The robot has to follow a certain pattern, as you can see in the program. However, the current program is a bit long and repetitive. Make it shorter by using a counter and a while loop.</p>',
@@ -519,15 +526,14 @@ module.exports = function(server) {
 					robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":4,"initialY":3,"initialAngle":90,"mazeObjects":45,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,false,false],[false,false,false,true,true,false,false,false],[false,false,false,true,false,false,false,false],[false,false,true,true,false,false,false,false],[false,true,true,true,true,false,false,false],[true,true,true,true,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,true,false],[false,true,true,true,false,true,true,false],[false,true,true,false,true,true,true,false],[false,true,false,false,false,true,true,false],[false,false,false,false,false,false,true,false],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,true],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: true}
 				},
-				editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnLeft();\nrobot.drive(5);\nrobot.turnLeft();\nrobot.drive(6);\nrobot.turnLeft();\nrobot.drive(7);\nrobot.turnLeft();\n'},
-				order: 7
+				editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnLeft();\nrobot.drive(5);\nrobot.turnLeft();\nrobot.drive(6);\nrobot.turnLeft();\nrobot.drive(7);\nrobot.turnLeft();\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Good morning, good afternoon', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000108')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000108'),
 				name: 'Good morning, good afternoon',
 				type: 'ConsoleMatch',
 				description: '<p>The while-loop is used to keep repeating while some condition is true, but it is also useful to test only once whether some condition is true or false. For this you can use the <strong>if-else-statement</strong>, as seen in the <a href="#arrow-left,740,73">example</a>. If the condition is true, the program continues to the first brackets. Else, it jumps to the <var>else</var> brackets. Complete the program using a while-loop to call the function a number of times.</p>',
@@ -545,15 +551,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.if'}, {id: 'jsmm.else'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
 				},
-				editor: {text: 'function hello(hour) {\n  if (hour < 12) {\n    console.log("Good morning");\n  } else {\n    console.log("");\n  }\n}\n\nhello(10);\n'},
-				order: 8
+				editor: {text: 'function hello(hour) {\n  if (hour < 12) {\n    console.log("Good morning");\n  } else {\n    console.log("");\n  }\n}\n\nhello(10);\n'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'More information', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000109')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000109'),
 				name: 'More information',
 				type: 'ConsoleMatch',
 				description: '<p>Extend the table of famous people to include the year of death for those who have passed away. For those still alive, hide this line entirely.</p>',
@@ -571,15 +576,14 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.if'}, {id: 'jsmm.else'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
 				},
-				editor: {text: 'function person(name, born, died, knownFor) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815, 1871, "first computer");\nperson("Ada Lovelace", 1815, 1852, "first programmer");\nperson("George Boole", 1815, 1864, "Boolean logic");\nperson("Grace Hopper", 1906, 1992, "first language");\nperson("Alan Turing", 1912, 1954, "Turing machine");\nperson("Douglas Engelbart", 1925, 0, "Computer mouse");\nperson("Bill Gates", 1955, 0, "Microsoft");\nperson("Steve Jobs", 1955, 2011, "Apple");\nperson("Linus Torvalds", 1969, 0, "Linux");\nperson("Tim Berners-Lee", 1955, 0, "World Wide Web");\nconsole.log("And many more...");'},
-				order: 9
+				editor: {text: 'function person(name, born, died, knownFor) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815, 1871, "first computer");\nperson("Ada Lovelace", 1815, 1852, "first programmer");\nperson("George Boole", 1815, 1864, "Boolean logic");\nperson("Grace Hopper", 1906, 1992, "first language");\nperson("Alan Turing", 1912, 1954, "Turing machine");\nperson("Douglas Engelbart", 1925, 0, "Computer mouse");\nperson("Bill Gates", 1955, 0, "Microsoft");\nperson("Steve Jobs", 1955, 2011, "Apple");\nperson("Linus Torvalds", 1969, 0, "Linux");\nperson("Tim Berners-Lee", 1955, 0, "World Wide Web");\nconsole.log("And many more...");'}
 			},
 			{upsert: true}
 		);
 
-		db.dares.update({name: 'Walls, walls, walls', collectionId: new db.ObjectID("30000000078955fbcf405844")},
+		db.dares.update({_id: new db.ObjectID('300000000000000000000110')},
 			{
-				collectionId: new db.ObjectID("30000000078955fbcf405844"),
+				_id: new db.ObjectID('300000000000000000000110'),
 				name: 'Walls, walls, walls',
 				type: 'RobotGoal',
 				description: '<p>The robot can detect whether it is facing a wall, using <var>robot.detectWall()</var>. This returns <var>true</var> if there is a wall, and <var>false</var> if there isn\'t, as demonstrated using the <a href="#arrow-tab-console">console</a>. This maze is set up so that at every wall the robot has to turn left. Make the robot navigate the maze using a loop instead of specifying its entire path in advance.</p>',
@@ -599,8 +603,7 @@ module.exports = function(server) {
 					console: {},
 					info: {commands: [{id: 'jsmm.number'}, {id: 'jsmm.string'}, {id: 'jsmm.boolean'}, {id: 'jsmm.var'}, {id: 'jsmm.assignment'}, {id: 'jsmm.arithmetic.numbers'}, {id: 'jsmm.arithmetic.strings'}, {id: 'jsmm.logic.equality'}, {id: 'jsmm.logic.comparison'}, {id: 'jsmm.logic.inversion'}, {id: 'jsmm.logic.booleans'}, {id: 'jsmm.if'}, {id: 'jsmm.else'}, {id: 'jsmm.while'}, {id: 'jsmm.function', examples: [0,1]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}, {id: 'robot.detectWall'}, {id: 'console.log'}, {id: 'console.clear'}, {id: 'console.setColor'}], scope: true}
 				},
-				editor: {text: 'var counter = 0;\nwhile(counter <= 5) {\n  robot.drive(1);\n  console.log(robot.detectWall());\n  counter++;\n}'},
-				order: 10
+				editor: {text: 'var counter = 0;\nwhile(counter <= 5) {\n  robot.drive(1);\n  console.log(robot.detectWall());\n  counter++;\n}'}
 			},
 			{upsert: true}
 		);

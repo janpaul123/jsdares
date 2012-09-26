@@ -26,7 +26,6 @@ module.exports = function(dares) {
 			this.delegate = delegate;
 			this.ui = ui;
 			this.options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
-			console.log(options, this.options);
 
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('editor');

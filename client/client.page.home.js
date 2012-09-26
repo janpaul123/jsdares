@@ -12,6 +12,9 @@ module.exports = function(client) {
 		init: function(delegate, $div) {
 			this.delegate = delegate;
 			this.$div = $div;
+
+			this.modalUI = new applet.UI();
+			this.modalUI.setCloseCallback(this.closeCallback.bind(this));
 			
 			this.$example = $('<div class="example"><div class="example-text-top"><div class="example-arrow"></div>Make your own <strong>games</strong> by learning Javascript programming!</div><div class="example-text-bottom"><div class="example-arrow"></div><strong>Anyone</strong> can learn how to write code like this.</div></div>');
 			this.$exampleGame = $('<div class="example-game"></div>');
@@ -48,9 +51,6 @@ module.exports = function(client) {
 			this.$intro.append(this.$introButton);
 			this.$div.append(this.$intro);
 
-			this.modalUI = new applet.UI();
-			this.modalUI.setCloseCallback(this.closeCallback.bind(this));
-			this.dareId = null;
 			this.fullEditor = null;
 
 			this.updateCollections();
@@ -70,7 +70,7 @@ module.exports = function(client) {
 		},
 
 		openDare: function(_id) {
-			this.delegate.navigateTo('/intro/' + _id);
+			this.delegate.navigateTo('/dare/' + _id);
 		},
 
 		updateCollections: function() {
@@ -85,66 +85,29 @@ module.exports = function(client) {
 			}).bind(this));
 		},
 
-		updateCollectionsWithInstance: function(instance) {
-			this.collection1.updateWithInstance(instance);
-			this.collection2.updateWithInstance(instance);
-		},
-
-		updateInstance: function(completed, highscore, text) {
-			this.instance.completed = completed;
-			this.instance.highscore = highscore;
-			this.instance.text = text;
-			this.delegate.getSync().updateInstance(this.instance);
-			this.updateCollectionsWithInstance(this.instance);
-		},
-
-		updateProgram: function(text) {
-			this.instance.text = text;
-			this.delegate.getSync().updateProgram(this.instance);
-		},
-
 		closeCallback: function() {
 			this.delegate.navigateTo('/');
 		},
 
 		navigateTo: function(splitUrl) {
-			if (this.$arrow !== null && !(splitUrl[0] === 'intro' && splitUrl[1] === undefined)) {
+			if (this.$arrow !== null && splitUrl[0] !== '') {
 				this.$arrow.remove();
 				this.$arrow = null;
 			}
 
-			if ((splitUrl[1] || '').length > 0) {
-				this.navigateOpenDare(splitUrl[1]);
+			window.bla = this.exampleEditor;
+
+			if (splitUrl[0] === 'dare') {
+				this.exampleEditor.disable();
+				this.closeModal();
 			} else if (splitUrl[0] === 'full') {
+				this.exampleEditor.disable();
 				this.navigateFullEditor();
 			} else {
-				this.navigateCloseDare();
+				this.exampleEditor.enable();
+				this.closeModal();
+				this.updateCollections();
 			}
-		},
-
-		navigateOpenDare: function(_id) {
-			this.exampleEditor.disable();
-			this.closeModal();
-			if (this.dareId !== _id) {
-				this.dareId = _id;
-
-				this.delegate.getSync().getDareAndInstance(_id, (function(dare) {
-					this.instance = dare.instance;
-					this.modalUI.openModal();
-					new dares[dare.type + 'Dare'](this, this.modalUI, dare);
-
-					window.clearInterval(this.countInterval);
-					this.countInterval = window.setInterval(function() {
-						var time = parseInt(localStorage.getItem(dare.name + ' time') || 0, 10);
-						localStorage.setItem(dare.name + ' time', time+1);
-					}, 1000);
-				}).bind(this));
-			}
-		},
-
-		navigateCloseDare: function() {
-			this.closeModal();
-			this.exampleEditor.enable();
 		},
 
 		navigateFullEditor: function() {
@@ -156,7 +119,6 @@ module.exports = function(client) {
 				localStorage.setItem('initial-robot', '{"columns":8,"rows":8,"initialX":3,"initialY":4,"initialAngle":90,"mazeObjects":50,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,true,true,true,false,true,false],[false,true,false,false,true,false,false,true],[false,false,true,true,false,false,true,false],[false,true,true,false,false,false,false,false],[false,false,false,true,false,true,true,false],[false,false,true,false,true,true,false,false],[false,false,false,true,true,true,true,false]],"horizontalActive":[[false,true,false,false,true,false,false,true],[false,true,false,true,false,false,true,false],[false,true,true,false,true,false,true,false],[false,true,false,false,true,true,true,false],[false,false,true,true,false,true,false,true],[false,true,false,false,true,false,false,true],[false,true,true,true,false,false,false,true],[false,true,true,false,false,false,false,false]],"blockGoal":[[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}');
 			}
 
-			this.exampleEditor.disable();
 			this.modalUI.openModal();
 			this.fullEditor = this.modalUI.addEditor({text: localStorage.getItem('initial-code')});
 			this.fullEditor.setTextChangeCallback(function(text) {
@@ -172,15 +134,10 @@ module.exports = function(client) {
 		},
 
 		closeModal: function() {
-			if (this.dareId !== null) {
-				this.dareId = null;
-				this.modalUI.closeModal();
-			}
 			if (this.fullEditor !== null) {
 				this.fullEditor = null;
 				this.modalUI.closeModal();
 			}
-			window.clearInterval(this.countInterval);
 		}
 	};
 };

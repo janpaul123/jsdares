@@ -62,7 +62,8 @@ module.exports = function(client) {
 			this.$name = $('<span class="login-details-name"></span>');
 			this.$points = $('<span class="login-details-points"></span>');
 			this.$details = $('<div class="login-details btn"></div>');
-			this.$details.append(this.$name, $('<i class="icon icon-trophy"></i> '), this.$points);
+			this.$nameIcon = $('<i class="icon icon-user"></i>');
+			this.$details.append(this.$nameIcon, ' ', this.$name, $('<i class="icon icon-trophy"></i> '), this.$points);
 			this.$div.append(this.$logout, this.$details);
 
 			this.$logout.on('click', this.logoutHandler.bind(this));
@@ -77,6 +78,8 @@ module.exports = function(client) {
 				}
 				this.$name.text(data.screenname);
 				this.$points.text(data.points);
+				this.$nameIcon.toggleClass('icon-user', !data.admin);
+				this.$nameIcon.toggleClass('icon-globe', data.admin);
 			}
 			this.setTimeout(refreshSeconds*1000);
 		},

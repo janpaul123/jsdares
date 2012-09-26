@@ -89,7 +89,7 @@ module.exports = function(dares) {
 		setValue: function(score) {
 			this.$score.text(score);
 
-			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the "' + this.name + '" dare with ' + score + ' points on @jsdare!');
+			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the "' + this.name + '" dare with ' + score + ' points on @jsdares!');
 			var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
 			$twitter.click(function(event) {
 				event.preventDefault();
@@ -257,10 +257,8 @@ module.exports = function(dares) {
 		dare.initOptions = function(delegate, ui, options) {
 			this.delegate = delegate;
 			this.ui = ui;
-			this.options = options;
-			this.dareOptions = options.allDares[options.type];
-			// this.options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
-			console.log(this.options);
+			this.options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
+			this.dareOptions = this.options.allDares[options.type];
 			this.animation = null;
 			this.completed = this.options.instance.completed;
 			this.highscore = this.options.instance.highscore;
@@ -307,7 +305,7 @@ module.exports = function(dares) {
 			if (this.options.instance.text) {
 				this.editor.setText(this.options.instance.text);
 			}
-			this.editor.setTextChangeCallback(this.delegate.updateProgram.bind(this.delegate));
+			this.editor.setTextChangeCallback(this.updateProgram.bind(this));
 		};
 
 		dare.hasError = function() {
@@ -330,8 +328,16 @@ module.exports = function(dares) {
 				this.animation.addSegment(points, 5, this.animationHighscoreIncreaseCallback.bind(this));
 			}
 			if (this.completed) {
-				this.delegate.updateInstance(this.completed, this.highscore, this.editor.getText());
+				this.options.instance.completed = this.completed;
+				this.options.instance.highscore = this.highscore;
+				this.options.instance.text = this.editor.getText();
+				this.delegate.getSync().updateInstance(this.options.instance);
 			}
+		};
+
+		dare.updateProgram = function(text) {
+			this.options.instance.text = text;
+			this.delegate.getSync().updateProgram(this.options.instance);
 		};
 
 		dare.hasValidNumberOfLines = function() {

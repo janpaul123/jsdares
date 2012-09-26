@@ -78,7 +78,7 @@ module.exports = function(dares) {
 			this.$div.append(this.$resultCanvas);
 			this.resultContext = this.$resultCanvas[0].getContext('2d');
 
-			if (options.hidePreview) {
+			if (this.dareOptions.hidePreview) {
 				this.$originalCanvasContainer.hide();
 			}
 

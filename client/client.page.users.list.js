@@ -5,9 +5,9 @@ var applet = require('../jsmm-applet');
 var dares = require('../dares');
 
 module.exports = function(client) {
-	client.PageCreate = function() { return this.init.apply(this, arguments); };
-	client.PageCreate.prototype = {
-		type: 'PageCreate',
+	client.PageUsersList = function() { return this.init.apply(this, arguments); };
+	client.PageUsersList.prototype = {
+		type: 'PageUsersList',
 
 		init: function(delegate, $div) {
 			this.delegate = delegate;
@@ -19,7 +19,6 @@ module.exports = function(client) {
 		},
 
 		navigateTo: function(splitUrl) {
-			
 		}
 	};
 };

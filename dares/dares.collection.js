@@ -66,7 +66,8 @@ module.exports = function(dares) {
 				$item.on('click', this.itemClick.bind(this));
 
 				var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
-				for (var output in dare.outputs) {
+				for (var j=0; j<dare.outputs.length; j++) {
+					var output = dare.outputs[j];
 					if (this.icons[output] !== undefined) {
 						$name.append('<span class="dares-body-output"><i class="' + this.icons[output] + ' icon-white"></i> ' + output + '</span>');
 					}

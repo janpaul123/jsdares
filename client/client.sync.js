@@ -30,6 +30,10 @@ module.exports = function(client) {
 			this.apiGet('dareAndInstance', {_id: _id}, success);
 		},
 
+		getDareEdit: function(_id, success) {
+			this.apiGet('dareEdit', {_id: _id}, success);
+		},
+
 		updateProgram: function(instance) {
 			this.apiPostDelayed('program', instance);
 		},
