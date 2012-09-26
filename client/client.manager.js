@@ -61,6 +61,10 @@ module.exports = function(client) {
 		connectionSuccess: function(response) {
 			this.login.hideConnectionError();
 			if (response.loginData) {
+				if (this.loginData.loggedIn !== response.loginData.loggedIn) {
+					this.loginData = response.loginData; // already do this here for if the page requests it
+					this.refresh();
+				}
 				this.loginData = response.loginData;
 				this.login.update(this.loginData);
 				this.menu.showLocks(!this.loginData.loggedIn);
@@ -76,6 +80,11 @@ module.exports = function(client) {
 		stateChange: function() {
 			var state = this.history.getState();
 			this.urlChange(state.hash);
+		},
+
+		refresh: function() {
+			this.page.navigateTo(this.splitUrl);
+			this.navigateDare(this.splitUrl);
 		},
 
 		urlChange: function(url) {
@@ -101,9 +110,8 @@ module.exports = function(client) {
 				this.removePage();
 				this.page = new client[type](this, this.$div);
 			}
-			this.page.navigateTo(this.splitUrl);
 			this.menu.navigateTo(this.splitUrl);
-			this.navigateDare(this.splitUrl);
+			this.refresh();
 		},
 
 		navigateDare: function(splitUrl) {
