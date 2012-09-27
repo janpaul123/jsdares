@@ -4,7 +4,7 @@
 module.exports = function(shared) {
 	shared.validation = {
 		username: function(input) {
-			return (/^[a-zA-Z0-9_\-]+$/).test(input);
+			return (/^[a-zA-Z0-9_\-]+$/).test(input) && input.length > 2;
 		},
 
 		password: function(input) {
