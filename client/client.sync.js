@@ -46,6 +46,10 @@ module.exports = function(client) {
 			this.apiGet('daresAndInstancesAll', {}, success);
 		},
 
+		getUserByUsername: function(username, success) {
+			this.apiGet('userByUsername', {username: username}, success);
+		},
+
 		updateProgram: function(instance) {
 			this.apiPostDelayed('program', instance);
 		},

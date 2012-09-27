@@ -24,6 +24,7 @@ module.exports = function(client) {
 		remove: function() {
 			this.collectionPlayed.remove();
 			this.collectionAll.remove();
+			this.$div.html('');
 		},
 
 		navigateTo: function(splitUrl) {

@@ -67,13 +67,14 @@ module.exports = function(client) {
 			this.$logout = $('<button type="submit" class="btn login-logout">Logout</button>');
 			this.$name = $('<span class="login-details-name"></span>');
 			this.$points = $('<span class="login-details-points"></span>');
-			this.$details = $('<div class="login-details btn"></div>');
+			this.$details = $('<button class="login-details btn"></button>');
 			this.$nameIcon = $('<i class="icon icon-user"></i>');
 			this.$details.append(this.$nameIcon, ' ', this.$name, $('<i class="icon icon-trophy"></i> '), this.$points);
 			this.$connectionError = $('<i class="icon icon-exclamation-sign-color login-error hide"></i>');
 			this.$connectionError.tooltip({'title': 'Connection error', placement: 'bottom'});
 			this.$div.append(this.$logout, this.$details, this.$connectionError);
 
+			this.$details.on('click', this.detailsHandler.bind(this));
 			this.$logout.on('click', this.logoutHandler.bind(this));
 		},
 
@@ -88,6 +89,7 @@ module.exports = function(client) {
 				this.$points.text(data.points);
 				this.$nameIcon.toggleClass('icon-user', !data.admin);
 				this.$nameIcon.toggleClass('icon-globe', data.admin);
+				this.userLink = data.link;
 			}
 			this.setTimeout(refreshSeconds*1000);
 		},
@@ -115,6 +117,10 @@ module.exports = function(client) {
 
 		logoutHandler: function() {
 			this.delegate.getSync().logout();
+		},
+
+		detailsHandler: function() {
+			this.delegate.navigateTo('/superheroes/' + this.userLink);
 		},
 
 		registerHandler: function() {

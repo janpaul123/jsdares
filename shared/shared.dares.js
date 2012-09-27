@@ -89,6 +89,12 @@ module.exports = function(shared) {
 		}
 	};
 
+	shared.dares.userOptions = {
+		_id: {type: 'nosanitize', def: null},
+		admin: {type: 'nosanitize', def: null},
+		screenname: {type: 'nosanitize', def: null}
+	};
+
 	shared.dares.sanitizeInput = function(input, options) {
 		if (options.def !== undefined) {
 			return shared.dares.sanitizeItem(input, options);

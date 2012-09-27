@@ -71,7 +71,6 @@ module.exports = function(dares) {
 				$item.on('click', this.itemViewClick.bind(this));
 
 				var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
-				console.log(dare);
 				for (var j=0; j<dare.outputs.length; j++) {
 					var output = dare.outputs[j];
 					if (this.icons[output] !== undefined) {

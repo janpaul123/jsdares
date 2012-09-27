@@ -39,6 +39,7 @@ module.exports = function(server) {
 				.use('/get/daresAndInstancesNewest', this.getDaresAndInstancesNewest.bind(this))
 				.use('/get/daresAndInstancesByUserId', this.getDaresAndInstancesByUserId.bind(this))
 				.use('/get/daresAndInstancesPlayed', this.getDaresAndInstancesPlayed.bind(this))
+				.use('/get/userByUsername', this.getUserByUsername.bind(this))
 				.use('/post', connect.json())
 				.use('/post/program', this.postProgram.bind(this))
 				.use('/post/instance', this.postInstance.bind(this))
@@ -370,6 +371,18 @@ module.exports = function(server) {
 			});
 		},
 
+		getUserByUsername: function(req, res, next) {
+			this.tryCatch(req, res, function() {
+				if (req.query.username && shared.validation.username(req.query.username)) {
+					this.db.users.findOne({'auth.local.username': req.query.username.toLowerCase()}, this.existsCallback(req, res, function(user) {
+						this.end(req, res, shared.dares.sanitizeInput(user, shared.dares.userOptions));
+					}));
+				} else {
+					this.error(req, res, 400, 'Invalid username');
+				}
+			});
+		},
+
 		getCheckEmail: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				if (req.query.email && shared.validation.email(req.query.email)) {
@@ -412,7 +425,7 @@ module.exports = function(server) {
 							newUserId();
 						} else {
 							if (user.auth && user.auth.local) {
-								req.session.loginData = {userId: req.session.userId, loggedIn: true, screenname: user.screenname, points: 0};
+								req.session.loginData = {userId: req.session.userId, loggedIn: true, screenname: user.screenname, points: 0, link: user.auth.local.username};
 							} else {
 								req.session.loginData = {userId: req.session.userId};
 							}

@@ -20,6 +20,7 @@ module.exports = function(client) {
 
 		remove: function() {
 			this.collectionMine.remove();
+			this.$div.html('');
 		},
 
 		navigateTo: function(splitUrl) {
