@@ -34,6 +34,18 @@ module.exports = function(client) {
 			this.apiGet('dareEdit', {_id: _id}, success);
 		},
 
+		getDaresAndInstancesByUserId: function(userId, success) {
+			this.apiGet('daresAndInstancesByUserId', {userId: userId}, success);
+		},
+
+		getDaresAndInstancesPlayed: function(userId, success) {
+			this.apiGet('daresAndInstancesPlayed', {userId: userId}, success);
+		},
+
+		getDaresAndInstancesAll: function(success) {
+			this.apiGet('daresAndInstancesAll', {}, success);
+		},
+
 		updateProgram: function(instance) {
 			this.apiPostDelayed('program', instance);
 		},
@@ -43,7 +55,7 @@ module.exports = function(client) {
 		},
 
 		createDare: function(success, error) {
-			this.apiPost('dareCreate', success, error);
+			this.apiPost('dareCreate', {}, success, error);
 		},
 
 		updateDare: function(dare, success, error) {
@@ -81,6 +93,7 @@ module.exports = function(client) {
 				data: data || {},
 				dataType: 'json',
 				success: (function(response) {
+					if (response.loginData) this.delegate.updateLoginData(response.loginData);
 					if (success) {
 						if (success(response) !== false) this.delegate.connectionSuccess(response);
 					} else {
@@ -105,6 +118,7 @@ module.exports = function(client) {
 				contentType: 'application/json; charset=utf-8',
 				dataType: 'json',
 				success: (function(response) {
+					if (response.loginData) this.delegate.updateLoginData(response.loginData);
 					if (success) {
 						if (success(response) !== false) this.delegate.connectionSuccess(response);
 					} else {

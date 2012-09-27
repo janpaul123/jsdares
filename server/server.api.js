@@ -35,9 +35,14 @@ module.exports = function(server) {
 				.use('/get/checkUsername', this.getCheckUsername.bind(this))
 				.use('/get/checkEmail', this.getCheckEmail.bind(this))
 				.use('/get/loginData', this.getLoginData.bind(this))
+				.use('/get/daresAndInstancesAll', this.getDaresAndInstancesAll.bind(this))
+				.use('/get/daresAndInstancesNewest', this.getDaresAndInstancesNewest.bind(this))
+				.use('/get/daresAndInstancesByUserId', this.getDaresAndInstancesByUserId.bind(this))
+				.use('/get/daresAndInstancesPlayed', this.getDaresAndInstancesPlayed.bind(this))
 				.use('/post', connect.json())
 				.use('/post/program', this.postProgram.bind(this))
 				.use('/post/instance', this.postInstance.bind(this))
+				.use('/post/dareCreate', this.postDareCreate.bind(this))
 				.use('/post/dareEdit', this.postDareEdit.bind(this))
 				.use('/post/register', this.postRegister.bind(this))
 				.use('/post/login', this.postLogin.bind(this))
@@ -64,22 +69,45 @@ module.exports = function(server) {
 								for (var i=0; i<collection.dareIds.length && !collection.dareIds[i].equals(dare._id); i++) continue;
 								return i;
 							});
-							this.db.instances.findItems({dareId: {$in: collection.dareIds}, userId: req.session.userId}, this.errorCallback(req, res, function(instances) {
-								for (var i=0; i<collection.dares.length; i++) {
-									collection.dares[i].instance = {};
-									for (var j=0; j<instances.length; j++) {
-										if (instances[j].dareId.equals(collection.dares[i]._id)) {
-											collection.dares[i].instance = instances[j];
-											break;
-										}
-									}
-								}
+							this.addInstances(req, res, collection.dares, false, function() {
 								this.end(req, res, collection);
-							}));
+							});
 						}));
 					}));
 				});
 			});
+		},
+
+		addInstances: function(req, res, dares, filter, callback) {
+			this.db.instances.findItems({dareId: {$in: _.pluck(dares, '_id')}, userId: req.session.userId}, this.errorCallback(req, res, function(instances) {
+				for (var i=0; i<dares.length; i++) {
+					dares[i].instance = null;
+					for (var j=0; j<instances.length; j++) {
+						if (instances[j].dareId.equals(dares[i]._id)) {
+							dares[i].instance = instances[j];
+							break;
+						}
+					}
+				}
+				if (filter) dares = _.filter(dares, function(dare) { return dare.instance !== null; });
+				(callback.bind(this))(dares);
+			}));
+		},
+
+		addDares: function(req, res, items, filter, callback) {
+			this.db.dares.findItems({_id: {$in: _.pluck(items, 'dareId')}, userId: req.session.userId}, this.errorCallback(req, res, function(dares) {
+				for (var i=0; i<items.length; i++) {
+					items[i].dare = null;
+					for (var j=0; j<dares.length; j++) {
+						if (items[i].dareId.equals(dares[j]._id)) {
+							items[i].dare = dares[j];
+							break;
+						}
+					}
+				}
+				if (filter) items = _.filter(items, function(item) { return item.dare !== null; });
+				(callback.bind(this))(items);
+			}));
 		},
 
 		getDare: function(req, res, next) {
@@ -126,6 +154,54 @@ module.exports = function(server) {
 			});
 		},
 
+		getDaresAndInstancesAll: function(req, res, next) {
+			this.tryCatch(req, res, function() {
+				// limit to 500 to be sure
+				this.db.dares.findItems({}, {'sort': 'date', limit: 500}, this.existsCallback(req, res, function(array) {
+					this.addInstances(req, res, array, false, function(array) {
+						this.end(req, res, array);
+					});
+				}));
+			});
+		},
+
+		getDaresAndInstancesNewest: function(req, res, next) {
+			this.tryCatch(req, res, function() {
+				this.db.dares.findItems({}, {'sort': 'date', limit: 10}, this.existsCallback(req, res, function(array) {
+					this.addInstances(req, res, array, false, function(array) {
+						this.end(req, res, array);
+					});
+				}));
+			});
+		},
+
+		getDaresAndInstancesByUserId: function(req, res, next) {
+			this.tryCatch(req, res, function() {
+				this.db.dares.findItems({userId: req.query.userId}, this.existsCallback(req, res, function(array) {
+					this.addInstances(req, res, array, false, function(array) {
+						this.end(req, res, array);
+					});
+				}));
+			});
+		},
+
+		getDaresAndInstancesPlayed: function(req, res, next) {
+			this.tryCatch(req, res, function() {
+				this.db.instances.findItems({userId: req.query.userId}, this.existsCallback(req, res, function(array) {
+					this.addDares(req, res, array, true, function(array) {
+						var dares = [];
+						for (var i=0; i<array.length; i++) {
+							var dare = array[i].dare;
+							array[i].dare = undefined;
+							dare.instance = array[i];
+							dares.push(dare);
+						}
+						this.end(req, res, dares);
+					});
+				}));
+			});
+		},
+
 		postProgram: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.body._id, function(id) {
@@ -156,6 +232,8 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				var dare = shared.dares.sanitizeInput({}, shared.dares.dareOptionsEdit);
 				dare.userId = req.session.userId;
+				console.log(dare);
+
 				this.db.dares.insert(
 					dare,
 					{safe: true},
@@ -322,7 +400,7 @@ module.exports = function(server) {
 					req.session.userId = uuid.v4();
 					this.db.users.insert({_id: req.session.userId, ips: {initial : this.getIP(req)}}, {safe:true}, this.errorCallback(req, res, function(users) {
 						console.log('New session: ' + req.session.userId);
-						req.session.loginData = {admin: false};
+						req.session.loginData = {userId: req.session.userId, admin: false};
 						next();
 						pause.resume();
 					}));
@@ -334,9 +412,9 @@ module.exports = function(server) {
 							newUserId();
 						} else {
 							if (user.auth && user.auth.local) {
-								req.session.loginData = {loggedIn: true, screenname: user.screenname, points: 0};
+								req.session.loginData = {userId: req.session.userId, loggedIn: true, screenname: user.screenname, points: 0};
 							} else {
-								req.session.loginData = {};
+								req.session.loginData = {userId: req.session.userId};
 							}
 							req.session.loginData.admin = user.admin || false;
 							next();

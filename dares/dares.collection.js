@@ -14,53 +14,48 @@ module.exports = function(dares) {
 			this.$header = $('<div class="dares-header"></div>');
 			this.$collection.append(this.$header);
 
+			this.$buttons = $('<div class="dares-header-buttons"></div>');
+			this.$header.append(this.$buttons);
+
+			this.$difficulty = $('<div class="dares-header-difficulty"></div>');
+			this.$header.append(this.$difficulty);
+
+			this.$title = $('<div class="dares-header-title"></div>');
+			this.$header.append(this.$title);
+
 			this.$body = $('<div class="dares-body"></div>');
 			this.$collection.append(this.$body);
 
 			this.content = null;
+			this.userId = null;
 		},
 
 		remove: function() {
 			this.$header.remove();
 			this.$body.remove();
+			this.$buttons.remove();
 			this.$collection.removeClass('dares-collection');
 		},
 
-		updateContent: function(content) {
+		addButton: function(html, callback) {
+			var $button = $('<button class="btn">' + html + '</button>');
+			$button.on('click', callback);
+			this.$buttons.append($button);
+		},
+
+		update: function(content, userId) {
 			this.content = content;
+			this.userId = userId;
 			this.render();
 		},
 
-		updateWithInstance: function(instance) {
-			if (this.content !== null) {
-				for (var i=0; i<this.content.dares.length; i++) {
-					if (this.content.dares[i]._id === instance.dareId) {
-						this.content.dares[i].instance = instance;
-						this.render();
-						break;
-					}
-				}
-			}
-		},
-
 		render: function() {
-			this.$header.html('');
-
-			if (this.content.title) {
-				var $title = $('<div class="dares-header-title">' + this.content.title + '</div>');
-				this.$header.append($title);
+			this.$difficulty.html('');
+			for (var d=0; d<(this.content.difficulty || 0); d++) {
+				this.$difficulty.append('<i class="icon-star-yellow"></i>');
 			}
 
-			if (this.content.difficulty) {
-				var $difficulty = $('<div class="dares-header-difficulty"></div>');
-				for (var d=0; d<this.content.difficulty; d++) {
-					$difficulty.append('<i class="icon-star-yellow"></i>');
-				}
-				this.$header.append($difficulty);
-			}
-
-			this.$collection.toggleClass('dares-collection-edit', this.content.edit);
-			this.$collection.toggleClass('dares-collection-view', !this.content.edit);
+			this.$title.text(this.content.title || '');
 
 			this.$body.children('.dares-body-item').remove(); // prevent $.data leaks
 			for (var i=0; i<this.content.dares.length; i++) {
@@ -68,7 +63,7 @@ module.exports = function(dares) {
 
 				var $item = $('<div class="dares-body-item"></div>');
 
-				if (dare.instance.completed) {
+				if (dare.instance && dare.instance.completed) {
 					$item.addClass('dares-body-completed');
 				}
 
@@ -76,6 +71,7 @@ module.exports = function(dares) {
 				$item.on('click', this.itemViewClick.bind(this));
 
 				var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
+				console.log(dare);
 				for (var j=0; j<dare.outputs.length; j++) {
 					var output = dare.outputs[j];
 					if (this.icons[output] !== undefined) {
@@ -83,11 +79,14 @@ module.exports = function(dares) {
 					}
 				}
 				$item.append($name);
-				$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.instance.highscore +'</span>');
 
-				var $editButton = $('<button class="btn dares-body-edit">Edit</button>');
-				$editButton.on('click', this.itemEditClick.bind(this));
-				$item.append($editButton);
+				if (this.userId === dare.userId) {
+					var $editButton = $('<button class="btn dares-body-edit">Edit</button>');
+					$editButton.on('click', this.itemEditClick.bind(this));
+					$item.append($editButton);
+				} else if (dare.instance) {
+					$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.instance.highscore +'</span>');
+				}
 
 				this.$body.append($item);
 			}

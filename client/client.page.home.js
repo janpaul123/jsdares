@@ -79,15 +79,13 @@ module.exports = function(client) {
 
 		updateCollections: function() {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
-				if (content.loginData.admin) content.edit = true;
-				this.collection1.updateContent(content);
+				this.collection1.update(content, this.delegate.getUserId());
 				if (!content.dares[0].instance.completed) {
 					if (this.$arrow !== null) this.$arrow.show();
 				}
 			}).bind(this));
 			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', (function(content) {
-				if (content.loginData.admin) content.edit = true;
-				this.collection2.updateContent(content);
+				this.collection2.update(content, this.delegate.getUserId());
 			}).bind(this));
 		},
 

@@ -8,6 +8,7 @@ var pageConstructors = [
 	{regex: /^dare/, type: 'PageHome'},
 	{regex: /^edit/, type: 'PageHome'},
 	{regex: /^full/, type: 'PageHome'},
+	{regex: /^learn/, type: 'PageLearn'},
 	{regex: /^create/, type: 'PageCreate'},
 	{regex: /^superheroes$/, type: 'PageUsersList'},
 	{regex: /^superheroes/, type: 'PageUsersSingle'}
@@ -40,6 +41,10 @@ module.exports = function(client) {
 			return this.loginData;
 		},
 
+		getUserId: function() {
+			return this.loginData ? this.loginData.userId : undefined;
+		},
+
 		navigateTo: function(url) {
 			this.addHistory(url);
 		},
@@ -60,15 +65,16 @@ module.exports = function(client) {
 
 		connectionSuccess: function(response) {
 			this.login.hideConnectionError();
-			if (response.loginData) {
-				if (this.loginData.loggedIn !== response.loginData.loggedIn) {
-					this.loginData = response.loginData; // already do this here for if the page requests it
-					this.refresh();
-				}
-				this.loginData = response.loginData;
-				this.login.update(this.loginData);
-				this.menu.showLocks(!this.loginData.loggedIn);
+		},
+
+		updateLoginData: function(loginData) {
+			if (this.loginData.loggedIn !== loginData.loggedIn) {
+				this.loginData = loginData; // already do this here for if the page requests it
+				this.refresh();
 			}
+			this.loginData = loginData;
+			this.login.update(this.loginData);
+			this.menu.showLocks(!this.loginData.loggedIn);
 		},
 
 		addHistory: function(url) {
