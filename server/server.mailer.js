@@ -28,7 +28,7 @@ module.exports = function(server) {
 		send: function(type, data) {
 			var mailOptions = {
 				from: this.options.from.name + '<' + this.options.from.email + '>',
-				to: data.to.name + '<' + data.to.email + '>',
+				to: data.to.name + ' <' + data.to.email + '>',
 				subject: data.subject,
 				text: mustache.render(this.templates['base-text'], {subject: data.subject, content: mustache.render(this.templates[type + '-text'], data)}),
 				html: mustache.render(this.templates['base-html'], {subject: data.subject, content: mustache.render(this.templates[type + '-html'], data)})
