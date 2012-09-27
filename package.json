@@ -29,7 +29,7 @@
     "jison", "browserify"
   ],
   "engines": {
-    "node": "0.8.9",
+    "node": "0.8.10",
     "npm":  "1.1.61"
   }
 }
