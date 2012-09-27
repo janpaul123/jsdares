@@ -24,7 +24,11 @@ module.exports = function(client) {
 		},
 
 		navigateTo: function(splitUrl) {
-			this.updateCollections();
+			if (!this.delegate.getUserId()) {
+				this.delegate.navigateTo('/');
+			} else {
+				this.updateCollections();
+			}
 		},
 
 		updateCollections: function() {

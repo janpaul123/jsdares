@@ -131,7 +131,7 @@ module.exports = function(server) {
 									dare.instance = instance;
 									this.end(req, res, dare);
 								} else {
-									this.db.instances.insert({ userId: req.session.userId, dareId: dare._id }, {safe: true}, this.errorCallback(req, res, function(instances) {
+									this.db.instances.insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, {safe: true}, this.errorCallback(req, res, function(instances) {
 										dare.instance = instances[0];
 										this.end(req, res, dare);
 									}));
@@ -158,7 +158,7 @@ module.exports = function(server) {
 		getDaresAndInstancesAll: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
-				this.db.dares.findItems({}, {'sort': 'date', limit: 500}, this.existsCallback(req, res, function(array) {
+				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
 					this.addInstances(req, res, array, false, function(array) {
 						this.end(req, res, array);
 					});
@@ -168,7 +168,7 @@ module.exports = function(server) {
 
 		getDaresAndInstancesNewest: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.dares.findItems({}, {'sort': 'date', limit: 10}, this.existsCallback(req, res, function(array) {
+				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 10}, this.existsCallback(req, res, function(array) {
 					this.addInstances(req, res, array, false, function(array) {
 						this.end(req, res, array);
 					});
@@ -178,7 +178,8 @@ module.exports = function(server) {
 
 		getDaresAndInstancesByUserId: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.dares.findItems({userId: req.query.userId}, this.existsCallback(req, res, function(array) {
+				// limit to 500 to be sure
+				this.db.dares.findItems({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
 					this.addInstances(req, res, array, false, function(array) {
 						this.end(req, res, array);
 					});
@@ -188,7 +189,7 @@ module.exports = function(server) {
 
 		getDaresAndInstancesPlayed: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.instances.findItems({userId: req.query.userId}, this.existsCallback(req, res, function(array) {
+				this.db.instances.findItems({userId: req.query.userId}, {'sort': [['modifiedTime', 'desc']]}, this.existsCallback(req, res, function(array) {
 					this.addDares(req, res, array, true, function(array) {
 						var dares = [];
 						for (var i=0; i<array.length; i++) {
@@ -207,7 +208,7 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.body._id, function(id) {
 					this.db.instances.findItems({_id: id}, this.userIdCallback(req, res, function(array) {
-						this.db.instances.update({_id: id}, {$set: {text: req.body.text}});
+						this.db.instances.update({_id: id}, {$set: {text: req.body.text, modifiedTime: new Date()}});
 						this.end(req, res);
 					}));
 				});
@@ -220,7 +221,7 @@ module.exports = function(server) {
 					this.db.instances.findItems({_id: id}, this.userIdCallback(req, res, function(array) {
 						this.db.instances.update(
 							{_id: id},
-							{$set: {text: req.body.text, completed: req.body.completed, highscore: req.body.highscore}},
+							{$set: {text: req.body.text, completed: req.body.completed, highscore: req.body.highscore, modifiedTime: new Date(), submittedTime: new Date()}},
 							{safe: true},
 							this.postResponseCallback(req, res)
 						);
@@ -233,7 +234,8 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				var dare = shared.dares.sanitizeInput({}, shared.dares.dareOptionsEdit);
 				dare.userId = req.session.userId;
-				console.log(dare);
+				dare.createdTime = new Date();
+				dare.modifiedTime = new Date();
 
 				this.db.dares.insert(
 					dare,
@@ -252,6 +254,7 @@ module.exports = function(server) {
 		postDareEdit: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				var dare = shared.dares.sanitizeInput(req.body, shared.dares.dareOptionsEdit);
+				dare.modifiedTime = new Date();
 				this.createObjectId(req, res, dare._id, function(id) {
 					delete dare._id;
 					this.db.dares.findOne({_id: id}, this.userIdCallback(req, res, function(array) {
@@ -297,7 +300,8 @@ module.exports = function(server) {
 													'auth.local.username': req.body.username.toLowerCase(),
 													'auth.local.hash': hash,
 													'auth.local.salt': salt,
-													'ips.registration' : this.getIP(req)
+													'ips.registration' : this.getIP(req),
+													'registeredTime': new Date()
 												}},
 												{safe: true},
 												this.errorCallback(req, res, function(doc) {
@@ -325,7 +329,7 @@ module.exports = function(server) {
 							if (hash === user.auth.local.hash) {
 								this.db.users.update(
 									{_id: user._id},
-									{$set: {'ips.login' : this.getIP(req)}}
+									{$set: {'ips.login' : this.getIP(req), 'loginTime': new Date()}}
 								);
 								req.session.userId = user._id; // TODO: merge with current user id
 								this.setUserId(req, res, (function() {
@@ -411,7 +415,7 @@ module.exports = function(server) {
 
 				var newUserId = (function() {
 					req.session.userId = uuid.v4();
-					this.db.users.insert({_id: req.session.userId, ips: {initial : this.getIP(req)}}, {safe:true}, this.errorCallback(req, res, function(users) {
+					this.db.users.insert({_id: req.session.userId, createdTime: new Date(), ips: {initial : this.getIP(req)}}, {safe:true}, this.errorCallback(req, res, function(users) {
 						console.log('New session: ' + req.session.userId);
 						req.session.loginData = {userId: req.session.userId, admin: false};
 						next();

@@ -80,7 +80,7 @@ module.exports = function(client) {
 		updateCollections: function() {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
 				this.collection1.update(content, this.delegate.getUserId());
-				if (!content.dares[0].instance.completed) {
+				if (!content.dares[0].instance || !content.dares[0].instance.completed) {
 					if (this.$arrow !== null) this.$arrow.show();
 				}
 			}).bind(this));
