@@ -92,7 +92,8 @@ module.exports = function(shared) {
 	shared.dares.userOptions = {
 		_id: {type: 'nosanitize', def: null},
 		admin: {type: 'nosanitize', def: null},
-		screenname: {type: 'nosanitize', def: null}
+		screenname: {type: 'nosanitize', def: null},
+		link: {type: 'nosanitize', def: null}
 	};
 
 	shared.dares.sanitizeInput = function(input, options) {

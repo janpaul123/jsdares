@@ -50,6 +50,10 @@ module.exports = function(client) {
 			this.apiGet('userByUsername', {username: username}, success);
 		},
 
+		getUsersAll: function(success) {
+			this.apiGet('usersAll', {}, success);
+		},
+
 		updateProgram: function(instance) {
 			this.apiPostDelayed('program', instance);
 		},

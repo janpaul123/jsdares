@@ -40,6 +40,7 @@ module.exports = function(server) {
 				.use('/get/daresAndInstancesByUserId', this.getDaresAndInstancesByUserId.bind(this))
 				.use('/get/daresAndInstancesPlayed', this.getDaresAndInstancesPlayed.bind(this))
 				.use('/get/userByUsername', this.getUserByUsername.bind(this))
+				.use('/get/usersAll', this.getUsersAll.bind(this))
 				.use('/post', connect.json())
 				.use('/post/program', this.postProgram.bind(this))
 				.use('/post/instance', this.postInstance.bind(this))
@@ -296,6 +297,7 @@ module.exports = function(server) {
 												{_id: req.session.userId},
 												{$set: {
 													'screenname': req.body.username,
+													'link': req.body.username,
 													'auth.local.email': req.body.email.toLowerCase(),
 													'auth.local.username': req.body.username.toLowerCase(),
 													'auth.local.hash': hash,
@@ -387,6 +389,19 @@ module.exports = function(server) {
 			});
 		},
 
+		getUsersAll: function(req, res, next) {
+			this.tryCatch(req, res, function() {
+				// limit to 50 for now
+				this.db.users.findItems({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 50}, this.existsCallback(req, res, function(array) {
+					var users = [];
+					for (var i=0; i<array.length; i++) {
+						users.push(shared.dares.sanitizeInput(array[i], shared.dares.userOptions));
+					}
+					this.end(req, res, users);
+				}));
+			});
+		},
+
 		getCheckEmail: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				if (req.query.email && shared.validation.email(req.query.email)) {
@@ -429,7 +444,7 @@ module.exports = function(server) {
 							newUserId();
 						} else {
 							if (user.auth && user.auth.local) {
-								req.session.loginData = {userId: req.session.userId, loggedIn: true, screenname: user.screenname, points: 0, link: user.auth.local.username};
+								req.session.loginData = {userId: req.session.userId, loggedIn: true, screenname: user.screenname, points: 0, link: user.link};
 							} else {
 								req.session.loginData = {userId: req.session.userId};
 							}
