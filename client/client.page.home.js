@@ -19,7 +19,7 @@ module.exports = function(client) {
 			this.$previewText = $('<div class="previewText"><button class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-user"></i> JanPaul123</span></button><p>Welcome to the <strong>private preview</strong> of <em>Javascript dares</em>. My name is Jan Paul, and I\'m trying to create a platform for learning  programming. For this, <strong>I need your help</strong>!</p> <ul><li>If you <strong>know programming</strong>, please help by creating exercises, or <em>dares</em>. These can range from an introductory level, to complex algorithmic challenges. Right now the dares editor is very rudimentary, but I\'ll work hard to improve this.</li><li>If you <strong>don\'t know programming</strong>, you can help too! Please try the introductory dares at the bottom of this page, and give me feedback about what you did and did not like. Of course, you can also try the dares that other people make!</li></ul><p>I truly believe that this is a great opportunity to work on an awesome project together. We can all create the next generation programming course this way. Join me, tell your friends, and let\'s change the world!</p><div class="volunteers"><strong>Superheroes registered so far:</strong> <span class="volunteers-superheroes"></span></div></div>');
 			this.$div.append(this.$previewText);
 
-			this.$previewText.find('button').on('click', (function() { this.delegate.navigateTo('/superheroes/janpaul123'); }).bind(this));
+			this.$previewText.find('.janpaul123').on('click', (function() { this.delegate.navigateTo('/superheroes/janpaul123'); }).bind(this));
 
 			this.$superheroes = this.$previewText.find('.volunteers-superheroes');
 
@@ -27,9 +27,10 @@ module.exports = function(client) {
 				if (users.length <= 1) this.$superheroes.text('none...');
 				for (var i=0; i<users.length; i++) {
 					var user = users[i];
+					var link = user.link;
 					if (user.screenname !== 'JanPaul123') {
 						var $button = $('<button class="btn"><i class="icon icon-user"></i> ' + user.screenname + '</button>');
-						$button.on('click', (function() { this.delegate.navigateTo('/superheroes/' + user.link); }).bind(this));
+						$button.on('click', (function() { this.delegate.navigateTo('/superheroes/' + link); }).bind(this));
 						this.$superheroes.append($button);
 					}
 				}
