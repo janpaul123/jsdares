@@ -23,6 +23,10 @@ module.exports = function(client) {
 
 			this.$superheroes = this.$previewText.find('.volunteers-superheroes');
 
+			var navigateToUser = (function(link) {
+				return (function() { this.delegate.navigateTo('/superheroes/' + link); }).bind(this);
+			}).bind(this);
+
 			this.delegate.getSync().getUsersAll((function(users) {
 				if (users.length <= 1) this.$superheroes.text('none...');
 				for (var i=0; i<users.length; i++) {
@@ -30,7 +34,7 @@ module.exports = function(client) {
 					var link = user.link;
 					if (user.screenname !== 'JanPaul123') {
 						var $button = $('<button class="btn"><i class="icon icon-user"></i> ' + user.screenname + '</button>');
-						$button.on('click', (function() { this.delegate.navigateTo('/superheroes/' + link); }).bind(this));
+						$button.on('click', navigateToUser(link));
 						this.$superheroes.append($button);
 					}
 				}
