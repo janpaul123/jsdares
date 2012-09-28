@@ -133,7 +133,11 @@ module.exports = function(dares) {
 		reload: function() {
 			this.refresh();
 			this.ui.removeOutputs();
-			this.ui.loadOutputs(this.options.outputs, this.options.allOutputs);
+
+			var optionsCopy = JSON.parse(JSON.stringify(this.options));
+			optionsCopy.allOutputs['robot'].readOnly = false;
+			this.ui.loadOutputs(optionsCopy.outputs, optionsCopy.allOutputs);
+
 			var robot = this.ui.getOutput('robot');
 			if (robot) {
 				robot.setStateChangeCallback(this.robotStateChanged.bind(this));
@@ -186,6 +190,7 @@ module.exports = function(dares) {
 			}
 			this.typeEditors[id].activate();
 			this.currentTypeId = id;
+			this.options.type = id;
 			this.$dareContainerArrow.css('left', this.$typeButtons[id].position().left+this.$typeButtons[id].outerWidth()/2);
 
 			var newOutputs = [];
@@ -208,9 +213,11 @@ module.exports = function(dares) {
 				this.options.outputs = [];
 				for (var name2 in this.$outputButtons) {
 					if (this.$outputButtons[name2].hasClass('active') && name2 !== 'global') {
+						console.log(name2);
 						this.options.outputs.push(name2);
 					}
 				}
+				console.log(this.options.outputs);
 				if (index < 0) {
 					this.selectOutput(name);
 				} else if (this.options.outputs.length > index-1 && index > 0) {
