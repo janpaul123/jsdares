@@ -19,6 +19,15 @@ module.exports = function(server) {
 		database.bind('dares');
 		database.bind('instances');
 
+		var noCache = function(req, res, next) {
+			res.on('header', function(header) {
+				res.setHeader('Cache-Control', 'private, max-age=0');
+				res.setHeader('Expires', 'Thu, 01 Jan 1970 00:00:00 GMT');
+				res.setHeader('Pragma', 'no-cache');
+			});
+			next();
+		};
+
 		database.open(function(err, db) {
 			if (err) {
 				console.log('MongoDB error:', err);
@@ -30,7 +39,8 @@ module.exports = function(server) {
 			var app = connect();
 			if (options.logs.requests) app.use(connect.logger('tiny'));
 
-			app.use('/api', api.getMiddleware())
+			app.use(noCache)
+				.use('/api', api.getMiddleware())
 				.use(lessMiddleware(options.less))
 				.use(browserify(options.browserify))
 				.use('', function(req, res, next) {
