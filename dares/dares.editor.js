@@ -2,6 +2,7 @@
 "use strict";
 
 var shared = require('../shared');
+var applet = require('../jsmm-applet');
 
 var matchDareType = {
 	RobotGoal: {name: 'robot', icon: 'icon-th', outputs: ['robot', 'global'], tooltip: 'Robot has to visit all the goal squares, in any order'},
