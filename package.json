@@ -1,11 +1,11 @@
 {
-  "name": "jsdare",
+  "name": "jsdares",
   "preferGlobal": "false",
   "version": "0.1.0",
   "author": "Jan Paul Posma <jsmm@janpaulposma.nl>",
   "description": "",
   "keywords": [
-    "jsdare", "jsmm"
+    "jsdares", "jsmm", "js--", "JavaScript", "dares"
   ],
   "dependencies": {
     "jison"          : "0.3.5",

@@ -21,7 +21,7 @@ module.exports = function(server) {
 
 		getMiddleware: function() {
 			return connect()
-				.use(connect.cookieParser('i love banana bread!'))
+				.use(connect.cookieParser(this.options.cookieSecret))
 				.use(connect.cookieSession())
 				.use(this.setUserId.bind(this));
 		},
