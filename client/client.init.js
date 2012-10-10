@@ -9,5 +9,10 @@ module.exports = function(client) {
 			event.preventDefault();
 			manager.navigateTo('/');
 		});
+
+		$('#footer-about').on('click', function(event) {
+			event.preventDefault();
+			manager.navigateTo('/about');
+		});
 	};
 };

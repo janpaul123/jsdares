@@ -7,7 +7,7 @@ var uuid = require('node-uuid');
 var lessMiddleware = require('less-middleware');
 var browserify = require('browserify');
 var fs = require('fs');
-var mainUrls = ['intro', 'dare', 'edit', 'full', 'learn', 'create', 'superheroes'];
+var mainUrls = ['intro', 'dare', 'edit', 'full', 'learn', 'create', 'superheroes', 'about'];
 
 module.exports = function(server) {
 	server.init = function(options) {

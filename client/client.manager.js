@@ -8,6 +8,7 @@ var pageConstructors = [
 	{regex: /^dare/, type: 'PageHome'},
 	{regex: /^edit/, type: 'PageHome'},
 	{regex: /^full/, type: 'PageHome'},
+	{regex: /^about/, type: 'PageAbout'},
 	{regex: /^learn/, type: 'PageLearn'},
 	{regex: /^create/, type: 'PageCreate'},
 	{regex: /^superheroes$/, type: 'PageUsersList'},

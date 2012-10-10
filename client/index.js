@@ -9,6 +9,7 @@ require('./client.menu.header')(client);
 require('./client.sync')(client);
 require('./client.manager')(client);
 require('./client.page.home')(client);
+require('./client.page.about')(client);
 require('./client.page.create')(client);
 require('./client.page.learn')(client);
 require('./client.page.users.list')(client);
