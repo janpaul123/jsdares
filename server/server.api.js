@@ -15,17 +15,15 @@ var localAuth = {
 module.exports = function(server) {
 	server.API = function() { return this.init.apply(this, arguments); };
 	server.API.prototype = {
-		init: function(options, db, mailer) {
+		init: function(options, objects) {
 			this.options = options;
-			this.db = db;
-			this.mailer = mailer;
+			this.db = objects.database;
+			this.mailer = objects.mailer;
+			this.common = objects.common;
 		},
 
 		getMiddleware: function() {
 			return connect()
-				.use(connect.cookieParser('i love banana bread!'))
-				.use(connect.cookieSession())
-				.use(this.setUserId.bind(this))
 				.use('/get', connect.query())
 				.use('/get/collection', this.getCollection.bind(this))
 				.use('/get/collectionAndDaresAndInstances', this.getCollectionAndDaresAndInstances.bind(this))
@@ -65,7 +63,7 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
 					this.db.collections.findById(id, this.errorCallback(req, res, function(collection) {
-						if (!collection) this.error(req, res, 404);
+						if (!collection) this.common.error(req, res, 404);
 						else this.db.dares.findItems({_id: {$in: collection.dareIds}}, this.errorCallback(req, res, function(dares) {
 							collection.dares = _.sortBy(dares, function(dare) {
 								for (var i=0; i<collection.dareIds.length && !collection.dareIds[i].equals(dare._id); i++) continue;
@@ -139,7 +137,7 @@ module.exports = function(server) {
 								}
 							}));
 						} else {
-							this.error(req, res, 404);
+							this.common.error(req, res, 404);
 						}
 					}));
 				});
@@ -243,7 +241,7 @@ module.exports = function(server) {
 					{safe: true},
 					this.userIdCallback(req, res, function(dares) {
 						if (dares.length !== 1) {
-							this.error(req, res, 'When creating a new dare, not one dare inserted: ' + dares.length);
+							this.common.error(req, res, 'When creating a new dare, not one dare inserted: ' + dares.length);
 						} else {
 							this.end(req, res, {_id: dares[0]._id});
 						}
@@ -274,21 +272,21 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				this.db.users.findById(req.session.userId, this.errorCallback(req, res, function(user) {
 					if (!user) {
-						this.error(req, res, 404);
+						this.common.error(req, res, 404);
 					} else if (!req.body.username || !shared.validation.username(req.body.username)) {
-						this.error(req, res, 400, 'Invalid username');
+						this.common.error(req, res, 400, 'Invalid username');
 					} else if (!req.body.password || !shared.validation.password(req.body.password)) {
-						this.error(req, res, 400, 'Invalid password');
+						this.common.error(req, res, 400, 'Invalid password');
 					} else if (!req.body.email || !shared.validation.email(req.body.email)) {
-						this.error(req, res, 400, 'Invalid email');
+						this.common.error(req, res, 400, 'Invalid email');
 					} else {
 						this.db.users.findOne({'auth.local.username': req.body.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
 							if (user) {
-								this.error(req, res, 400, 'Username already exists');
+								this.common.error(req, res, 400, 'Username already exists');
 							} else {
 								this.db.users.findOne({'auth.local.email': req.body.email.toLowerCase()}, this.errorCallback(req, res, function(user2) {
 									if (user2) {
-										this.error(req, res, 400, 'Email already exists');
+										this.common.error(req, res, 400, 'Email already exists');
 									} else {
 										var salt = uuid.v4(), password = uuid.v4().substr(-12);
 										this.getHash(req.body.password, salt, this.errorCallback(req, res, function(hash) {
@@ -302,13 +300,13 @@ module.exports = function(server) {
 													'auth.local.username': req.body.username.toLowerCase(),
 													'auth.local.hash': hash,
 													'auth.local.salt': salt,
-													'ips.registration' : this.getIP(req),
+													'ips.registration' : this.common.getIP(req),
 													'registeredTime': new Date()
 												}},
 												{safe: true},
 												this.errorCallback(req, res, function(doc) {
 													console.log('NEW USER: ' + req.body.username);
-													this.setUserId(req, res, (function() {
+													this.common.setUserId(req, res, (function() {
 														this.end(req, res);
 													}).bind(this));
 												})
@@ -331,22 +329,22 @@ module.exports = function(server) {
 							if (hash === user.auth.local.hash) {
 								this.db.users.update(
 									{_id: user._id},
-									{$set: {'ips.login' : this.getIP(req), 'loginTime': new Date()}}
+									{$set: {'ips.login' : this.common.getIP(req), 'loginTime': new Date()}}
 								);
 								req.session.userId = user._id; // TODO: merge with current user id
-								this.setUserId(req, res, (function() {
+								this.common.setUserId(req, res, (function() {
 									this.end(req, res);
 								}).bind(this));
 							} else {
 								this.db.users.update(
 									{_id: user._id},
-									{$set: {'ips.passwordError' : this.getIP(req)}}
+									{$set: {'ips.passwordError' : this.common.getIP(req)}}
 								);
-								this.error(req, res, 404);
+								this.common.error(req, res, 404);
 							}
 						}));
 					} else {
-						this.error(req, res, 404);
+						this.common.error(req, res, 404);
 					}
 				}));
 			});
@@ -355,7 +353,7 @@ module.exports = function(server) {
 		postLogout: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				req.session.userId = undefined;
-				this.setUserId(req, res, (function() {
+				this.common.setUserId(req, res, (function() {
 					this.end(req, res);
 				}).bind(this));
 			});
@@ -366,13 +364,13 @@ module.exports = function(server) {
 				if (req.query.username && shared.validation.username(req.query.username)) {
 					this.db.users.findOne({'auth.local.username': req.query.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
 						if (user) {
-							this.error(req, res, 400, 'Username exists already');
+							this.common.error(req, res, 400, 'Username exists already');
 						} else {
 							this.end(req, res);
 						}
 					}));
 				} else {
-					this.error(req, res, 400, 'Invalid username');
+					this.common.error(req, res, 400, 'Invalid username');
 				}
 			});
 		},
@@ -384,7 +382,7 @@ module.exports = function(server) {
 						this.end(req, res, shared.dares.sanitizeInput(user, shared.dares.userOptions));
 					}));
 				} else {
-					this.error(req, res, 400, 'Invalid username');
+					this.common.error(req, res, 400, 'Invalid username');
 				}
 			});
 		},
@@ -407,13 +405,13 @@ module.exports = function(server) {
 				if (req.query.email && shared.validation.email(req.query.email)) {
 					this.db.users.findOne({'auth.local.email': req.query.email.toLowerCase()}, this.errorCallback(req, res, function(user) {
 						if (user) {
-							this.error(req, res, 400, 'Email exists already');
+							this.common.error(req, res, 400, 'Email exists already');
 						} else {
 							this.end(req, res);
 						}
 					}));
 				} else {
-					this.error(req, res, 400, 'Invalid email');
+					this.common.error(req, res, 400, 'Invalid email');
 				}
 			});
 		},
@@ -424,44 +422,6 @@ module.exports = function(server) {
 			});
 		},
 
-		setUserId: function(req, res, next) {
-			try {
-				var pause = connect.utils.pause(req);
-
-				var newUserId = (function() {
-					req.session.userId = uuid.v4();
-					this.db.users.insert({_id: req.session.userId, createdTime: new Date(), ips: {initial : this.getIP(req)}}, {safe:true}, this.errorCallback(req, res, function(users) {
-						console.log('New session: ' + req.session.userId);
-						req.session.loginData = {userId: req.session.userId, admin: false};
-						next();
-						pause.resume();
-					}));
-				}).bind(this);
-
-				if (req.session.userId) {
-					this.db.users.findById(req.session.userId, this.errorCallback(req, res, function(user) {
-						if (!user) {
-							newUserId();
-						} else {
-							if (user.auth && user.auth.local) {
-								req.session.loginData = {userId: req.session.userId, loggedIn: true, screenname: user.screenname, points: 0, link: user.link};
-							} else {
-								req.session.loginData = {userId: req.session.userId};
-							}
-							req.session.loginData.admin = user.admin || false;
-							next();
-							pause.resume();
-						}
-					}));
-				} else {
-					newUserId();
-				}
-			} catch (error) {
-				this.error(req, res, 500, error);
-				pause.resume();
-			}
-		},
-
 		userIdCallback: function(req, res, callback) {
 			return this.existsCallback(req, res, function(doc) {
 				var array = doc;
@@ -469,10 +429,10 @@ module.exports = function(server) {
 
 				for (var i=0; i<array.length; i++) {
 					if (!array[i].userId) {
-						this.error(req, res, 500, 'No user id in object');
+						this.common.error(req, res, 500, 'No user id in object');
 						return;
 					} else if (array[i].userId !== req.session.userId && !req.session.loginData.admin) {
-						this.error(req, res, 401);
+						this.common.error(req, res, 401);
 						return;
 					}
 				}
@@ -488,23 +448,19 @@ module.exports = function(server) {
 			});
 		},
 
-		getIP: function(req) {
-			return req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-		},
-
 		createObjectId: function(req, res, id, callback) {
 			try {
 				var objectId = new this.db.ObjectID(id);
 				(callback.bind(this))(objectId);
 			} catch(error) {
-				this.error(req, res, 404);
+				this.common.error(req, res, 404);
 			}
 		},
 
 		existsCallback: function(req, res, callback) {
 			return this.errorCallback(req, res, (function(doc) {
 				if (doc) (callback.bind(this))(doc);
-				else this.error(req, res, 404);
+				else this.common.error(req, res, 404);
 			}).bind(this));
 		},
 
@@ -527,7 +483,7 @@ module.exports = function(server) {
 
 		errorCallback: function(req, res, callback) {
 			return (function(error, doc) {
-				if (error) this.error(req, res, 500, error);
+				if (error) this.common.error(req, res, 500, 'errorCallback error: ' + error);
 				else (callback.bind(this))(doc);
 			}).bind(this);
 		},
@@ -536,25 +492,7 @@ module.exports = function(server) {
 			try {
 				(callback.bind(this))();
 			} catch(error) {
-				this.error(req, res, 500, 'tryCatch error: ' + error);
-			}
-		},
-
-		error: function(req, res, code, error) {
-			error = JSON.stringify(error);
-			var body = JSON.stringify(req.body);
-			if (this.options.errors[code]) {
-				console.error(code + ' @ ' + req.method + ': ' + req.originalUrl + ' @ BODY: ' + body + ' USER: ' + req.session.userId + (error ? (' @ ERROR: ' + error) : ''));
-			}
-			res.statusCode = code;
-			if (code === 400) {
-				res.end('Input error: ' + error);
-			} else if (code === 401) {
-				res.end('Not authorized');
-			} else if (code === 404) {
-				res.end('Not found');
-			} else if (code === 500) {
-				res.end('Server error: ' + error);
+				this.common.error(req, res, 500, 'tryCatch error: ' + error);
 			}
 		}
 	};

@@ -24,7 +24,7 @@ module.exports = function(client) {
 			this.sync = new client.Sync(this);
 			this.history = window.History;
 			this.history.Adapter.bind(window, 'statechange', this.stateChange.bind(this));
-			this.loginData = {};
+			this.loginData = window.jsdaresLoginData;
 
 			this.modalUI = new applet.UI();
 			this.modalUI.setCloseCallback(this.closeDareCallback.bind(this));
