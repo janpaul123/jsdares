@@ -93,10 +93,11 @@ module.exports = function(server) {
 									minGoals: 1,
 									goalReward: 50,
 									maxLines: 0,
-									lineReward: 0
+									lineReward: 0,
+									hidePreview: true,
+									previewBlockSize: 48
 								}
 							},
-							hidePreview: true,
 							original: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(3);',
 							outputs: ['robot'],
 							allOutputs: {
@@ -118,7 +119,8 @@ module.exports = function(server) {
 									minGoals: 1,
 									goalReward: 50,
 									maxLines: 10,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 48
 								}
 							},
 							original: 'robot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);',
@@ -142,7 +144,8 @@ module.exports = function(server) {
 									minGoals: 1,
 									goalReward: 50,
 									maxLines: 16,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 48
 								}
 							},
 							original: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(2);',
@@ -166,7 +169,8 @@ module.exports = function(server) {
 									minGoals: 3,
 									goalReward: 50,
 									maxLines: 20,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 48
 								}
 							},
 							original: 'robot.drive(2);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(1);',
@@ -190,7 +194,8 @@ module.exports = function(server) {
 									minGoals: 5,
 									goalReward: 50,
 									maxLines: 11,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'robot.drive(7);\nrobot.turnRight();\nrobot.drive(6);\nrobot.turnRight();\nrobot.drive(7);\nrobot.turnRight();\nrobot.drive(4);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(1);',
@@ -214,7 +219,8 @@ module.exports = function(server) {
 									minGoals: 6,
 									goalReward: 50,
 									maxLines: 15,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();\nknightJump();\nrobot.turnLeft();\nknightJump();\nrobot.drive(1);\nknightJump();\nknightJump();\nknightJump();\n',
@@ -239,7 +245,8 @@ module.exports = function(server) {
 									minGoals: 9,
 									goalReward: 50,
 									maxLines: 20,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'function zigzag() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nzigzag();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();',
@@ -264,7 +271,8 @@ module.exports = function(server) {
 									minGoals: 1,
 									goalReward: 50,
 									maxLines: 20,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\nforwardRight(7);\nforwardRight(7);\nforwardRight(6);\nforwardRight(6);\nforwardRight(5);\nforwardRight(5);\nforwardRight(4);\nforwardRight(4);\nforwardRight(3);\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);\nforwardRight(1);',
@@ -289,7 +297,8 @@ module.exports = function(server) {
 									minGoals: 3,
 									goalReward: 50,
 									maxLines: 17,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'function move(distance) {\n  robot.drive(distance);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(distance);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nmove(6);\nmove(4);\nmove(2);',
@@ -530,7 +539,8 @@ module.exports = function(server) {
 									minGoals: 1,
 									goalReward: 50,
 									maxLines: 7,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'var counter = 1;\nwhile(counter <= 7) {\n  robot.drive(counter);\n  robot.turnLeft();\n  counter++;\n}',
@@ -603,7 +613,8 @@ module.exports = function(server) {
 									minGoals: 7,
 									goalReward: 50,
 									maxLines: 10,
-									lineReward: 10
+									lineReward: 10,
+									previewBlockSize: 32
 								}
 							},
 							original: 'var counter = 0;\nwhile(counter <= 40) {\n  robot.drive(1);\n  if (robot.detectWall()) {\n    robot.turnLeft();\n  }\n  counter++;\n}',

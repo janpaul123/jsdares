@@ -92,7 +92,6 @@ module.exports = function(shared) {
 		name: {type: 'nosanitize', def: null},
 		description: {type: 'nosanitize', def: null},
 		original: {type: 'nosanitize', def: null},
-		instance: {type: 'nosanitize', def: null},
 		_id: {type: 'nosanitize', def: null},
 		// no userId
 		// no instance
