@@ -242,10 +242,14 @@ module.exports = function(client) {
 						this.$usernameTooltip.removeClass('hide');
 						this.$usernameTooltipText.text('Username is already taken');
 					}).bind(this));
-				} else {
+				} else if (shared.validation.usernameLength(username)) {
 					this.$usernameIcon.addClass('icon-exclamation-sign-color');
 					this.$usernameTooltip.removeClass('hide');
 					this.$usernameTooltipText.text('Invalid username');
+				} else {
+					this.$usernameIcon.addClass('icon-exclamation-sign-color');
+					this.$usernameTooltip.removeClass('hide');
+					this.$usernameTooltipText.text('Username is too short');
 				}
 			}
 		},
