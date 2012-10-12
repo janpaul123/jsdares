@@ -90,7 +90,7 @@ module.exports = function(dares) {
 			this.$score.text(score);
 
 			var twitUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I completed the "' + this.name + '" dare with ' + score + ' points on @jsdares!');
-			var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon-twitter"></i></a> ');
+			var $twitter = $('<a href="' + twitUrl + '" target="_blank"><i class="icon icon-white icon-twitter"></i></a> ');
 			$twitter.click(function(event) {
 				event.preventDefault();
 				window.open(twitUrl, '', 'width=550,height=300');
