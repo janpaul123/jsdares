@@ -186,10 +186,12 @@ body, input, button, select, textarea {
 	}
 }
 
-.previewText {
+.homepage-about-text {
 	padding: 15px;
 	background-color: #DDD;
 	.border-radius(4px);
+
+	font-size: 14px;
 
 	@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
 	.box-shadow(@shadow);
@@ -198,28 +200,6 @@ body, input, button, select, textarea {
 	width: 700px;
 	margin-left: round((1085px - 700 - 15*2)/2);
 	margin-top: 10px;
-
-	.volunteers-superheroes button {
-		margin-right: 5px;
-	}
-
-	.janpaul123 {
-		padding: 0;
-		text-align: center;
-		float: right;
-		margin: 20px;
-
-		img {
-			.border-radius(0px);
-			width: 100%;
-			margin: 0;
-		}
-
-		span {
-			display: block;
-			padding: 5px;
-		}
-	}
 }
 
 .example {
@@ -323,6 +303,26 @@ body, input, button, select, textarea {
 	border-top: 1px solid #CCC;
 	color: #666;
 	padding: 10px 10px 8px;
+}
+
+.volunteers-superheroes button {
+	margin-right: 5px;
+}
+
+.janpaul123 {
+	padding: 0;
+	text-align: center;
+
+	img {
+		.border-radius(0px);
+		width: 100%;
+		margin: 0;
+	}
+
+	span {
+		display: block;
+		padding: 5px;
+	}
 }
 
 .copyright {
