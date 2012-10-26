@@ -10,6 +10,8 @@ module.exports = function(server) {
 			if (error) throw error;
 			else if (!user) console.error('Could not update pre-set values since there is no user "janpaul123"');
 			else {
+				db.users.update({'auth.local.username': 'janpaul123'}, {$set: {admin: true}});
+
 				db.collections.insert([
 					{_id: new db.ObjectID('5009684ce78955fbcf405844'), createdTime: new Date()},
 					{_id: new db.ObjectID('30000000078955fbcf405844'), createdTime: new Date()}
