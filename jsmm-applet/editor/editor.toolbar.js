@@ -120,17 +120,17 @@ module.exports = function(editor) {
 			this.stepForwardUp = this.stepForwardUp.bind(this);
 			this.close = this.close.bind(this);
 
-			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon-arrow-left icon-white"></i></button>');
+			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon icon-arrow-left icon-white"></i></button>');
 			this.$stepBackward.on('mousedown', this.stepBackwardDown);
 			this.$stepBackward.on('mouseup', this.stepBackwardUp);
 			$div.append(this.$stepBackward);
 
-			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon-arrow-right icon-white"></i> Step</button>');
+			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon icon-arrow-right icon-white"></i> Step</button>');
 			this.$stepForward.on('mousedown', this.stepForwardDown);
 			this.$stepForward.on('mouseup', this.stepForwardUp);
 			$div.append(this.$stepForward);
 
-			this.$close = $('<button class="btn btn-success editor-toolbar-close"><i class="icon-remove icon-white"></i></button>');
+			this.$close = $('<button class="btn btn-success editor-toolbar-close"><i class="icon icon-remove icon-white"></i></button>');
 			this.$close.click(this.close);
 			$div.append(this.$close);
 
@@ -240,7 +240,7 @@ module.exports = function(editor) {
 			this.$playPauseAnimationContainer.append(this.$playPauseAnimationBlock);
 			this.$playPause.append(this.$playPauseAnimationContainer);
 
-			this.$playPauseIcon = $('<i class="icon-play icon-white"></i>');
+			this.$playPauseIcon = $('<i class="icon icon-play icon-white"></i>');
 			this.$playPause.append(this.$playPauseIcon);
 
 			//this.max = this.$playPauseAnimationContainer.width();
@@ -332,7 +332,7 @@ module.exports = function(editor) {
 			this.$div.on('mouseenter', this.mouseEnter.bind(this));
 			this.$div.on('mouseleave', this.mouseLeave.bind(this));
 
-			this.$reload = $('<button class="btn btn-primary editor-toolbar-reload"><i class="icon-repeat icon-white"></i></button>');
+			this.$reload = $('<button class="btn btn-primary editor-toolbar-reload"><i class="icon icon-repeat icon-white"></i></button>');
 			this.$reload.on('click', this.reload.bind(this));
 			this.$div.append(this.$reload);
 
@@ -422,7 +422,7 @@ module.exports = function(editor) {
 					this.stepBar.update(runner);
 					this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*eventWidth);
 					this.$stepBarIcon.removeClass();
-					this.$stepBarIcon.addClass('editor-toolbar-run-step-bar-icon icon-white icon-' + {
+					this.$stepBarIcon.addClass('icon editor-toolbar-run-step-bar-icon icon-white icon-' + {
 						base: 'stop',
 						keyboard: 'keyboard',
 						mouse: 'mouse',
@@ -541,12 +541,12 @@ module.exports = function(editor) {
 
 			var isMac = navigator.platform.indexOf("Mac") >= 0;
 			var $editHighlightGroup = $('<div class="btn-group editor-toolbar-highlight-group"></div>');
-			this.$highlight = $('<button class="btn btn-inverse editor-toolbar-highlight"><i class="icon-screenshot icon-white"></i></button>');
+			this.$highlight = $('<button class="btn btn-inverse editor-toolbar-highlight"><i class="icon icon-screenshot icon-white"></i></button>');
 			this.$highlight.tooltip({title: 'highlighting (<strong>ctrl</strong>' + (isMac ? ' or <strong>cmd</strong> &#8984;)' : ' or <strong>F2</strong>)'), placement: 'bottom'});
 			this.$highlight.click(this.highlight.bind(this));
 			$editHighlightGroup.append(this.$highlight);
 
-			this.$edit = $('<button class="btn btn-inverse editor-toolbar-edit"><i class="icon-edit icon-white"></i></button>');
+			this.$edit = $('<button class="btn btn-inverse editor-toolbar-edit"><i class="icon icon-edit icon-white"></i></button>');
 			this.$edit.click(this.edit.bind(this));
 			this.$edit.tooltip({title: 'manipulation (<strong>alt</strong>' + (isMac ? ' &#8997;)' : ' or <strong>F3</strong>)'), placement: 'bottom'});
 			$editHighlightGroup.append(this.$edit);

@@ -11,11 +11,6 @@
 @code-font-size: 14px;
 @code-line-height: 16px;
 
-p {
-	font-size: 14px;
-	line-height: 20px;
-}
-
 .code-foreground() {
 	font-family: @code-font-family;
 	color: @code-color;
@@ -77,13 +72,17 @@ p {
 	font-weight: normal;
 	background-color: black;
 	.border-radius(10px);
-	font-size: 12px;
+	font-size: 14px;
 	vertical-align: text-bottom;
-	line-height: 16px;
+	line-height: 18px;
 	background-color: #111;
-	padding: 3px 6px;
+	padding: 3px 8px;
 	color: white;
 	white-space: nowrap;
+
+	.icon {
+		margin-top: 1px;
+	}
 }
 
 .icon-trophy {

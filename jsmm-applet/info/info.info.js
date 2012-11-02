@@ -122,7 +122,7 @@ module.exports = function(info) {
 			this.$scopeContainer = $('<div class="info-scope-container"></div>');
 			$div.append(this.$scopeContainer);
 
-			this.$scopeContainer.append('<p><span class="info-output"><i class="icon-eye-open icon-white"></i> scope</span></p><p>This list shows the variables that are declared in your <a href="#arrow-right,575,57">program</a>, along with their values. At the beginning the only variables are those that we provide, such as <var>robot</var> or <var>canvas</var>. You can add your own variables and functions using <var>var</var> and <var>function</var>.</p>');
+			this.$scopeContainer.append('<p><span class="info-output"><i class="icon icon-eye-open icon-white"></i> scope</span></p><p>This list shows the variables that are declared in your <a href="#arrow-right,575,57">program</a>, along with their values. At the beginning the only variables are those that we provide, such as <var>robot</var> or <var>canvas</var>. You can add your own variables and functions using <var>var</var> and <var>function</var>.</p>');
 			this.info.prepareTextElement(this.$scopeContainer);
 
 			this.$scope = $('<div class="info-scope"></div>');

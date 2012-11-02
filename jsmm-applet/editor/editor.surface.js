@@ -143,7 +143,7 @@ module.exports = function(editor) {
 			this.$content = $('<div class="editor-autocomplete-content"></div>');
 			this.$element.append(this.$content);
 
-			this.$element.append('<div class="editor-autocomplete-hint"><i class="icon-keyboard icon-white"></i> press <strong>enter</strong> to insert, hold <strong>shift</strong> to insert only names</div>');
+			this.$element.append('<div class="editor-autocomplete-hint"><i class="icon icon-keyboard icon-white"></i> press <strong>enter</strong> to insert, hold <strong>shift</strong> to insert only names</div>');
 
 			this.$marginIcon = $('<div class="editor-margin-icon editor-margin-message-icon-preview"></div>');
 			surface.addElementToMargin(this.$marginIcon);

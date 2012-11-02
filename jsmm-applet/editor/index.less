@@ -273,14 +273,9 @@ div.colorpicker div.circle.lightness {
 	}
 
 	.editor-autocomplete-hint {
-		font-size: 12px;
+		font-size: 14px;
 		padding: 4px 9px 5px;
-		line-height: 12px;
-		//color: #0A0;
-
-		strong {
-			// color: #4d4;
-		}
+		line-height: 14px;
 	}
 }
 
@@ -383,7 +378,7 @@ div.colorpicker div.circle.lightness {
 
 	.editor-toolbar-run-bar {
 		.editor-toolbar-reload {
-			background-image: -webkit-linear-gradient(top, #4EB9EE, #05C);
+			background-image: -webkit-linear-gradient(top, lighten(@btnPrimaryBackground, 15%), @btnPrimaryBackgroundHighlight);
 			background-size: 1px 55px;
 			background-position: 0px -29px;
 

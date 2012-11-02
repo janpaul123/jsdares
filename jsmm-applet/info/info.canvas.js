@@ -3,7 +3,7 @@
 
 module.exports = function(info) {
 	info.tables.push({
-		html: '<p><span class="info-output"><i class="icon-picture icon-white"></i> canvas</span></p><p>The canvas is used to draw shapes on, and is the actual <strong>HTML</strong> element that is supported by most web browsers. This means that any program you write for this canvas can also be used <strong>outside</strong> of this environment, on any other site. It is also very suitable for programming <strong>games</strong>, by using events.</p>',
+		html: '<p><span class="info-output"><i class="icon icon-picture icon-white"></i> canvas</span></p><p>The canvas is used to draw shapes on, and is the actual <strong>HTML</strong> element that is supported by most web browsers. This means that any program you write for this canvas can also be used <strong>outside</strong> of this environment, on any other site. It is also very suitable for programming <strong>games</strong>, by using events.</p>',
 		list: {
 			'canvas.getContext': {
 				name: 'canvas.getContext("2d")',

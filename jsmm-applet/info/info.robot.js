@@ -3,7 +3,7 @@
 
 module.exports = function(info) {
 	info.tables.push({
-		html: '<p><span class="info-output"><i class="icon-th icon-white"></i> robot</span></p><p>The robot tab provides a simple <strong>simulation</strong> of an actual robot, with commands to drive and turn. Additionally, <strong>walls</strong> can be placed in the environment, which can be detected by the robot. Squares can be coloured green, indicating a <strong>goal</strong> for the robot to go to, and these can also be detected by the robot.</p>',
+		html: '<p><span class="info-output"><i class="icon icon-th icon-white"></i> robot</span></p><p>The robot tab provides a simple <strong>simulation</strong> of an actual robot, with commands to drive and turn. Additionally, <strong>walls</strong> can be placed in the environment, which can be detected by the robot. Squares can be coloured green, indicating a <strong>goal</strong> for the robot to go to, and these can also be detected by the robot.</p>',
 		list: {
 			'robot.drive': {
 				name: 'robot.drive(distance)',

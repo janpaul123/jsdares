@@ -158,7 +158,7 @@ module.exports.UI.prototype = {
 		setTimeout(function() { $tab.addClass('tab-button-enabled'); }, 200*this.numTabs + 300);
 		this.$tabs.append($tab);
 
-		var $link = $('<a href="#"><i class="' + this.icons[name] + ' icon-white"></i> ' + name + '</a>');
+		var $link = $('<a href="#"><i class="icon icon-white ' + this.icons[name] + '"></i> ' + name + '</a>');
 		$tab.append($link);
 
 		$link.click((function(event) {
