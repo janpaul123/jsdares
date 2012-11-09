@@ -127,6 +127,7 @@ module.exports = function(editor) {
 			this.runner.enable();
 			this.runner.newTree(this.tree);
 			this.updateHighlighting();
+			this.updateTimeHighlighting();
 		},
 
 		runTemp: function(text) {
@@ -134,6 +135,7 @@ module.exports = function(editor) {
 			if (!this.tree.hasError()) {
 				this.runner.newTree(this.tree);
 				this.updateHighlighting();
+				this.updateTimeHighlighting();
 				return true;
 			} else {
 				this.callOutputs('outputSetError', true);
@@ -165,6 +167,7 @@ module.exports = function(editor) {
 			this.runner.disable();
 			this.callToolbar('disable');
 			this.updateHighlighting();
+			this.updateTimeHighlighting();
 			this.highlightFunctionNode(null);
 			this.callOutputs('outputSetError', true);
 		},
@@ -294,6 +297,7 @@ module.exports = function(editor) {
 		runnerChangedEvent: function() {
 			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 			this.updateHighlighting();
+			this.updateActiveTimeHighlights();
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
