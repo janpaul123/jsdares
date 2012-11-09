@@ -29,6 +29,7 @@ module.exports = function(editor) {
 			this.currentHighlightLine = 0;
 			this.surface.enableMouse();
 			this.highlightingEnabled = true;
+			this.timeHighlightingEnabled = true;
 			this.callToolbar('enableHighlighting');
 			this.callOutputs('enableHighlighting');
 
@@ -117,8 +118,6 @@ module.exports = function(editor) {
 			if (this.tree.hasError()) {
 				this.handleCriticalError(this.tree.getError());
 			} else {
-				this.updateHighlighting();
-				this.updateTimeHighlighting();
 				this.run();
 			}
 			this.textChangeCallback(this.code.text);
@@ -284,13 +283,8 @@ module.exports = function(editor) {
 				this.callToolbar('update', this.runner);
 			}
 			this.callOutputs('outputSetError', this.runner.hasError());
-			if (this.canHighlightTime()) {
-				this.enableTimeHighlighting();
-				if (this.activeTimeHighlights.length > 0) {
-					this.updateActiveTimeHighlights();
-				}
-			} else {
-				this.disableTimeHighlighting();
+			if (this.activeTimeHighlights.length > 0) {
+				this.updateActiveTimeHighlights();
 			}
 			// if (this.runner.isStatic()) {
 				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
@@ -386,25 +380,8 @@ module.exports = function(editor) {
 			}
 		},
 
-		enableTimeHighlighting: function() {
-			if (!this.timeHighlightingEnabled && this.canHighlightTime()) {
-				this.timeHighlightingEnabled = true;
-				this.updateTimeHighlighting();
-			}
-		},
-
-		disableTimeHighlighting: function() {
-			if (this.timeHighlightingEnabled) {
-				this.timeHighlightingEnabled = false;
-				this.surface.hideTimeHighlights();
-				this.callOutputs('highlightTimeIds', null);
-			}
-		},
-
 		updateTimeHighlighting: function() {
-			if (!this.canHighlightTime()) {
-				this.disableTimeHighlighting();
-			} else {
+			if (this.canHighlightTime()) {
 				var timeHighlights = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
 				for (var i=0; i<this.activeTimeHighlights.length; i++) {
 					if (timeHighlights[this.activeTimeHighlights[i]] === undefined) {
