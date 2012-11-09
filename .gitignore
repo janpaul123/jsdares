@@ -4,3 +4,4 @@ jsmm.sublime-project
 deploy
 index.css
 init.sh
+.DS_Store
