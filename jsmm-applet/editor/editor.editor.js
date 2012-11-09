@@ -30,7 +30,6 @@ module.exports = function(editor) {
 			this.surface.enableMouse();
 			this.highlightingEnabled = true;
 			this.timeHighlightingEnabled = true;
-			this.callToolbar('enableHighlighting');
 			this.callOutputs('enableHighlighting');
 
 			this.timeHighlightingEnabled = false;
@@ -304,7 +303,6 @@ module.exports = function(editor) {
 		enableEditables: function() {
 			if (this.canRun()) {
 				this.editablesEnabled = true;
-				this.callToolbar('enableEditables');
 				this.refreshEditables();
 			}
 		},
@@ -312,7 +310,6 @@ module.exports = function(editor) {
 		disableEditables: function() {
 			this.removeEditables();
 			this.editablesEnabled = false;
-			this.callToolbar('disableEditables');
 		},
 
 		toggleEditables: function() {
@@ -381,6 +378,13 @@ module.exports = function(editor) {
 						this.callOutputs('highlightCallIds', null);
 					}
 				}
+				if (this.runner.isStatic()) {
+					this.callOutputs('enableHighlighting');
+				} else {
+					this.callOutputs('disableHighlighting');
+				}
+			} else {
+				this.callOutputs('disableHighlighting');
 			}
 		},
 

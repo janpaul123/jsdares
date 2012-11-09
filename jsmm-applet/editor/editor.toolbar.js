@@ -539,18 +539,7 @@ module.exports = function(editor) {
 			this.baseStepBar = new editor.StepBar($stepBar, this.$div, true);
 			this.$div.append($stepBar);
 
-			var isMac = navigator.platform.indexOf("Mac") >= 0;
-			var $editHighlightGroup = $('<div class="btn-group editor-toolbar-highlight-group"></div>');
-			this.$highlight = $('<button class="btn btn-inverse editor-toolbar-highlight"><i class="icon icon-screenshot icon-white"></i></button>');
-			this.$highlight.tooltip({title: 'highlighting (<strong>ctrl</strong>' + (isMac ? ' or <strong>cmd</strong> &#8984;)' : ' or <strong>F2</strong>)'), placement: 'bottom'});
-			this.$highlight.click(this.highlight.bind(this));
-			$editHighlightGroup.append(this.$highlight);
-
-			this.$edit = $('<button class="btn btn-inverse editor-toolbar-edit"><i class="icon icon-edit icon-white"></i></button>');
-			this.$edit.click(this.edit.bind(this));
-			this.$edit.tooltip({title: 'manipulation (<strong>alt</strong>' + (isMac ? ' &#8997;)' : ' or <strong>F3</strong>)'), placement: 'bottom'});
-			$editHighlightGroup.append(this.$edit);
-			this.$div.append($editHighlightGroup);
+			// var isMac = navigator.platform.indexOf("Mac") >= 0;
 
 			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
 			this.runBar = new editor.RunBar($runBar, this.editor);
@@ -572,8 +561,6 @@ module.exports = function(editor) {
 		remove: function() {
 			this.baseStepBar.remove();
 			this.runBar.remove();
-			this.$highlight.remove();
-			this.$edit.remove();
 			this.clearAllKeys();
 			$(document).off('keydown', this.keyDown);
 			$(document).off('keyup', this.keyUp);
@@ -582,34 +569,8 @@ module.exports = function(editor) {
 			this.$div.removeClass('editor-toolbar editor-toolbar-interactive');
 		},
 
-		enableEditables: function() {
-			this.$edit.addClass('active');
-			this.baseStepBar.setEditing(true);
-			this.runBar.setEditing(true);
-		},
-
-		disableEditables: function() {
-			this.$edit.removeClass('active');
-			this.baseStepBar.setEditing(false);
-			this.runBar.setEditing(false);
-		},
-
-		enableHighlighting: function() {
-			this.$highlight.addClass('active');
-		},
-
-		disableHighlighting: function() {
-			this.$highlight.removeClass('active');
-		},
-
 		update: function(runner) {
 			this.enabled = true;
-			if (runner.isStatic()) {
-				this.$highlight.removeClass('disabled');
-			} else {
-				this.$highlight.addClass('disabled');
-			}
-			this.$edit.removeClass('disabled');
 			if (runner.isInteractive()) {
 				this.$div.addClass('editor-toolbar-interactive');
 				this.baseStepBar.disable();
@@ -625,8 +586,6 @@ module.exports = function(editor) {
 			this.enabled = false;
 			this.baseStepBar.disable();
 			this.runBar.disable();
-			this.$highlight.addClass('disabled');
-			this.$edit.addClass('disabled');
 			this.clearAllKeys();
 		},
 
@@ -634,31 +593,7 @@ module.exports = function(editor) {
 		keyDown: function(event) {
 			if (!this.enabled) return;
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC, 113 = F2, 114 = F3
-			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
-				if (!this.keys.highlighting) {
-					this.editor.enableHighlighting();
-				}
-				this.setKey('highlighting');
-				event.preventDefault();
-			} else if (event.keyCode === 113) {
-				if (!this.keys.highlighting) {
-					this.editor.toggleHighlighting();
-				}
-				this.setKey('highlighting');
-				event.preventDefault();
-			} else if (event.keyCode === 18) {
-				if (!this.keys.editables) {
-					this.editor.enableEditables();
-				}
-				this.setKey('editables');
-				event.preventDefault();
-			} else if (event.keyCode === 114) {
-				if (!this.keys.editables) {
-					this.editor.toggleEditables();
-				}
-				this.setKey('editables');
-				event.preventDefault();
-			} else if (event.keyCode === 27) {
+			if (event.keyCode === 27) {
 				if (!this.keys.escape) {
 					this.runBar.playPause();
 				}
@@ -670,21 +605,7 @@ module.exports = function(editor) {
 		keyUp: function(event) {
 			if (!this.enabled) return;
 			// 17 == CTRL, 18 == ALT, (17, 91, 93, 224) == COMMAND, 27 == ESC, 113 = F2, 114 = F3
-			if ([17, 91, 93, 224].indexOf(event.keyCode) >= 0) {
-				this.editor.disableHighlighting();
-				this.clearKey('highlighting');
-				event.preventDefault();
-			} else if (event.keyCode === 113) {
-				this.clearKey('highlighting');
-				event.preventDefault();
-			} else if (event.keyCode === 18) {
-				this.editor.disableEditables();
-				this.clearKey('editables');
-				event.preventDefault();
-			} else if (event.keyCode === 114) {
-				this.clearKey('editables');
-				event.preventDefault();
-			} else if (event.keyCode === 27) {
+			if (event.keyCode === 27) {
 				this.clearKey('escape');
 				event.preventDefault();
 			}
@@ -692,8 +613,6 @@ module.exports = function(editor) {
 
 		lostFocus: function(event) {
 			if (!this.enabled) return;
-			this.editor.disableHighlighting();
-			this.editor.disableEditables();
 			this.clearAllKeys();
 		},
 
@@ -716,17 +635,7 @@ module.exports = function(editor) {
 		},
 
 		clearAllKeys: function() {
-			this.clearKey('higlighting');
-			this.clearKey('editables');
 			this.clearKey('escape');
-		},
-
-		highlight: function(event) {
-			this.editor.toggleHighlighting();
-		},
-
-		edit: function(event) {
-			this.editor.toggleEditables();
 		}
 	};
 };
