@@ -299,6 +299,10 @@ module.exports = function(editor) {
 			this.$div.addClass('editor');
 			this.delegate = delegate;
 
+			// setting up bottom
+			this.$bottom = $('<div class="editor-bottom"></div>');
+			this.$div.append(this.$bottom);
+
 			// setting up textarea
 			this.$textarea = $('<textarea class="editor-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
 			this.$div.append(this.$textarea);
@@ -308,9 +312,9 @@ module.exports = function(editor) {
 			this.$textarea.on('blur', this.lostFocus.bind(this));
 			this.$textarea.on('click', this.click.bind(this));
 
-			// setting up surface
-			this.$surface = $('<div class="editor-surface"></div>');
-			this.$div.append(this.$surface);
+			// setting up top
+			this.$top = $('<div class="editor-top"></div>');
+			this.$div.append(this.$top);
 
 			// setting up margin
 			this.$margin = $('<div class="editor-margin"></div>');
@@ -336,9 +340,11 @@ module.exports = function(editor) {
 			this.hideAutoCompleteBox();
 			//this.$highlightMarking.remove();
 			this.message.remove();
-			this.$surface.children('.editor-time-highlight').remove();
+			this.$bottom.children('.editor-time-highlight').remove();
+			this.$top.children('.editor-time-highlight').remove();
 			this.$margin.remove();
-			this.$surface.remove();
+			this.$bottom.remove();
+			this.$top.remove();
 			this.$textarea.remove();
 			this.$div.html('');
 			this.$div.removeClass('editor editor-error editor-step');
@@ -369,7 +375,7 @@ module.exports = function(editor) {
 		},
 
 		columnToX: function(column) {
-			return Math.max(0, Math.min(column*this.charWidth, this.$surface.css('width').replace('px', '')-7));
+			return Math.max(0, Math.min(column*this.charWidth, this.$top.css('width').replace('px', '')-7));
 		},
 
 		lineToY: function(line) {
@@ -377,11 +383,15 @@ module.exports = function(editor) {
 		},
 
 		addElement: function($element) {
-			this.$surface.append($element);
+			this.$bottom.append($element);
 		},
 
 		addElementToMargin: function($element) {
 			this.$margin.append($element);
+		},
+
+		addElementToTop: function($element) {
+			this.$top.append($element);
 		},
 
 		enableMouse: function() {
@@ -437,7 +447,7 @@ module.exports = function(editor) {
 		},
 
 		removeHighlights: function() {
-			this.$surface.children('.editor-highlight').remove();
+			this.$bottom.children('.editor-highlight').remove();
 		},
 
 		hideHighlight: function() {
@@ -452,7 +462,7 @@ module.exports = function(editor) {
 		},
 
 		hideFunctionHighlight: function() {
-			this.$surface.children('.editor-highlight-function').remove();
+			this.$bottom.children('.editor-highlight-function').remove();
 		},
 
 		showTimeHighlights: function(timeHighlights) {
@@ -650,9 +660,13 @@ module.exports = function(editor) {
 				y: (this.$textarea.position().top + this.$div.scrollTop())
 			};
 
-			this.$surface.css('left', textAreaOffset.x + this.textOffset.x);
-			this.$surface.css('top', textAreaOffset.y + this.textOffset.y);
-			this.$margin.css('top', textAreaOffset.y + this.textOffset.y);
+			var left = textAreaOffset.x + this.textOffset.x;
+			var top = textAreaOffset.y + this.textOffset.y;
+			this.$bottom.css('left', left);
+			this.$bottom.css('top', top);
+			this.$top.css('left', left);
+			this.$top.css('top', top);
+			this.$margin.css('top', top);
 		},
 
 		updateSize: function() {
