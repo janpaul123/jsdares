@@ -426,15 +426,6 @@ module.exports = function(editor) {
 			this.message.closeMessage();
 		},
 
-		enableHighlighting: function() {
-			this.$div.addClass('editor-highlighting');
-		},
-
-		disableHighlighting: function() {
-			this.$div.removeClass('editor-highlighting');
-			this.removeHighlights();
-		},
-
 		addHighlight: function(location) {
 			var $highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
 			this.addElement($highlightMarking);
