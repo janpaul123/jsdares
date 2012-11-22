@@ -14,7 +14,7 @@ module.exports = function(editor) {
 			this.$marking = $marking;
 			this.surface = surface;
 			this.$element = $('<div class="editor-box"></div>');
-			this.surface.addElement(this.$element);
+			this.surface.addElementToTop(this.$element);
 			this.$element.hide();
 			this.$arrow = $('<div class="editor-box-arrow"></div>');
 			this.$element.append(this.$arrow);
@@ -53,7 +53,7 @@ module.exports = function(editor) {
 			this.$marginIcon = $('<div class="editor-margin-icon"></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
 			this.$marking = $('<div class="editor-marking"></div>');
-			this.surface.addElement(this.$marking);
+			this.surface.addElementToTop(this.$marking);
 			this.$marking.hide();
 			this.box = new editor.Box(this.$marking, this.surface);
 			this.$marginIcon.on('click', this.toggleMesssage.bind(this));
@@ -138,7 +138,7 @@ module.exports = function(editor) {
 	editor.AutoCompleteBox.prototype = {
 		init: function(surface, delegate, line, column, offset) {
 			this.$element = $('<div class="editor-autocomplete-box"><div class="editor-autocomplete-arrow"></div></div>');
-			surface.addElement(this.$element);
+			surface.addElementToTop(this.$element);
 
 			this.$content = $('<div class="editor-autocomplete-content"></div>');
 			this.$element.append(this.$content);
@@ -382,7 +382,7 @@ module.exports = function(editor) {
 			return Math.max(0, (line-1)*this.lineHeight);
 		},
 
-		addElement: function($element) {
+		addElementToBottom: function($element) {
 			this.$bottom.append($element);
 		},
 
@@ -428,7 +428,7 @@ module.exports = function(editor) {
 
 		addHighlight: function(location) {
 			var $highlightMarking = $('<div class="editor-marking editor-highlight"></div>');
-			this.addElement($highlightMarking);
+			this.addElementToBottom($highlightMarking);
 			$highlightMarking.css(this.makeElementLocationRange(location));
 		},
 
@@ -448,7 +448,7 @@ module.exports = function(editor) {
 		showFunctionHighlight: function(location) {
 			this.hideFunctionHighlight();
 			var $highlightMarking = $('<div class="editor-marking editor-highlight-function"></div>');
-			this.addElement($highlightMarking);
+			this.addElementToBottom($highlightMarking);
 			$highlightMarking.css(this.makeElementLocationRange(location));
 		},
 

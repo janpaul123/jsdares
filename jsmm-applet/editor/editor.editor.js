@@ -28,11 +28,8 @@ module.exports = function(editor) {
 			this.currentHighlightNode = null;
 			this.currentHighlightLine = 0;
 			this.surface.enableMouse();
-			this.highlightingEnabled = true;
-			this.timeHighlightingEnabled = true;
 			this.callOutputs('enableHighlighting');
 
-			this.timeHighlightingEnabled = false;
 			this.activeTimeHighlights = [];
 			this.updateTimeHighlighting();
 
@@ -80,6 +77,7 @@ module.exports = function(editor) {
 		},
 
 		callOutputs: function(funcName) {
+			console.log('callOutputs', funcName);
 			for (var outputName in this.outputs) {
 				if (this.outputs[outputName][funcName] !== undefined) {
 					this.outputs[outputName][funcName].apply(this.outputs[outputName], [].slice.call(arguments, 1));
@@ -147,7 +145,7 @@ module.exports = function(editor) {
 		},
 
 		canHighlight: function() {
-			return !this.tree.hasError();
+			return !this.tree.hasError() && this.runner.isStatic();
 		},
 
 		canHighlightTime: function() {
@@ -252,6 +250,7 @@ module.exports = function(editor) {
 		},
 
 		runnerChanged: function() { // runner callback
+			console.log('runnerChanged');
 			if (!this.autoCompletionEnabled) {
 				this.surface.hideAutoCompleteBox();
 				if (this.runner.isStepping()) {
@@ -281,13 +280,11 @@ module.exports = function(editor) {
 						this.surface.hideMessage();
 					}
 				}
-				this.updateHighlighting();
 				this.callToolbar('update', this.runner);
 			}
 			this.callOutputs('outputSetError', this.runner.hasError());
-			if (this.activeTimeHighlights.length > 0) {
-				this.updateActiveTimeHighlights();
-			}
+			this.updateHighlighting();
+			this.updateTimeHighlighting();
 			// if (this.runner.isStatic()) {
 				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 			// }
@@ -295,8 +292,8 @@ module.exports = function(editor) {
 
 		runnerChangedEvent: function() {
 			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
-			this.updateHighlighting();
-			this.updateActiveTimeHighlights();
+			// this.updateHighlighting();
+			// this.updateActiveTimeHighlights();
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
@@ -363,6 +360,7 @@ module.exports = function(editor) {
 
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
 		updateHighlighting: function() {
+			console.log('updateHighlighting', this.canHighlight());
 			if (this.canHighlight()) {
 				var node = this.tree.getNodeByLine(this.currentHighlightLine);
 				if (node !== this.currentHighlightNode) {
@@ -378,13 +376,12 @@ module.exports = function(editor) {
 						this.callOutputs('highlightCallIds', null);
 					}
 				}
-				if (this.runner.isStatic()) {
-					this.callOutputs('enableHighlighting');
-				} else {
-					this.callOutputs('disableHighlighting');
-				}
+				this.callOutputs('enableHighlighting');
 			} else {
+				this.surface.hideHighlight();
 				this.callOutputs('disableHighlighting');
+				this.currentHighlightNode = null;
+				this.currentHighlightLine = 0;
 			}
 		},
 
@@ -397,9 +394,10 @@ module.exports = function(editor) {
 					}
 				}
 				this.surface.showTimeHighlights(timeHighlights);
-				// if (!this.highlightingEnabled) {
-				// 	this.surface.hideInactiveTimeHighlights();
-				// }
+				this.updateActiveTimeHighlights();
+			} else {
+				this.surface.hideTimeHighlights();
+				this.callOutputs('highlightTimeIds', null);
 			}
 		},
 
@@ -431,9 +429,6 @@ module.exports = function(editor) {
 		},
 
 		timeHighlightHover: function(name) {
-			// if (!this.highlightingEnabled) {
-			// 	this.surface.hideInactiveTimeHighlights();
-			// }
 		},
 
 		timeHighlightActivate: function(name) {
@@ -452,16 +447,8 @@ module.exports = function(editor) {
 
 			if (position > -1) {
 				this.activeTimeHighlights.splice(position, 1);
-				// if (!this.highlightingEnabled) {
-				// 	this.surface.hideInactiveTimeHighlights();
-				// }
 				this.updateActiveTimeHighlights();
 			}
-		},
-
-		toggleHighlighting: function() {
-			if (!this.highlightingEnabled) this.enableHighlighting();
-			else this.disableHighlighting();
 		},
 
 		highlightNode: function(node) { // callback
@@ -509,17 +496,15 @@ module.exports = function(editor) {
 			if (column < -1) {
 				line = 0;
 			}
-			if (this.highlightingEnabled && this.currentHighlightLine !== line) {
+			if (this.currentHighlightLine !== line) {
 				this.currentHighlightLine = line;
 				this.updateHighlighting();
 			}
 		},
 
 		mouseLeave: function(event) { //callback
-			if (this.highlightingEnabled) {
-				this.currentHighlightLine = 0;
-				this.updateHighlighting();
-			}
+			this.currentHighlightLine = 0;
+			this.updateHighlighting();
 		},
 
 		/// KEYBOARD CALLBACKS ///
@@ -629,9 +614,6 @@ module.exports = function(editor) {
 			this.autoCompletionEnabled = true;
 			if (this.editablesEnabled) {
 				this.disableEditables();
-			}
-			if (this.highlightingEnabled) {
-				this.disableHighlighting();
 			}
 
 			var text = this.surface.getText();
