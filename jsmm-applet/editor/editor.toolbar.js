@@ -572,13 +572,13 @@ module.exports = function(editor) {
 		update: function(runner) {
 			this.enabled = true;
 			if (runner.isInteractive()) {
-				this.$div.addClass('editor-toolbar-interactive');
-				this.baseStepBar.disable();
 				this.runBar.update(runner);
+				this.baseStepBar.disable();
+				this.$div.addClass('editor-toolbar-interactive');
 			} else {
-				this.$div.removeClass('editor-toolbar-interactive');
 				this.baseStepBar.update(runner);
 				this.runBar.disable();
+				this.$div.removeClass('editor-toolbar-interactive');
 			}
 		},
 

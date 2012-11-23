@@ -30,7 +30,6 @@ module.exports = function(editor) {
 			this.currentHighlightNode = null;
 			this.currentHighlightLine = 0;
 			this.surface.enableMouse();
-			this.callOutputs('enableHighlighting');
 
 			this.activeTimeHighlights = [];
 			this.updateTimeHighlighting();

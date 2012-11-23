@@ -23,6 +23,7 @@ module.exports = function(editor) {
 				column: node.lineLoc.column,
 				column2: node.lineLoc.column2
 			};
+
 			this.text = delegate.getEditablesText(node);
 			this.finalText = this.text;
 			this.valid = this.parseValue(this.text);
@@ -42,6 +43,14 @@ module.exports = function(editor) {
 				}
 				this.updateMarking();
 			}
+		};
+
+		editable.show = function() {
+			this.$marking.addClass('editor-editable-show');
+		};
+
+		editable.hide = function() {
+			this.$marking.removeClass('editor-editable-show');
 		};
 
 		/// INTERNAL FUNCTIONS ///
