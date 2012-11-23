@@ -21,9 +21,11 @@ module.exports = function(editor) {
 				this.toolbar = new editor.Toolbar($toolbar, this);
 			}
 
+			this.showingEditables = false;
+			this.currentEditableLine = 0;
+			this.previousEditableLine = 0;
 			this.editables = [];
 			this.editablesByLine = [];
-			this.editablesEnabled = false;
 
 			this.currentHighlightNode = null;
 			this.currentHighlightLine = 0;
@@ -54,6 +56,7 @@ module.exports = function(editor) {
 			this.runner = runner;
 			this.outputs = outputs;
 			this.update();
+			this.refreshEditables();
 		},
 
 		getText: function() {
@@ -64,6 +67,7 @@ module.exports = function(editor) {
 			this.surface.setText(text);
 			this.surface.resetCursor();
 			this.update();
+			this.refreshEditables();
 		},
 
 		setTextChangeCallback: function(callback) {
@@ -133,6 +137,7 @@ module.exports = function(editor) {
 				this.runner.newTree(this.tree);
 				this.updateHighlighting();
 				this.updateTimeHighlighting();
+				this.refreshEditables();
 				return true;
 			} else {
 				this.callOutputs('outputSetError', true);
@@ -145,17 +150,18 @@ module.exports = function(editor) {
 		},
 
 		canHighlight: function() {
-			return !this.tree.hasError() && this.runner.isStatic();
+			return this.canRun() && this.runner.isStatic();
 		},
 
 		canHighlightTime: function() {
 			return this.runner && this.runner.isInteractive() && this.canHighlight();
 		},
 
+		canShowEditables: function() {
+			return this.canRun();
+		},
+
 		handleCriticalError: function(error) {
-			if (this.editablesEnabled) {
-				this.disableEditables();
-			}
 			if (this.wasStepping) {
 				this.wasStepping = false;
 				this.surface.hideMessage();
@@ -165,6 +171,7 @@ module.exports = function(editor) {
 			this.callToolbar('disable');
 			this.updateHighlighting();
 			this.updateTimeHighlighting();
+			this.updateEditables();
 			this.highlightFunctionNode(null);
 			this.callOutputs('outputSetError', true);
 		},
@@ -202,9 +209,7 @@ module.exports = function(editor) {
 
 		userChangedText: function() { // callback
 			this.update(); // refreshEditables uses this.tree
-			if (this.editablesEnabled) {
-				this.refreshEditables();
-			}
+			this.refreshEditables();
 		},
 
 		outputRequestsRerun: function() { //callback
@@ -285,6 +290,7 @@ module.exports = function(editor) {
 			this.callOutputs('outputSetError', this.runner.hasError());
 			this.updateHighlighting();
 			this.updateTimeHighlighting();
+			this.updateEditables();
 			// if (this.runner.isStatic()) {
 				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 			// }
@@ -297,25 +303,8 @@ module.exports = function(editor) {
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
-		enableEditables: function() {
-			if (this.canRun()) {
-				this.editablesEnabled = true;
-				this.refreshEditables();
-			}
-		},
-
-		disableEditables: function() {
-			this.removeEditables();
-			this.editablesEnabled = false;
-		},
-
-		toggleEditables: function() {
-			if (!this.editablesEnabled) this.enableEditables();
-			else this.disableEditables();
-		},
-
 		refreshEditables: function() {
-			if (this.editablesEnabled) {
+			if (this.canShowEditables()) {
 				this.removeEditables();
 				this.editables = this.language.editor.editables.generate(this.tree, editor.editables, this.surface, this);
 				for (var i=0; i<this.editables.length; i++) {
@@ -325,16 +314,45 @@ module.exports = function(editor) {
 					}
 					this.editablesByLine[line].push(this.editables[i]);
 				}
+				this.updateEditables();
+				this.showingEditables = true;
+			} else {
+				this.removeEditables();
+				this.showingEditables = false;
+			}
+        },
+
+		removeEditables: function() {
+			for (var i=0; i<this.editables.length; i++) {
+				this.editables[i].remove();
+			}
+			this.editables = [];
+			this.editablesByLine = [];
+			this.previousEditableLine = 0;
+		},
+
+		updateEditables: function() {
+			if (this.canShowEditables()) {
+				if (this.currentEditableLine > 0 && this.currentEditableLine !== this.previousEditableLine) {
+					this.hideEditables(this.previousEditableLine);
+					this.previousEditableLine = this.currentEditableLine;
+					if (this.editablesByLine[this.currentEditableLine]) {
+						for (var i=0; i<this.editablesByLine[this.currentEditableLine].length; i++) {
+							this.editablesByLine[this.currentEditableLine][i].show();
+						}
+					}
+				}
+			} else {
+				this.hideEditables(this.previousEditableLine);
+				this.previousEditableLine = 0;
 			}
 		},
 
-		removeEditables: function() {
-			if (this.editablesEnabled) {
-				for (var i=0; i<this.editables.length; i++) {
-					this.editables[i].remove();
+		hideEditables: function(line) {
+			if (this.editablesByLine[line]) {
+				for (var i=0; i<this.editablesByLine[line].length; i++) {
+					this.editablesByLine[line][i].hide();
 				}
-				this.editables = [];
-				this.editablesByLine = [];
 			}
 		},
 
@@ -343,6 +361,7 @@ module.exports = function(editor) {
 		},
 
 		editableReplaceCode: function(line, column, column2, newText) { // callback
+			console.log('editableReplaceCode');
 			if (this.editablesByLine[line] === undefined) return;
 
 			var offset1 = this.code.lineColumnToOffset(line, column), offset2 = this.code.lineColumnToOffset(line, column2);
@@ -500,11 +519,17 @@ module.exports = function(editor) {
 				this.currentHighlightLine = line;
 				this.updateHighlighting();
 			}
+			if (this.currentEditableLine !== line) {
+				this.currentEditableLine = line;
+				this.updateEditables();
+			}
 		},
 
 		mouseLeave: function(event) { //callback
 			this.currentHighlightLine = 0;
 			this.updateHighlighting();
+			this.currentEditableLine = 0;
+			this.updateEditables();
 		},
 
 		/// KEYBOARD CALLBACKS ///
@@ -626,6 +651,7 @@ module.exports = function(editor) {
 				this.surface.setText(text.substring(0, offset1) + example + text.substring(offset2));
 				this.surface.setCursor(offset1 + example.length, offset1 + example.length);
 				this.disableAutoCompletion();
+				this.refreshEditables();
 			}
 		},
 
@@ -634,9 +660,9 @@ module.exports = function(editor) {
 				this.autoCompletionEnabled = false;
 				this.surface.hideAutoCompleteBox();
 				this.update();
+				this.refreshEditables();
 			}
 		},
-
 
 		addEvent: function(type, funcName, args) {
 			return this.runner.addEvent(type, funcName, args);

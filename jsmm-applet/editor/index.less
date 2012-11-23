@@ -230,6 +230,19 @@
 	cursor: col-resize !important;
 }
 
+.editor-editable {
+	display: none;
+}
+
+.editor-editable-show {
+	display: block;
+}
+
+.editor-editable.active {
+	display: block;
+	background-color: @editor-marking-color-active;
+}
+
 /// COLORPICKER ///
 div.colorpicker div.circle.lightness {
 	border-color: @editor-box-background-color;

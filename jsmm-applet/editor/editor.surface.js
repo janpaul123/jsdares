@@ -382,6 +382,10 @@ module.exports = function(editor) {
 			return Math.max(0, (line-1)*this.lineHeight);
 		},
 
+		addElement: function($element) {
+			this.addElementToTop($element);
+		},
+
 		addElementToBottom: function($element) {
 			this.$bottom.append($element);
 		},
