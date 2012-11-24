@@ -417,6 +417,15 @@ module.exports = function(output) {
 			this.robot.removePathHighlights();
 		},
 
+		enableEventHighlighting: function() {
+			this.$container.addClass('robot-highlighting-current-event');
+			this.updateEventHighlight();
+		},
+
+		disableEventHighlighting: function() {
+			this.$container.removeClass('robot-highlighting-current-event');
+		},
+
 		updateEventHighlight: function() {
 			this.robot.removeEventHighlights();
 			if (this.highlighting) {

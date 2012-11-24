@@ -332,7 +332,7 @@ module.exports = function(editor) {
 
 		updateEditables: function() {
 			if (this.canShowEditables()) {
-				if (this.currentEditableLine > 0 && this.currentEditableLine !== this.previousEditableLine) {
+				if (this.currentEditableLine !== this.previousEditableLine) {
 					this.hideEditables(this.previousEditableLine);
 					this.previousEditableLine = this.currentEditableLine;
 					if (this.editablesByLine[this.currentEditableLine]) {
@@ -501,11 +501,13 @@ module.exports = function(editor) {
 		highlightFunctionNode: function(node, scroll) { // toolbar callback
 			if (node === null) {
 				this.surface.hideFunctionHighlight();
+				this.callOutputs('disableEventHighlighting');
 			} else {
 				this.surface.showFunctionHighlight(this.makeLoc(node.blockLoc));
 				if (scroll) {
 					this.surface.scrollToLine(node.blockLoc.line);
 				}
+				this.callOutputs('enableEventHighlighting');
 			}
 		},
 

@@ -315,6 +315,8 @@ module.exports = function(output) {
 			}
 
 			this.highlighting = false;
+			this.eventHighlighting = false;
+			this.eventHighlightingInternal = false;
 			this.highlightCallIndex = -1;
 			this.editor = editor;
 		},
@@ -452,6 +454,8 @@ module.exports = function(output) {
 		render: function() {
 			this.setCanvasState(this.eventPosition);
 
+			var highlightCurrentEvent = this.highlighting && (this.eventHighlighting || this.eventHighlightingInternal);
+
 			var stepCall = null;
 			for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
 				var call = this.events[this.eventPosition].calls[i];
@@ -461,7 +465,7 @@ module.exports = function(output) {
 				if (functions[call.name].highlight) {
 					if (call.stepNum === this.stepNum) {
 						stepCall = call;
-					} else if (this.highlighting) {
+					} else if (highlightCurrentEvent) {
 						this.context[call.name].apply(this.context, call.args);
 						this.context.strokeStyle = this.context.fillStyle = this.context.shadowColor = 'rgba(0, 110, 220, 0.50)'; // blue
 					}
@@ -545,6 +549,8 @@ module.exports = function(output) {
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
 			this.$div.on('mousemove', this.mouseMove.bind(this));
+			this.$div.on('mouseleave', this.mouseLeave.bind(this));
+			this.eventHighlightingInternal = false;
 			if (this.eventsPosLength > 0) {
 				this.render();
 			}
@@ -554,11 +560,26 @@ module.exports = function(output) {
 			this.highlighting = false;
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
-			this.$div.off('mousemove');
+			this.$div.off('mousemove mouseleave');
 			this.callIds = [];
+			this.eventHighlightingInternal = false;
 			if (this.eventsPosLength > 0) {
 				this.render();
 				this.clearMirror();
+			}
+		},
+
+		enableEventHighlighting: function() {
+			this.eventHighlighting = true;
+			if (this.eventsPosLength > 0) {
+				this.render();
+			}
+		},
+
+		disableEventHighlighting: function() {
+			this.eventHighlighting = false;
+			if (this.eventsPosLength > 0) {
+				this.render();
 			}
 		},
 
@@ -629,8 +650,20 @@ module.exports = function(output) {
 					} else {
 						this.editor.highlightNodeId(this.events[this.eventPosition].calls[this.highlightCallIndex].nodeId);
 					}
+
+					this.eventHighlightingInternal = true;
+					this.render();
+				} else if (!this.eventHighlightingInternal) {
+					this.eventHighlightingInternal = true;
 					this.render();
 				}
+			}
+		},
+
+		mouseLeave: function() {
+			if (this.highlighting && this.eventHighlightingInternal) {
+				this.eventHighlightingInternal = false;
+				this.render();
 			}
 		}
 	};

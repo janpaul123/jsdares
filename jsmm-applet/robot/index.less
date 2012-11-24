@@ -176,6 +176,7 @@
 @robot-path-point-size: 6px;
 @robot-path-point-arrow-size: 4px;
 @robot-path-point-arrow-hover: 10px; // edit this in JS as well
+
 .robot-path {
 	position: absolute;
 	left: 0px;
@@ -186,7 +187,7 @@
 
 		&.robot-path-highlight-time {
 			display: block;
-			.opacity(20);
+			.opacity(50);
 		}
 	}
 
@@ -206,24 +207,7 @@
 
 			-webkit-backface-visibility: hidden;
 		}
-
-		&.robot-path-highlight-time .robot-path-line-inside {
-			background-color: rgba(0, 110, 220, 0.30);
-		}
-
-		&.robot-path-highlight-event {
-			z-index: 13;
-			.robot-path-line-inside {
-				background-color: rgba(0, 110, 220, 1);
-			}
-		}
-
-		&.robot-path-highlight, &.robot-path-highlight-step {
-			z-index: 15;
-			.robot-path-line-inside {
-				background-color: rgba(5, 195, 5, 0.85);
-			}
-		}
+		
 	}
 
 	.robot-path-point {
@@ -259,38 +243,6 @@
 				-webkit-backface-visibility: hidden;
 			}
 		}
-
-		&.robot-path-highlight-time {
-			.robot-path-point-inside {
-				background-color: rgba(0, 110, 220, 0.50);
-
-				.robot-path-point-arrow {
-					background-color: rgba(0, 110, 220, 0.50);
-				}
-			}
-		}
-
-		&.robot-path-highlight-event {
-			z-index: 14;
-			.robot-path-point-inside {
-				background-color: rgba(0, 110, 220, 1);
-
-				.robot-path-point-arrow {
-					background-color: rgba(0, 110, 220, 1);
-				}
-			}
-		}
-
-		&.robot-path-highlight, &.robot-path-highlight-step {
-			z-index: 16;
-			.robot-path-point-inside {
-				background-color: rgba(5, 195, 5, 0.85);
-
-				.robot-path-point-arrow {
-					background-color: rgba(5, 195, 5, 0.85);
-				}
-			}
-		}
 	}
 }
 
@@ -314,6 +266,67 @@
 		.robot-path-point-inside {
 			top: @robot-path-point-hover/2;
 			left: @robot-path-point-hover/2;
+		}
+	}
+}
+
+.robot-path .robot-path-highlight-time {
+	&.robot-path-line .robot-path-line-inside {
+		background-color: rgba(0, 110, 220, 0.40);
+	}
+	
+	&.robot-path-point .robot-path-point-inside {
+		background-color: rgba(0, 110, 220, 0.40);
+
+		.robot-path-point-arrow {
+			background-color: rgba(0, 110, 220, 0.40);
+		}
+	}
+}
+
+.robot-highlighting-current-event .robot-path .robot-path-highlight-event,
+.robot-container:hover .robot-path .robot-path-highlight-event,
+.robot-path .robot-path-highlight-event.robot-path-highlight-time {
+	&.robot-path-line {
+		.opacity(100);
+		z-index: 13;
+		.robot-path-line-inside {
+			background-color: rgba(0, 110, 220, 1);
+		}
+	}
+
+	&.robot-path-point {
+		.opacity(100);
+		z-index: 14;
+		.robot-path-point-inside {
+			background-color: rgba(0, 110, 220, 1);
+
+			.robot-path-point-arrow {
+				background-color: rgba(0, 110, 220, 1);
+			}
+		}
+	}
+}
+
+.robot-path .robot-path-highlight-step,
+.robot-path .robot-path-highlight {
+	&.robot-path-line {
+		.opacity(100);
+		z-index: 15 !important;
+		.robot-path-line-inside {
+			background-color: rgba(5, 195, 5, 0.85) !important;
+		}
+	}
+	
+	&.robot-path-point {
+		.opacity(100);
+		z-index: 16 !important;
+		.robot-path-point-inside {
+			background-color: rgba(5, 195, 5, 0.85) !important;
+
+			.robot-path-point-arrow {
+				background-color: rgba(5, 195, 5, 0.85) !important;
+			}
 		}
 	}
 }

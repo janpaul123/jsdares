@@ -334,6 +334,15 @@ module.exports = function(output) {
 			this.refreshAutoScroll();
 		},
 
+		enableEventHighlighting: function() {
+			this.$div.addClass('console-highlighting-current-event');
+			this.updateEventHighlight();
+		},
+
+		disableEventHighlighting: function() {
+			this.$div.removeClass('console-highlighting-current-event');
+		},
+
 		updateEventHighlight: function() {
 			this.$lines.children('.console-line-highlight-event').removeClass('console-line-highlight-event');
 			if (this.highlighting) {
