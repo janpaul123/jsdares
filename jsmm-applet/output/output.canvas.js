@@ -490,12 +490,14 @@ module.exports = function(output) {
 			}
 
 			if (stepCall !== null) {
+				this.wrapper.setState(stepCall.state);
 				this.context.strokeStyle = this.context.fillStyle = this.context.shadowColor = 'rgba(5, 195, 5, 0.85)'; // green
 				this.context[stepCall.name].apply(this.context, stepCall.args);
 			}
 
 			if (this.highlightCallIndex >= 0) {
 				var highlightCall = this.events[this.eventPosition].calls[this.highlightCallIndex];
+				this.wrapper.setState(highlightCall.state);
 				this.context.strokeStyle = this.context.fillStyle = this.context.shadowColor = 'rgba(5, 195, 5, 0.85)'; // green
 				this.context[highlightCall.name].apply(this.context, highlightCall.args);
 			}
