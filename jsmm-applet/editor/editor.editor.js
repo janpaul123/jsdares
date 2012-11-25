@@ -35,7 +35,6 @@ module.exports = function(editor) {
 			this.updateTimeHighlighting();
 
 			this.autoCompletionEnabled = false;
-			this.wasStepping = false;
 
 			this.updateTimeout = null;
 
@@ -161,10 +160,6 @@ module.exports = function(editor) {
 		},
 
 		handleCriticalError: function(error) {
-			if (this.wasStepping) {
-				this.wasStepping = false;
-				this.surface.hideMessage();
-			}
 			this.handleError(error);
 			this.runner.disable();
 			this.callToolbar('disable');
@@ -267,17 +262,9 @@ module.exports = function(editor) {
 					}
 					this.lastEventNum = this.runner.getEventNum();
 					this.lastStepNum = this.runner.getStepNum();
-					if (!this.wasStepping) {
-						this.wasStepping = true;
-						this.surface.openMessage();
-					}
 				} else {
 					this.lastEventNum = undefined;
 					this.lastStepNum = undefined;
-					if (this.wasStepping) {
-						this.wasStepping = false;
-						this.surface.closeMessage();
-					}
 					if (this.runner.hasError()) {
 						this.handleError(this.runner.getError());
 					} else {
@@ -399,7 +386,7 @@ module.exports = function(editor) {
 				this.surface.hideHighlight();
 				this.callOutputs('disableHighlighting');
 				this.currentHighlightNode = null;
-				this.currentHighlightLine = 0;
+				// this.currentHighlightLine = 0;
 			}
 		},
 

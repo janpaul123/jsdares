@@ -48,7 +48,7 @@ module.exports = function(editor) {
 	};
 
 	editor.Message.prototype = {
-		init: function(surface) {
+		init: function(surface, hover) {
 			this.surface = surface;
 			this.$marginIcon = $('<div class="editor-margin-icon"></div>');
 			this.surface.addElementToMargin(this.$marginIcon);
@@ -56,11 +56,18 @@ module.exports = function(editor) {
 			this.surface.addElementToTop(this.$marking);
 			this.$marking.hide();
 			this.box = new editor.Box(this.$marking, this.surface);
-			this.$marginIcon.on('click', this.toggleMesssage.bind(this));
-			this.$marking.on('click', this.toggleMesssage.bind(this));
-			this.box.$element.on('click', this.toggleMesssage.bind(this));
+			if (hover) {
+				this.$marginIcon.on('mouseenter', this.openMessage.bind(this));
+				this.$marginIcon.on('mouseleave', this.closeMessage.bind(this));
+				this.messageOpen = false;
+			} else {
+				// this.$marginIcon.on('click', this.toggleMesssage.bind(this));
+				// this.$marking.on('click', this.toggleMesssage.bind(this));
+				// this.box.$element.on('click', this.toggleMesssage.bind(this));
+				// always show step messages now...
+				this.messageOpen = true;
+			}
 			this.visible = false;
-			this.messageOpen = false;
 			this.location = null;
 			this.html = '';
 			this.isCurrentlyShown = false;
@@ -121,15 +128,15 @@ module.exports = function(editor) {
 			if (this.visible && this.messageOpen && this.location !== null) {
 				if (!this.isCurrentlyShown) {
 					this.isCurrentlyShown = true;
-					this.$marking.hide().fadeIn(150);
-					this.box.$element.hide().fadeIn(150);
+					this.$marking.show();
+					this.box.$element.show();
 				}
 				this.box.html(this.html, this.surface.makeElementLocationRange(this.location));
 			} else {
 				if (this.isCurrentlyShown) {
 					this.isCurrentlyShown = false;
-					this.$marking.show().fadeOut(150);
-					this.box.$element.show().fadeOut(150);
+					this.$marking.hide();
+					this.box.$element.hide();
 				}
 			}
 		}
@@ -320,8 +327,9 @@ module.exports = function(editor) {
 			this.$margin = $('<div class="editor-margin"></div>');
 			this.$div.append(this.$margin);
 			
-			// setting up message
-			this.message = new editor.Message(this);
+			// setting up messages
+			this.errorMessage = new editor.Message(this, true);
+			this.stepMessage = new editor.Message(this, false);
 
 			this.updateSize = this.updateSize.bind(this);
 			$(window).on('resize', this.updateSize);
@@ -339,7 +347,8 @@ module.exports = function(editor) {
 			$(window).off('resize', this.updateSize);
 			this.hideAutoCompleteBox();
 			//this.$highlightMarking.remove();
-			this.message.remove();
+			this.errorMessage.remove();
+			this.stepMessage.remove();
 			this.$bottom.children('.editor-time-highlight').remove();
 			this.$top.children('.editor-time-highlight').remove();
 			this.$margin.remove();
@@ -408,26 +417,29 @@ module.exports = function(editor) {
 		},
 
 		showMessage: function(type, location, html) {
-			this.message.showAtLocation(type, location, html);
-			this.$div.removeClass('editor-error editor-step');
 			if (type === 'error') {
-				this.$div.addClass('editor-error');
+				this.showError(location, html);
 			} else {
-				this.$div.addClass('editor-step');
+				this.showStep(location, html);
 			}
+		},
+
+		showError: function(location, html) {
+			this.errorMessage.showAtLocation('error', location, html);
+			this.$div.removeClass('editor-step');
+			this.$div.addClass('editor-error');
+		},
+
+		showStep: function(location, html) {
+			this.stepMessage.showAtLocation('inline', location, html);
+			this.$div.removeClass('editor-error');
+			this.$div.addClass('editor-step');
 		},
 
 		hideMessage: function() {
 			this.$div.removeClass('editor-error editor-step');
-			this.message.hide();
-		},
-
-		openMessage: function() {
-			this.message.openMessage();
-		},
-
-		closeMessage: function() {
-			this.message.closeMessage();
+			this.errorMessage.hide();
+			this.stepMessage.hide();
 		},
 
 		addHighlight: function(location) {
