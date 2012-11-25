@@ -86,9 +86,9 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000000')},
 						{ $set: {
 							userId: user._id,
-							name: 'Stepping',
+							name: 'Driving around',
 							type: 'RobotGoal',
-							description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-left,750,65">program</a>, which makes a robot move. You can see the robot by clicking on the <a href="#arrow-tab-robot">robot tab</a>. You can use the <a href="#arrow-step">step button</a> to see what the program does.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
+							description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-left,750,65">program</a>, which makes a robot move. You can see the robot by clicking on the <a href="#arrow-tab-robot">robot tab</a>.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
 							allDares: {
 								RobotGoal: {
 									totalGoals: 1,
@@ -114,7 +114,7 @@ module.exports = function(server) {
 							userId: user._id,
 							name: 'Another wall',
 							type: 'RobotGoal',
-							description: '<p>Again, move the robot to the green square, as demonstrated in the <a href="#arrow-left,535,180">preview</a>. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Click on the <a href="#arrow-up,557,70">error icon</a> to see what is wrong.</p>',
+							description: '<p>Again, move the robot to the green square, as demonstrated in the <a href="#arrow-left,535,180">preview</a>. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Move over the <a href="#arrow-up,557,70">error icon</a> to see what is wrong.</p>',
 							allDares: {
 								RobotGoal: {
 									totalGoals: 1,
@@ -137,9 +137,9 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000002')},
 						{ $set: {
 							userId: user._id,
-							name: 'Highlighting',
+							name: 'Moving some more',
 							type: 'RobotGoal',
-							description: '<p>Stepping is very useful, but to see more quickly which command does what, you can use the <a href="#arrow-highlighting">highlighting button</a>. When using highlighting, move the mouse over the code, or over the path of the robot. After that, move the robot to the green square in as few lines as you can.</p>',
+							description: '<p>Again, move the robot to the green square in as few lines as you can.</p>',
 							allDares: {
 								RobotGoal: {
 									totalGoals: 1,
@@ -189,7 +189,7 @@ module.exports = function(server) {
 							userId: user._id,
 							name: 'Manipulation',
 							type: 'RobotGoal',
-							description: '<p>For this dare you just have to edit the numbers in the program. You can use the <a href="#arrow-manipulation">manipulation button</a> to do this easily. Note that you cannot use extra lines of code, but you can get <strong>extra points</strong> by visiting all goals!</p>',
+							description: '<p>For this dare you just have to edit the numbers in the program. Move the mouse over a number and drag it to quickly change its value.</p> <p>You can get <strong>extra points</strong> by visiting all goals!</p>',
 							allDares: {
 								RobotGoal: {
 									totalGoals: 7,
@@ -212,26 +212,26 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000005')},
 						{ $set: {
 							userId: user._id,
-							name: 'Knight jump',
+							name: 'Maze',
 							type: 'RobotGoal',
-							description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands. In the provided <a href="#arrow-left,780,58">program</a>, the name of the function is <var>knightJump</var>, and you can call it by writing <var>knightJump();</var>.</p> <p>For this dare, we created a function for you, which moves the robot like a <strong>knight</strong> jumps on a chess board: two blocks forward, and one to the right. Use the <a href="#arrow-step">step button</a> to see what happens. We have also added a new tab, the <a href="#arrow-tab-info">info tab</a>, with more information about functions.</p>',
+							description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands.</p> <p>In the provided <a href="#arrow-left,780,58">program</a>, the name of the function is <var>leftright</var>, and you can call it by writing <var>leftright();</var>.</p> <p>Finish the program using <var>leftright();</var> multiple times. Use the <a href="#arrow-step">step button</a> to see what happens exactly.</p>',
 							allDares: {
 								RobotGoal: {
-									totalGoals: 6,
-									minGoals: 6,
+									totalGoals: 5,
+									minGoals: 5,
 									goalReward: 50,
-									maxLines: 15,
+									maxLines: 22,
 									lineReward: 10,
 									previewBlockSize: 32
 								}
 							},
-							original: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();\nknightJump();\nrobot.turnLeft();\nknightJump();\nrobot.drive(1);\nknightJump();\nknightJump();\nknightJump();\n',
+							original: 'function leftright() {\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nleftright();\nleftright();\nleftright();\nleftright();\nleftright();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(4);\nrobot.turnRight();\nleftright();\nleftright();\nleftright();\nrobot.drive(3);',
 							outputs: ['robot', 'info'],
 							allOutputs: {
-								robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":6,"rows":6,"initialX":0,"initialY":2,"initialAngle":90,"mazeObjects":15,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,true,true],[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false],[false,false,false,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,true,false,false,false],[false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false],[true,false,false,false,false,false],[false,false,false,false,true,false],[false,true,true,false,false,false],[false,false,false,false,false,true],[false,false,true,false,false,false]]}'},
+								robot: {readOnly: true, previewBlockSize: 32, state: '{"columns":8,"rows":8,"initialX":5,"initialY":7,"initialAngle":90,"mazeObjects":48,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false],[false,false,true,false,true,false,false,false],[false,false,false,true,false,true,false,false],[false,false,true,false,true,false,true,false],[false,true,false,true,false,true,false,true],[false,false,true,false,true,false,true,true],[false,false,false,true,false,true,true,true]],"horizontalActive":[[false,true,false,true,false,false,false,false],[false,true,true,false,true,false,false,false],[false,true,true,true,false,true,false,false],[false,true,true,false,true,false,true,false],[false,true,false,true,false,true,false,true],[false,false,true,false,true,false,true,false],[false,false,false,true,false,true,false,false],[false,false,false,false,true,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,true,false,false],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,true]]}'},
 								info: {commands: [{id: 'jsmm.function', examples: [0]}, {id: 'robot.drive'}, {id: 'robot.turnLeft'}, {id: 'robot.turnRight'}], scope: false}
 							},
-							editor: {text: 'function knightJump() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n}\n\nknightJump();'}
+							editor: {text: 'function leftright() {\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nleftright();\nleftright();\n'}
 						}}
 					);
 
