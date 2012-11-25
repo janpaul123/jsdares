@@ -272,15 +272,11 @@ module.exports = function(editor) {
 			this.callOutputs('outputSetError', this.runner.hasError());
 			this.updateHighlighting();
 			this.updateEditables();
-			// if (this.runner.isStatic()) {
-				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
-			// }
+			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
 		},
 
 		runnerChangedEvent: function() {
 			this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
-			// this.updateHighlighting();
-			// this.updateActiveTimeHighlights();
 		},
 
 		/// EDITABLES METHODS AND CALLBACKS ///
@@ -426,10 +422,8 @@ module.exports = function(editor) {
 					}
 				}
 				this.callOutputs('highlightTimeIds', timeIds);
-				this.callOutputs('enableHighlighting'); // rerender
 			} else {
 				this.callOutputs('highlightTimeIds', null);
-				this.callOutputs('enableHighlighting'); // rerender
 			}
 		},
 
@@ -439,6 +433,7 @@ module.exports = function(editor) {
 		timeHighlightActivate: function(name) {
 			this.activeTimeHighlights.push(name);
 			this.updateActiveTimeHighlights();
+			this.callOutputs('enableHighlighting');
 		},
 		
 		timeHighlightDeactivate: function(name) {
@@ -453,6 +448,7 @@ module.exports = function(editor) {
 			if (position > -1) {
 				this.activeTimeHighlights.splice(position, 1);
 				this.updateActiveTimeHighlights();
+				this.callOutputs('enableHighlighting');
 			}
 		},
 
