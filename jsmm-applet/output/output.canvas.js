@@ -554,6 +554,7 @@ module.exports = function(output) {
 			this.highlighting = true;
 			this.highlightCallIndex = -1;
 			this.$div.addClass('canvas-highlighting');
+			this.$div.off('mousemove mouseleave');
 			this.$div.on('mousemove', this.mouseMove.bind(this));
 			this.$div.on('mouseleave', this.mouseLeave.bind(this));
 			this.eventHighlightingInternal = false;

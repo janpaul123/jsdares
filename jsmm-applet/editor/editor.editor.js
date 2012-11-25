@@ -426,10 +426,10 @@ module.exports = function(editor) {
 					}
 				}
 				this.callOutputs('highlightTimeIds', timeIds);
-				this.callOutputs('enableHighlighting');
+				this.callOutputs('enableHighlighting'); // rerender
 			} else {
 				this.callOutputs('highlightTimeIds', null);
-				this.callOutputs('enableHighlighting');
+				this.callOutputs('enableHighlighting'); // rerender
 			}
 		},
 
