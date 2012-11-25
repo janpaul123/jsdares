@@ -78,7 +78,6 @@ module.exports = function(editor) {
 		},
 
 		callOutputs: function(funcName) {
-			console.log('callOutputs', funcName);
 			for (var outputName in this.outputs) {
 				if (this.outputs[outputName][funcName] !== undefined) {
 					this.outputs[outputName][funcName].apply(this.outputs[outputName], [].slice.call(arguments, 1));
@@ -245,7 +244,6 @@ module.exports = function(editor) {
 		},
 
 		runnerChanged: function() { // runner callback
-			console.log('runnerChanged');
 			if (!this.autoCompletionEnabled) {
 				this.surface.hideAutoCompleteBox();
 				if (this.runner.isStepping()) {
@@ -338,7 +336,6 @@ module.exports = function(editor) {
 		},
 
 		editableReplaceCode: function(line, column, column2, newText) { // callback
-			console.log('editableReplaceCode');
 			if (this.editablesByLine[line] === undefined) return;
 
 			var offset1 = this.code.lineColumnToOffset(line, column), offset2 = this.code.lineColumnToOffset(line, column2);
@@ -356,7 +353,6 @@ module.exports = function(editor) {
 
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
 		updateHighlighting: function() {
-			console.log('updateHighlighting', this.canHighlight());
 			if (this.canHighlight()) {
 				var node = this.tree.getNodeByLine(this.currentHighlightLine);
 				if (node !== this.currentHighlightNode) {
