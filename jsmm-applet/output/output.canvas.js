@@ -442,13 +442,17 @@ module.exports = function(output) {
 		},
 
 		highlightTimeIds: function(timeIds) {
-			this.timeIds = timeIds;
-			this.render();
+			if (this.timeIds !== timeIds) {
+				this.timeIds = timeIds;
+				// this.render(); not needed since enableHighlighting always called afterwards
+			}
 		},
 
-		highlightCallIds: function(callids) {
-			this.callIds = callids;
-			this.render();
+		highlightCallIds: function(callIds) {
+			if (this.callIds !== callIds) {
+				this.callIds = callIds;
+				// this.render(); not needed since enableHighlighting always called afterwards
+			}
 		},
 
 		render: function() {

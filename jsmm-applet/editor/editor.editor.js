@@ -32,7 +32,6 @@ module.exports = function(editor) {
 			this.surface.enableMouse();
 
 			this.activeTimeHighlights = [];
-			this.updateTimeHighlighting();
 
 			this.autoCompletionEnabled = false;
 
@@ -126,7 +125,6 @@ module.exports = function(editor) {
 			this.runner.enable();
 			this.runner.newTree(this.tree);
 			this.updateHighlighting();
-			this.updateTimeHighlighting();
 		},
 
 		runTemp: function(text) {
@@ -134,7 +132,6 @@ module.exports = function(editor) {
 			if (!this.tree.hasError()) {
 				this.runner.newTree(this.tree);
 				this.updateHighlighting();
-				this.updateTimeHighlighting();
 				this.refreshEditables();
 				return true;
 			} else {
@@ -164,7 +161,6 @@ module.exports = function(editor) {
 			this.runner.disable();
 			this.callToolbar('disable');
 			this.updateHighlighting();
-			this.updateTimeHighlighting();
 			this.updateEditables();
 			this.highlightFunctionNode(null);
 			this.callOutputs('outputSetError', true);
@@ -275,7 +271,6 @@ module.exports = function(editor) {
 			}
 			this.callOutputs('outputSetError', this.runner.hasError());
 			this.updateHighlighting();
-			this.updateTimeHighlighting();
 			this.updateEditables();
 			// if (this.runner.isStatic()) {
 				this.callOutputs('outputSetEventStep', this.runner.getEventNum(), this.runner.getStepNum());
@@ -381,8 +376,10 @@ module.exports = function(editor) {
 						this.callOutputs('highlightCallIds', null);
 					}
 				}
+				this.updateTimeHighlighting();
 				this.callOutputs('enableHighlighting');
 			} else {
+				this.surface.hideTimeHighlights();
 				this.surface.hideHighlight();
 				this.callOutputs('disableHighlighting');
 				this.currentHighlightNode = null;
@@ -390,6 +387,7 @@ module.exports = function(editor) {
 			}
 		},
 
+		// *only* call from updateHighlighting!!
 		updateTimeHighlighting: function() {
 			if (this.canHighlightTime()) {
 				var timeHighlights = this.language.editor.timeHighlights.getTimeHighlights(this.tree);
@@ -428,8 +426,10 @@ module.exports = function(editor) {
 					}
 				}
 				this.callOutputs('highlightTimeIds', timeIds);
+				this.callOutputs('enableHighlighting');
 			} else {
 				this.callOutputs('highlightTimeIds', null);
+				this.callOutputs('enableHighlighting');
 			}
 		},
 
