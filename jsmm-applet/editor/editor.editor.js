@@ -21,12 +21,12 @@ module.exports = function(editor) {
 				this.toolbar = new editor.Toolbar($toolbar, this);
 			}
 
-			this.showingEditables = false;
 			this.currentEditableLine = 0;
 			this.previousEditableLine = 0;
 			this.editables = [];
 			this.editablesByLine = [];
 
+			this.highlighting = false;
 			this.currentHighlightNode = null;
 			this.currentHighlightLine = 0;
 			this.surface.enableMouse();
@@ -290,10 +290,8 @@ module.exports = function(editor) {
 					this.editablesByLine[line].push(this.editables[i]);
 				}
 				this.updateEditables();
-				this.showingEditables = true;
 			} else {
 				this.removeEditables();
-				this.showingEditables = false;
 			}
         },
 
@@ -317,7 +315,7 @@ module.exports = function(editor) {
 						}
 					}
 				}
-			} else {
+			} else if (this.previousEditableLine > 0) {
 				this.hideEditables(this.previousEditableLine);
 				this.previousEditableLine = 0;
 			}
@@ -354,6 +352,7 @@ module.exports = function(editor) {
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
 		updateHighlighting: function() {
 			if (this.canHighlight()) {
+				this.highlighting = true;
 				var node = this.tree.getNodeByLine(this.currentHighlightLine);
 				if (node !== this.currentHighlightNode) {
 					this.currentHighlightNode = node;
@@ -369,8 +368,9 @@ module.exports = function(editor) {
 					}
 				}
 				this.updateTimeHighlighting();
-				this.callOutputs('enableHighlighting');
-			} else {
+				this.callOutputs('enableHighlighting'); // don't check for !this.highlighting, but always call this
+			} else if (this.highlighting) {
+				this.highlighting = false;
 				this.surface.hideTimeHighlights();
 				this.surface.hideHighlight();
 				this.callOutputs('disableHighlighting');
