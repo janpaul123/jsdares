@@ -4,7 +4,9 @@
 module.exports = function(jsmm) {
 	jsmm.Tree = function() { return this.init.apply(this, arguments); };
 	jsmm.Tree.prototype = {
-		init: function(code) {
+		init: function(code, options) {
+			this.options = options || {};
+
 			this.genIds = {base: 1, functions: 1};
 			this.nodes = [];
 			this.nodesByType = { Program: [], StatementList: [], CommonSimpleStatement: [], PostfixStatement: [],
@@ -21,7 +23,7 @@ module.exports = function(jsmm) {
 			try {
 				var lines = code.split(/\n/);
 				for (var i=0; i<lines.length; i++) {
-					if (lines[i].length > jsmm.maxWidth) {
+					if (lines[i].length > (this.options.maxWidth || jsmm.maxWidth)) {
 						throw new jsmm.msg.CriticalError({line: i+1, column: jsmm.maxWidth}, 'This line is too long, please split it into separate statements');
 					}
 				}

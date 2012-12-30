@@ -524,15 +524,39 @@ module.exports = function(info) {
 		},
 
 		/// INTERNAL FUNCTIONS ///
-		filterCommands: function(filter) {
+		filterCommands: function(string) {
+			var regex = /^(([^.\[]*[.]?)*)(\[([0-9]*)\])?/;
+
+			if (string.length <= 0) {
+				return this.buildTable();
+			} else {
+				var commands = string.split(',');
+				var filter = [];
+				for (var i=0; i<commands.length; i++) {
+					var command = commands[i];
+					var matches = regex.exec(command);
+
+					var id = matches[1];
+					var example = matches[4];
+
+					filter[id] = filter[id] || [];
+
+					if (example !== undefined) {
+						filter[id].push(example);
+					}
+				}
+				return this.buildTable(filter);
+			}
+		},
+
+		buildTable: function(filter) {
 			if (filter === undefined || filter === null) {
 				return info.tables;
 			} else {
 				var tables = [];
 				for (var i=0; i<info.tables.length; i++) {
 					var table = null;
-					for (var j=0; j<filter.length; j++) {
-						var id = filter[j].id;
+					for (var id in filter) {
 						var item = info.tables[i].list[id];
 
 						if (item !== undefined) {
@@ -540,12 +564,15 @@ module.exports = function(info) {
 								table = {html: info.tables[i].html, list: {}};
 								tables.push(table);
 							}
-							table.list[id] = {name: item.name, text: item.text, examples: item.examples};
 
-							if (filter[j].examples !== undefined) {
+							if (table.list[id] === undefined) {
+								table.list[id] = {name: item.name, text: item.text, examples: item.examples};
+							}
+
+							if (filter[id].length > 0) {
 								table.list[id].examples = [];
-								for (var k=0; k<filter[j].examples.length; k++) {
-									table.list[id].examples.push(item.examples[filter[j].examples[k]]);
+								for (var k=0; k<filter[id].length; k++) {
+									table.list[id].examples.push(item.examples[filter[id][k]]);
 								}
 							}
 						}

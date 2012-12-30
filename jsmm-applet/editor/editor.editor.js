@@ -117,7 +117,6 @@ module.exports = function(editor) {
 			} else {
 				this.run();
 			}
-			this.textChangeCallback(this.code.text);
 		},
 
 		run: function() {
@@ -190,6 +189,10 @@ module.exports = function(editor) {
 			return output;
 		},
 
+		callTextChangeCallback: function() {
+			this.textChangeCallback(this.code.text);
+		},
+
 		scrollToError: function() { // callback
 			this.handleError(this.runner.getError());
 			this.surface.scrollToLine(this.runner.getError().getLoc(this.tree).line);
@@ -199,6 +202,7 @@ module.exports = function(editor) {
 		userChangedText: function() { // callback
 			this.update(); // refreshEditables uses this.tree
 			this.refreshEditables();
+			this.callTextChangeCallback();
 		},
 
 		outputRequestsRerun: function() { //callback
@@ -632,6 +636,7 @@ module.exports = function(editor) {
 				this.surface.setCursor(offset1 + example.length, offset1 + example.length);
 				this.disableAutoCompletion();
 				this.refreshEditables();
+				this.callTextChangeCallback();
 			}
 		},
 

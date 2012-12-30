@@ -71,7 +71,7 @@ module.exports = function(dares) {
 	dares.RobotGoalDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
 			this.initOptions(delegate, ui, options);
-			this.previewBlockSize = this.dareOptions.previewBlockSize || 48;
+			this.previewBlockSize = this.dareOptions.RobotGoal.previewBlockSize || 48;
 
 			this.$div.addClass('dare dare-robotgoal');
 			this.robot = this.ui.getOutput('robot');
@@ -100,8 +100,8 @@ module.exports = function(dares) {
 			
 			this.initPoints();
 			var total = this.robot.getTotalGoals();
-			this.minGoals = total-this.dareOptions.optionalGoals;
-			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.minGoals, total, this.dareOptions.goalReward);
+			this.minGoals = total-this.dareOptions.RobotGoal.optionalGoals;
+			this.goalPoints = new dares.RobotGoalPoints(this.$points, this.minGoals, total, this.dareOptions.RobotGoal.goalReward);
 			this.initEditor();
 			this.animateRobot();
 		},
@@ -123,7 +123,7 @@ module.exports = function(dares) {
 			this.animationFinish();
 
 			this.visitedGoals = this.robot.getVisitedGoals();
-			var points = this.visitedGoals.length * this.dareOptions.goalReward;
+			var points = this.visitedGoals.length * this.dareOptions.RobotGoal.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
 			this.animation.addSegment(1, 200, this.animationGoalStartCallback.bind(this));

@@ -10,15 +10,16 @@ module.exports.robot = require('./robot');
 
 module.exports.UI = function() { return this.init.apply(this, arguments); };
 module.exports.UI.prototype = {
-	icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign', home: 'icon-home', 'editor': 'icon-pencil'},
-	paneOutputs: ['robot', 'console', 'canvas', 'info'],
+	icons: {dare: 'icon-file', console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th', info: 'icon-info-sign', home: 'icon-home', 'editor': 'icon-pencil', config: 'icon-wrench'},
+	paneOutputs: ['robot', 'console', 'canvas', 'info', 'config'],
 	constructors: {
 		robot: module.exports.output.Robot,
 		console: module.exports.output.Console,
 		canvas: module.exports.output.Canvas,
 		info: module.exports.info.Info,
 		events: module.exports.output.Events,
-		math: module.exports.output.Math
+		math: module.exports.output.Math,
+		config: module.exports.output.ConfigOutput
 	},
 
 	init: function($main, globalOptions) {
@@ -94,6 +95,7 @@ module.exports.UI.prototype = {
 			}
 		}
 		this.outputs = {};
+		this.scope = {};
 	},
 
 	removeAll: function() {
@@ -107,35 +109,50 @@ module.exports.UI.prototype = {
 		this.$tabs.children('li').remove();
 		this.$content.children('div').remove();
 
-		this.scope = {};
 		this.additionalObjects = {};
 		this.tabsByName = {};
 		this.numTabs = 0;
 	},
 
-	loadOutputs: function(outputs, options) {
-		for (var i=0; i<outputs.length; i++) {
-			var name = outputs[i];
-			options[name].prepareTextElement = this.prepareTextElement.bind(this);
+	loadConfigProgram: function(definition, program, states) {
+		var config = new module.exports.output.Config(definition);
+		var runner = new module.exports.jsmm.SimpleRunner(config.getScopeObjects(), {maxWidth: Infinity});
+		runner.run(program);
+		if (runner.hasError()) console.error(runner.getError());
+		else return this.mixinStates(config.getConfig(), states);
+	},
 
-			var output;
-			if (this.paneOutputs.indexOf(name) >= 0) {
-				output = new this.constructors[name](this.editor, options[name], this.addTab(name));
-			} else {
-				output = new this.constructors[name](this.editor, options[name]);
-			}
-			this.outputs[name] = output;
+	mixinStates: function(config, states) {
+		for (var name in states) {
+			config.outputs[name].state = states[name];
+		}
+		return config;
+	},
 
-			this.addToScope(output.getScopeObjects());
+	loadOutputs: function(outputs) {
+		for (var name in outputs) {
+			if (outputs[name].enabled) {
+				outputs[name].prepareTextElement = this.prepareTextElement.bind(this);
 
-			if (name === 'events') {
-				this.scope.document = output.getAugmentedDocumentObject();
-				this.scope.window = output.getAugmentedWindowObject();
+				var output;
+				if (this.paneOutputs.indexOf(name) >= 0) {
+					output = new this.constructors[name](this.editor, outputs[name], this.addTab(name));
+				} else {
+					output = new this.constructors[name](this.editor, outputs[name]);
+				}
+				this.outputs[name] = output;
 
-				var mouseObjects = options[name].mouseObjects || [];
-				for (var j=0; j<mouseObjects.length; j++) {
-					var outputName = mouseObjects[j];
-					output.addMouseEvents(this.outputs[outputName].getMouseElement(), outputName, this.scope[outputName]);
+				this.addToScope(output.getScopeObjects());
+
+				if (name === 'events') {
+					this.scope.document = output.getAugmentedDocumentObject();
+					this.scope.window = output.getAugmentedWindowObject();
+
+					var mouseObjects = outputs[name].mouseObjects || [];
+					for (var j=0; j<mouseObjects.length; j++) {
+						var outputName = mouseObjects[j];
+						output.addMouseEvents(this.outputs[outputName].getMouseElement(), outputName, this.scope[outputName]);
+					}
 				}
 			}
 		}

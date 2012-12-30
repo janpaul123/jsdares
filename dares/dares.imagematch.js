@@ -93,7 +93,7 @@ module.exports = function(dares) {
 			this.appendDescription(this.$div);
 
 			this.initPoints();
-			this.matchPoints = new dares.MatchPoints(this.$points, this.dareOptions.minPercentage, 'canvas');
+			this.matchPoints = new dares.MatchPoints(this.$points, this.dareOptions.ImageMatch.minPercentage, 'canvas');
 			this.initEditor();
 			this.animateImage();
 		},
@@ -106,7 +106,7 @@ module.exports = function(dares) {
 
 		animateImage: function() {
 			this.animationFinish();
-			this.drawImage(this.dareOptions.speed);
+			this.drawImage(this.dareOptions.ImageMatch.speed);
 		},
 
 		drawImage: function(speed) {
@@ -151,7 +151,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(1, 500, this.animationMatchingStartCallback.bind(this));
 			this.animation.addSegment(Math.ceil(this.size/10), 50, this.animationMatchingCallback.bind(this));
 			this.animation.addRemoveSegment(500, this.animationMatchingFinishCallback.bind(this));
-			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.minPercentage);
+			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.ImageMatch.minPercentage);
 			this.animation.play();
 		},
 

@@ -123,7 +123,7 @@ module.exports = function(dares) {
 			this.console.makeTargetConsole(this.fullText);
 
 			this.initPoints();
-			this.matchPoints = new dares.MatchPoints(this.$points, this.dareOptions.minPercentage, 'console');
+			this.matchPoints = new dares.MatchPoints(this.$points, this.dareOptions.ConsoleMatch.minPercentage, 'console');
 			this.initEditor();
 			this.animateConsole();
 		},
@@ -136,7 +136,7 @@ module.exports = function(dares) {
 
 		animateConsole: function() {
 			this.animationFinish();
-			this.drawConsole(this.dareOptions.speed);
+			this.drawConsole(this.dareOptions.ConsoleMatch.speed);
 		},
 
 		drawConsole: function(speed) {
@@ -198,7 +198,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(animationSteps, Math.max(1500/animationSteps, 30), this.animationMatchingCallback.bind(this));
 			this.animation.addRemoveSegment(500, this.animationMatchingFinishCallback.bind(this));
 			
-			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.minPercentage);
+			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.ConsoleMatch.minPercentage);
 			this.animation.play();
 		},
 

@@ -258,7 +258,9 @@ module.exports = function(dares) {
 			this.delegate = delegate;
 			this.ui = ui;
 			this.options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
-			this.dareOptions = this.options.allDares[options.type];
+
+			var config = this.ui.loadConfigProgram(shared.dares.configDefinition, this.options.configProgram, this.options.outputStates);
+			this.dareOptions = config.dare;
 			this.animation = null;
 			this.completed = this.options.instance.completed;
 			this.highscore = this.options.instance.highscore;
@@ -266,7 +268,7 @@ module.exports = function(dares) {
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
 			this.ui.registerAdditionalObject('dare', this);
-			this.ui.loadOutputs(this.options.outputs, this.options.allOutputs);
+			this.ui.loadOutputs(config.outputs);
 			this.ui.selectTab('dare');
 		};
 
@@ -276,7 +278,7 @@ module.exports = function(dares) {
 
 		dare.appendDescription = function($div) {
 			this.$description = $('<div class="dare-description"></div>');
-			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
+			this.$description.append('<h2>' + this.dareOptions.name + '</h2><div class="dare-text">' + this.dareOptions.description + '</div>');
 			this.ui.prepareTextElement(this.$description);
 			$div.append(this.$description);
 
@@ -294,7 +296,7 @@ module.exports = function(dares) {
 			if (this.dareOptions.maxLines > 0) {
 				this.linePoints = new dares.LinePoints(this.$points, this.dareOptions.maxLines, this.dareOptions.lineReward);
 			}
-			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name);
+			this.highscorePoints = new dares.HighscorePoints(this.$points, this.dareOptions.name);
 			if (this.completed) {
 				this.highscorePoints.show();
 				this.highscorePoints.setValue(this.highscore);

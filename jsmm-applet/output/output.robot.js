@@ -473,6 +473,31 @@ module.exports = function(output) {
 			this.stateChanged();
 		},
 
+		initialState: function(options) {
+			var columns = options.columns || 8, rows = options.rows || 8;
+			this.state = {
+				columns: columns,
+				rows: rows,
+				initialX: Math.floor(columns/2),
+				initialY: rows-1,
+				initialAngle: 90,
+				mazeObjects: 0,
+				verticalActive: [],
+				horizontalActive: [],
+				blockGoal: []
+			};
+			for (var x=0; x<columns; x++) {
+				this.state.verticalActive[x] = [];
+				this.state.horizontalActive[x] = [];
+				this.state.blockGoal[x] = [];
+				for (var y=0; y<rows; y++) {
+					this.state.verticalActive[x][y] = false;
+					this.state.horizontalActive[x][y] = false;
+					this.state.blockGoal[x][y] = false;
+				}
+			}
+		},
+
 		setStateChangeCallback: function(callback) {
 			this.stateChangeCallback = callback;
 		},

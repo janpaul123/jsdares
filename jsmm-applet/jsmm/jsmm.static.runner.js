@@ -4,14 +4,15 @@
 module.exports = function(jsmm) {
 	jsmm.SimpleRunner = function() { return this.init.apply(this, arguments); };
 	jsmm.SimpleRunner.prototype = {
-		init: function(scope) {
+		init: function(scope, options) {
+			this.options = options || {};
 			this.scope = new jsmm.Scope(scope);
 			this.error = null;
 			this.context = null;
 		},
 
 		run: function(text) {
-			var tree = new jsmm.Tree(text);
+			var tree = new jsmm.Tree(text, this.options);
 			if (tree.hasError()) {
 				this.error = tree.getError();
 			} else {

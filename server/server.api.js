@@ -231,7 +231,7 @@ module.exports = function(server) {
 
 		postDareCreate: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				var dare = shared.dares.sanitizeInput({}, shared.dares.dareOptionsEdit);
+				var dare = shared.dares.sanitizeInput({}, shared.dares.dareOptions);
 				dare.userId = req.session.userId;
 				dare.createdTime = new Date();
 				dare.modifiedTime = new Date();
@@ -252,10 +252,12 @@ module.exports = function(server) {
 
 		postDareEdit: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				var dare = shared.dares.sanitizeInput(req.body, shared.dares.dareOptionsEdit);
+				var dare = shared.dares.sanitizeInput(req.body, shared.dares.dareOptions);
 				dare.modifiedTime = new Date();
 				this.createObjectId(req, res, dare._id, function(id) {
 					delete dare._id;
+					delete dare.userId;
+					delete dare.instance;
 					this.db.dares.findOne({_id: id}, this.userIdCallback(req, res, function(array) {
 						this.db.dares.update(
 							{_id: id},
