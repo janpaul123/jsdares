@@ -208,10 +208,22 @@ module.exports = function(output) {
 			var options = this.config.definitionLeafs();
 			for (var i=0; i<options.length; i++) {
 				var pathArray = options[i].pathArray;
-				var value = this.config.findConfig(pathArray);
-				if (value.value === undefined) value.value = options[i].value.def;
+				var config = this.config.findConfig(pathArray);
+				var value = this.makeOptionValue(config.value, options[i].value);
 
-				this.$optionValues[pathArray.toString()].text(value.value);
+				this.$optionValues[pathArray.toString()].text(value);
+			}
+		},
+
+		makeOptionValue: function(value, definition) {
+			if (value === undefined) {
+				value = definition.def;
+			}
+
+			if (definition.type === 'text') {
+				return '"' + value + '"';
+			} else {
+				return value;
 			}
 		},
 
