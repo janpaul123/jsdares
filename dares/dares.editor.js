@@ -63,6 +63,14 @@ module.exports = function(dares) {
 			this.$typeGroup = $('<div class="btn-group dare-editor-type-group"></div>');
 			this.$div.append(this.$typeGroup);
 
+			this.$inputGroup = $('<div class="dare-editor-input-group"></div>');
+			this.$inputName = $('<input type="text" class="dare-editor-input-name"></input>');
+			this.$inputName.on('keyup change', this.nameChangeCallback.bind(this));
+			this.$inputDescription = $('<textarea class="dare-editor-input-description"></textarea>');
+			this.$inputDescription.on('keyup change', this.descriptionChangeCallback.bind(this));
+			this.$inputGroup.append(this.$inputName, this.$inputDescription);
+			this.$div.append(this.$inputGroup);
+
 			this.ui.registerAdditionalObject('editor', this);
 
 			this.editor = this.ui.addEditor(this.options.editor);
@@ -104,6 +112,9 @@ module.exports = function(dares) {
 					this.editor.setText(this.options.editor.text);
 				}
 			}
+
+			this.$inputName.val(this.options.name);
+			this.$inputDescription.val(this.options.description);
 		},
 
 		selectProgram: function(type) {
@@ -149,6 +160,14 @@ module.exports = function(dares) {
 
 		robotStateChanged: function(state) {
 			this.options.outputStates.robot = state;
+		},
+
+		nameChangeCallback: function() {
+			this.options.name = this.$inputName.val();
+		},
+
+		descriptionChangeCallback: function() {
+			this.options.description = this.$inputDescription.val();
 		}
 	};
 };

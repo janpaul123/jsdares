@@ -9,8 +9,6 @@ module.exports = function(shared) {
 	shared.dares.configDefinition = {
 		dare: {
 			type: {type: 'text', def: 'RobotGoal', valid: ['RobotGoal', 'ImageMatch', 'ConsoleMatch']},
-			name: {type: 'text', def: 'Untitled Dare'},
-			description: {type: 'text', def: ''},
 			maxLines: {type: 'number', def: 0, min: 0, max: 1000},
 			lineReward: {type: 'number', def: 10, min: 0, max: 1000},
 			hidePreview: {type: 'boolean', def: false},
@@ -59,6 +57,8 @@ module.exports = function(shared) {
 	};
 
 	shared.dares.dareOptions = {
+		name: {type: 'text', def: 'Untitled Dare'},
+		description: {type: 'text', def: ''},
 		editor: {
 			hideToolbar: {type: 'boolean', def: false},
 			text: {type: 'text', def: ''}

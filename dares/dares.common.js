@@ -278,7 +278,7 @@ module.exports = function(dares) {
 
 		dare.appendDescription = function($div) {
 			this.$description = $('<div class="dare-description"></div>');
-			this.$description.append('<h2>' + this.dareOptions.name + '</h2><div class="dare-text">' + this.dareOptions.description + '</div>');
+			this.$description.append('<h2>' + this.options.name + '</h2><div class="dare-text">' + this.options.description + '</div>');
 			this.ui.prepareTextElement(this.$description);
 			$div.append(this.$description);
 
@@ -296,7 +296,7 @@ module.exports = function(dares) {
 			if (this.dareOptions.maxLines > 0) {
 				this.linePoints = new dares.LinePoints(this.$points, this.dareOptions.maxLines, this.dareOptions.lineReward);
 			}
-			this.highscorePoints = new dares.HighscorePoints(this.$points, this.dareOptions.name);
+			this.highscorePoints = new dares.HighscorePoints(this.$points, this.options.name);
 			if (this.completed) {
 				this.highscorePoints.show();
 				this.highscorePoints.setValue(this.highscore);
