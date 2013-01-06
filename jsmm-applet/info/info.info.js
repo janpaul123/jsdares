@@ -298,6 +298,7 @@ module.exports = function(info) {
 				$content.hide();
 				$item.append($content);
 
+				$item.data('id', id);
 				$item.data('command', command);
 				$item.on('click', this.itemClick);
 				$item.on('mousemove', this.mouseMove);
@@ -419,9 +420,9 @@ module.exports = function(info) {
 			if (this.highlighting && this.commandTracker !== null) {
 				this.removeHighlights();
 				var $target = $(event.delegateTarget);
-				if ($target.data('command') !== undefined) {
+				if ($target.data('id') !== undefined) {
 					$target.addClass('info-table-item-highlight');
-					this.info.editor.highlightNodeIds(this.commandTracker.getHighlightNodeIdsById($target.data('command').id));
+					this.info.editor.highlightNodeIds(this.commandTracker.getHighlightNodeIdsById($target.data('id')));
 				} else {
 					this.info.editor.highlightNodeId(0);
 				}
