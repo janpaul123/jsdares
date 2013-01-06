@@ -86,6 +86,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000000')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Driving around',
 							description: '<p>Before making games, we will go through the <strong>basics</strong> of programming in Javascript. We do this by moving a robot around. The goal is to move the robot to the <strong>green square</strong>.</p><p>On the right you can see a <a href="#arrow-left,750,65">program</a>, which makes a robot move. You can see the robot by clicking on the <a href="#arrow-tab-robot">robot tab</a>.</p><p>The program is not finished yet. Try to <strong>complete</strong> the program, and then click the submit button below.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 0;\nconfig.dare.lineReward = 0;\nconfig.dare.RobotGoal.previewBlockSize = 48;\nconfig.dare.hidePreview = true;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\n',
@@ -98,6 +99,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000001')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Another wall',
 							description: '<p>Again, move the robot to the green square, as demonstrated in the <a href="#arrow-left,535,180">preview</a>. To make it a bit more difficult, try to do it in as <strong>few lines</strong> of code as possible. It does not matter what route you take.</p><p>Note that the program we provided has an <strong>error</strong>. Move over the <a href="#arrow-up,557,70">error icon</a> to see what is wrong.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 48;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\n',
@@ -110,6 +112,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000002')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Moving some more',
 							description: '<p>Again, move the robot to the green square in as few lines as you can.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 16;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 48;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\n',
@@ -122,6 +125,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000003')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Multiple goals',
 							description: '<p>This time you have to visit <strong>all three</strong> goals, in any order. Programmers always look for the fastest solution. Can you find a fast route?</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 20;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 48;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\n',
@@ -134,6 +138,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000004')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Manipulation',
 							description: '<p>For this dare you just have to edit the numbers in the program. Move the mouse over a number and drag it to quickly change its value.</p> <p>You can get <strong>extra points</strong> by visiting all goals!</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.optionalGoals = 2;\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 11;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\n',
@@ -146,6 +151,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000005')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Maze',
 							description: '<p>When programming, you often want to use the same set of commands multiple times. To do this, you can make a <strong>function</strong>, in which you put the commands that you want to use more than once. You can write down the name of this function <strong>instead</strong> of these commands.</p> <p>In the provided <a href="#arrow-left,780,58">program</a>, the name of the function is <var>leftright</var>, and you can call it by writing <var>leftright();</var>.</p> <p>Finish the program using <var>leftright();</var> multiple times. Use the <a href="#arrow-step">step button</a> to see what happens exactly.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 22;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.function[0],robot.drive,robot.turnLeft,robot.turnRight";\nconfig.outputs.info.scope = false;\n',
@@ -158,6 +164,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000006')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Zig-zag',
 							description: '<p>For this you need to write your <strong>own</strong> function. You can try writing a program without a function, but note that you can only use <strong>20 lines</strong> (not counting empty lines and lines with only <var>}</var>).</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 20;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.function[0],robot.drive,robot.turnLeft,robot.turnRight";\nconfig.outputs.info.scope = false;\n',
@@ -170,6 +177,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000007')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'ForwardRight',
 							description: '<p>Sometimes you want to use the same commands, but only slightly different every time. In this dare, you want to move forward and then right, but with a different distance every time.</p><p>For this you can use an <strong>argument</strong> in the function. After the function name you give a name for the argument, and the argument then <strong>contains</strong> the number you put in when calling the function. You can then use this name when calling the commands in the function.</p><p>We have created an example for you, try to see what happens when you <a href="#arrow-step">step</a> through it.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 20;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.function[0],robot.drive,robot.turnLeft,robot.turnRight";\nconfig.outputs.info.scope = false;\n',
@@ -182,6 +190,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000008')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'More functions',
 							description: '<p>For this one you probably need to make one (or more) functions, since you can use no more than <strong>17 lines</strong> of code.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 17;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.function[0],robot.drive,robot.turnLeft,robot.turnRight";\nconfig.outputs.info.scope = false;\n',
@@ -194,6 +203,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000009')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Animal',
 							description: '<p>You can already apply some stuff you have learned to <strong>drawing shapes</strong> on a canvas. For this dare you have to draw a simple animal using rectangles. We have already drawn the head for you.</p><p>Try to figure out with the <a href="#arrow-manipulation">manipulation button</a> what all the numbers do, and add the rectangles for the <strong>body and legs</strong>. You can also use the <a href="#arrow-tab-info">info tab</a> for more information on drawing commands. Do not worry about the <var>var context = canvas.getContext("2d");</var> line for now. If you like, you can try to give the animal a color.</p>',
 							configProgram: 'config.dare.type = "ImageMatch";\nconfig.dare.ImageMatch.speed = 500;\nconfig.dare.ImageMatch.minPercentage = 97;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.outputs.canvas.enabled = true;\nconfig.outputs.canvas.size = 256;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "canvas.getContext,context.fillRect,context.fillStyle";\nconfig.outputs.info.scope = false;\n',
@@ -205,6 +215,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000010')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Zoo',
 							description: '<p>When you can draw one animal, you can draw a zoo, using a function. We have again provided you with a program that draws the head of some animals. If you find this dare too hard, you can leave it for now and try it again later.</p>',
 							configProgram: 'config.dare.type = "ImageMatch";\nconfig.dare.ImageMatch.speed = 200;\nconfig.dare.ImageMatch.minPercentage = 97;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.outputs.canvas.enabled = true;\nconfig.outputs.canvas.size = 512;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.arithmetic.numbers[1],jsmm.function[0],canvas.getContext,context.fillRect,context.fillStyle";\nconfig.outputs.info.scope = false;\n',
@@ -216,6 +227,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000100')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Hello world!',
 							description: '<p>In this dare we will use the <a href="#arrow-tab-console">console</a>, which is simply a box that contains text. With <var>console.log</var> you can add any value to the console. For example, <var>console.log(10);</var> adds the number <var>10</var> to the console.</p><p>You can also use strings, which are pieces of text, such as <var>"Hello!"</var>. Strings start and end with quotations (<var>"</var>). For this dare you have to write a few sentences to the console.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 500;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 5;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,console.log";\nconfig.outputs.info.scope = false;\n',
@@ -227,6 +239,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000101')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Some people',
 							description: '<p>For this dare you need to make a list of some famous people in computing, with their names and birth years, like the example below. We have already added the list for you, but you need to finish the function <var>person</var>.</p><p>In order to combine two strings, you can use <var>+</var>. For example, <var>"Hello " + "world!"</var> gives <var>"Hello world!"</var>.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 50;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 20;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log";\nconfig.outputs.info.scope = false;\n',
@@ -238,6 +251,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000102')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Calculating',
 							description: '<p>Computers are very good at making calculations. In this dare you have a function <var>calculate</var>, with two arguments, <var>a</var> and <var>b</var>. You have to log the values of these variables, and then their multiplication.</p><p>To multiply two numbers you can use <var>*</var>, for example <var>3*11</var> gives <var>33</var>.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 12;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log";\nconfig.outputs.info.scope = false;\n',
@@ -249,6 +263,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000103')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'More math',
 							description: '<p>For this dare you have to use all the basic math operators: addition, subtraction, multiplication, and division. See the <a href="#arrow-tab-info">info tab</a> to find out which is which. We already added the line for multiplication. For bonus points, you can try to figure out what the last call to <var>calculate</var> should be.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 80;\nconfig.dare.maxLines = 13;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = false;\n',
@@ -260,6 +275,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000104')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Years ago',
 							description: '<p>Using subtraction you can now calculate how many years before 2013 the famous people were born.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 22;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = false;\n',
@@ -271,6 +287,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000105')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Comparisons',
 							description: '<p>In this dare you have to compare numbers. There are a couple of operators for this, for example <var>a &lt; b</var> compares if <var>a</var> is less than <var>b</var>. See the <a href="#arrow-tab-info">info tab</a> for a full list.</p><p>Every comparison operator returns a <strong>boolean</strong>, which is a value that is either <var>true</var> or <var>false</var>. You can use <var>console.log</var> to print booleans to the console, just as with numbers and strings. For example, <var>5 &lt; 10</var> gives <var>true</var>.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 11;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = false;\n',
@@ -282,6 +299,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000106')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Counting',
 							description: '<p>The provided program prints the powers of 2 to the console. It uses a <strong>variable</strong> named <var>counter</var>, and a <strong>while loop</strong>. Try to figure out how it works by using the <a href="#arrow-step">step button</a> and <a href="#arrow-tab-info">info tab</a>. Then modify the program so that instead it prints the numbers from 1 to 20.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 5;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.while,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',
@@ -293,6 +311,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000107')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Spiraling out of control',
 							description: '<p>The robot has to follow a certain pattern, as you can see in the program. However, the current program is a bit long and repetitive. Make it shorter by using a counter and a while loop.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 7;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.while,jsmm.function[0],jsmm.function[1],robot.drive,robot.turnLeft,robot.turnRight";\nconfig.outputs.info.scope = true;\n',
@@ -305,6 +324,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000108')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Good morning, good afternoon',
 							description: '<p>The while-loop is used to keep repeating while some condition is true, but it is also useful to test only once whether some condition is true or false. For this you can use the <strong>if-else-statement</strong>, as seen in the <a href="#arrow-left,740,73">example</a>. If the condition is true, the program continues to the first brackets. Else, it jumps to the <var>else</var> brackets. Complete the program using a while-loop to call the function a number of times.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.if,jsmm.else,jsmm.while,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',
@@ -316,6 +336,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000109')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'More information',
 							description: '<p>Extend the table of famous people to include the year of death for those who have passed away. For those still alive, hide this line entirely.</p>',
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 50;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 22;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.if,jsmm.else,jsmm.while,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',
@@ -327,6 +348,7 @@ module.exports = function(server) {
 					db.dares.update({_id: new db.ObjectID('300000000000000000000110')},
 						{ $set: {
 							userId: user._id,
+							published: true,
 							name: 'Walls, walls, walls',
 							description: '<p>The robot can detect whether it is facing a wall, using <var>robot.detectWall()</var>. This returns <var>true</var> if there is a wall, and <var>false</var> if there isn\'t, as demonstrated using the <a href="#arrow-tab-console">console</a>. This maze is set up so that at every wall the robot has to turn left. Make the robot navigate the maze using a loop instead of specifying its entire path in advance.</p>',
 							configProgram: 'config.dare.type = "RobotGoal";\nconfig.dare.RobotGoal.goalReward = 50;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n\nconfig.outputs.robot.enabled = true;\nconfig.outputs.robot.readOnly = true;\nconfig.outputs.robot.enabled = true;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.if,jsmm.else,jsmm.while,jsmm.function[0],jsmm.function[1],robot.drive,robot.turnLeft,robot.turnRight,robot.detectWall,console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',

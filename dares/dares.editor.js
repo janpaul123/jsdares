@@ -68,7 +68,10 @@ module.exports = function(dares) {
 			this.$inputName.on('keyup change', this.nameChangeCallback.bind(this));
 			this.$inputDescription = $('<textarea class="dare-editor-input-description"></textarea>');
 			this.$inputDescription.on('keyup change', this.descriptionChangeCallback.bind(this));
-			this.$inputGroup.append(this.$inputName, this.$inputDescription);
+			this.$inputPublished = $('<input type="checkbox"></input>');
+			this.$inputPublished.on('click change', this.publishedChangeCallback.bind(this));
+			var $publishedLabel = $('<label></label>').append(this.$inputPublished, ' Published');
+			this.$inputGroup.append(this.$inputName, this.$inputDescription, $publishedLabel);
 			this.$div.append(this.$inputGroup);
 
 			this.ui.registerAdditionalObject('editor', this);
@@ -115,6 +118,7 @@ module.exports = function(dares) {
 
 			this.$inputName.val(this.options.name);
 			this.$inputDescription.val(this.options.description);
+			this.$inputPublished.attr('checked', this.options.published);
 		},
 
 		selectProgram: function(type) {
@@ -128,7 +132,6 @@ module.exports = function(dares) {
 		},
 
 		textChangeCallback: function(text) {
-			console.log('callback', this.programType, text);
 			if (this.programType === 'config') {
 				this.options.configProgram = text;
 			} else if (this.programType === 'target') {
@@ -168,6 +171,10 @@ module.exports = function(dares) {
 
 		descriptionChangeCallback: function() {
 			this.options.description = this.$inputDescription.val();
+		},
+
+		publishedChangeCallback: function() {
+			this.options.published = this.$inputPublished.is(':checked');
 		}
 	};
 };

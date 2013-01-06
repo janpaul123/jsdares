@@ -37,11 +37,11 @@ module.exports = function(client) {
 
 		updateCollections: function() {
 			this.delegate.getSync().getDaresAndInstancesPlayed(this.delegate.getUserId(), (function(dares) {
-				this.collectionPlayed.update({title: 'Played dares', dares: dares}, this.delegate.getUserId());
+				this.collectionPlayed.update({title: 'Played dares', dares: dares}, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 
 			this.delegate.getSync().getDaresAndInstancesAll((function(dares) {
-				this.collectionAll.update({title: 'All dares', dares: dares}, this.delegate.getUserId());
+				this.collectionAll.update({title: 'All dares', dares: dares}, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 		},
 

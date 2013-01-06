@@ -28,6 +28,7 @@ module.exports = function(dares) {
 
 			this.content = null;
 			this.userId = null;
+			this.admin = false;
 		},
 
 		remove: function() {
@@ -43,9 +44,10 @@ module.exports = function(dares) {
 			this.$buttons.append($button);
 		},
 
-		update: function(content, userId) {
+		update: function(content, userId, admin) {
 			this.content = content;
 			this.userId = userId;
+			this.admin = admin;
 			this.render();
 		},
 
@@ -61,33 +63,39 @@ module.exports = function(dares) {
 			for (var i=0; i<this.content.dares.length; i++) {
 				var dare = this.content.dares[i];
 
-				var $item = $('<div class="dares-body-item"></div>');
+				if (dare.published || this.userId === dare.userId || this.admin) {
+					var $item = $('<div class="dares-body-item"></div>');
 
-				if (dare.instance && dare.instance.completed) {
-					$item.addClass('dares-body-completed');
-				}
-
-				$item.data('_id', dare._id);
-				$item.on('click', this.itemViewClick.bind(this));
-
-				var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
-				for (var j=0; j<dare.outputs.length; j++) {
-					var output = dare.outputs[j];
-					if (this.icons[output] !== undefined) {
-						$name.append('<span class="dares-body-output"><i class="icon icon-white ' + this.icons[output] + '"></i> ' + output + '</span>');
+					if (dare.instance && dare.instance.completed) {
+						$item.addClass('dares-body-completed');
 					}
-				}
-				$item.append($name);
 
-				if (this.userId === dare.userId) {
-					var $editButton = $('<button class="btn dares-body-edit">Edit</button>');
-					$editButton.on('click', this.itemEditClick.bind(this));
-					$item.append($editButton);
-				} else if (dare.instance) {
-					$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.instance.highscore +'</span>');
-				}
+					if (!dare.published) {
+						$item.addClass('dares-body-unpublished');
+					}
 
-				this.$body.append($item);
+					$item.data('_id', dare._id);
+					$item.on('click', this.itemViewClick.bind(this));
+
+					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
+					for (var j=0; j<dare.outputs.length; j++) {
+						var output = dare.outputs[j];
+						if (this.icons[output] !== undefined) {
+							$name.append('<span class="dares-body-output"><i class="icon icon-white ' + this.icons[output] + '"></i> ' + output + '</span>');
+						}
+					}
+					$item.append($name);
+
+					if (this.userId === dare.userId || this.admin) {
+						var $editButton = $('<button class="btn dares-body-edit">Edit</button>');
+						$editButton.on('click', this.itemEditClick.bind(this));
+						$item.append($editButton);
+					} else if (dare.instance) {
+						$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.instance.highscore +'</span>');
+					}
+
+					this.$body.append($item);
+				}
 			}
 		},
 

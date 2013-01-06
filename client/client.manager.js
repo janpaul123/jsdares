@@ -46,6 +46,10 @@ module.exports = function(client) {
 			return this.loginData ? this.loginData.userId : undefined;
 		},
 
+		getAdmin: function() {
+			return this.loginData ? this.loginData.admin : false;
+		},
+
 		navigateTo: function(url) {
 			this.addHistory(url);
 		},

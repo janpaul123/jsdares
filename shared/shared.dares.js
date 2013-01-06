@@ -59,6 +59,7 @@ module.exports = function(shared) {
 	shared.dares.dareOptions = {
 		name: {type: 'text', def: 'Untitled Dare'},
 		description: {type: 'text', def: ''},
+		published: {type: 'boolean', def: false},
 		editor: {
 			hideToolbar: {type: 'boolean', def: false},
 			text: {type: 'text', def: ''}

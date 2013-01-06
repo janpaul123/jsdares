@@ -33,7 +33,7 @@ module.exports = function(client) {
 
 		updateCollections: function() {
 			this.delegate.getSync().getDaresAndInstancesByUserId(this.delegate.getUserId(), (function(dares) {
-				this.collectionMine.update({title: 'My created dares', dares: dares}, this.delegate.getUserId());
+				this.collectionMine.update({title: 'My created dares', dares: dares}, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 		},
 
