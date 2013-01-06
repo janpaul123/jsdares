@@ -450,7 +450,7 @@ module.exports = function(info) {
 			}
 
 			this.table = new info.InfoTable(this.$div, this);
-			this.table.addCommands(this.filterCommands(options.commands));
+			this.table.addCommands(this.filterCommands(options.commands || ''));
 
 			this.editor = editor;
 		},
