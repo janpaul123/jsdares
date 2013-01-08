@@ -2,7 +2,7 @@
 @import "../jsmm-applet/index.less";
 @import "../dares/index.less";
 
-@import ~"url(http://fonts.googleapis.com/css?family=Arimo:400,700)";
+@import ~"url(http://fonts.googleapis.com/css?family=Arimo:400,700|Oleo+Script|Keania+One)";
 
 html {
 	height: 100%;
@@ -12,6 +12,13 @@ html {
 // some bootstrap tweaks
 body, input, button, select, textarea {
 	font-family: Arimo, Helvetica, Arial, sans-serif;
+	background: rgb(255,255,255);
+
+}
+
+.main-wrapper {
+	#gradient .vertical(rgba(255,255,255,1), rgba(230,230,230,1));
+	background-attachment: fixed;
 }
 
 .tooltip {
@@ -34,60 +41,63 @@ body, input, button, select, textarea {
 	.header-title {
 		position: relative;
 		z-index: 2;
-		font-size: 70px;
+		font-size: 4em;
 		line-height: 70px;
 		margin-left: 5px;
-		text-shadow: 0px 0px 2px black;
+		text-shadow: 0 0 2px black, 0px 2px 3px #fff;
 		text-decoration: none;
 
 		.header-js {
-			font-weight: lighter;
-			color: hsl(200, 35%, 80%);
+			font-family: 'Oleo Script', cursive;
+			font-weight: normal;
+			font-size: 1.25em;
+			color: #BAD2DE;
 		}
 
 		.header-dares {
 			font-weight: bold;
-			color: hsl(110, 35%, 80%);
+			color: #C0DEBA;
 		}
 	}
 
 	#header-menu {
-		position: relative;
+		position: absolute;
 		z-index: 1;
-		margin-bottom: 10px;
-		width: 100%;
-		margin-top: -40px;
+		top: 23px;
+		left: 300px;
 
-		.header-menu-first {
-			margin-left: 270px;
-		}
+		li { 
+			display: inline;
+			list-style: none;
+			margin:0 5px;
 
-		li a {
-			color: hsl(0, 0%, 40%);
-			font-size: 18px;
-			padding-top: 8px;
-			padding-bottom: 6px;
+			a {
+				color: hsl(0, 0%, 40%);
+				font-size: 1em;
+				padding-top: 8px;
+				padding-bottom: 6px;
+			}
+
+			&.active a {
+				background-color: rgb(200, 224, 236);
+			}
 
 			.icon {
 				vertical-align: middle;
 				margin-top: -5px;
 			}
 		}
-
-		.active > a, .active > a:hover {
-			color: hsl(0, 0%, 20%);
-		}
 	}
 
 	#header-arrow {
 		position: absolute;
 		right: 14px;
-		top: 45px;
+		top: 55px;
 	}
 
 	#header-login {
 		position: absolute;
-		top: 10px;
+		top: 25px;
 		right: 0px;
 		width: 100%;
 
@@ -186,74 +196,46 @@ body, input, button, select, textarea {
 	}
 }
 
+.homepage-title {
+	color: #C0DEBA;
+	font-size: 4em;
+	font-weight: bold;
+	line-height: 1.25em;
+	text-align: center;
+
+	text-shadow: 0 0 2px black, 0px 2px 3px #fff;
+	margin: 25px 0;
+
+	strong {
+		font-family: 'Oleo Script', cursive;
+		font-weight: normal;
+		color: #BAD2DE;  
+		font-size: 1.25em;
+	}
+}
+
 .homepage-about-text {
-	padding: 15px;
-	background-color: #DDD;
-	.border-radius(4px);
+	font-family: 'Arimo', sans-serif;
+	font-size:1.25em;
+	font-weight: normal;
+	opacity: 0.85;
+	line-height:1.5em;
 
-	font-size: 14px;
+	background-color: rgba(255, 255, 255, 0.85);
+	color: #333;
+	padding:1em 2em;
+	width:50%;
+	.border-radius(5px);
+	border:10px solid #fff;
+	margin:1em auto;
+	height:auto;
 
-	@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
+	@shadow: inset 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
 	.box-shadow(@shadow);
-	padding: 10px;
-
-	width: 780px;
-	margin-left: round((1085px - 780 - 15*2)/2);
-	margin-top: 10px;
 }
 
 .example {
-	position: relative;
-	padding-top: 30px;
-	padding-bottom: 40px;
-
-	.example-text-top {
-		background-color: #DDD;
-		.border-radius(4px);
-
-		@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
-		.box-shadow(@shadow);
-		padding: 10px;
-
-		.example-arrow {
-			#popoverArrow > .top(10px, #ddd);
-			position: absolute;
-			width: 0;
-			height: 0;
-			margin-bottom: -10px;
-		}
-
-		position: absolute;
-		top: 20px;
-		font-size: 18px;
-		line-height: 18px;
-		font-weight: lighter;
-		left: 23%;
-	}
-
-	.example-text-bottom {
-		background-color: #DDD;
-		.border-radius(4px);
-
-		@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
-		.box-shadow(@shadow);
-		padding: 10px;
-
-		.example-arrow {
-			#popoverArrow > .bottom(10px, #ddd);
-			position: absolute;
-			width: 0;
-			height: 0;
-			margin-top: -10px+2;
-		}
-
-		position: absolute;
-		top: 625px;
-		font-size: 18px;
-		line-height: 18px;
-		font-weight: lighter;
-		left: 70%;
-	}
+	margin-bottom: 30px;
 }
 
 .how {

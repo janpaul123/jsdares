@@ -38,8 +38,6 @@ module.exports = function(client) {
 					this.urls[menu[i].urls[j]] = i;
 				}
 			}
-
-			this.$tabs[0].addClass('header-menu-first');
 		},
 
 		clickHandler: function(event) {
