@@ -297,7 +297,7 @@ module.exports = function(editor) {
 			} else {
 				this.removeEditables();
 			}
-        },
+		},
 
 		removeEditables: function() {
 			for (var i=0; i<this.editables.length; i++) {
@@ -340,7 +340,9 @@ module.exports = function(editor) {
 		editableReplaceCode: function(line, column, column2, newText) { // callback
 			if (this.editablesByLine[line] === undefined) return;
 
-			var offset1 = this.code.lineColumnToOffset(line, column), offset2 = this.code.lineColumnToOffset(line, column2);
+			var offset1 = this.code.lineColumnToOffset(line, column), 
+				offset2 = this.code.lineColumnToOffset(line, column2);
+
 			this.surface.setText(this.code.replaceOffsetRange(offset1, offset2, newText));
 
 			var changeOffset = newText.length - (column2-column);
