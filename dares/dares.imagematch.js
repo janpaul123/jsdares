@@ -104,6 +104,11 @@ module.exports = function(dares) {
 			this.$originalCanvasContainer.remove();
 		},
 
+		initOutputs: function(outputs) {
+			outputs.canvas.enabled = true;
+			return outputs;
+		},
+
 		animateImage: function() {
 			this.animationFinish();
 			this.drawImage(this.dareOptions.ImageMatch.speed);

@@ -75,7 +75,7 @@ module.exports = function(dares) {
 
 			this.$div.addClass('dare dare-robotgoal');
 			this.robot = this.ui.getOutput('robot');
-			
+
 			this.$originalRobotContainer = $('<span class="dare-robotgoal-original-container"></span>');
 			this.$originalRobotContainer.on('click', this.animateRobot.bind(this));
 			this.$div.append(this.$originalRobotContainer);
@@ -111,6 +111,11 @@ module.exports = function(dares) {
 			this.originalRobot.remove();
 			this.$submit.remove();
 			this.$originalRobotContainer.remove();
+		},
+
+		initOutputs: function(outputs) {
+			outputs.robot.enabled = true;
+			return outputs;
 		},
 
 		animateRobot: function() {

@@ -139,7 +139,7 @@ module.exports = function(client) {
 				if (dare._id === this.dareId) {
 					this.instance = dare.instance;
 					this.modalUI.openModal();
-					new dares[dare.type + 'Dare'](this, this.modalUI, dare);
+					dares.openDare(this, this.modalUI, dare);
 				}
 			}).bind(this));
 		},

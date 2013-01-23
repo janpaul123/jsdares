@@ -71,23 +71,7 @@ module.exports = function(shared) {
 		},
 		_id: {type: 'nosanitize', def: null},
 		userId: {type: 'nosanitize', def: null},
-		instance: {type: 'nosanitize', def: null},
-		sanitize: function(object) {
-			var tree = new applet.jsmm.Tree(object.original);
-			if (!tree.hasError()) {
-				var maxLines = tree.getNodeLines().length;
-				for (var dare in object.allDares) {
-					if (object.allDares[dare].maxLines > 0) {
-						object.allDares[dare].maxLines = Math.max(object.allDares[dare].maxLines, maxLines);
-					}
-				}
-			}
-
-			if (object.type === 'RobotGoal' && object.outputs.indexOf('robot') < 0) object.outputs.push('robot');
-			else if (object.type === 'ImageMatch' && object.outputs.indexOf('canvas') < 0) object.outputs.push('canvas');
-			else if (object.type === 'ConsoleMatch' && object.outputs.indexOf('console') < 0) object.outputs.push('console');
-			return object;
-		}
+		instance: {type: 'nosanitize', def: null}
 	};
 
 	shared.dares.userOptions = {

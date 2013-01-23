@@ -253,14 +253,28 @@ module.exports = function(dares) {
 		}
 	};
 
+	dares.openDare = function(delegate, ui, options) {
+		options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
+		var config = ui.loadConfigProgram(shared.dares.configDefinition, options.configProgram, options.outputStates);
+
+		options.dare = config.dare;
+		options.outputs = config.outputs;
+
+		if (dares[options.dare.type + 'Dare']) {
+			new dares[options.dare.type + 'Dare'](delegate, ui, options);
+			return true;
+		} else {
+			return false;
+		}
+	};
+
 	dares.addCommonDareMethods = function(dare) {
 		dare.initOptions = function(delegate, ui, options) {
 			this.delegate = delegate;
 			this.ui = ui;
-			this.options = shared.dares.sanitizeInput(options, shared.dares.dareOptions);
 
-			var config = this.ui.loadConfigProgram(shared.dares.configDefinition, this.options.configProgram, this.options.outputStates);
-			this.dareOptions = config.dare;
+			this.options = options;
+			this.dareOptions = options.dare;
 			this.animation = null;
 			this.completed = this.options.instance.completed;
 			this.highscore = this.options.instance.highscore;
@@ -268,7 +282,7 @@ module.exports = function(dares) {
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.$div = this.ui.addTab('dare');
 			this.ui.registerAdditionalObject('dare', this);
-			this.ui.loadOutputs(config.outputs);
+			this.ui.loadOutputs(this.initOutputs(options.outputs));
 			this.ui.selectTab('dare');
 		};
 

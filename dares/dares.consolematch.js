@@ -134,6 +134,11 @@ module.exports = function(dares) {
 			this.$originalConsoleContainer.remove();
 		},
 
+		initOutputs: function(outputs) {
+			outputs.console.enabled = true;
+			return outputs;
+		},
+
 		animateConsole: function() {
 			this.animationFinish();
 			this.drawConsole(this.dareOptions.ConsoleMatch.speed);

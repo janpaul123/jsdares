@@ -233,7 +233,7 @@ module.exports = function(output) {
 			this.highlighting = false;
 			this.stateChangeCallback = null;
 
-			if (options.state !== undefined) this.state = JSON.parse(options.state);
+			if (options.state !== undefined && options.state.length > 0) this.state = JSON.parse(options.state);
 			else this.initialState(options);
 
 			this.robot = new robot.Robot(this.$container, this.readOnly, blockSize);

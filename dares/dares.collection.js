@@ -78,12 +78,14 @@ module.exports = function(dares) {
 					$item.on('click', this.itemViewClick.bind(this));
 
 					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
+					/*
 					for (var j=0; j<dare.outputs.length; j++) {
 						var output = dare.outputs[j];
 						if (this.icons[output] !== undefined) {
 							$name.append('<span class="dares-body-output"><i class="icon icon-white ' + this.icons[output] + '"></i> ' + output + '</span>');
 						}
 					}
+					*/
 					$item.append($name);
 
 					if (this.userId === dare.userId || this.admin) {
