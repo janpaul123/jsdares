@@ -58,14 +58,14 @@ module.exports = function(shared) {
 
 	shared.dares.dareOptions = {
 		name: {type: 'text', def: 'Untitled Dare'},
-		description: {type: 'text', def: ''},
+		description: {type: 'text', def: '<p>Some example instructions...</p>'},
 		published: {type: 'boolean', def: false},
 		editor: {
 			hideToolbar: {type: 'boolean', def: false},
-			text: {type: 'text', def: ''}
+			text: {type: 'text', def: '// Finish the program!\nrobot.drive(3);\n'}
 		},
-		original: {type: 'text', def: ''},
-		configProgram: {type: 'text', def: ''},
+		original: {type: 'text', def: 'robot.drive(3);\nrobot.turnLeft();\nrobot.drive(3);\n'},
+		configProgram: {type: 'text', def: 'config.outputs.robot.enabled = true;\nconfig.dare.maxLines = 10;\nconfig.dare.RobotGoal.previewBlockSize = 32;\n'},
 		outputStates: {
 			robot: {type: 'text', def: ''}
 		},
