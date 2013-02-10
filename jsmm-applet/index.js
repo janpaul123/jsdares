@@ -60,8 +60,10 @@ module.exports.UI.prototype = {
 
 		this.$editor = $('<div class="ui-editor"></div>');
 		this.$toolbar = $('<div class="ui-toolbar"></div>');
+		this.$stepbar = $('<div class="ui-stepbar"></div>');
 		this.$main.append(this.$editor);
 		this.$main.append(this.$toolbar);
+		this.$main.append(this.$stepbar);
 
 		this.outputs = {};
 		this.additionalObjects = {};
@@ -77,6 +79,7 @@ module.exports.UI.prototype = {
 		this.$output.remove();
 		this.$editor.remove();
 		this.$toolbar.remove();
+		this.$stepbar.remove();
 		this.$arrow.remove();
 		if (this.$modal !== null) {
 			this.$close.remove();
@@ -195,10 +198,7 @@ module.exports.UI.prototype = {
 	},
 
 	addEditor: function(options) {
-		this.editor = new module.exports.editor.Editor(options, module.exports.jsmm, this.$editor, this.$toolbar);
-		//this.$toolbar.removeClass('ui-toolbar-enabled');
-		var $toolbar = this.$toolbar;
-		//setTimeout(function() { $toolbar.addClass('ui-toolbar-enabled'); }, 200);
+		this.editor = new module.exports.editor.Editor(options, module.exports.jsmm, this.$editor, this.$toolbar, this.$stepbar);
 		return this.editor;
 	},
 

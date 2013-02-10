@@ -10,11 +10,8 @@ module.exports = function(editor) {
 	editor.Surface = function() { return this.init.apply(this, arguments); };
 	
 	editor.Box.prototype = {
-		init: function($marking, surface) {
-			this.$marking = $marking;
-			this.surface = surface;
+		init: function() {
 			this.$element = $('<div class="editor-box"></div>');
-			this.surface.addElementToTop(this.$element);
 			this.$element.hide();
 			this.$arrow = $('<div class="editor-box-arrow"></div>');
 			this.$element.append(this.$arrow);
@@ -22,8 +19,11 @@ module.exports = function(editor) {
 			this.$element.append(this.$message);
 		},
 
+		getElement: function() {
+			return this.$element;
+		},
+
 		updatePosition: function(css) {
-			this.$marking.css(css);
 			var left = css.left+css.width/2;
 			var newLeft = Math.max(-8, left-this.$element.outerWidth()/2);
 			this.$element.css('left', newLeft);
@@ -55,7 +55,8 @@ module.exports = function(editor) {
 			this.$marking = $('<div class="editor-marking"></div>');
 			this.surface.addElementToTop(this.$marking);
 			this.$marking.hide();
-			this.box = new editor.Box(this.$marking, this.surface);
+			this.box = new editor.Box();
+			this.surface.addElementToTop(this.box.getElement());
 			if (hover) {
 				this.$marginIcon.on('mouseenter', this.openMessage.bind(this));
 				this.$marginIcon.on('mouseleave', this.closeMessage.bind(this));
@@ -63,7 +64,7 @@ module.exports = function(editor) {
 			} else {
 				// this.$marginIcon.on('click', this.toggleMesssage.bind(this));
 				// this.$marking.on('click', this.toggleMesssage.bind(this));
-				// this.box.$element.on('click', this.toggleMesssage.bind(this));
+				// this.box.getElement().on('click', this.toggleMesssage.bind(this));
 				// always show step messages now...
 				this.messageOpen = true;
 			}
@@ -129,14 +130,16 @@ module.exports = function(editor) {
 				if (!this.isCurrentlyShown) {
 					this.isCurrentlyShown = true;
 					this.$marking.show();
-					this.box.$element.show();
+					this.box.getElement().show();
 				}
-				this.box.html(this.html, this.surface.makeElementLocationRange(this.location));
+				var css = this.surface.makeElementLocationRange(this.location);
+				this.box.html(this.html, css);
+				this.$marking.css(css);
 			} else {
 				if (this.isCurrentlyShown) {
 					this.isCurrentlyShown = false;
 					this.$marking.hide();
-					this.box.$element.hide();
+					this.box.getElement().hide();
 				}
 			}
 		}

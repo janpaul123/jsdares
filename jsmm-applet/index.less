@@ -44,9 +44,8 @@
 	position: absolute;
 	top: 40px;
 	right: 0px;
-	bottom: 0px;
 	width: floor(@applet-width/2);
-	height: @applet-height - 40;
+	height: @applet-height - 40 - @stepbar-height;
 }
 
 .ui-output {
@@ -54,7 +53,7 @@
 	top: 13px;
 	left: 0px;
 	width: round(@applet-width/2);
-	height: @applet-height - 13;
+	height: @applet-height - 13 - @stepbar-height;
 	.transition(bottom 0.5s ease-in-out);
 
 	.nav-tabs {
@@ -145,6 +144,17 @@
 
 	@shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 -2px 4px rgba(0, 0, 0, 0.05);
 	.box-shadow(@shadow);
+}
+
+.ui-stepbar {
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
+	width: @applet-width;
+	height: @stepbar-height - 1;
+	background-color: #333;
+	border-top: solid 1px @editor-margin-border-color;
+	z-index: 4;
 }
 
 .ui-close {
