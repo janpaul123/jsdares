@@ -366,6 +366,14 @@ module.exports = function(jsmm) {
 			return this.baseCodeChanged;
 		},
 
+		getAllSteps: function() {
+			if (this.eventNum >= 0) {
+				return this.events[this.eventNum].context.getAllSteps();
+			} else {
+				return [];
+			}
+		},
+
 		/// ERRORS & MSG ///
 		hasError: function() {
 			return this.eventNum >= 0 && this.events[this.eventNum].context.hasError();

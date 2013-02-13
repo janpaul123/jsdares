@@ -523,3 +523,30 @@ div.colorpicker div.circle.lightness {
 
 /// STEPBAR ///
 
+.editor-stepbar {
+	position: absolute;
+	overflow: hidden;
+	cursor: pointer;
+
+	.editor-stepbar-numbers {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+
+		.editor-stepbar-step-number {
+			display: inline-block;
+			margin-right: 3px;
+			background-color: @editor-function-call-color;
+			// padding: 0px 3px;
+			font-size: 10px;
+
+			width: 16px;
+			text-align: center;
+
+			&.editor-stepbar-step-number-active {
+				background-color: @editor-function-call-color-hover;				
+			}
+		}
+	}
+}
+

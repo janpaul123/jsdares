@@ -467,6 +467,10 @@ module.exports = function(jsmm) {
 
 		addCommand: function(node, command) {
 			this.commandTracker.addCommand(node, command);
+		},
+
+		getAllSteps: function() {
+			return this.steps;
 		}
 	};
 };
