@@ -27,9 +27,13 @@ module.exports = function(editor) {
 		},
 
 		update: function(runner) {
-			this.enabled = true;
-			this.runner = runner;
-			this.setStepTotal(runner.getStepTotal());
+			if (runner.canStep()) {
+				this.enabled = true;
+				this.runner = runner;
+				this.setStepTotal(runner.getStepTotal());
+			} else {
+				this.disable();
+			}
 		},
 
 		disable: function() {
@@ -42,8 +46,13 @@ module.exports = function(editor) {
 		/// INTERNAL FUNCTIONS ///
 		onMouseMove: function(e) {
 			var x = e.pageX - this.$div.offset().left;
-			var fraction = x/this.$div.outerWidth();
 
+			var sideMargin = 10;
+			var totalWidth = this.$div.outerWidth();
+			var clippedX = Math.max(0, Math.min(totalWidth-sideMargin*2, x-sideMargin));
+			var fraction = clippedX/(this.$div.outerWidth()-sideMargin*2);
+
+			console.info(fraction);
 			this.moveNumbers(fraction);
 			
 			var step = Math.round(fraction*this.stepTotal);
