@@ -17,8 +17,10 @@ module.exports = function(editor) {
 			this.$div.append(this.$numbers);
 
 			this.stepNumbers = [];
-			this.stepsRendered = 0;
+			this.numberWidth = 16;
+			this.numberMargin = 3;
 			this.currentStep = null;
+			this.mouseX = null;
 		},
 
 		remove: function() {
@@ -30,6 +32,7 @@ module.exports = function(editor) {
 			if (runner.canStep()) {
 				this.enabled = true;
 				this.runner = runner;
+				this.$numbers.show();
 				this.setStepTotal(runner.getStepTotal());
 			} else {
 				this.disable();
@@ -39,31 +42,53 @@ module.exports = function(editor) {
 		disable: function() {
 			this.enabled = false;
 			this.runner = null;
-			this.setStepTotal(0);
+			this.$numbers.hide();
 			this.currentStep = null;
+			this.mouseX = null;
 		},
 
 		/// INTERNAL FUNCTIONS ///
 		onMouseMove: function(e) {
-			var x = e.pageX - this.$div.offset().left;
-
-			var sideMargin = 10;
-			var totalWidth = this.$div.outerWidth();
-			var clippedX = Math.max(0, Math.min(totalWidth-sideMargin*2, x-sideMargin));
-			var fraction = clippedX/(this.$div.outerWidth()-sideMargin*2);
-
-			console.info(fraction);
-			this.moveNumbers(fraction);
-			
-			var step = Math.round(fraction*this.stepTotal);
-			step = Math.min(this.stepTotal-1, Math.max(0, step));
-
-			this.showStep(step);
+			this.mouseX = e.pageX - this.$div.offset().left;
+			this.updateMouse();
 		},
 
-		moveNumbers: function(fraction) {
+		onMouseLeave: function() {
+			this.mouseX = null;
+			this.updateMouse();
+		},
+
+		updateMouse: function() {
+			if (this.enabled && this.mouseX !== null) {
+				var fraction = this.fractionFromX(this.mouseX);
+				var leftOffset = this.leftOffsetFromFraction(fraction);
+				this.$numbers.css('left', -leftOffset);
+
+				var step = this.stepFromXAndLeftOffset(this.mouseX, leftOffset);
+				this.showStep(step);
+			}
+		},
+
+		fractionFromX: function(x) {
+			var sideMargin = this.numberWidth/2;
+			var totalWidth = this.$div.outerWidth();
+			var clippedX = Math.max(sideMargin, Math.min(totalWidth-sideMargin, x));
+			return (clippedX-sideMargin)/(this.$div.outerWidth()-sideMargin*2);
+		},
+
+		leftOffsetFromFraction: function(fraction) {
 			var scrollWidth = this.$numbers.outerWidth() - this.$div.outerWidth();
-			this.$numbers.css('left', -fraction*scrollWidth);
+			return Math.round(fraction*scrollWidth);
+		},
+
+		stepFromXAndLeftOffset: function(x, leftOffset) {
+			var width = this.numberWidth + this.numberMargin;
+			var realX = leftOffset+x + this.numberMargin/2;
+			
+			var totalWidth = this.$numbers.outerWidth();
+			var step = Math.floor(realX*this.stepTotal/totalWidth);
+
+			return Math.min(this.stepTotal-1, Math.max(0, step));
 		},
 
 		showStep: function(step) {
@@ -77,28 +102,39 @@ module.exports = function(editor) {
 		},
 
 		setStepTotal: function(stepTotal) {
-			for (var step=this.stepsRendered; step<stepTotal; step++) {
-				this.addStepNumber(step);
-			}
+			if (stepTotal !== this.stepTotal) {
+				for (var step=this.stepNumbers.length; step<stepTotal; step++) {
+					this.addStepNumber(step);
+				}
 
-			this.stepNumbers[stepTotal-1].$stepNumber.prevAll().removeClass('hide');
-			this.stepNumbers[stepTotal-1].$stepNumber.removeClass('hide');
-			this.stepNumbers[stepTotal-1].$stepNumber.nextAll().addClass('hide');
-			this.stepTotal = stepTotal;
+				this.removeNumbers(stepTotal);
+				this.stepTotal = stepTotal;
+				this.updateMouse();
+			}
+		},
+
+		removeNumbers: function(fromStep) {
+			var lastStepNumber = this.stepNumbers[fromStep-1];
+			lastStepNumber.$stepNumber.nextAll().remove();
+			this.$numbers.width(lastStepNumber.xEnd);
+			this.stepNumbers = this.stepNumbers.slice(0, fromStep);
+			
+			if (this.currentStep >= fromStep) {
+				this.currentStep = null;
+			}
 		},
 
 		addStepNumber: function(step) {
-			var x = this.$numbers.width();
+			var xStart = this.$numbers.outerWidth();
 			
 			var $stepNumber = $('<div class="editor-stepbar-step-number">' + (step+1) + '</div>');
 			this.$numbers.append($stepNumber);
 
 			var width = $stepNumber.outerWidth(true);
+			var xEnd = xStart+width;
 
-			this.stepNumbers[step] = {$stepNumber: $stepNumber, x: x, width: width};
-			this.stepsRendered++;
-
-			this.$numbers.width(x+width);
+			this.stepNumbers[step] = {$stepNumber: $stepNumber, xStart: xStart, xEnd: xEnd, width: width};
+			this.$numbers.width(xEnd);
 		}
 	};
 };
