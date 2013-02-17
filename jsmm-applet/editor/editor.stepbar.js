@@ -12,6 +12,7 @@ module.exports = function(editor) {
 
 			this.$div.addClass('editor-stepbar');
 			this.$div.on('mousemove', this.onMouseMove.bind(this));
+			this.$div.on('mouseleave', this.onMouseLeave.bind(this));
 
 			this.$numbers = $('<div class="editor-stepbar-numbers"></div>');
 			this.$div.append(this.$numbers);
@@ -29,7 +30,7 @@ module.exports = function(editor) {
 		},
 
 		update: function(runner) {
-			if (runner.canStep()) {
+			if (runner.isStatic() && runner.canStep()) {
 				this.enabled = true;
 				this.runner = runner;
 				this.$numbers.show();
@@ -66,6 +67,8 @@ module.exports = function(editor) {
 
 				var step = this.stepFromXAndLeftOffset(this.mouseX, leftOffset);
 				this.showStep(step);
+			} else {
+				this.showStep(null);
 			}
 		},
 
@@ -96,9 +99,13 @@ module.exports = function(editor) {
 				this.stepNumbers[this.currentStep].$stepNumber.removeClass('editor-stepbar-step-number-active');
 			}
 
-			this.stepNumbers[step].$stepNumber.addClass('editor-stepbar-step-number-active');
+			if (step !== null) {
+				this.stepNumbers[step].$stepNumber.addClass('editor-stepbar-step-number-active');
+				this.runner.setStepNum(step);
+			} else {
+				this.runner.restart();
+			}
 			this.currentStep = step;
-			this.runner.setStepNum(step);
 		},
 
 		setStepTotal: function(stepTotal) {
