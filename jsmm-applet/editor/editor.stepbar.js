@@ -13,6 +13,7 @@ module.exports = function(editor) {
 			this.$div.addClass('editor-stepbar');
 			this.$div.on('mousemove', this.onMouseMove.bind(this));
 			this.$div.on('mouseleave', this.onMouseLeave.bind(this));
+			this.$div.on('click', this.onClick.bind(this));
 
 			this.$numbers = $('<div class="editor-stepbar-numbers"></div>');
 			this.$div.append(this.$numbers);
@@ -22,6 +23,7 @@ module.exports = function(editor) {
 			this.numberMargin = 3;
 			this.currentStep = null;
 			this.mouseX = null;
+			this.locked = false;
 		},
 
 		remove: function() {
@@ -35,6 +37,7 @@ module.exports = function(editor) {
 				this.runner = runner;
 				this.$numbers.show();
 				this.setStepTotal(runner.getStepTotal());
+				this.setStepNum(runner.getStepNum());
 			} else {
 				this.disable();
 			}
@@ -44,8 +47,8 @@ module.exports = function(editor) {
 			this.enabled = false;
 			this.runner = null;
 			this.$numbers.hide();
-			this.currentStep = null;
 			this.mouseX = null;
+			this.unsetlocked();
 		},
 
 		/// INTERNAL FUNCTIONS ///
@@ -59,16 +62,39 @@ module.exports = function(editor) {
 			this.updateMouse();
 		},
 
+		onClick: function() {
+			if (this.currentStep !== null) {
+				if (this.locked) {
+					this.unsetlocked();
+					this.updateMouse();
+				} else {
+					this.setlocked();
+				}
+			}
+		},
+
+		setlocked: function() {
+			this.$div.addClass('editor-stepbar-locked');
+			this.locked = true;
+		},
+
+		unsetlocked: function() {
+			this.$div.removeClass('editor-stepbar-locked');
+			this.locked = false;
+		},
+
 		updateMouse: function() {
+			if (this.locked) return;
+
 			if (this.enabled && this.mouseX !== null) {
 				var fraction = this.fractionFromX(this.mouseX);
 				var leftOffset = this.leftOffsetFromFraction(fraction);
 				this.$numbers.css('left', -leftOffset);
 
 				var step = this.stepFromXAndLeftOffset(this.mouseX, leftOffset);
-				this.showStep(step);
+				this.runner.setStepNum(step);
 			} else {
-				this.showStep(null);
+				this.runner.restart();
 			}
 		},
 
@@ -94,18 +120,18 @@ module.exports = function(editor) {
 			return Math.min(this.stepTotal-1, Math.max(0, step));
 		},
 
-		showStep: function(step) {
-			if (this.currentStep !== null) {
-				this.stepNumbers[this.currentStep].$stepNumber.removeClass('editor-stepbar-step-number-active');
-			}
+		setStepNum: function(stepNum) {
+			if (stepNum === Infinity) stepNum = null;
 
-			if (step !== null) {
-				this.stepNumbers[step].$stepNumber.addClass('editor-stepbar-step-number-active');
-				this.runner.setStepNum(step);
-			} else {
-				this.runner.restart();
+			if (this.currentStep !== stepNum) {
+				if (this.currentStep !== null) {
+					this.stepNumbers[this.currentStep].$stepNumber.removeClass('editor-stepbar-step-number-active');
+				}
+				if (stepNum !== null) {
+					this.stepNumbers[stepNum].$stepNumber.addClass('editor-stepbar-step-number-active');
+				}
+				this.currentStep = stepNum;
 			}
-			this.currentStep = step;
 		},
 
 		setStepTotal: function(stepTotal) {
@@ -116,7 +142,6 @@ module.exports = function(editor) {
 
 				this.removeNumbers(stepTotal);
 				this.stepTotal = stepTotal;
-				this.updateMouse();
 			}
 		},
 

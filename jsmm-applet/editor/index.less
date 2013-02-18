@@ -543,9 +543,13 @@ div.colorpicker div.circle.lightness {
 			text-align: center;
 
 			&.editor-stepbar-step-number-active {
-				background-color: @editor-function-call-color-hover;				
+				background-color: @editor-function-call-color-hover;
 			}
 		}
+	}
+
+	&.editor-stepbar-locked .editor-stepbar-step-number-active {
+		background-color: @editor-function-call-color-active;
 	}
 }
 
