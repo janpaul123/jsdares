@@ -24,6 +24,8 @@ module.exports = function(editor) {
 			this.currentStep = null;
 			this.mouseX = null;
 			this.locked = false;
+			this.lockedStep = null;
+			this.leftOffset = 0;
 		},
 
 		remove: function() {
@@ -33,6 +35,9 @@ module.exports = function(editor) {
 
 		update: function(runner) {
 			if (runner.isStatic() && runner.canStep()) {
+				if (!this.enabled) {
+					this.setLeftOffset(0);
+				}
 				this.enabled = true;
 				this.runner = runner;
 				this.$numbers.show();
@@ -76,26 +81,44 @@ module.exports = function(editor) {
 		setlocked: function() {
 			this.$div.addClass('editor-stepbar-locked');
 			this.locked = true;
+			this.lockedStep = this.currentStep;
+
+			if (this.lockedStep !== null) {
+				this.stepNumbers[this.lockedStep].$stepNumber.addClass('editor-stepbar-step-number-locked');
+			}
 		},
 
 		unsetlocked: function() {
 			this.$div.removeClass('editor-stepbar-locked');
 			this.locked = false;
+			this.lockedStep = null;
+			this.$numbers.children('.editor-stepbar-step-number-locked').removeClass('editor-stepbar-step-number-locked');
 		},
 
 		updateMouse: function() {
-			if (this.locked) return;
+			if (!this.enabled) return;
 
-			if (this.enabled && this.mouseX !== null) {
+			if (this.mouseX !== null) {
 				var fraction = this.fractionFromX(this.mouseX);
-				var leftOffset = this.leftOffsetFromFraction(fraction);
-				this.$numbers.css('left', -leftOffset);
 
-				var step = this.stepFromXAndLeftOffset(this.mouseX, leftOffset);
+				if (!this.locked) {
+					this.setLeftOffset(this.leftOffsetFromFraction(fraction));
+				}
+
+				var step = this.stepFromXAndLeftOffset(this.mouseX, this.leftOffset);
 				this.runner.setStepNum(step);
-			} else {
-				this.runner.restart();
+			} else if (this.currentStep !== this.lockedStep) {
+				if (this.lockedStep !== null) {
+					this.runner.setStepNum(this.lockedStep);
+				} else {
+					this.runner.restart();
+				}
 			}
+		},
+
+		setLeftOffset: function(leftOffset) {
+			this.$numbers.css('left', -leftOffset);
+			this.leftOffset = leftOffset;
 		},
 
 		fractionFromX: function(x) {
@@ -125,10 +148,10 @@ module.exports = function(editor) {
 
 			if (this.currentStep !== stepNum) {
 				if (this.currentStep !== null) {
-					this.stepNumbers[this.currentStep].$stepNumber.removeClass('editor-stepbar-step-number-active');
+					this.stepNumbers[this.currentStep].$stepNumber.removeClass('editor-stepbar-step-number-hover');
 				}
 				if (stepNum !== null) {
-					this.stepNumbers[stepNum].$stepNumber.addClass('editor-stepbar-step-number-active');
+					this.stepNumbers[stepNum].$stepNumber.addClass('editor-stepbar-step-number-hover');
 				}
 				this.currentStep = stepNum;
 			}
