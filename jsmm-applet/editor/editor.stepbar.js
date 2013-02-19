@@ -18,6 +18,8 @@ module.exports = function(editor) {
 			this.$numbers = $('<div class="editor-stepbar-numbers"></div>');
 			this.$div.append(this.$numbers);
 
+			this.editorMarginSize = 26; // corresponds to @editor-margin-size in global.less
+
 			this.stepNumbers = [];
 			this.numberWidth = 16;
 			this.numberMargin = 3;
@@ -95,16 +97,21 @@ module.exports = function(editor) {
 			this.$numbers.children('.editor-stepbar-step-number-locked').removeClass('editor-stepbar-step-number-locked');
 		},
 
+		updateLeftOffset: function() {
+			if (!this.enabled || this.locked) return;
+
+			var fraction = 0;
+			if (this.mouseX !== null) {
+				fraction = this.fractionFromX(this.mouseX);
+			}
+			this.setLeftOffset(this.leftOffsetFromFraction(fraction));
+		},
+
 		updateMouse: function() {
 			if (!this.enabled) return;
 
+			this.updateLeftOffset();
 			if (this.mouseX !== null) {
-				var fraction = this.fractionFromX(this.mouseX);
-
-				if (!this.locked) {
-					this.setLeftOffset(this.leftOffsetFromFraction(fraction));
-				}
-
 				var step = this.stepFromXAndLeftOffset(this.mouseX, this.leftOffset);
 				this.runner.setStepNum(step);
 			} else if (this.currentStep !== this.lockedStep) {
@@ -117,7 +124,7 @@ module.exports = function(editor) {
 		},
 
 		setLeftOffset: function(leftOffset) {
-			this.$numbers.css('left', -leftOffset);
+			this.$numbers.css('left', leftOffset);
 			this.leftOffset = leftOffset;
 		},
 
@@ -129,13 +136,19 @@ module.exports = function(editor) {
 		},
 
 		leftOffsetFromFraction: function(fraction) {
-			var scrollWidth = this.$numbers.outerWidth() - this.$div.outerWidth();
-			return Math.round(fraction*scrollWidth);
+			if (this.$numbers.outerWidth() >= this.$div.outerWidth()) {
+				var scrollWidth = this.$numbers.outerWidth() - this.$div.outerWidth();
+				return -Math.round(fraction*scrollWidth);
+			} else {
+				var halfDivWidth = Math.floor(this.$div.outerWidth() / 2);
+				var leftOffsetAlignedRight = this.$div.outerWidth() - this.$numbers.outerWidth();
+				return Math.min(leftOffsetAlignedRight, halfDivWidth + this.editorMarginSize);
+			}
 		},
 
 		stepFromXAndLeftOffset: function(x, leftOffset) {
 			var width = this.numberWidth + this.numberMargin;
-			var realX = leftOffset+x + this.numberMargin/2;
+			var realX = x-leftOffset + this.numberMargin/2;
 			
 			var totalWidth = this.$numbers.outerWidth();
 			var step = Math.floor(realX*this.stepTotal/totalWidth);
@@ -166,6 +179,7 @@ module.exports = function(editor) {
 				this.removeNumbers(stepTotal);
 				this.updateNumbersWidth(stepTotal);
 				this.stepTotal = stepTotal;
+				this.updateLeftOffset();
 			}
 		},
 
@@ -176,6 +190,9 @@ module.exports = function(editor) {
 			
 			if (this.currentStep >= fromStep) {
 				this.currentStep = null;
+			}
+			if (this.lockedStep >= fromStep) {
+				this.unsetlocked();
 			}
 		},
 
