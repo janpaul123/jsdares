@@ -141,6 +141,7 @@ module.exports = function(editor) {
 				}
 
 				this.removeNumbers(stepTotal);
+				this.updateNumbersWidth(stepTotal);
 				this.stepTotal = stepTotal;
 			}
 		},
@@ -148,7 +149,6 @@ module.exports = function(editor) {
 		removeNumbers: function(fromStep) {
 			var lastStepNumber = this.stepNumbers[fromStep-1];
 			lastStepNumber.$stepNumber.nextAll().remove();
-			this.$numbers.width(lastStepNumber.xEnd);
 			this.stepNumbers = this.stepNumbers.slice(0, fromStep);
 			
 			if (this.currentStep >= fromStep) {
@@ -157,16 +157,14 @@ module.exports = function(editor) {
 		},
 
 		addStepNumber: function(step) {
-			var xStart = this.$numbers.outerWidth();
-			
 			var $stepNumber = $('<div class="editor-stepbar-step-number">' + (step+1) + '</div>');
 			this.$numbers.append($stepNumber);
+			this.stepNumbers[step] = {$stepNumber: $stepNumber};
+		},
 
-			var width = $stepNumber.outerWidth(true);
-			var xEnd = xStart+width;
-
-			this.stepNumbers[step] = {$stepNumber: $stepNumber, xStart: xStart, xEnd: xEnd, width: width};
-			this.$numbers.width(xEnd);
+		updateNumbersWidth: function(stepTotal) {
+			var width = this.numberWidth+this.numberMargin;
+			this.$numbers.width(width*stepTotal);
 		}
 	};
 };
