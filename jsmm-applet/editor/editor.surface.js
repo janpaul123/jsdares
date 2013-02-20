@@ -4,10 +4,26 @@
 var clayer = require('../clayer');
 
 module.exports = function(editor) {
+	editor.StepBubbles = function() { return this.init.apply(this, arguments); };
 	editor.Box = function() { return this.init.apply(this, arguments); };
 	editor.Message = function() { return this.init.apply(this, arguments); };
 	editor.AutoCompleteBox = function() { return this.init.apply(this, arguments); };
 	editor.Surface = function() { return this.init.apply(this, arguments); };
+
+	editor.StepBubbles.prototype = {
+		init: function(surface, ed) {
+			ed.bindEventHandler(this);
+		},
+
+		remove: function() {
+		},
+
+		update: function(runner) {
+		},
+
+		disable: function() {
+		}
+	};
 	
 	editor.Box.prototype = {
 		init: function() {
@@ -322,6 +338,11 @@ module.exports = function(editor) {
 			this.$textarea.on('blur', this.lostFocus.bind(this));
 			this.$textarea.on('click', this.click.bind(this));
 
+			// setting up top for steps
+			this.$topStepBubbles = $('<div class="editor-top-steps"></div>');
+			this.$div.append(this.$topStepBubbles);
+			this.stepBubbles = new editor.StepBubbles(this, this.delegate);
+
 			// setting up top
 			this.$top = $('<div class="editor-top"></div>');
 			this.$div.append(this.$top);
@@ -356,6 +377,8 @@ module.exports = function(editor) {
 			this.$top.children('.editor-time-highlight').remove();
 			this.$margin.remove();
 			this.$bottom.remove();
+			this.stepBubbles.remove();
+			this.$topStepBubbles.remove();
 			this.$top.remove();
 			this.$textarea.remove();
 			this.$div.html('');
@@ -676,6 +699,8 @@ module.exports = function(editor) {
 			this.$bottom.css('top', top);
 			this.$top.css('left', left);
 			this.$top.css('top', top);
+			this.$topStepBubbles.css('left', left);
+			this.$topStepBubbles.css('top', top);
 			this.$margin.css('top', top);
 		},
 

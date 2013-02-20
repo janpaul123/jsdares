@@ -10,6 +10,7 @@ module.exports = function(editor) {
 	editor.Editor.prototype = {
 		init: function(options, language, $div, $toolbar, $stepbar) {
 			this.language = language;
+			this.eventHandlers = [];
 
 			this.surface = new editor.Surface($div, this);
 
@@ -80,12 +81,14 @@ module.exports = function(editor) {
 			this.textChangeCallback = callback;
 		},
 
-		callToolbarAndStepbar: function(funcName) {
-			if (this.toolbar !== null) {
-				this.toolbar[funcName].apply(this.toolbar, [].slice.call(arguments, 1));
-			}
-			if (this.stepbar !== null) {
-				this.stepbar[funcName].apply(this.stepbar, [].slice.call(arguments, 1));
+		bindEventHandler: function(eventHandler) {
+			this.eventHandlers.push(eventHandler);
+		},
+
+		callEventHandlers: function(funcName) {
+			for (var i=0; i<this.eventHandlers.length; i++) {
+				var eventHandler = this.eventHandlers[i];
+				eventHandler[funcName].apply(eventHandler, [].slice.call(arguments, 1));
 			}
 		},
 
@@ -106,7 +109,7 @@ module.exports = function(editor) {
 			this.surface.hideAutoCompleteBox();
 			this.update();
 			this.runner.disable();
-			this.callToolbarAndStepbar('disable');
+			this.callEventHandlers('disable');
 			this.surface.disable();
 		},
 
@@ -169,7 +172,7 @@ module.exports = function(editor) {
 		handleCriticalError: function(error) {
 			this.handleError(error);
 			this.runner.disable();
-			this.callToolbarAndStepbar('disable');
+			this.callEventHandlers('disable');
 			this.updateHighlighting();
 			this.updateEditables();
 			this.highlightFunctionNode(null);
@@ -281,7 +284,7 @@ module.exports = function(editor) {
 						this.surface.hideMessage();
 					}
 				}
-				this.callToolbarAndStepbar('update', this.runner);
+				this.callEventHandlers('update', this.runner);
 			}
 			this.callOutputs('outputSetError', this.runner.hasError());
 			this.updateHighlighting();

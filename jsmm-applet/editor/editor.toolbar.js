@@ -530,6 +530,8 @@ module.exports = function(editor) {
 	editor.Toolbar = function() { return this.init.apply(this, arguments); };
 	editor.Toolbar.prototype = {
 		init: function($div, ed) {
+			ed.bindEventHandler(this);
+			
 			this.$div = $div;
 			this.editor = ed;
 

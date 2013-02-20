@@ -7,6 +7,8 @@ module.exports = function(editor) {
 	editor.Stepbar = function() { return this.init.apply(this, arguments); };
 	editor.Stepbar.prototype = {
 		init: function($div, ed) {
+			ed.bindEventHandler(this);
+			
 			this.$div = $div;
 			this.editor = ed;
 
