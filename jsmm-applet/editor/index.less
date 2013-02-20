@@ -304,53 +304,11 @@ div.colorpicker div.circle.lightness {
 /// TOOLBAR ///
 .editor-toolbar {
 	position: relative;
-	height: 26px;
-
-	.editor-toolbar-step-bubble {
-		.code-foreground();
-		position: absolute;
-		left: -@box-arrow-size + 8px;
-		top: 9px;
-		background-color: @editor-box-background-color;
-		padding: 5px 5px 3px;
-		z-index: 1000;
-		.border-radius(4px);
-		@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.2);
-		.box-shadow(@shadow);
-
-		.editor-toolbar-step-bubble-arrow {
-			#popoverArrow > .left(@box-arrow-size, @editor-box-background-color);
-			position: absolute;
-			width: 0;
-			height: 0;
-			margin-right: -@box-arrow-size;
-			right: 0px;
-		}
-
-		&.editor-toolbar-step-editing .editor-toolbar-step-value {
-			background-color: @editor-marking-color;
-			cursor: col-resize;
-			padding-top: 2px;
-
-			&:hover, &.active {
-				background-color: @editor-marking-color-active;
-			}
-		}
-	}
-
-	.editor-toolbar-step-bar {
-		margin: 0;
-		z-index: 51;
-		.editor-toolbar-step-forward {
-			width: 73px;
-			font-weight: bold;
-			-webkit-font-smoothing: antialiased;
-		}
-	}
+	height: 40px;
 
 	.editor-toolbar-run-bar {
 		display: none;
-		margin: 0;
+		margin: 7px 10px;
 		z-index: 52;
 		min-width: 68px;
 	}
@@ -443,16 +401,15 @@ div.colorpicker div.circle.lightness {
 			}
 		}
 
-		@editor-toolbar-run-step-bar-margin: round(-170px/2 + 10px/2 + 3);
 		.editor-toolbar-run-step-bar-container {
 			position: absolute;
 			top: 26px;
-			width: 170px;
-			margin-left: @editor-toolbar-run-step-bar-margin;
-			height: 28px;
+			width: 24px;
+			height: 24px;
+			margin-left: 1px;
+			line-height: 12px;
 			background-color: @editor-box-background-color;
 			z-index: 100;
-			padding: 5px;
 			.border-radius(4px);
 			@shadow: 0px 1px 2px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(130, 130, 130, 0.4);
 			.box-shadow(@shadow);
@@ -467,30 +424,17 @@ div.colorpicker div.circle.lightness {
 
 			.editor-toolbar-run-step-bar-icon {
 				position: absolute;
-				left: 10px;
-				top: 12px;
-			}
-
-			.editor-toolbar-run-step-bar {
-				position: absolute;
-				left: 35px;
-				top: 6px;
-			}
-
-			.editor-toolbar-step-bubble {
-				left: -@box-arrow-size;
-				top: 7px;
+				right: 5px;
+				top: 5px;
 			}
 
 			.editor-toolbar-run-step-bar-error-icon {
 				display: none;
-				position: absolute;
-				left: 181px;
-				top: 12px;
-				width: 16px;
-				height: 16px;
 				cursor: pointer;
-				background-image: url("../img/margin-message-icon-error.png");
+
+				position: absolute;
+				left: 5px;
+				top: 4px;
 				
 				.opacity(80);
 				&:hover {
@@ -502,8 +446,9 @@ div.colorpicker div.circle.lightness {
 				.editor-toolbar-run-step-bar-error-icon {
 					display: block;
 				}
-				width: 170px + 25px;
-				margin-left: round(@editor-toolbar-run-step-bar-margin - 25px/2 - 1);
+
+				width: 44px;
+				margin-left: -9px;
 			}
 		}
 	}

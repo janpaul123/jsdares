@@ -4,233 +4,6 @@
 var clayer = require('../clayer');
 
 module.exports = function(editor) {
-	editor.BubbleValue = function() { return this.init.apply(this, arguments); };
-	editor.BubbleValue.prototype = {
-		init: function($div, delegate) {
-			this.delegate = delegate;
-			this.$body = $('body');
-
-			this.$stepBubble = $('<div class="editor-toolbar-step-bubble"><div class="editor-toolbar-step-bubble-arrow"></div></div>');
-			this.$stepNum = $('<span class="editor-toolbar-step-value"></span>');
-			this.$stepBubble.append(this.$stepNum);
-
-			this.$stepTotal = $('<span class="editor-toolbar-step-total"></span>');
-			this.$stepBubble.append(this.$stepTotal);
-			$div.append(this.$stepBubble);
-			this.$stepBubble.hide();
-
-			this.hasTooltip = false;
-			this.touchable = new clayer.Touchable(this.$stepNum, this);
-			this.setEditing(false);
-			this.enabled = false;
-		},
-
-		remove: function() {
-			this.hideTooltip();
-			this.touchable.setTouchable(false);
-			this.$stepNum.remove();
-			this.$stepTotal.remove();
-			this.$stepBubble.remove();
-		},
-
-		setStepInfo: function(stepNum, stepTotal) {
-			if (!this.enabled) {
-				this.enabled = true;
-				this.$stepBubble.fadeIn(150);
-			}
-			this.value = Math.min(stepNum, stepTotal);
-			this.total = stepTotal;
-			this.$stepNum.text(this.value);
-			this.$stepTotal.text('/' + this.total);
-			this.$stepBubble.css('margin-left', -this.$stepBubble.outerWidth());
-		},
-
-		disable: function() {
-			if (this.enabled) {
-				this.enabled = false;
-				this.$stepBubble.fadeOut(150);
-			}
-		},
-
-		setEditing: function(editing) {
-			this.editing = editing;
-			if (this.editing) {
-				this.$stepBubble.addClass('editor-toolbar-step-editing');
-			} else {
-				this.$stepBubble.removeClass('editor-toolbar-step-editing');
-			}
-			this.touchable.setTouchable(this.editing);
-		},
-
-		/// INTERNAL FUNCTIONS ///
-		showTooltip: function() {
-			if (!this.hasTooltip) {
-				this.hasTooltip = true;
-				this.$stepNum.tooltip({
-					title: '&larr; drag &rarr;',
-					placement: 'bottom'
-				});
-			}
-			this.$stepNum.tooltip('show');
-		},
-
-		hideTooltip: function() {
-			if (this.hasTooltip) {
-				this.$stepNum.tooltip('hide');
-			}
-		},
-
-		touchDown: function(touch) {
-			this.$body.addClass('editor-number-editable-dragging');
-			this.hideTooltip();
-			this.dragValue = this.value;
-		},
-
-		touchMove: function(touch) {
-			var offset = touch.translation.x;
-			
-			// for calculating the new number the function x^3/(x^2+200), which provides nice snapping to the original number and
-			// lower sensitiveness near the original number
-			var value = Math.round(this.dragValue + (offset*offset*offset)/((offset*offset+200)));
-			value = Math.min(Math.max(value, 0), this.total-1);
-
-			if (value !== this.value) {
-				this.delegate.bubbleValueChanged(value);
-			}
-		},
-
-		touchUp: function(touch) {
-			this.$body.removeClass('editor-number-editable-dragging');
-			if (touch.wasTap) {
-				this.showTooltip();
-			}
-		}
-	};
-
-	editor.StepBar = function() { return this.init.apply(this, arguments); };
-	editor.StepBar.prototype = {
-		init: function($div, $bubbleDiv, isBaseEvent) {
-			this.bubbleValue = new editor.BubbleValue($bubbleDiv, this);
-			this.runner = null;
-			this.isBaseEvent = isBaseEvent;
-
-			this.stepBackwardDown = this.stepBackwardDown.bind(this);
-			this.stepBackwardUp = this.stepBackwardUp.bind(this);
-			this.stepForwardDown = this.stepForwardDown.bind(this);
-			this.stepForwardUp = this.stepForwardUp.bind(this);
-			this.close = this.close.bind(this);
-
-			this.$stepBackward = $('<button class="btn btn-success editor-toolbar-step-backward"><i class="icon icon-arrow-left icon-white"></i></button>');
-			this.$stepBackward.on('mousedown', this.stepBackwardDown);
-			this.$stepBackward.on('mouseup', this.stepBackwardUp);
-			$div.append(this.$stepBackward);
-
-			this.$stepForward = $('<button class="btn btn-success editor-toolbar-step-forward"><i class="icon icon-arrow-right icon-white"></i> Step</button>');
-			this.$stepForward.on('mousedown', this.stepForwardDown);
-			this.$stepForward.on('mouseup', this.stepForwardUp);
-			$div.append(this.$stepForward);
-
-			this.$close = $('<button class="btn btn-success editor-toolbar-close"><i class="icon icon-remove icon-white"></i></button>');
-			this.$close.click(this.close);
-			$div.append(this.$close);
-
-			this.disable();
-		},
-
-		remove: function() {
-			this.clearTimeouts();
-			this.bubbleValue.remove();
-			this.$stepBackward.remove();
-			this.$stepForward.remove();
-			this.$close.remove();
-		},
-
-		setEditing: function(editing) {
-			this.bubbleValue.setEditing(editing);
-		},
-
-		disable: function() {
-			this.clearTimeouts();
-			this.canRun = false;
-			this.$stepForward.addClass('disabled');
-			this.$stepBackward.addClass('disabled');
-			this.$close.addClass('disabled');
-			this.bubbleValue.disable();
-		},
-
-		update: function(runner) {
-			this.runner = runner;
-			this.canRun = true;
-
-			if (this.runner.isStepping()) {
-				this.$stepForward.removeClass('disabled');
-				this.$stepBackward.removeClass('disabled');
-				this.$close.removeClass('disabled');
-				this.bubbleValue.setStepInfo(this.runner.getStepNum(), this.runner.getStepTotal());
-			} else {
-				if (this.runner.canStep()) {
-					this.$stepForward.removeClass('disabled');
-				} else {
-					this.$stepForward.addClass('disabled');
-				}
-				this.$stepBackward.addClass('disabled');
-				this.$close.addClass('disabled');
-				this.clearTimeouts();
-				this.bubbleValue.disable();
-			}
-		},
-
-		bubbleValueChanged: function(value) { // callback
-			if (this.canRun) {
-				this.runner.setStepNum(value);
-			}
-		},
-
-		stepForwardDown: function() {
-			this.clearTimeouts();
-			if (this.canRun) {
-				this.stepForwardDelay = this.stepForwardDelay >= 400 ? 350 : Math.max((this.stepForwardDelay || 500) - 20, 70);
-				this.stepForwardTimeout = setTimeout(this.stepForwardDown, this.stepForwardDelay);
-				this.runner.stepForward();
-			}
-		},
-
-		stepForwardUp: function() {
-			this.clearTimeouts();
-			this.stepForwardDelay = undefined;
-		},
-
-		stepBackwardDown: function() {
-			this.clearTimeouts();
-			if (this.canRun) {
-				this.stepBackwardDelay = this.stepBackwardDelay >= 400 ? 350 : Math.max((this.stepBackwardDelay || 500) - 20, 70);
-				this.stepBackwardTimeout = setTimeout(this.stepBackwardDown, this.stepBackwardDelay);
-				this.runner.stepBackward();
-			}
-		},
-
-		stepBackwardUp: function() {
-			this.clearTimeouts();
-			this.stepBackwardDelay = undefined;
-		},
-
-		close: function() {
-			this.clearTimeouts();
-			if (this.canRun) {
-				this.runner.restart();
-			}
-		},
-
-		clearTimeouts: function() {
-			if (this.stepForwardTimeout !== null) {
-				clearTimeout(this.stepForwardTimeout);
-			}
-			if (this.stepBackwardTimeout !== null) {
-				clearTimeout(this.stepBackwardTimeout);
-			}
-		}
-	};
-
 	editor.PlayPauseAnimation = function() { return this.init.apply(this, arguments); };
 	editor.PlayPauseAnimation.prototype = {
 		init: function($playPause) {
@@ -355,16 +128,12 @@ module.exports = function(editor) {
 			this.$stepBarContainer.append('<div class="editor-toolbar-run-step-bar-arrow"></div>');
 			this.$div.append(this.$stepBarContainer);
 
-			this.$stepBarIcon = $('<i></i>');
-			this.$stepBarContainer.append(this.$stepBarIcon);
-
-			var $stepBar = $('<div class="btn-group editor-toolbar-run-step-bar"></div>');
-			this.stepBar = new editor.StepBar($stepBar, this.$stepBarContainer, false);
-			this.$stepBarContainer.append($stepBar);
-
-			this.$stepBarErrorIcon = $('<div class="editor-toolbar-run-step-bar-error-icon"/>');
+			this.$stepBarErrorIcon = $('<i class="icon-exclamation-sign-color editor-toolbar-run-step-bar-error-icon"/></i>');
 			this.$stepBarErrorIcon.on('click', this.errorIconClick.bind(this));
 			this.$stepBarContainer.append(this.$stepBarErrorIcon);
+
+			this.$stepBarIcon = $('<i></i>');
+			this.$stepBarContainer.append(this.$stepBarIcon);
 
 			this.sliderEnabled = true;
 			this.stepBarEnabled = true;
@@ -375,7 +144,6 @@ module.exports = function(editor) {
 		remove: function() {
 			this.playPauseAnimation.animate(false);
 			this.slider.remove();
-			this.stepBar.remove();
 			this.$stepBarErrorIcon.remove();
 			this.$stepBarContainer.remove();
 			this.$playPause.remove();
@@ -390,10 +158,6 @@ module.exports = function(editor) {
 			this.playPauseAnimation.animate(false);
 			this.$playPause.addClass('disabled');
 			this.hideSlider();
-		},
-
-		setEditing: function(editing) {
-			this.stepBar.setEditing(editing);
 		},
 
 		update: function(runner) {
@@ -419,7 +183,6 @@ module.exports = function(editor) {
 					this.showStepBar();
 					this.setSliderErrors(runner);
 					this.playPauseAnimation.setFraction(this.runner.getEventNum()/(this.runner.getEventTotal()-1));
-					this.stepBar.update(runner);
 					this.$stepBarContainer.css('left', this.$sliderContainer.position().left + this.runner.getEventNum()*eventWidth);
 					this.$stepBarIcon.removeClass();
 					this.$stepBarIcon.addClass('icon editor-toolbar-run-step-bar-icon icon-white icon-' + {
@@ -537,10 +300,6 @@ module.exports = function(editor) {
 
 			this.$div.addClass('editor-toolbar');
 			
-			var $stepBar = $('<div class="btn-group editor-toolbar-step-bar"></div>');
-			this.baseStepBar = new editor.StepBar($stepBar, this.$div, true);
-			this.$div.append($stepBar);
-
 			// var isMac = navigator.platform.indexOf("Mac") >= 0;
 
 			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
@@ -561,7 +320,6 @@ module.exports = function(editor) {
 		},
 
 		remove: function() {
-			this.baseStepBar.remove();
 			this.runBar.remove();
 			this.clearAllKeys();
 			$(document).off('keydown', this.keyDown);
@@ -575,10 +333,8 @@ module.exports = function(editor) {
 			this.enabled = true;
 			if (runner.isInteractive()) {
 				this.runBar.update(runner);
-				this.baseStepBar.disable();
 				this.$div.addClass('editor-toolbar-interactive');
 			} else {
-				this.baseStepBar.update(runner);
 				this.runBar.disable();
 				this.$div.removeClass('editor-toolbar-interactive');
 			}
@@ -586,7 +342,6 @@ module.exports = function(editor) {
 
 		disable: function() {
 			this.enabled = false;
-			this.baseStepBar.disable();
 			this.runBar.disable();
 			this.clearAllKeys();
 		},
