@@ -14,7 +14,9 @@ module.exports = function(editor) {
 		init: function($div, surface, ed) {
 			this.$div = $div;
 			this.surface = surface;
-			ed.bindEventHandler(this);
+			this.editor = ed;
+			
+			this.editor.bindEventHandler(this);
 
 			this.$bubblesContainer = $('<div class="editor-step-bubbles-container"></div>');
 			this.$div.append(this.$bubblesContainer);
@@ -76,7 +78,7 @@ module.exports = function(editor) {
 
 		addBubble: function(step, number) {
 			var $bubble = $('<div class="editor-step-bubbles-bubble"></div>');
-			var loc = step.getLoc();
+			var loc = step.getLoc(this.editor.tree);
 			var top = this.surface.lineToY(loc.line);
 			this.maxHeight = Math.max(top+20, this.maxHeight);
 
@@ -407,7 +409,7 @@ module.exports = function(editor) {
 			// setting up top for steps
 			this.$topStepBubbles = $('<div class="editor-step-bubbles"></div>');
 			this.$div.append(this.$topStepBubbles);
-			this.stepBubbles = new editor.StepBubbles(this.$topStepBubbles, this, this.delegate);
+			this.stepBubbles = new editor.StepBubbles(this, this.delegate);
 
 			// setting up top
 			this.$top = $('<div class="editor-top"></div>');

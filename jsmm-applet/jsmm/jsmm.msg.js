@@ -14,11 +14,11 @@ module.exports = function(jsmm) {
 			return html.replace(/&lt;var&gt;/g, '<var>').replace(/&lt;\/var&gt;/g, '</var>');
 		};
 
-		msg.getLoc = function() {
+		msg.getLoc = function(tree) {
 			if (this.loc !== undefined) {
 				return this.loc;
-			} else if (this.nodeId !== 0 && this.tree !== undefined) {
-				return this.tree.getNodeById(this.nodeId)[this.locType];
+			} else if (this.nodeId !== 0) {
+				return tree.getNodeById(this.nodeId)[this.locType];
 			} else {
 				return {line: 1, column: 0};
 			}
@@ -29,10 +29,9 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Inline = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(nodeId, tree, msg, locType) {
+		init: function(nodeId, msg, locType) {
 			this.type = 'Inline';
 			this.nodeId = nodeId;
-			this.tree = tree;
 			this.msg = msg;
 			this.locType = locType || 'lineLoc';
 		}
@@ -40,10 +39,9 @@ module.exports = function(jsmm) {
 	
 	jsmm.msg.Error = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Error.prototype = jsmm.msg.addCommonMessageMethods({
-		init: function(nodeId, tree, msg, orig, locType) {
+		init: function(nodeId, msg, orig, locType) {
 			this.type = 'Error';
 			this.nodeId = nodeId ? nodeId : 0;
-			this.tree = tree;
 			this.msg = msg;
 			this.locType = locType || 'lineLoc';
 			this.orig = orig || null;

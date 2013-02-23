@@ -185,7 +185,7 @@ module.exports = function(editor) {
 		},
 
 		makeMessageLoc: function(message) {
-			return this.makeLoc(message.getLoc());
+			return this.makeLoc(message.getLoc(this.tree));
 		},
 
 		makeLoc: function(loc) {
@@ -210,7 +210,7 @@ module.exports = function(editor) {
 
 		scrollToError: function() { // callback
 			this.handleError(this.runner.getError());
-			this.surface.scrollToLine(this.runner.getError().getLoc().line);
+			this.surface.scrollToLine(this.runner.getError().getLoc(this.tree).line);
 		},
 
 		userChangedText: function() { // callback
@@ -269,7 +269,7 @@ module.exports = function(editor) {
 					if (message !== null) {
 						this.surface.showMessage(message.type.toLowerCase(), this.makeMessageLoc(message), message.getHTML());
 						if (this.runner.getEventNum() !== this.lastEventNum || this.runner.getStepNum() !== this.lastStepNum) {
-							this.surface.scrollToLine(message.getLoc().line);
+							this.surface.scrollToLine(message.getLoc(this.tree).line);
 						}
 					}
 					this.lastEventNum = this.runner.getEventNum();
