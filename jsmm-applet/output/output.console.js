@@ -318,6 +318,7 @@ module.exports = function(output) {
 		enableHighlighting: function() {
 			this.highlighting = true;
 			this.$div.addClass('console-highlighting');
+			this.$div.off('mousemove mouseleave');
 			this.$div.on('mousemove', this.mouseMove.bind(this));
 			this.$div.on('mouseleave', this.mouseLeave.bind(this));
 			this.autoScroll = false;
