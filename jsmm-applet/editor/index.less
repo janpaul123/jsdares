@@ -123,7 +123,7 @@
 }
 
 /// SURFACE ///
-.editor-top, .editor-bottom {
+.editor-top, .editor-bottom, .editor-step-bubbles {
 	position: absolute;
 	width: 480px;
 	margin-left: 1px; // editor border
@@ -137,7 +137,7 @@
 	z-index: 90;
 }
 
-.editor-top-steps {
+.editor-step-bubbles {
 	z-index: 80;
 }
 
@@ -502,3 +502,21 @@ div.colorpicker div.circle.lightness {
 	}
 }
 
+/// STEP BUBBLES ///
+.editor-step-bubbles {
+	// position: absolute; already given earlier
+	overflow: hidden;
+
+	.editor-step-bubbles-container {
+		position: absolute;
+		top: 0px;
+	}
+
+	.editor-step-bubbles-bubble {
+		position: absolute;
+		width: 8px;
+		height: 8px;
+		background-color: @editor-step-bubble-color;
+		.border-radius(8px);
+	}
+}

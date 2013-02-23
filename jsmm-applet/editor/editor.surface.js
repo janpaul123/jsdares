@@ -13,10 +13,11 @@ module.exports = function(editor) {
 	editor.StepBubbles.prototype = {
 		init: function($div, surface, ed) {
 			this.$div = $div;
+			this.surface = surface;
 			ed.bindEventHandler(this);
 
-			this.$steps = $('<div class="editor-step-bubbles-steps"></div>');
-			this.$div.append(this.$steps);
+			this.$bubblesContainer = $('<div class="editor-step-bubbles-container"></div>');
+			this.$div.append(this.$bubblesContainer);
 		},
 
 		remove: function() {
@@ -24,39 +25,59 @@ module.exports = function(editor) {
 
 		update: function(runner) {
 			if (runner.isStatic() && runner.canStep()) {
-				//this.render(runner);
+				this.render(runner);
 			} else {
-				//this.disable();
+				// this.disable();
 			}
 		},
 
 		disable: function() {
+			this.$bubblesContainer.hide();
 		},
 
 		render: function(runner) {
-			var stepNumber = runner.getStepNumber();
-			var stepTotal = runner.getStepTotal();
-			var fraction = stepNumber/stepTotal;
-			this.setLeftOffset(this.leftOffsetFromFraction(fraction));
+			this.renderAllBubbles(runner);
 
-			this.$steps.children().remove();
-			var steps = runner.getAllSteps();
-			for (var i=0; i<stepTotal; i++) {
-				this.addStep(steps[i], i);
-			}
+			var leftOffset = this.leftOffsetFromStepNumAndTotal(runner.getStepNum(), runner.getStepTotal());
+			this.setLeftOffset(leftOffset);
+			this.$div.height(this.maxHeight);
 		},
 
 		setLeftOffset: function(leftOffset) {
-			this.$steps.css('left', leftOffset);
+			this.$bubblesContainer.css('left', leftOffset);
 		},
 
-		leftOffsetFromFraction: function(fraction) {
-			var scrollWidth = this.$steps.outerWidth() - this.$div.outerWidth();
-			return -Math.round(fraction*scrollWidth);
+		leftOffsetFromStepNumAndTotal: function(stepNum, stepTotal) {
+			var bubblesWidth = stepTotal*10;
+			if (bubblesWidth > this.$div.outerWidth()) {
+				var scrollWidth = bubblesWidth - this.$div.outerWidth();
+				return -Math.round(stepNum/stepTotal*scrollWidth);
+			} else {
+				return 0;
+			}
 		},
 
-		addStep: function(step, number) {
+		renderAllBubbles: function(runner) {
+			var stepTotal = runner.getStepTotal();
 
+			this.$bubblesContainer.children().remove();
+			this.$bubblesContainer.show();
+			var steps = runner.getAllSteps();
+			this.maxHeight = 0;
+			for (var i=0; i<stepTotal; i++) {
+				this.addBubble(steps[i], i);
+			}
+		},
+
+		addBubble: function(step, number) {
+			var $bubble = $('<div class="editor-step-bubbles-bubble"></div>');
+			var loc = step.getLoc();
+			var top = this.surface.lineToY(loc.line);
+			this.maxHeight = Math.max(top+10, this.maxHeight);
+
+			$bubble.css('top', top);
+			$bubble.css('left', number*10);
+			this.$bubblesContainer.append($bubble);
 		}
 	};
 	
@@ -374,7 +395,7 @@ module.exports = function(editor) {
 			this.$textarea.on('click', this.click.bind(this));
 
 			// setting up top for steps
-			this.$topStepBubbles = $('<div class="editor-top-steps"></div>');
+			this.$topStepBubbles = $('<div class="editor-step-bubbles"></div>');
 			this.$div.append(this.$topStepBubbles);
 			this.stepBubbles = new editor.StepBubbles(this.$topStepBubbles, this, this.delegate);
 
