@@ -211,7 +211,7 @@ module.exports = function(jsmm) {
 			try {
 				this.str = JSON.parse(this.str);
 			} catch (e) {
-				throw new jsmm.msg.Error(this.id, 'String contains invalid characters');
+				throw new jsmm.msg.Error(this.id, this.tree, 'String contains invalid characters');
 			}
 		},
 		getCode: function() {

@@ -45,7 +45,7 @@ module.exports = function(jsmm) {
 				this.error = error;
 			} else {
 				throw error;
-				this.error = new jsmm.msg.Error(0, 'An unknown error has occurred', error);
+				this.error = new jsmm.msg.Error(0, this.tree, 'An unknown error has occurred', error);
 			}
 			//console.log(this.error);
 		},

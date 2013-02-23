@@ -306,7 +306,7 @@ module.exports = function(jsmm) {
 		},
 
 		throwTimeout: function(nodeId) {
-			throw new jsmm.msg.Error(nodeId || this.callNodeId, 'Program takes too long to run');
+			throw new jsmm.msg.Error(nodeId || this.callNodeId, this.tree, 'Program takes too long to run');
 		},
 
 		/// TREE/RUNNER FUNCTIONS ///
@@ -317,7 +317,7 @@ module.exports = function(jsmm) {
 			if (funcName !== undefined) {
 				func = this.scope.getFunction(funcName);
 				if (func === undefined) {
-					this.error = new jsmm.msg.Error(0, 'Function <var>' + funcName + '</var> could not be found');
+					this.error = new jsmm.msg.Error(0, this.tree, 'Function <var>' + funcName + '</var> could not be found');
 					this.pushStep(this.error);
 					return;
 				}
@@ -333,7 +333,7 @@ module.exports = function(jsmm) {
 				if (error.type === 'Error') {
 					this.error = error;
 				} else {
-					this.error = new jsmm.msg.Error(0, 'An unknown error has occurred', error);
+					this.error = new jsmm.msg.Error(0, this.tree, 'An unknown error has occurred', error);
 					if (jsmm.debug) {
 						throw error;
 					}
@@ -386,7 +386,7 @@ module.exports = function(jsmm) {
 		enterCall: function(node) {
 			this.callStackNodes.push(node);
 			if (this.callStackNodes.length > this.limits.callStackDepth) {
-				//throw new jsmm.msg.Error(node.id, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
+				//throw new jsmm.msg.Error(node.id, this.tree, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
 				this.throwTimeout(node.id);
 			}
 		},
@@ -439,7 +439,7 @@ module.exports = function(jsmm) {
 			} catch (error) {
 				// augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
 				if (typeof error === 'string') {
-					throw new jsmm.msg.Error(node.id, error);
+					throw new jsmm.msg.Error(node.id, this.tree, error);
 				} else {
 					throw error;
 				}
