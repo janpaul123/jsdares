@@ -511,6 +511,7 @@ module.exports = function(editor) {
 
 		showMessage: function(type, location, html) {
 			if (type === 'error') {
+				this.stepMessage.hide();
 				this.showError(location, html);
 			} else {
 				this.showStep(location, html);
