@@ -211,7 +211,6 @@ module.exports = function(editor) {
 		scrollToError: function() { // callback
 			this.handleError(this.runner.getError());
 			this.surface.scrollToLine(this.runner.getError().getLoc(this.tree).line);
-			this.surface.openMessage();
 		},
 
 		userChangedText: function() { // callback
