@@ -137,7 +137,8 @@ module.exports = function(editor) {
 	editor.editables.ColorEditable.prototype = addCommonMethods('color', {
 		init: function() {
 			this.$colorPicker = $('<div class="editor-editable-colorpicker"></div>');
-			this.box = new editor.Box(this.$marking, this.surface);
+			this.box = new editor.Box();
+			this.surface.addElementToTop(this.box.getElement());
 			this.box.html(this.$colorPicker, this.surface.makeElementLocationRange(this.loc));
 			this.$colorPicker.colorPicker({
 				format: this.colorData.format,
