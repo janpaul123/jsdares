@@ -73,10 +73,11 @@ module.exports = function(editor) {
 
 		onClick: function() {
 			if (this.currentStep !== null) {
-				if (this.locked) {
+				if (this.locked && this.currentStep === this.lockedStep) {
 					this.unsetlocked();
 					this.updateMouse();
 				} else {
+					this.unsetlocked();
 					this.setlocked();
 				}
 			}
