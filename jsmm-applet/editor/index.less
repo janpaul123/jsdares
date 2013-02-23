@@ -510,13 +510,22 @@ div.colorpicker div.circle.lightness {
 	.editor-step-bubbles-container {
 		position: absolute;
 		top: 0px;
+
+		.editor-step-bubbles-bubble {
+			position: absolute;
+			margin-top: 1px;
+			width: 10px;
+			height: 10px;
+			background-color: @editor-step-bubble-color;
+			.border-radius(10px);
+		}
 	}
 
-	.editor-step-bubbles-bubble {
+	.editor-step-bubbles-line {
 		position: absolute;
-		width: 8px;
-		height: 8px;
-		background-color: @editor-step-bubble-color;
-		.border-radius(8px);
+		top: 0px;
+		width: 0px;
+		margin-left: 3px;
+		border-left: 2px solid rgba(30, 90, 132, 1);
 	}
 }
