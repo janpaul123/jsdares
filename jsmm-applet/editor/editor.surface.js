@@ -106,11 +106,11 @@ module.exports = function(editor) {
 		},
 
 		updatePosition: function(css) {
-			var left = css.left+css.width/2;
-			var newLeft = Math.max(-8, left-this.$element.outerWidth()/2);
-			this.$element.css('left', newLeft);
-			this.$arrow.css('left', left-newLeft);
-			this.$element.css('top', css.top+css.height);
+			var top = css.top+css.height/2;
+			var newTop = Math.max(-8, top-this.$element.outerHeight()/2);
+			this.$element.css('top', newTop);
+			this.$arrow.css('top', top-newTop);
+			this.$element.css('left', Math.min(300, css.left+css.width));
 		},
 
 		html: function(html, css) {
