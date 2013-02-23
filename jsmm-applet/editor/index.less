@@ -505,7 +505,6 @@ div.colorpicker div.circle.lightness {
 /// STEP BUBBLES ///
 .editor-step-bubbles {
 	// position: absolute; already given earlier
-	overflow: hidden;
 
 	.editor-step-bubbles-container {
 		position: absolute;
@@ -518,6 +517,10 @@ div.colorpicker div.circle.lightness {
 			height: 10px;
 			background-color: @editor-step-bubble-color;
 			.border-radius(10px);
+
+			&.editor-step-bubbles-bubble-active {
+				background-color: @editor-step-bubble-color-active;
+			}
 		}
 	}
 
@@ -525,7 +528,7 @@ div.colorpicker div.circle.lightness {
 		position: absolute;
 		top: 0px;
 		width: 0px;
-		margin-left: 3px;
+		margin-left: 4px;
 		border-left: 2px solid rgba(30, 90, 132, 1);
 	}
 }

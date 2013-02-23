@@ -29,10 +29,10 @@ module.exports = function(editor) {
 		},
 
 		update: function(runner) {
-			if (runner.isStatic() && runner.canStep()) {
+			if (runner.isStepping()) {
 				this.render(runner);
 			} else {
-				// this.disable();
+				this.disable();
 			}
 		},
 
@@ -41,55 +41,54 @@ module.exports = function(editor) {
 		},
 
 		render: function(runner) {
-			this.renderAllBubbles(runner);
-
-			var leftOffset = this.leftOffsetFromStepNumAndTotal(runner.getStepNum(), runner.getStepTotal());
-			this.setLeftOffset(leftOffset);
-			this.$div.height(this.maxHeight);
-		},
-
-		setLeftOffset: function(leftOffset) {
-			this.$bubblesContainer.css('left', leftOffset);
-		},
-
-		leftOffsetFromStepNumAndTotal: function(stepNum, stepTotal) {
-			var bubblesWidth = stepTotal*10;
-			if (bubblesWidth > this.$div.outerWidth()) {
-				var scrollWidth = bubblesWidth - this.$div.outerWidth()*2/3;
-				return -Math.round(stepNum/stepTotal*scrollWidth);
-			} else {
-				return 0;
-			}
-		},
-
-		renderAllBubbles: function(runner) {
+			var stepNum = runner.getStepNum();
 			var stepTotal = runner.getStepTotal();
 
-			this.$bubblesContainer.children('.editor-step-bubbles-bubble').remove();
-			this.$bubblesContainer.show();
-			var steps = runner.getAllSteps();
-			this.maxHeight = 0;
-			for (var i=0; i<stepTotal; i++) {
-				this.addBubble(steps[i], i);
-			}
+			var visibleSteps = (this.$div.outerWidth()/10);
+			var start = Math.max(0, stepNum - visibleSteps/2);
+			var end = Math.min(stepTotal, start+visibleSteps);
 
-			this.positionLineByStepNum(runner.getStepNum());
+			this.renderBubbleRange(runner.getAllSteps(), this.editor.tree, start, end, stepNum);
+			this.positionLineByStepNum(runner.getStepNum()-start);
+
+			this.$bubblesContainer.show();
 		},
 
-		addBubble: function(step, number) {
+		renderBubbleRange: function(steps, tree, start, end, current) {
+			if (this.lastSteps !== steps || this.lastTree !== tree || this.lastStart !== start || this.lastEnd !== end || this.lastCurrent !== current) {
+				this.lastSteps = steps;
+				this.lastTree = tree;
+				this.lastStart = start;
+				this.lastEnd = end;
+				this.lastCurrent = current;
+
+				this.$bubblesContainer.children('.editor-step-bubbles-bubble').remove();
+				
+				for (var i=start; i<end; i++) {
+					var $bubble = this.addBubble(steps[i], tree, i-start);
+
+					if (i === current) {
+						$bubble.addClass('editor-step-bubbles-bubble-active');
+					}
+				}
+			}
+		},
+
+		addBubble: function(step, tree, number) {
 			var $bubble = $('<div class="editor-step-bubbles-bubble"></div>');
-			var loc = step.getLoc(this.editor.tree);
+			var loc = step.getLoc(tree);
 			var top = this.surface.lineToY(loc.line);
-			this.maxHeight = Math.max(top+20, this.maxHeight);
 
 			$bubble.css('top', top);
 			$bubble.css('left', number*10);
 			this.$bubblesContainer.append($bubble);
+
+			return $bubble;
 		},
 
 		positionLineByStepNum: function(stepNum) {
 			this.$bubblesLine.css('left', stepNum*10);
-			this.$bubblesLine.height(this.maxHeight);
+			this.$bubblesLine.css('height', this.surface.lineToY(this.editor.tree.programNode.blockLoc.line2));
 		}
 	};
 	
@@ -409,7 +408,7 @@ module.exports = function(editor) {
 			// setting up top for steps
 			this.$topStepBubbles = $('<div class="editor-step-bubbles"></div>');
 			this.$div.append(this.$topStepBubbles);
-			this.stepBubbles = new editor.StepBubbles(this, this.delegate);
+			this.stepBubbles = new editor.StepBubbles(this.$topStepBubbles, this, this.delegate);
 
 			// setting up top
 			this.$top = $('<div class="editor-top"></div>');
