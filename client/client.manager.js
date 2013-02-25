@@ -12,7 +12,8 @@ var pageConstructors = [
 	{regex: /^learn/, type: 'PageLearn'},
 	{regex: /^create/, type: 'PageCreate'},
 	{regex: /^superheroes$/, type: 'PageUsersList'},
-	{regex: /^superheroes/, type: 'PageUsersSingle'}
+	{regex: /^superheroes/, type: 'PageUsersSingle'},
+	{regex: /^blog/, type: 'PageBlog'}
 ];
 
 module.exports = function(client) {

@@ -13,7 +13,10 @@ html {
 body, input, button, select, textarea {
 	font-family: Arimo, Helvetica, Arial, sans-serif;
 	background: rgb(255,255,255);
+}
 
+strong {
+	color: #000;
 }
 
 .main-wrapper {
@@ -315,4 +318,57 @@ body, input, button, select, textarea {
 .create-collection-mine, .learn-collection-played, .learn-collection-all, .superheroes-collection-played, .superheroes-collection-mine, .superheroes-collection-theirs {
 	float: left;
 	margin: 20px;
+}
+
+.blog {
+	strong {
+		color: @orange;
+	}
+
+	.blog-box {
+		width: 600px;
+		padding: 30px;
+		background-color: white;
+		box-sizing: border-box;
+		margin-top: 20px;
+	}
+
+	.blog-intro {
+		margin-left: (@applet-width - 600px)/2;
+
+		h1 {
+			display: block;
+			width: 700px;
+			margin-left: -(700px - 600px)/2 - 30px;
+			margin-top: 20px;
+			margin-bottom: 40px;
+
+			color: #C0DEBA;
+			font-family: 'Oleo Script', cursive;
+			text-shadow: 0 0 2px black, 0px 2px 3px #fff;
+			text-align: center;
+			font-size: 80px;
+			line-height: 80px;
+
+			.victor {
+				color: #BAD2De;
+			}
+		}
+
+		.blog-intro-example-game {
+			margin-left: -(@applet-width - 600px)/2 - 30px;
+			margin-bottom: 50px;
+		}
+	}
+
+	h2 {
+		display: block;
+		margin-bottom: 20px;
+
+		color: #C0DEBA;
+		font-family: 'Oleo Script', cursive;
+		text-shadow: 0 0 2px black, 0px 2px 3px #fff;
+		font-size: 60px;
+		line-height: 60px;
+	}
 }
