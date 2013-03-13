@@ -22,6 +22,12 @@ module.exports = function(client) {
 			this.exampleEditor = this.exampleUI.addEditor({text: exampleText});
 			this.exampleUI.loadOutputs({ canvas: {enabled: true}, events: {enabled: true, mouseObjects: ['canvas']}, math: {enabled: true} });
 			this.exampleUI.selectTab('canvas');
+
+			this.robotUI = new applet.UI(this.$blog.find('.blog-robots-example'), {hideTabs: true});
+			var robotText = 'while(!robot.detectGoal()) {\n  robot.turnLeft();\n  while(robot.detectWall()) {\n    robot.turnRight();\n  }\n  robot.drive(1);\n}';
+			this.robotEditor = this.robotUI.addEditor({text: robotText});
+			this.robotUI.loadOutputs({ robot: {enabled: true, state: '{"columns": 5, "rows": 5, "initialX": 2, "initialY": 4, "initialAngle": 90, "mazeObjects": 17, "verticalActive": [[false,false,false,false,false],[false,true,true,false,false],[true,false,false,false,false],[false,true,false,false,true],[false,true,true,true,false]], "horizontalActive": [[false,false,false,false,false],[false,false,true,true,true],[false,true,true,true,true],[false,true,false,false,false],[false,false,false,false,false]], "blockGoal": [[false,false,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]] }' }, math: {enabled: true} });
+			this.robotUI.selectTab('robot');
 		},
 
 		remove: function() {
@@ -40,17 +46,22 @@ module.exports = function(client) {
 			'</div>',
 			'<div class="blog-box blog-games">',
 			'<h2>Games!</h2>',
+			'<img src="/img/blog/ani.gif">',
 			'<p>From years of volunteering at a youth hackerspace, I&rsquo;ve learned something: children love making games. Having that as a grand goal when learning programming is hugely motivating. <em>What is cooler than knowing you are soon able to create games?</em></p>',
 			'<p>Actually, many Victorian ideas work really well with creating games. Let&rsquo;s look at a few.</p>',
 			'<p><strong>Live updating.</strong> The game immediately starts playing on the left side, with the code on the right. When changing the code, the game uses the new code immediately, in real-time. In small-scale field trials, I&rsquo;ve found that even students who had never touched any code in their lives, immediately started playing with values. The game immediately responds to these changes, which is hugely gratifying. <em>Is programming really that easy?</em></p>',
+			'<img src="/img/blog/manipulation.png">',
 			'<p><strong>Value manipulation.</strong> To facilitate playing with values, I&rsquo;ve implemented value manipulation. When hovering over a line, all the numbers in that line light up, and can easily be changed by dragging the number left or right. Of course, the game responds right away.</p>',
 			'<p><strong>Rewinding time.</strong> To understand how a program works, students must be able to see what happens in a single event. By going back in time each individual event can be inspected. When editing the code, the events are then replayed with the new code. This way students can discover what would have happened with the new code, thus gaining insight into the behaviour of a program.</p>',
+			'<img src="/img/blog/highlighting.png" style="margin-top: -90px">',
 			'<p><strong>Highlighting.</strong> Making a visual connection between the code and its output is vital for understanding what is going on. We should not have to simulate the code in our heads to discover which statement renders which line of output. It should just be there. By hovering over a statement the corresponding element of the canvas is highlighted, and vice versa.</p>',
+			'<img src="/img/blog/time.png" style="margin-top: 190px">',
 			'<p><strong>Abstracting over time.</strong> Behaviour of games is inherently time-based. The code must contain statements that render the current state, but also statements for transitioning to a new state (the <em>next tick</em>). An example is moving a ball to a new position based on its velocity, or changing its velocity when bouncing off surfaces. This kind of behaviour can be visualised by rendering the parts of the state on top of each other for each new event. Because rendering a state is often separated into methods, I&rsquo;ve made it easy to abstract one such method over time, by clicking a bar next to a method.</p>',
 			'<p><strong>Stepping.</strong> Javascript programs are executed sequentially, line by line. Programmers often walk through the code in the same was as a computer does, to understand what is happening. Most programming environments offer a debugger, which allows users to walk through the program step by step, from or to a certain point. Much more useful is to just see the flow of a program, and quickly move through it to discover interesting parts, which can then be inspected in greater detail. I&rsquo;ve implemented a step bar at the bottom, which immediately shows the student a certain step of the program, allowing to quickly move through all steps. By clicking, the bar is fixed in-place, so the student can look at what&rsquo;s happening in greater detail, for example by changing the code to see how it affects the flow. On top of the code, circles representing the flow of execution are drawn, which are instantly updated when changing the code.</p>',
 			'<p>In order to do all this, a lot of data needs to be stored, just as with the <a href="">Omniscient Debugger</a>. Only part of what is actually generated is now visualised: when stepping we should show return values, and thumbnails of canvas commands, as suggested in Learnable Programming. We can experiment with different ways of visualising program behaviour using all this data.</p>',
 			'<p>For creating games the standard <a href="">HTML5 canvas</a> is used. This means that students learn a real-world vocabulary. They can use what they have learned about the HTML5 canvas immediately in web applications.</p>',
 			'</div>',
+			'<div class="blog-robots-example"></div>',
 			'<div class="blog-box blog-robots">',
 			'<h2>Robots!</h2>',
 			'<p>Learning how to make games is cool and all, but students have to start somewhere. Also, the HTML5 canvas does not provide an intuitive metaphor for newcomers.</p>',
