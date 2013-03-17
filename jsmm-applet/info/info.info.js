@@ -165,8 +165,16 @@ module.exports = function(info) {
 		},
 
 		highlightNodes: function(nodeIds) {
+			this.nodeIds = nodeIds;
+			if (this.visible) {
+				this.renderHighlights();
+			}
+		},
+
+		renderHighlights: function() {
 			this.removeHighlights();
-			if (this.scopeTracker !== null && nodeIds !== null) {
+			var nodeIds = this.nodeIds;
+			if (this.scopeTracker !== null && nodeIds) {
 				for (var i=0; i<nodeIds.length; i++) {
 					var ids = this.scopeTracker.getHighlightIdsByNodeId(nodeIds[i]);
 					for (var j=0; j<ids.length; j++) {
@@ -176,6 +184,15 @@ module.exports = function(info) {
 					}
 				}
 			}
+		},
+
+		setFocus: function() {
+			this.visible = true;
+			this.renderHighlights();
+		},
+
+		unsetFocus: function() {
+			this.visible = false;
 		},
 
 		/// INTERNAL FUNCTIONS ///
@@ -328,8 +345,16 @@ module.exports = function(info) {
 		},
 
 		highlightNodes: function(nodeIds) {
+			this.nodeIds = nodeIds;
+			if (this.visible) {
+				this.renderHighlights();
+			}
+		},
+
+		renderHighlights: function() {
 			this.removeHighlights();
-			if (this.commandTracker !== null && nodeIds !== null) {
+			var nodeIds = this.nodeIds;
+			if (this.commandTracker !== null && nodeIds) {
 				for (var i=0; i<nodeIds.length; i++) {
 					var ids = this.commandTracker.getHighlightIdsByTopNodeId(nodeIds[i]);
 					for (var j=0; j<ids.length; j++) {
@@ -370,6 +395,15 @@ module.exports = function(info) {
 					event.$element.off(event.type, event.func);
 				}
 			}
+		},
+
+		setFocus: function() {
+			this.visible = true;
+			this.renderHighlights();
+		},
+
+		unsetFocus: function() {
+			this.visible = false;
 		},
 
 		/// INTERNAL FUNCTIONS ///
@@ -522,6 +556,16 @@ module.exports = function(info) {
 			this.$div.removeClass('info-highlighting');
 			if (this.scope !== null) this.scope.disableHighlighting();
 			this.table.disableHighlighting();
+		},
+
+		setFocus: function() {
+			if (this.scope !== null) this.scope.setFocus();
+			this.table.setFocus();
+		},
+
+		unsetFocus: function() {
+			if (this.scope !== null) this.scope.unsetFocus();
+			this.table.unsetFocus();
 		},
 
 		/// INTERNAL FUNCTIONS ///

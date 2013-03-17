@@ -208,6 +208,8 @@ module.exports.UI.prototype = {
 		this.tabsByName[name].$pane.addClass('active');
 		this.tabsByName[name].$tab.addClass('active');
 		if (this.outputs[name] !== undefined && this.outputs[name].setFocus !== undefined) this.outputs[name].setFocus();
+		if (this.outputs[this.currentTab] !== undefined && this.outputs[this.currentTab].unsetFocus !== undefined) this.outputs[this.currentTab].unsetFocus();
+		this.currentTab = name;
 	},
 
 	getOutput: function(name) {
