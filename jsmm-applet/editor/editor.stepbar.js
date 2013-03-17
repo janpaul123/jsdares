@@ -22,7 +22,7 @@ module.exports = function(editor) {
 
 			this.editorMarginSize = 26; // corresponds to @editor-margin-size in global.less
 
-			this.stepNumbers = [];
+			this.stepNumbersLength = 0;
 			this.numberWidth = 16;
 			this.numberMargin = 3;
 			this.currentStep = null;
@@ -89,7 +89,7 @@ module.exports = function(editor) {
 			this.lockedStep = this.currentStep;
 
 			if (this.lockedStep !== null) {
-				this.stepNumbers[this.lockedStep].$stepNumber.addClass('editor-stepbar-step-number-locked');
+				this.$stepNumber(this.lockedStep).addClass('editor-stepbar-step-number-locked');
 			}
 		},
 
@@ -139,12 +139,14 @@ module.exports = function(editor) {
 		},
 
 		leftOffsetFromFraction: function(fraction) {
-			if (this.$numbers.outerWidth() >= this.$div.outerWidth()) {
-				var scrollWidth = this.$numbers.outerWidth() - this.$div.outerWidth();
+			var numbersWidth = this.$numbers.outerWidth();
+			var divWidth = this.$div.outerWidth();
+			if (numbersWidth >= divWidth) {
+				var scrollWidth = numbersWidth - divWidth;
 				return -Math.round(fraction*scrollWidth);
 			} else {
-				var halfDivWidth = Math.floor(this.$div.outerWidth() / 2);
-				var leftOffsetAlignedRight = this.$div.outerWidth() - this.$numbers.outerWidth();
+				var halfDivWidth = Math.floor(divWidth / 2);
+				var leftOffsetAlignedRight = divWidth - numbersWidth;
 				return Math.min(leftOffsetAlignedRight, halfDivWidth + this.editorMarginSize);
 			}
 		},
@@ -164,20 +166,25 @@ module.exports = function(editor) {
 
 			if (this.currentStep !== stepNum) {
 				if (this.currentStep !== null) {
-					this.stepNumbers[this.currentStep].$stepNumber.removeClass('editor-stepbar-step-number-hover');
+					this.$stepNumber(this.currentStep).removeClass('editor-stepbar-step-number-hover');
 				}
 				if (stepNum !== null) {
-					this.stepNumbers[stepNum].$stepNumber.addClass('editor-stepbar-step-number-hover');
+					this.$stepNumber(stepNum).addClass('editor-stepbar-step-number-hover');
 				}
 				this.currentStep = stepNum;
 			}
 		},
 
 		setStepTotal: function(stepTotal) {
+			if (stepTotal >= 998) stepTotal = 998;
+
 			if (stepTotal !== this.stepTotal) {
-				for (var step=this.stepNumbers.length; step<stepTotal; step++) {
-					this.addStepNumber(step);
+				var stepsHTML = '';
+				for (var step=this.stepNumbersLength; step<stepTotal; step++) {
+					stepsHTML += this.getStepNumberHTML(step);
 				}
+				this.$numbers.append(stepsHTML);
+				this.stepNumbersLength = step;
 
 				this.removeNumbers(stepTotal);
 				this.updateNumbersWidth(stepTotal);
@@ -187,9 +194,8 @@ module.exports = function(editor) {
 		},
 
 		removeNumbers: function(fromStep) {
-			var lastStepNumber = this.stepNumbers[fromStep-1];
-			lastStepNumber.$stepNumber.nextAll().remove();
-			this.stepNumbers = this.stepNumbers.slice(0, fromStep);
+			var $lastStepNumber = this.$stepNumber(fromStep-1);
+			$lastStepNumber.nextAll().remove();
 			
 			if (this.currentStep >= fromStep) {
 				this.currentStep = null;
@@ -199,10 +205,12 @@ module.exports = function(editor) {
 			}
 		},
 
-		addStepNumber: function(step) {
-			var $stepNumber = $('<div class="editor-stepbar-step-number">' + (step+1) + '</div>');
-			this.$numbers.append($stepNumber);
-			this.stepNumbers[step] = {$stepNumber: $stepNumber};
+		getStepNumberHTML: function(step) {
+			return '<div class="editor-stepbar-step-number editor-stepbar-step-number-' + step + '">' + (step+1) + '</div>';
+		},
+
+		$stepNumber: function(step) {
+			return this.$numbers.children('.editor-stepbar-step-number-' + step);
 		},
 
 		updateNumbersWidth: function(stepTotal) {
