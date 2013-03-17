@@ -1,6 +1,8 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var _ = require('underscore');
+
 module.exports = function(output) {
 	var functions = {
 		clearRect: {type: 'function', argsMin: 4, argsMax: 4, example: 'clearRect(100, 100, 100, 100)', path: false, highlight: false, cost: 0.3},
@@ -442,15 +444,18 @@ module.exports = function(output) {
 		},
 
 		highlightTimeIds: function(timeIds) {
+			// if (!_.isEqual(this.timeIds, timeIds)) {
 			if (this.timeIds !== timeIds) {
 				this.timeIds = timeIds;
+				this.rerenderHighlights = true;
 				// this.render(); not needed since enableHighlighting always called afterwards
 			}
 		},
 
 		highlightCallIds: function(callIds) {
-			if (this.callIds !== callIds) {
+			if (!_.isEqual(this.callIds, callIds)) {
 				this.callIds = callIds;
+				this.rerenderHighlights = true;
 				// this.render(); not needed since enableHighlighting always called afterwards
 			}
 		},
@@ -480,14 +485,16 @@ module.exports = function(output) {
 
 			if (this.timeIds !== null) {
 				for (var i=0; i<this.eventsPosLength; i++) {
-					var event = this.events[(this.eventsPosStart+i)%this.eventsSize];
-					for (var j=0; j<event.calls.length; j++) {
-						var call = event.calls[j];
+					if (this.timeIds[i].length > 0) {
+						var event = this.events[(this.eventsPosStart+i)%this.eventsSize];
+						for (var j=0; j<event.calls.length; j++) {
+							var call = event.calls[j];
 
-						if (this.timeIds[i].indexOf(call.callId) >= 0 && functions[call.name].highlight) {
-							this.wrapper.setState(call.state);
-							this.context.strokeStyle = this.context.fillStyle = this.context.shadowColor = 'rgba(0, 110, 220, 0.30)'; // blue
-							this.context[call.name].apply(this.context, call.args);
+							if (this.timeIds[i].indexOf(call.callId) >= 0 && functions[call.name].highlight) {
+								this.wrapper.setState(call.state);
+								this.context.strokeStyle = this.context.fillStyle = this.context.shadowColor = 'rgba(0, 110, 220, 0.30)'; // blue
+								this.context[call.name].apply(this.context, call.args);
+							}
 						}
 					}
 				}
@@ -506,12 +513,12 @@ module.exports = function(output) {
 				this.context[highlightCall.name].apply(this.context, highlightCall.args);
 			}
 
-			if (this.callIds !== null) {
+			if (this.callIds !== null && this.callIds.length > 0) {
 				for (var i=0; i<this.events[this.eventPosition].calls.length; i++) {
 					var call = this.events[this.eventPosition].calls[i];
 					if (call.stepNum > this.stepNum) break;
 
-					if (this.callIds.indexOf(call.callId) >= 0 && functions[call.name].highlight) {
+					if (functions[call.name].highlight && this.callIds.indexOf(call.callId) >= 0) {
 						this.wrapper.setState(call.state);
 						this.context.strokeStyle = this.context.fillStyle = this.context.shadowColor = 'rgba(5, 195, 5, 0.85)'; // green
 						this.context[call.name].apply(this.context, call.args);
@@ -519,9 +526,7 @@ module.exports = function(output) {
 				}
 			}
 
-			if (this.highlighting) {
-				this.drawMirror();
-			}
+			this.mirrorShouldBeUpdated = true;
 
 			this.wrapper.setState(this.events[this.eventPosition].endState);
 		},
@@ -542,6 +547,7 @@ module.exports = function(output) {
 				this.mirrorContext.lineWidth = Math.max(3, this.context.lineWidth);
 				this.mirrorContext[call.name].apply(this.mirrorContext, call.args);
 			}
+			this.mirrorShouldBeUpdated = false;
 		},
 
 		clearMirror: function() {
@@ -551,19 +557,25 @@ module.exports = function(output) {
 		},
 
 		enableHighlighting: function() {
-			this.highlighting = true;
-			this.highlightCallIndex = -1;
-			this.$div.addClass('canvas-highlighting');
-			this.$div.off('mousemove mouseleave');
-			this.$div.on('mousemove', this.mouseMove.bind(this));
-			this.$div.on('mouseleave', this.mouseLeave.bind(this));
-			this.eventHighlightingInternal = false;
-			if (this.eventsPosLength > 0) {
-				this.render();
+			if (!this.highlighting || this.highlightCallIndex !== -1 || this.rerenderHighlights) {
+				this.rerenderHighlights = false;
+
+				this.highlighting = true;
+				this.highlightCallIndex = -1;
+				this.$div.addClass('canvas-highlighting');
+				this.$div.off('mousemove mouseleave');
+				this.$div.on('mousemove', this.mouseMove.bind(this));
+				this.$div.on('mouseleave', this.mouseLeave.bind(this));
+				this.eventHighlightingInternal = false;
+				if (this.eventsPosLength > 0) {
+					this.render();
+				}
 			}
 		},
 
 		disableHighlighting: function() {
+			this.rerenderHighlights = false;
+
 			this.highlighting = false;
 			this.highlightCallIndex = -1;
 			this.$div.removeClass('canvas-highlighting');
@@ -633,6 +645,10 @@ module.exports = function(output) {
 
 		mouseMove: function(event) {
 			if (this.highlighting) {
+				if (this.mirrorShouldBeUpdated) {
+					this.drawMirror();
+				}
+
 				var offset = this.$canvas.offset();
 				var x = event.pageX - offset.left, y = event.pageY - offset.top;
 				var pixel = this.mirrorContext.getImageData(x, y, 1, 1).data;
