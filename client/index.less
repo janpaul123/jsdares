@@ -324,9 +324,82 @@ strong {
 	margin: 20px;
 }
 
+
+.movie-player {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+	z-index: 1000;
+
+	.movie-player-iframe {
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 3;
+	}
+
+	.movie-player-overlay {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 1100px;
+		height: 630px;
+
+		background-color: rgba(0, 0, 0, 0.1);
+		z-index: 1;
+		display: none;
+	}
+
+	@movie-player-play-width: 65px;
+	@movie-player-play-height: 40px;
+
+	.movie-player-picture-container {
+		position: relative;
+		z-index: 2;
+	}
+
+	.movie-player-play {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+
+		width: @movie-player-play-width;
+		height: @movie-player-play-height;
+		margin-left: round(-@movie-player-play-width/2);
+		margin-top: round(-@movie-player-play-height/2);
+
+		@left: round(@movie-player-play-width/2) - 9px;
+		@top: round(@movie-player-play-height/2) - 10px;
+		background: rgba(0, 0, 0, 0.5) url("/img/play-button.png") @left @top no-repeat;
+		.border-radius(4px);
+
+		&:hover {
+			background-color: rgb(0, 173, 238);
+		}
+	}
+
+	.movie-player-picture-container:hover + .movie-player-overlay {
+		display: block;
+	}
+}
+
 .blog {
+	position: relative;
+
 	strong {
 		color: @orange;
+	}
+
+	p:last-child {
+		margin-bottom: 0;
+	}
+
+	.blog-sidenote {
+		position: absolute;
+		width: 350px;
+		display: block;
+		right: 80px;
+		font-size: 12px;
 	}
 
 	.blog-box {
@@ -342,8 +415,8 @@ strong {
 
 		h1 {
 			display: block;
-			width: 700px;
-			margin-left: -(700px - 600px)/2 - 30px;
+			width: 800px;
+			margin-left: -(800px - 600px)/2 - 30px;
 			margin-top: 20px;
 			margin-bottom: 40px;
 
@@ -359,9 +432,47 @@ strong {
 			}
 		}
 
-		.blog-intro-example-game {
-			margin-left: -(@applet-width - 600px)/2 - 30px;
-			margin-bottom: 50px;
+		.blog-intro-example {
+			position: relative;
+			height: 640px;
+
+			.blog-intro-example-buttons {
+				position: absolute;
+				top: 5px;
+				left: 0;
+
+				.blog-intro-example-buttons-movie,
+				.blog-intro-example-buttons-game {
+					padding: 5px 15px;
+					margin-right: 10px;
+					color: white;
+					background-color: rgba(0, 0, 0, 0.3);
+					.border-radius(4px);
+					cursor: pointer;
+
+					&:hover {
+						background-color: rgb(0, 173, 238);
+					}
+				}
+			}
+
+			&.blog-intro-example-active-movie .blog-intro-example-buttons-movie,
+			&.blog-intro-example-active-game .blog-intro-example-buttons-game {
+				background-color: rgb(0, 173, 238);
+			}
+
+			&.blog-intro-example-active-game .blog-intro-example-movie,
+			&.blog-intro-example-active-movie .blog-intro-example-game {
+				display: none;
+			}
+
+			.blog-intro-example-movie {
+				margin-left: -(1100px - 600px)/2 - 30px;
+			}
+
+			.blog-intro-example-game {
+				margin-left: -(@applet-width - 600px)/2 - 30px;
+			}
 		}
 	}
 
@@ -377,9 +488,9 @@ strong {
 	}
 
 	.blog-games {
-		img {
+		.movie-player {
 			position: absolute;
-			left: 680px;
+			right: -15px;
 		}
 	}
 
@@ -403,5 +514,55 @@ strong {
 		.ui-output {
 			width: 400px;
 		}
+	}
+
+	.blog-points {
+		.blog-collection {
+			position: absolute;
+			right: 0px;
+		}
+	}
+
+	.blog-vision {
+		width: 100%;
+		overflow: hidden;
+
+		.blog-vision-left {
+			box-sizing: border-box;
+			float: left;
+			width: 50%;
+
+			padding-right: 30px;
+			border-right: 1px solid #ddd;
+		}
+
+		.blog-vision-right {
+			box-sizing: border-box;
+			float: right;
+			width: 50%;
+			padding-left: 30px;
+		}
+	}
+
+	.blog-now-what {
+		margin-left: (@applet-width - 600px)/2;
+
+		h2 {
+			color: #BAD2De;
+		}
+
+		.blog-author {
+			overflow: hidden;
+
+			.janpaul123 {
+				float: left;
+				margin-right: 20px;
+			}
+		}
+	}
+
+	.blog-line {
+		border-bottom: 1px solid #ddd;
+		margin: 30px 0;
 	}
 }
