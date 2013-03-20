@@ -13,7 +13,7 @@ var pageConstructors = [
 	{regex: /^create/, type: 'PageCreate'},
 	{regex: /^superheroes$/, type: 'PageUsersList'},
 	{regex: /^superheroes/, type: 'PageUsersSingle'},
-	{regex: /^blog/, type: 'PageBlog'}
+	{regex: /^blindfold/, type: 'PageBlog'}
 ];
 
 module.exports = function(client) {
