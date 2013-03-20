@@ -162,7 +162,7 @@ module.exports = function(editor) {
 		},
 
 		setStepNum: function(stepNum) {
-			if (stepNum === Infinity) stepNum = null;
+			if (stepNum >= 998) stepNum = null;
 
 			if (this.currentStep !== stepNum) {
 				if (this.currentStep !== null) {
@@ -196,6 +196,7 @@ module.exports = function(editor) {
 		removeNumbers: function(fromStep) {
 			var $lastStepNumber = this.$stepNumber(fromStep-1);
 			$lastStepNumber.nextAll().remove();
+			this.stepNumbersLength = fromStep;
 			
 			if (this.currentStep >= fromStep) {
 				this.currentStep = null;
