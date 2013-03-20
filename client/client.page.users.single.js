@@ -11,12 +11,16 @@ module.exports = function(client) {
 
 		init: function(delegate, $div) {
 			this.delegate = delegate;
-			this.$div = $div;
+
+			this.$container = $('<div class="users-single"></div>');
+			$div.append(this.$container);
+
 			this.page = null;
 		},
 
 		remove: function() {
 			if (this.page !== null) this.page.remove();
+			this.$container.remove();
 		},
 
 		navigateTo: function(splitUrl) {
@@ -30,9 +34,9 @@ module.exports = function(client) {
 			if (this.page !== null) this.page.remove();
 
 			if (user._id === this.delegate.getUserId()) {
-				this.page = new client.PageUsersOwn(this.delegate, this.$div, user, this.username);
+				this.page = new client.PageUsersOwn(this.delegate, this.$container, user, this.username);
 			} else {
-				this.page = new client.PageUsersOther(this.delegate, this.$div, user, this.username);
+				this.page = new client.PageUsersOther(this.delegate, this.$container, user, this.username);
 			}
 		}
 	};
