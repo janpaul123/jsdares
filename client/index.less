@@ -331,17 +331,21 @@ strong {
 	cursor: pointer;
 	z-index: 1000;
 
+	&.movie-player-active {
+		z-index: 100000;
+	}
+
 	.movie-player-iframe {
 		position: absolute;
 		top: 0;
-		right: 0;
+		left: 0;
 		z-index: 3;
 	}
 
 	.movie-player-overlay {
 		position: absolute;
 		top: 0;
-		right: 0;
+		left: 0;
 		width: 1100px;
 		height: 630px;
 
@@ -400,6 +404,12 @@ strong {
 		display: block;
 		right: 80px;
 		font-size: 12px;
+		margin-top: -20px;
+		color: #999;
+	}
+
+	.blog-star {
+		color: #999;
 	}
 
 	.blog-box {
@@ -410,9 +420,16 @@ strong {
 		margin-top: 20px;
 	}
 
-	.blog-intro {
+	.blog-intro, .blog-now-what, .blog-author {
 		margin-left: (@applet-width - 600px)/2;
 
+		.blog-sidenote {
+			width: 210px;
+			right: 0;
+		}
+	}
+
+	.blog-intro {
 		h1 {
 			display: block;
 			width: 800px;
@@ -487,21 +504,39 @@ strong {
 		line-height: 60px;
 	}
 
-	.blog-games {
-		.movie-player {
-			position: absolute;
-			right: -15px;
+	.blog-games, .blog-dares {
+		margin-left: 485px;
+
+		.blog-sidenote {
+			right: 640px;
+			text-align: right;
 		}
 	}
 
-	.blog-robots {
-		margin-left: 485px;
+	.blog-games {
+		.movie-player {
+			position: absolute;
+			right: 640px;
+		}
+
+		.movie-player-iframe {
+			left: -130px;
+		}
+
+		.movie-player-overlay {
+			left: -130px;
+		}
+
+		img.blog-games-ani {
+			position: absolute;
+			right: 640px;
+			margin-top: -10px;
+		}
 	}
 
 	.blog-robots-example {
 		position: absolute;
-		left: 65px;
-		margin-top: 100px;
+		left: 680px;
 
 		.ui-background, .ui-editor, .ui-toolbar, .ui-stepbar, .arrow {
 			display: none !important;
@@ -516,10 +551,26 @@ strong {
 		}
 	}
 
-	.blog-points {
-		.blog-collection {
+	img.blog-robots-mindstorms {
+		position: absolute;
+		right: 75px;
+		margin-top: -120px;
+	}
+
+	.blog-dares {
+		.blog-collection-container {
 			position: absolute;
-			right: 0px;
+			right: 640px;
+
+			.blog-arrow-maze {
+				top: 264px;
+				left: 100px;
+			}
+
+			.blog-arrow-animal {
+				top: 428px;
+				left: 100px;
+			}
 		}
 	}
 
@@ -550,19 +601,20 @@ strong {
 		h2 {
 			color: #BAD2De;
 		}
-
-		.blog-author {
-			overflow: hidden;
-
-			.janpaul123 {
-				float: left;
-				margin-right: 20px;
-			}
-		}
 	}
 
 	.blog-line {
 		border-bottom: 1px solid #ddd;
 		margin: 30px 0;
+	}
+
+	.blog-author {
+		margin-bottom: 20px;
+		overflow: hidden;
+
+		.janpaul123 {
+			float: left;
+			margin-right: 20px;
+		}
 	}
 }

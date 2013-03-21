@@ -35,6 +35,7 @@ MoviePlayer.prototype = {
 	remove: function() {
 		this.$div.html('');
 		this.$div.removeClass('movie-player');
+		this.$div.removeClass('movie-player-active');
 		this.$div.off('click');
 	},
 
@@ -46,10 +47,12 @@ MoviePlayer.prototype = {
 
 	onPlay: function() {
 		this.$iframe.show();
+		this.$div.addClass('movie-player-active');
 	},
 
 	onPause: function() {
 		this.$iframe.hide();
+		this.$div.removeClass('movie-player-active');
 	},
 
 	onPictureClick: function() {
@@ -77,7 +80,10 @@ module.exports = function(client) {
 			this.robotUI.loadOutputs({ robot: {enabled: true, state: '{"columns": 5, "rows": 5, "initialX": 2, "initialY": 4, "initialAngle": 90, "mazeObjects": 17, "verticalActive": [[false,false,false,false,false],[false,true,true,false,false],[true,false,false,false,false],[false,true,false,false,true],[false,true,true,true,false]], "horizontalActive": [[false,false,false,false,false],[false,false,true,true,true],[false,true,true,true,true],[false,true,false,false,false],[false,false,false,false,false]], "blockGoal": [[false,false,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]] }' }, math: {enabled: true} });
 			this.robotUI.selectTab('robot');
 
-			var mp1 = new MoviePlayer(this.$blog.find('.movie-games-1'), '/img/blog/manipulation.png', 61843026);
+			var mp1 = new MoviePlayer(this.$blog.find('.movie-games-1'), '/img/blog/fr-manipulation-small.png', 62291930);
+			var mp2 = new MoviePlayer(this.$blog.find('.movie-games-2'), '/img/blog/fr-time-small.png', 62319512);
+			var mp3 = new MoviePlayer(this.$blog.find('.movie-games-3'), '/img/blog/fr-time-highlighting-small.png', 62319511);
+			var mp4 = new MoviePlayer(this.$blog.find('.movie-games-4'), '/img/blog/fr-stepping-small.png', 62319510);
 
 			var collection = new dares.Collection(this, this.$blog.find('.blog-collection'));
 
@@ -89,6 +95,19 @@ module.exports = function(client) {
 
 			this.$blog.find('.blog-intro-example-buttons-movie').on('click', this.showMovie.bind(this));
 			this.$blog.find('.blog-intro-example-buttons-game').on('click', this.showGame.bind(this));
+
+			var $mazeLink = this.$blog.find('.blog-dares-maze');
+			var $mazeArrow = this.$blog.find('.blog-arrow-maze');
+			$mazeLink.on('click', function() { $mazeArrow.removeClass('arrow-animate'); window.setTimeout(function() { $mazeArrow.addClass('arrow-animate'); }, 0); return false; });
+			$mazeLink.on('mouseenter', function() { $mazeArrow.addClass('arrow-active'); });
+			$mazeLink.on('mouseleave', function() { $mazeArrow.removeClass('arrow-active arrow-animate'); });
+
+			var $animalLink = this.$blog.find('.blog-dares-animal');
+			var $animalArrow = this.$blog.find('.blog-arrow-animal');
+			$animalLink.on('click', function() { $animalArrow.removeClass('arrow-animate'); window.setTimeout(function() { $animalArrow.addClass('arrow-animate'); }, 0); return false; });
+			$animalLink.on('mouseenter', function() { $animalArrow.addClass('arrow-active'); });
+			$animalLink.on('mouseleave', function() { $animalArrow.removeClass('arrow-active arrow-animate'); });
+
 			this.showMovie();
 		},
 
@@ -133,73 +152,88 @@ module.exports = function(client) {
 			'<div class="blog-box blog-intro">',
 			'<h1>Peeking through<br/><span class="victor">Bret Victor&rsquo;s</span> blindfold</h1>',
 			'<p><em>&ldquo;Maybe we don&rsquo;t need a silver bullet. We just need to take off our blindfolds to see where we&rsquo;re firing.&rdquo;</em></p>',
-			'<p>With these words Bret Victor&rsquo;s ends his awe-inspiring essay <a href="">Learnable Programming</a>, referring to the fact that programming tools barely give any visual insight in the behaviour of the code. In the article, he proposes a number of guidelines for educational programming environments, in addition to his earlier examples in <a href="">Inventing on Principle</a>.</p>',
-			'<p>Bret Victor&rsquo;s work is largely prototypical, and leaves one question wide open.<br/><strong>How are we going to implement such a &ldquo;Victorian&rdquo; programming interface?</strong></p>',
+			'<p>With these words Bret Victor ends his awe-inspiring essay <a href="http://worrydream.com/LearnableProgramming">Learnable Programming</a>, referring to the fact that programming tools barely give any visual insight in the behaviour of the code. His main point is that in order to make programming understandable, we should change <em>programming itself</em>. Programming languages should be designed for humans, not for machines. Programming tools should be designed for creating and understanding programs.</p>',
+			'<p>In his essay, Bret Victor presents a coherent set of interactions designed around these ideas, aimed in particular at learning programming.<span class="blog-star">*</span><span class="blog-sidenote" style="margin-top: -35px">* Please see the <a href="http://worrydream.com">essays</a> of Bret Victor(ian) for the original context of these ideas. I’m merely an implementer.</span> However, his work is largely prototypical, and leaves one question wide open:</p>',
+			'<p><strong>How are we going to implement such a &ldquo;Victorian&rdquo; programming environment?</strong></p>',
 			'<p>So, here&rsquo;s an attempt:</p>',
 			'<div class="blog-intro-example">',
-			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/61843026?title=0&byline=0&portrait=0" width="1100" height="630" frameborder="0"></iframe></div>',
+			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62291930?title=0&byline=0&portrait=0" width="1100" height="630" frameborder="0"></iframe></div>',
 			'<div class="blog-intro-example-game"></div>',
 			'<div class="blog-intro-example-buttons"><span class="blog-intro-example-buttons-movie">Video</span><span class="blog-intro-example-buttons-game">Game</span></div>',
 			'</div>',
-			'<p>After about a year of working on this, I&rsquo;m presenting for the first time a relatively complete implementation of the Victorian ideas, along with some established and some novel ideas. The vehicle for these ideas is <strong>jsdares</strong>, or &ldquo;Javascript dares&rdquo;, best described as a collaborative programming course. Anyone can make programming puzzles, or &ldquo;dares&rdquo;, which students can solve by writing programs. Ultimately, the goal is to learn how to create games.</p>',
+			'<p>I am presenting a programming environment designed for creating and understanding programs. The focus of the design is on <strong>learning programming</strong>, with tools that visualise the behaviour of programs, reinforce the connection between the code and its output, and encourage tinkering. It currently runs a stripped-down version of Javascript<span class="blog-star">*</span><span class="blog-sidenote">* I&rsquo;ve tried to contain some of Javascript&rsquo;s bad parts by writing a <a href="">sub-language</a> called <em>js--</em>. Overall though I&rsquo;ve taken a <a href="">tools first</a> approach.</span>, but it is designed to support any programming language.',
+			'<p>Around this programming environment, I&rsquo;ve built an educational platform called <strong>jsdares</strong>, for &ldquo;Javascript dares&rdquo;. On this platform, anyone can write programming puzzles, which students can solve by writing programs.</p>',
+			'<p>The educational part of jsdares is designed in tandem with the programming environment, to give a cohesive experience for learning programming. Students start out with simple tasks, such as driving a robot through a maze. Then they advance to more complicated puzzles, such as painting an image on the screen in as few lines of code as possible. The goal for them is learning to make simple games.</p>',
+			'<p>In this article, I’ll show some of the ideas used in jsdares, and how they are implemented. At the end we’ll look at bringing Victorian programming to mainstream software development.</p>',
 			'</div>',
 			'<div class="blog-box blog-games">',
+			'<img src="/img/blog/ani.gif" class="blog-games-ani">',
 			'<h2>Games!</h2>',
-			'<img src="/img/blog/ani.gif">',
-			'<div class="movie-games-1"></div>',
-			'<p>From years of volunteering at a youth hackerspace, I&rsquo;ve learned something: children love making games. Having that as a grand goal when learning programming is hugely motivating. <em>What is cooler than knowing you are soon able to create games?</em></p>',
-			'<p>Actually, many Victorian ideas work really well with creating games. Let&rsquo;s look at a few.</p>',
-			'<p><strong>Live updating.</strong> The game immediately starts playing on the left side, with the code on the right. When changing the code, the game uses the new code immediately, in real-time. In small-scale field trials, I&rsquo;ve found that even students who had never touched any code in their lives, immediately started playing with values. The game immediately responds to these changes, which is hugely gratifying. <em>Is programming really that easy?</em></p>',
-			'<img src="/img/blog/manipulation.png">',
-			'<p><strong>Value manipulation.</strong> To facilitate playing with values, I&rsquo;ve implemented value manipulation. When hovering over a line, all the numbers in that line light up, and can easily be changed by dragging the number left or right. Of course, the game responds right away.</p>',
-			'<p><strong>Rewinding time.</strong> To understand how a program works, students must be able to see what happens in a single event. By going back in time each individual event can be inspected. When editing the code, the events are then replayed with the new code. This way students can discover what would have happened with the new code, thus gaining insight into the behaviour of a program.</p>',
-			'<img src="/img/blog/highlighting.png" style="margin-top: -90px">',
-			'<p><strong>Highlighting.</strong> Making a visual connection between the code and its output is vital for understanding what is going on. We should not have to simulate the code in our heads to discover which statement renders which line of output. It should just be there. By hovering over a statement the corresponding element of the canvas is highlighted, and vice versa.</p>',
-			'<img src="/img/blog/time.png" style="margin-top: 190px">',
-			'<p><strong>Abstracting over time.</strong> Behaviour of games is inherently time-based. The code must contain statements that render the current state, but also statements for transitioning to a new state (the <em>next tick</em>). An example is moving a ball to a new position based on its velocity, or changing its velocity when bouncing off surfaces. This kind of behaviour can be visualised by rendering the parts of the state on top of each other for each new event. Because rendering a state is often separated into methods, I&rsquo;ve made it easy to abstract one such method over time, by clicking a bar next to a method.</p>',
-			'<p><strong>Stepping.</strong> Javascript programs are executed sequentially, line by line. Programmers often walk through the code in the same was as a computer does, to understand what is happening. Most programming environments offer a debugger, which allows users to walk through the program step by step, from or to a certain point. Much more useful is to just see the flow of a program, and quickly move through it to discover interesting parts, which can then be inspected in greater detail. I&rsquo;ve implemented a step bar at the bottom, which immediately shows the student a certain step of the program, allowing to quickly move through all steps. By clicking, the bar is fixed in-place, so the student can look at what&rsquo;s happening in greater detail, for example by changing the code to see how it affects the flow. On top of the code, circles representing the flow of execution are drawn, which are instantly updated when changing the code.</p>',
-			'<p>In order to do all this, a lot of data needs to be stored, just as with the <a href="">Omniscient Debugger</a>.*<span class="blog-sidenote">* This is similar to the Omniscient Debugger, which provides a visual interface to effectively track down bugs in multi-threaded programs.</span> Only part of what is actually generated is now visualised: when stepping we should show return values, and thumbnails of canvas commands, as suggested in Learnable Programming. We can experiment with different ways of visualising program behaviour using all this data.</p>',
-			'<p>For creating games the standard <a href="">HTML5 canvas</a> is used. This means that students learn a real-world vocabulary. They can use what they have learned about the HTML5 canvas immediately in web applications.</p>',
+			'<p>From years of volunteering at a <a href="">youth hackerspace</a>, I&rsquo;ve learned one thing: kids love making games!<span class="blog-star">*</span><span class="blog-sidenote">* Pro-tip: not only kids love making games.</span> Therefore jsdares has been designed with the goal of teaching how to make simple games. <em>What is cooler than knowing you are soon able to create games?</em></p>',
+			'<p>Implementing an environment that supports creating and understanding games has been my main goal with jsdares. I have basically taken the Victorian ideas from Learnable Programming, and built them. Let’s look at some of those ideas.</p>',
+			'<div class="movie-games-1" style="margin-top: 8px"></div>',
+			'<p><strong>Immediate connection.</strong> On the left side of the screen a game runs. On the right side of the screen the code driving that game is shown. Whenever the code is changed, even one character, the game immediately runs the new code. No compiling, linking, or publishing. The game even continues running while changing the code.</p>',
+			'<p>In small-scale field trials, I’ve found that even students who had never touched any code in their lives, started playing it straight away. <em>Is programming really that easy?</em> To facilitate playing with numbers in the code, students can drag numbers from left to right to change them.</p>',
+			'<div class="movie-games-2" style="margin-top: 8px"></div>',
+			'<p><strong>Manipulating time.</strong> To understand how a program works, students must be able to see what happens at a single point in time. Therefore, time can be paused and rewinded. When time is paused, the code can be inspected more thoroughly. Hovering over an element in the canvas shows which line of code has drawn that item, and vice versa.</p>',
+			'<p>Traditionally, a student would have to simulate how a program works in her head. <em>This was drawn here, that there.</em> This should not be necessary. Computers can just <em>show</em> us how programs work.</p>',
+			'<div class="movie-games-3" style="margin-top: 2px"></div>',
+			'<p><strong>Seeing the flow.</strong> Inspecting a single point in time is powerful, but time consists of many subsequent points. A Victorian idea is to visualise what happens at each of these points at once. Clicking on a bar next to a function reveals what is drawn by that function over time.</p>',
+			'<p>Of course, it is still possible to change the program. When doing that, the program is re-run for the last couple of seconds. This way, students can discover how the program behaves over time.</p>',
+			'<div class="movie-games-4" style="margin-top: 18px"></div>',
+			'<p><strong>Stepping.</strong> Sometimes programs have to be inspected in detail to understand how they work. Traditional environments already allow programmers to go through a program step by step, which means that programmers don’t have to simulate everything in their heads. However, usually only stepping forward is allowed, making it hard to quickly go back to check things that happened before.</p>',
+			'<p>In jsdares, a bar is shown at the bottom of the programming environment, which allows students to jump to any step in the program. By moving the mouse, one can move back and forth through the program. At each step, the programming environment shows exactly what happened that step.</p>',
+			'<div class="blog-line"></div>',
+			'<p>The programming environment has to store a lot of data to make these interactions work.<span class="blog-star">*</span><span class="blog-sidenote">* This is similar to the <a href="">Omniscient Debugger</a>, which provides a visual interface to effectively track down bugs in multi-threaded programs.</span> It is possible to visualise a lot more with all this data. For example, instead of showing circles we could show variable contents and thumbnails of shapes on the canvas, as suggested in Learnable Programming. Experimenting with different visualisations should reveal which ones support creation and discovery best.</p>',
+			'<p>Even though my implementation only works with simple games, it shows that it is actually possible to implement Victorian interactions in a real-world context. In fact, the canvas on the left is a <a href="">standard web component</a>, which has only been slightly modified to support these interactions. A good start to bringing Victorian programming to the world would be to adapt more web components like this.</p>',
 			'</div>',
 			'<div class="blog-robots-example"></div>',
 			'<div class="blog-box blog-robots">',
 			'<h2>Robots!</h2>',
-			'<p>Learning how to make games is cool and all, but students have to start somewhere. Also, the HTML5 canvas does not provide an intuitive metaphor for newcomers.</p>',
-			'<p>A particularly strong metaphor for learning programming has been described by Seymour Papert. In his landmark book <a href="">Mindstorms: Children, Computers, and Powerful Ideas</a>, he describes how children learn to program physical robots, called turtles. They can easily understand how the commands to drive and rotate work, by relating to the robots.</p>',
-			'<p>Today, many schools teach programming classes using <a href="">LEGO Mindstorms</a> robots &mdash; guess where that name came from. So some students may already have some experience with driving around robots.</p>',
-			'<p>In jsdares I&rsquo;ve implemented this metaphor in the form of a robot maze. The robot can be driven around the maze with simple commands, by programming in Javascript. The goal is to drive the robot to the green square. For each green square that the robot visits, the student gets points.</p>',
-			'<p>Of course, all the tools for better understanding and creating programs work with the robot as well. Even interactive programs which involve time can be inspected in the same way as with the canvas.</p>',
+			'<p>Learning how to make games is awesome, that goes without saying. However, the standard canvas component used for drawing shapes is not that easy to use. In order to just draw a circle one has to select a &ldquo;drawing context&rdquo;, create a path, draw shapes on that path, close the path, and fill the path. When learning programming for the first time, users should be able to jump in right away.</p>',
+			'<p>A particularly successful method for teaching basic programming has been invented by Seymour Papert. In his landmark book <a href="">Mindstorms: Children, Computers, and Powerful Ideas</a>, he describes how children learn to program robots, called turtles. Papert found that children easily relate to these robots, by physically imitating how they drive forward, turn left, drive again, and so on. They <em>feel</em> what is going on.</p>',
+			'<p>Another advantage of using robots is that many students are already familiar with them. This is because nowadays many schools teach robot classes, using <a href="">LEGO Mindstorms</a>.</p>',
+			'<p>In jsdares I&rsquo;ve implemented this idea in the form of a robot maze. The robot can be driven around the maze with simple commands, such as driving, turning, and detecting walls. The goal is to drive the robot to the green square.</p>',
+			'<p>A maze is a familiar kind of puzzle, and leaves lots of room for creativity. When learning more programming, students can revisit already completed mazes with even smarter solutions.</p>',
+			'<img src="/img/blog/mindstorms-small.png" class="blog-robots-mindstorms">',
+			'<p>When removing all the walls, students can drive the robot around to make pretty shapes, just as with Papert&rsquo;s original turtles. These could drive around on sheets of paper, with a pen attached to it. Papert has shown that even complex mathematical ideas such as differential equations can be discovered naturally by driving around robots to create shapes.',
+			'<p>Of course, all the Victorian interactions work with the robot as well. Even interactive programs involving time can be inspected in the same way as with the canvas.</p>',
 			'</div>',
-			'<div class="blog-box blog-points">',
-			'<h2>Points!</h2>',
-			'<div class="blog-collection"></div>',
-			'<p>When students start out with programming robots, they don&rsquo;t know about loops and functions yet. It&rsquo;s quite hard to introduce these kinds of concepts without some way of explanation on how they work. However, students (especially children) might not be interested in reading lots of instructions.</p>',
-			'<p>I&rsquo;ve thought of an incentive to learn about such programming concepts, and to use them. Each dare has a maximum number of lines that the program can have. By lowering this maximum we can force students to find ways of shortening the program. If we introduce concepts such as functions while doing this, we provide a natural way of discovering how to use these to make the program shorter.</p>',
-			'<p>In my field trials I&rsquo;ve found that most students have no problem learning about functions completely on their own, with no instruction whatsoever. Many students enjoy the challenge of scoring bonus points, while other prefer to play around in the highly interactive and visual environment.</p>',
-			'<p>With the robot maze students get points for visited squares. With the HTML5 canvas, I&rsquo;ve thought of another way of awarding scores: by comparing the student&rsquo;s canvas with the predefined example.</p>',
+			'<div class="blog-box blog-dares">',
+			'<div class="blog-collection-container"><div class="blog-collection"></div><div class="arrow arrow-left blog-arrow-maze"><div class="arrow-head"></div><div class="arrow-body"></div></div><div class="arrow arrow-left blog-arrow-animal"><div class="arrow-head"></div><div class="arrow-body"></div></div></div>',
+			'<h2>Dares!</h2>',
+			'<p>Novice students need to learn a lot of concepts, such as functions, variables, loops, and so on. I believe that formally explaining these concepts is boring and largely unnecessary. Students are perfectly capable of discovering these ideas on their own, given the right tools and incentives.</p>',
+			'<p>I have thought of a way to teach a concept like &ldquo;functions&rdquo;. Each puzzle, or &ldquo;dare&rdquo;, has a maximum number of lines that the program can have, similarly to <a href="">Code Golf</a>. By lowering this maximum we can force students to find ways of shortening the program. And by using functions in the example programs, we show students the syntax of functions, which they can then copy.</p>',
+			'<p>For example, in the <a href="#" class="blog-dares-maze arrow-link">Maze dare</a> we have already filled in part of the program with an example of a function, which the student needs to complete. In the next dare, we provide no example, and we lower the maximum number of lines so that students have to figure out some way of keeping the program short. This is a natural way of discovering how to use functions. My field trials support this, as most students had no problems learning about functions this way, with no instruction whatsoever.</p>',
+			'<p>The danger of using program length as a scoring tool is that it becomes an incentive for writing obfuscated programs. I have taken some measures against this, such as not counting empty lines, and forcing newlines between statements. Limiting program length works pretty well, but there are also many variations that could be tried, such as a maximum number of loops allowed, only allowing certain statements, or limiting the total number of steps.</p>',
+			'<p><span class="blog-sidenote" style="margin-top: 13px">When actually learning how to make games I think an automated grading system will prove insufficient. Instead of using systems that test for behaviour I believe it is better to stop testing and trust on students&rsquo; creativity. Peer reviewing may help to learn students write better code.</span>Scoring the robot dares is simple. The robot needs to visit enough green squares to complete the dare, or some more for bonus points. But it gets more complicated when transitioning to making games. Students learn about the <a href="#" class="blog-dares-animal arrow-link">canvas</a> by copying the provided images on the canvas. They must match 95% of the original image, which is visualised by overlaying the original image with red and green pixels when submitting the solution.</p>',
 			'</div>',
 			'<div class="blog-box blog-vision">',
-			'<h2>Vision!</h2>',
+			'<h2>Disruption!</h2>',
 			'<div class="blog-vision-left">',
-				'<p>Bret Victor points out that we should not ask how to apply his ideas to real-world programming, but rather to change programming. I completely agree with this: we need to change our programming languages, and our programming tools. Still, we live in a world in which there are widely used programming languages, and widely used programming tools. <strong>What is the path we need to take for a better world?</strong></p>',
-				'<p>I&rsquo;ve consciously chosen to work on education. This is based on the ideas of <a href="">Clayton Christensen</a> of disruptive innovation. This is <em>&ldquo;a process by which a product or service takes root initially in simple applications at the bottom of a market and then relentlessly moves up market, eventually displacing established competitors.&rdquo;</em> A disruptive innovation <em>&ldquo;allows a whole new population of consumers at the bottom of a market access to a product or service.&rdquo;</em></p>',
+				'<p>Bret Victor points out that we should not ask ourselves how his ideas apply to real-world programming, but rather how we can redesign programming itself to become inherently visualisable. Still, we live in a world in which there are widely used programming languages and tools. <strong>What is the path we need to take for a better world?</strong></p>',
+				'<p>I&rsquo;ve consciously chosen to work on education, based on the ideas of <a href="">Clayton Christensen</a> of disruptive innovation. This is <em>&ldquo;a process by which a product or service takes root initially in simple applications at the bottom of a market and then relentlessly moves up market, eventually displacing established competitors.&rdquo;</em> A disruptive innovation <em>&ldquo;allows a whole new population of consumers at the bottom of a market access to a product or service.&rdquo;</em></p>',
 			'</div>',
 			'<div class="blog-vision-right">',
-				'<p><strong>Here is what we need to do.</strong> We need to apply Victorian programming to a &ldquo;low-end&rdquo; domain, such as programming education. Since programs of novices are small, we can get away with inefficiencies, and do not have to support large existing codebases. Building an online platform allows students who are not receiving formal education to learn in a better way than they would traditionally (e.g. reading tutorials).</p>',
-				'<p>When tools for Victorian programming will gradually get better, and more and more students will learn this way, they will start building real-world projects using Victorian programming. Then, at a certain point, it will be so much better than traditional programming, that it will take over completely. That is what we should be aiming for, and jsdares is just a small step into that direction.</p>',
+				'<p><strong>Here is what we need to do.</strong> We need to apply Victorian programming to a &ldquo;low-end&rdquo; domain, such as programming education. Since programs of novices are small, we can get away with inefficiencies, and do not have to support large existing codebases. Building an online platform allows students who are not receiving formal education to learn in a better way than they would traditionally, such as by reading tutorials.</p>',
+				'<p>Gradually these Victorian programming tools will get better, and they will become more capable of handling real-world projects. At the same time, more and more students will learn this way, and they will start building real-world projects using Victorian programming. It will slowly take over, until after a while it is <em>so much better</em>, that people will switch over completely. That is what we should be aiming for, and jsdares is just a small step into that direction.</p>',
 			'</div>',
 			'</div>',
 			'<div class="blog-box blog-now-what">',
 			'<h2>Now what?</h2>',
-			'<p>It&rsquo;s pretty clear that jsdares is just an example of how to improve programming. We should create a larger ecosystem of tools that work like this. Practically, this means two things: improving jsdares itself further, and using functionality from jsdares in as many other projects as possible.</p>',
-			'<p>One problem with improving jsdares further, is that it&rsquo;s currently a big pile of technical debt. It started out as a prototypical research project, and needs quite a bit of work to get into shape again before some serious collaboration can take place. Still, there is a huge backlog of ideas and improvements &mdash; even many simple Victorian interactions have not yet been implemented.</p>',
-			'<p>My preference would be to extract pieces from jsdares step-by-step, for inclusion in other projects. This would also help with refactoring jsdares itself in order to improve and experiment further with it.</p>',
-			'<p>It would be amazing if there are any companies or individuals out there who would like to put some time into extracting components. I would love to work with anyone who&rsquo;s prepared to invest time into bringing Victorian interactions to real-world programming.</p>',
+			'<p>With jsdares I want to show that it is possible to implement Bret Victor&rsquo;s ideas about programming in a real-world environment. Now we should create a larger ecosystem of Victorian programming tools. There are already projects out there that we can use, such as IDEs, editors, and languages. We should also adapt components to support interactions such as rewinding and replaying time.</p>',
+			'<p>I have focused on education, but there are more domains in which Victorian programming can be implemented relatively easily, such as spreadsheets, artistic programming, markup languages, and software prototyping. We can extract components from jsdares for reuse in other projects.</p>',
+			'<p>To me, education is close to my heart. It would be great to keep improving jsdares, especially since there is a <a href="">huge backlog</a> of exciting ideas.</p>',
+			'<p>I would love to collaborate with anyone who&rsquo;s prepared to invest time into bringing Victorian interactions to real-world programming.</p>',
 			'<div class="blog-line"></div>',
-			'<p>As Max Plank said, <em>&ldquo;A new scientific truth does not triumph by convincing its opponents and making them see the light, but rather because its opponents eventually die, and a new generation grows up that is familiar with it.&rdquo;</em></p>',
+			'<p>As physicist Max Plank said, <em>&ldquo;A new scientific truth does not triumph by convincing its opponents and making them see the light, but rather because its opponents eventually die, and a new generation grows up that is familiar with it.&rdquo;</em></p>',
 			'<p>We should not blindfold the next generation of programmers.</p>',
-			'<div class="blog-line"></div>',
-			'<p class="blog-author"><a href="/superheroes/janpaul123" class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-user"></i> JanPaul123</span></a><em>Jan Paul Posma is a programmer, teacher at a youth hackerspace, and devout Victorian. When not working on educational programming interfaces, he&rsquo;s busy curbing misinformation at Factlink, and improving the way we learn in general at Versal.</em></p>'
+			'</div>',
+			'<div class="blog-box blog-author">',
+			'<a href="/superheroes/janpaul123" class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-user"></i> JanPaul123</span></a>',
+			'<p><em><a href="http://janpaulposma.nl">Jan Paul Posma</a> is a programmer, teacher at a <a href="http://stichting-scn.nl">youth hackerspace</a>, and devout Victorian. When not working on programming interfaces, he&rsquo;s curbing misinformation at <a href="http://factlink.com">Factlink</a>, and improving education at <a href="http://versal.com">Versal</a>.</em></p>',
+			'<p>April 2013. Code: <a href="">MIT license</a>. Text and videos: <a href="http://creativecommons.org/licenses/by/3.0/deed.en_GB">CC BY 3.0</a>.</p>',
+			'</div>'
 		]
 	};
 };
