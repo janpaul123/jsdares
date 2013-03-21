@@ -250,7 +250,7 @@ module.exports.UI.prototype = {
 
 	/// INTERNAL FUNCTIONS ///
 	arrowPositions: { // dir, left, top
-		'arrow-step': ['arrow-up', 655, 40],
+		'arrow-step': ['arrow-down', 655, 585],
 		'arrow-highlighting': ['arrow-up', 751, 40],
 		'arrow-manipulation': ['arrow-up', 785, 40],
 		'arrow-close': ['arrow-up', 1066, 3]
