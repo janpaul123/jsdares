@@ -335,20 +335,19 @@ strong {
 		z-index: 100000;
 	}
 
-	.movie-player-iframe {
+	.movie-player-iframe, .movie-player-overlay {
 		position: absolute;
-		top: 0;
+		top: -100px;
 		left: 0;
+		width: 1100px;
+		height: 630px;
+	}
+
+	.movie-player-iframe {
 		z-index: 3;
 	}
 
 	.movie-player-overlay {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 1100px;
-		height: 630px;
-
 		background-color: rgba(0, 0, 0, 0.1);
 		z-index: 1;
 		display: none;
@@ -455,7 +454,7 @@ strong {
 
 			.blog-intro-example-buttons {
 				position: absolute;
-				top: 5px;
+				top: 15px;
 				left: 0;
 
 				.blog-intro-example-buttons-movie,
@@ -489,6 +488,7 @@ strong {
 
 			.blog-intro-example-game {
 				margin-left: -(@applet-width - 600px)/2 - 30px;
+				top: 6px;
 			}
 		}
 	}
@@ -560,6 +560,7 @@ strong {
 	.blog-dares {
 		.blog-collection-container {
 			position: absolute;
+			margin-top: 35px;
 			right: 640px;
 
 			.blog-arrow-maze {
@@ -574,24 +575,23 @@ strong {
 		}
 	}
 
-	.blog-vision {
+	.blog-disruption {
 		width: 100%;
 		overflow: hidden;
 
-		.blog-vision-left {
+		.blog-disruption-left {
 			box-sizing: border-box;
 			float: left;
 			width: 50%;
-
 			padding-right: 30px;
-			border-right: 1px solid #ddd;
 		}
 
-		.blog-vision-right {
+		.blog-disruption-right {
 			box-sizing: border-box;
 			float: right;
 			width: 50%;
 			padding-left: 30px;
+			border-left: 1px solid #ddd;
 		}
 	}
 
