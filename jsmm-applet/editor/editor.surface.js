@@ -141,13 +141,13 @@ module.exports = function(editor) {
 			this.box = new editor.Box();
 			this.surface.addElementToTop(this.box.getElement());
 			if (hover) {
-				this.$marginIcon.on('mouseenter', this.openMessage.bind(this));
-				this.$marginIcon.on('mouseleave', this.closeMessage.bind(this));
+				this.$marginIcon.on('mouseenter', _(this.openMessage).bind(this));
+				this.$marginIcon.on('mouseleave', _(this.closeMessage).bind(this));
 				this.messageOpen = false;
 			} else {
-				// this.$marginIcon.on('click', this.toggleMesssage.bind(this));
-				// this.$marking.on('click', this.toggleMesssage.bind(this));
-				// this.box.getElement().on('click', this.toggleMesssage.bind(this));
+				// this.$marginIcon.on('click', _(this.toggleMesssage).bind(this));
+				// this.$marking.on('click', _(this.toggleMesssage).bind(this));
+				// this.box.getElement().on('click', _(this.toggleMesssage).bind(this));
 				// always show step messages now...
 				this.messageOpen = true;
 			}
@@ -331,8 +331,8 @@ module.exports = function(editor) {
 					var example = this.examples[i][0];
 					var suffix = this.examples[i][1];
 					$line.html(this.prefix + '<strong>' + example.substring(0, this.width) + '</strong>' + example.substring(this.width) + (!this.shiftPressed ? suffix : ''));
-					$line.on('mousemove', this.mouseMove.bind(this));
-					$line.on('click', this.click.bind(this));
+					$line.on('mousemove', _(this.mouseMove).bind(this));
+					$line.on('click', _(this.click).bind(this));
 					$line.data('example-number', i);
 					this.$content.append($line);
 					this.$lines.push($line);
@@ -400,10 +400,10 @@ module.exports = function(editor) {
 			this.$textarea = $('<textarea class="editor-code" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off"></textarea>');
 			this.$div.append(this.$textarea);
 
-			this.$textarea.on('keydown', this.keyDown.bind(this));
-			this.$textarea.on('keyup', this.keyUp.bind(this));
-			this.$textarea.on('blur', this.lostFocus.bind(this));
-			this.$textarea.on('click', this.click.bind(this));
+			this.$textarea.on('keydown', _(this.keyDown).bind(this));
+			this.$textarea.on('keyup', _(this.keyUp).bind(this));
+			this.$textarea.on('blur', _(this.lostFocus).bind(this));
+			this.$textarea.on('click', _(this.click).bind(this));
 
 			// setting up top for steps
 			this.$topStepBubbles = $('<div class="editor-step-bubbles"></div>');
@@ -422,7 +422,7 @@ module.exports = function(editor) {
 			this.errorMessage = new editor.Message(this, true);
 			this.stepMessage = new editor.Message(this, false);
 
-			this.updateSize = this.updateSize.bind(this);
+			this.updateSize = _(this.updateSize).bind(this);
 			$(window).on('resize', this.updateSize);
 
 			this.initOffsets();
@@ -501,8 +501,8 @@ module.exports = function(editor) {
 		},
 
 		enableMouse: function() {
-			this.$div.on('mousemove', this.mouseMove.bind(this));
-			this.$div.on('mouseleave', this.mouseLeave.bind(this));
+			this.$div.on('mousemove', _(this.mouseMove).bind(this));
+			this.$div.on('mouseleave', _(this.mouseLeave).bind(this));
 		},
 
 		disableMouse: function() {
@@ -572,9 +572,9 @@ module.exports = function(editor) {
 				if (this.$timeHighlights[name] === undefined)  {
 					this.$timeHighlights[name] = $('<div class="editor-time-highlight editor-time-highlight-inactive"></div>');
 					this.$timeHighlights[name].on({
-						click: this.timeHighlightClick.bind(this),
-						mousemove: this.timeHighlightMouseMove.bind(this),
-						mouseleave: this.timeHighlightMouseLeave.bind(this)
+						click: _(this.timeHighlightClick).bind(this),
+						mousemove: _(this.timeHighlightMouseMove).bind(this),
+						mouseleave: _(this.timeHighlightMouseLeave).bind(this)
 					});
 					this.$timeHighlights[name].data('name', name);
 					this.addElementToMargin(this.$timeHighlights[name]);
@@ -786,7 +786,7 @@ module.exports = function(editor) {
 		hideElements: function() {
 			this.$div.addClass('editor-typing');
 			this.clearShowElementsTimeout();
-			this.showElementsTimeout = setTimeout(this.showElements.bind(this), 1000);
+			this.showElementsTimeout = setTimeout(_(this.showElements).bind(this), 1000);
 		},
 
 		clearShowElementsTimeout: function() {

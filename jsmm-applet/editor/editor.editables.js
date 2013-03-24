@@ -68,7 +68,7 @@ module.exports = function(editor) {
 
 	editor.editables.CycleEditable.prototype = addCommonMethods('cycle', {
 		init: function() {
-			this.$marking.on('click', this.cycle.bind(this));
+			this.$marking.on('click', _(this.cycle).bind(this));
 		},
 		remove: function() {
 			this.$marking.remove();
@@ -143,10 +143,10 @@ module.exports = function(editor) {
 			this.$colorPicker.colorPicker({
 				format: this.colorData.format,
 				size: 200,
-				colorChange: this.colorChange.bind(this)
+				colorChange: _(this.colorChange).bind(this)
 			});
 			this.$colorPicker.colorPicker('setColor', this.colorData.value);
-			this.$marking.on('click', this.click.bind(this));
+			this.$marking.on('click', _(this.click).bind(this));
 		},
 
 		/// INTERNAL FUNCTIONS ///

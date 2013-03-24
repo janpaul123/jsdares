@@ -264,12 +264,12 @@ clayer.Touchable.prototype = {
 		this.$document = $($element[0].ownerDocument);
 		this.delegate = delegate;
 
-		this.mouseDown = this.mouseDown.bind(this);
-		this.mouseMove = this.mouseMove.bind(this);
-		this.mouseUp = this.mouseUp.bind(this);
-		this.touchStart = this.touchStart.bind(this);
-		this.touchMove = this.touchMove.bind(this);
-		this.touchEnd = this.touchEnd.bind(this);
+		this.mouseDown = _(this.mouseDown).bind(this);
+		this.mouseMove = _(this.mouseMove).bind(this);
+		this.mouseUp = _(this.mouseUp).bind(this);
+		this.touchStart = _(this.touchStart).bind(this);
+		this.touchMove = _(this.touchMove).bind(this);
+		this.touchEnd = _(this.touchEnd).bind(this);
 
 		this.documentEvents = {
 			mousemove: this.mouseMove,
@@ -454,8 +454,8 @@ clayer.Slider.prototype = {
 		this.$knob = $('<div class="clayer-slider-knob"></div>');
 		this.$container.append(this.$knob);
 
-		this.$element.on('mousemove', this.mouseMove.bind(this));
-		this.$element.on('mouseleave', this.mouseLeave.bind(this));
+		this.$element.on('mousemove', _(this.mouseMove).bind(this));
+		this.$element.on('mouseleave', _(this.mouseLeave).bind(this));
 		this.touchable = new clayer.Touchable(this.$element, this);
 
 		this.bounceTimer = null;
@@ -565,7 +565,7 @@ clayer.Slider.prototype = {
 
 	bounce: function () {
 		if (this.bounceTimer === null) {
-			this.bounceTimer = setInterval(this.renderKnob.bind(this), 20);
+			this.bounceTimer = setInterval(_(this.renderKnob).bind(this), 20);
 			this.bounceProgress = 0;
 		}
 	}

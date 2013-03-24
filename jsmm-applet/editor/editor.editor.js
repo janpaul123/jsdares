@@ -116,7 +116,7 @@ module.exports = function(editor) {
 		delayedUpdate: function() {
 			this.code = new editor.Code(this.surface.getText());
 			if (this.updateTimeout === null) {
-				this.updateTimeout = setTimeout(this.update.bind(this), 5);
+				this.updateTimeout = setTimeout(_(this.update).bind(this), 5);
 			}
 		},
 

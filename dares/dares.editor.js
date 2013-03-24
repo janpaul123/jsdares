@@ -20,16 +20,16 @@ module.exports = function(dares) {
 
 			var $submitGroup = $('<div class="btn-group dare-editor-submit-group"></div>');
 			this.$saveButton = $('<button class="btn btn-primary dare-editor-submit-group-save"><i class="icon icon-white icon-ok"></i> Save</button>');
-			this.$saveButton.on('click', this.saveHandler.bind(this));
+			this.$saveButton.on('click', _(this.saveHandler).bind(this));
 			$submitGroup.append(this.$saveButton);
 			$topToolbar.append($submitGroup);
 
 			/*var $shareGroup = $('<div class="btn-group dare-editor-share-group"></div>');
 			this.$publicButton = $('<button class="btn btn-inverse active dare-editor-share-group-public">Public</button>');
-			// this.$publicButton.on('click', this.publicHandler.bind(this));
+			// this.$publicButton.on('click', _(this.publicHandler).bind(this));
 			$shareGroup.append(this.$publicButton);
 			this.$privateButton = $('<button class="btn btn-inverse disabled dare-editor-share-group-private">Private <i class="icon icon-white icon-lock"></i></button>');
-			// this.$privateButton.on('click', this.privateHandler.bind(this));
+			// this.$privateButton.on('click', _(this.privateHandler).bind(this));
 			$shareGroup.append(this.$privateButton);
 			$shareGroup.tooltip({'title': 'Feature not yet available', placement: 'bottom'});
 			$topToolbar.append($shareGroup);*/
@@ -50,13 +50,13 @@ module.exports = function(dares) {
 			$programGroup.append(this.$configProgramButton, this.$targetProgramButton, this.$initialProgramButton);
 			this.$div.append($programGroup);
 
-			this.$configProgramButton.on('click', (function() {
+			this.$configProgramButton.on('click', _(function() {
 				this.selectProgram('config');
 			}).bind(this));
-			this.$targetProgramButton.on('click', (function() {
+			this.$targetProgramButton.on('click', _(function() {
 				this.selectProgram('target');
 			}).bind(this));
-			this.$initialProgramButton.on('click', (function() {
+			this.$initialProgramButton.on('click', _(function() {
 				this.selectProgram('initial');
 			}).bind(this));
 
@@ -65,11 +65,11 @@ module.exports = function(dares) {
 
 			this.$inputGroup = $('<div class="dare-editor-input-group"></div>');
 			this.$inputName = $('<input type="text" class="dare-editor-input-name"></input>');
-			this.$inputName.on('keyup change', this.nameChangeCallback.bind(this));
+			this.$inputName.on('keyup change', _(this.nameChangeCallback).bind(this));
 			this.$inputDescription = $('<textarea class="dare-editor-input-description"></textarea>');
-			this.$inputDescription.on('keyup change', this.descriptionChangeCallback.bind(this));
+			this.$inputDescription.on('keyup change', _(this.descriptionChangeCallback).bind(this));
 			this.$inputPublished = $('<input type="checkbox"></input>');
-			this.$inputPublished.on('click change', this.publishedChangeCallback.bind(this));
+			this.$inputPublished.on('click change', _(this.publishedChangeCallback).bind(this));
 			var $publishedLabel = $('<label></label>').append(this.$inputPublished, ' Published');
 			this.$inputGroup.append(this.$inputName, this.$inputDescription, $publishedLabel);
 			this.$div.append(this.$inputGroup);
@@ -77,7 +77,7 @@ module.exports = function(dares) {
 			this.ui.registerAdditionalObject('editor', this);
 
 			this.editor = this.ui.addEditor(this.options.editor);
-			this.editor.setTextChangeCallback(this.textChangeCallback.bind(this));
+			this.editor.setTextChangeCallback(_(this.textChangeCallback).bind(this));
 			
 			this.reload();
 			this.ui.selectTab('editor');
@@ -103,7 +103,7 @@ module.exports = function(dares) {
 
 					var robot = this.ui.getOutput('robot');
 					if (robot) {
-						robot.setStateChangeCallback(this.robotStateChanged.bind(this));
+						robot.setStateChangeCallback(_(this.robotStateChanged).bind(this));
 					}
 				} else {
 					this.ui.loadOutputs({});
@@ -144,7 +144,7 @@ module.exports = function(dares) {
 		saveHandler: function() {
 			this.$saveSpinner.removeClass('hide');
 			this.$saveError.addClass('hide');
-			this.delegate.getSync().updateDare(this.options, this.saveSuccessHandler.bind(this), this.saveErrorHandler.bind(this));
+			this.delegate.getSync().updateDare(this.options, _(this.saveSuccessHandler).bind(this), _(this.saveErrorHandler).bind(this));
 		},
 
 		saveSuccessHandler: function() {

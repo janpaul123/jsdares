@@ -29,7 +29,7 @@ module.exports = function(client) {
 				this.$div.append($tab);
 
 				$link.data('index', i);
-				$link.on('click', this.clickHandler.bind(this));
+				$link.on('click', _(this.clickHandler).bind(this));
 				this.$tabs.push($tab);
 				this.$links.push($link);
 				this.$locks.push($lock);
@@ -76,8 +76,8 @@ module.exports = function(client) {
 				this.$locks[i].toggleClass('hide', hideLock);
 				this.$links[i].off('mousemove mouseleave');
 				if (!hideLock) {
-					this.$links[i].on('mousemove', this.mouseMoveHandler.bind(this));
-					this.$links[i].on('mouseleave', this.mouseLeaveHandler.bind(this));
+					this.$links[i].on('mousemove', _(this.mouseMoveHandler).bind(this));
+					this.$links[i].on('mouseleave', _(this.mouseLeaveHandler).bind(this));
 				}
 			}
 		}

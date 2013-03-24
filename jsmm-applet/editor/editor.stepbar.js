@@ -13,9 +13,9 @@ module.exports = function(editor) {
 			this.editor = ed;
 
 			this.$div.addClass('editor-stepbar');
-			this.$div.on('mousemove', this.onMouseMove.bind(this));
-			this.$div.on('mouseleave', this.onMouseLeave.bind(this));
-			this.$div.on('click', this.onClick.bind(this));
+			this.$div.on('mousemove', _(this.onMouseMove).bind(this));
+			this.$div.on('mouseleave', _(this.onMouseLeave).bind(this));
+			this.$div.on('click', _(this.onClick).bind(this));
 
 			this.$numbers = $('<div class="editor-stepbar-numbers"></div>');
 			this.$div.append(this.$numbers);

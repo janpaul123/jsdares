@@ -14,11 +14,11 @@ module.exports = function(client) {
 			this.$div = $div;
 
 			this.$aboutText = $('<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an experimental proof-of-concept. <a href="#" class="homepage-about-link">Learn more&hellip;</a><span></p>');
-			this.$aboutText.find('.homepage-about-link').on('click', (function(e) { e.preventDefault(); this.delegate.navigateTo('/about'); }).bind(this));
+			this.$aboutText.find('.homepage-about-link').on('click', _(function(e) { e.preventDefault(); this.delegate.navigateTo('/about'); }).bind(this));
 			this.$div.append(this.$aboutText);
 
 			this.modalUI = new applet.UI();
-			this.modalUI.setCloseCallback(this.closeCallback.bind(this));
+			this.modalUI.setCloseCallback(_(this.closeCallback).bind(this));
 			
 			this.$example = $('<div class="example"></div>');
 			this.$div.append(this.$example);
@@ -49,7 +49,7 @@ module.exports = function(client) {
 			this.$intro.append($collection2);
 
 			this.$introButton = $('<button class="intro-full-editor btn btn-large">Open full editor</button>');
-			this.$introButton.on('click', (function(event) { this.delegate.navigateTo('/full'); }).bind(this));
+			this.$introButton.on('click', _(function(event) { this.delegate.navigateTo('/full'); }).bind(this));
 			this.$intro.append(this.$introButton);
 			this.$div.append(this.$intro);
 
@@ -81,13 +81,13 @@ module.exports = function(client) {
 		},
 
 		updateCollections: function() {
-			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
+			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', _(function(content) {
 				this.collection1.update(content, this.delegate.getUserId(), this.delegate.getAdmin());
 				if (!content.dares[0].instance || !content.dares[0].instance.completed) {
 					if (this.$arrow !== null) this.$arrow.show();
 				}
 			}).bind(this));
-			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', (function(content) {
+			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', _(function(content) {
 				this.collection2.update(content, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 		},

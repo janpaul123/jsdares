@@ -52,7 +52,7 @@ module.exports = function(output) {
 					type: 'function',
 					example: 'random()',
 					string: '[function Math.random]',
-					func: this.handleRandom.bind(this)
+					func: _(this.handleRandom).bind(this)
 				}
 			}};
 			for (var name in this.functions) {
@@ -64,15 +64,15 @@ module.exports = function(output) {
 						type: 'function',
 						example: func.example,
 						string: '[function Math.' + name + ']',
-						func: this.handleMethod.bind(this)
+						func: _(this.handleMethod).bind(this)
 					};
 				} else if (func.type === 'variable') {
 					obj.properties[name] = {
 						name: name,
 						info: 'Math.' + name,
 						type: 'variable',
-						get: this.handleAttributeGet.bind(this),
-						set: this.handleAttributeSet.bind(this),
+						get: _(this.handleAttributeGet).bind(this),
+						set: _(this.handleAttributeSet).bind(this),
 						example: func.example
 					};
 				}

@@ -26,7 +26,7 @@ module.exports = function(client) {
 		navigateTo: function(splitUrl) {
 			if (splitUrl[1]) {
 				this.username = splitUrl[1];
-				this.delegate.getSync().getUserByUsername(this.username, this.userHandler.bind(this));
+				this.delegate.getSync().getUserByUsername(this.username, _(this.userHandler).bind(this));
 			}
 		},
 
@@ -55,7 +55,7 @@ module.exports = function(client) {
 
 			var $collectionMine = $('<div class="superheroes-collection-mine"></div>');
 			this.collectionMine = new dares.Collection(this, $collectionMine);
-			this.collectionMine.addButton('<i class="icon icon-plus-sign"></i> New', this.newHandler.bind(this));
+			this.collectionMine.addButton('<i class="icon icon-plus-sign"></i> New', _(this.newHandler).bind(this));
 			this.$div.append($collectionMine);
 
 			this.updateCollections();
@@ -68,17 +68,17 @@ module.exports = function(client) {
 		},
 
 		updateCollections: function() {
-			this.delegate.getSync().getDaresAndInstancesPlayed(this.delegate.getUserId(), (function(dares) {
+			this.delegate.getSync().getDaresAndInstancesPlayed(this.delegate.getUserId(), _(function(dares) {
 				this.collectionPlayed.update({title: 'Played dares', dares: dares}, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 
-			this.delegate.getSync().getDaresAndInstancesByUserId(this.delegate.getUserId(), (function(dares) {
+			this.delegate.getSync().getDaresAndInstancesByUserId(this.delegate.getUserId(), _(function(dares) {
 				this.collectionMine.update({title: 'My created dares', dares: dares}, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 		},
 
 		newHandler: function() {
-			this.delegate.getSync().createDare(this.createDareSuccessfulHandler.bind(this));
+			this.delegate.getSync().createDare(_(this.createDareSuccessfulHandler).bind(this));
 		},
 
 		createDareSuccessfulHandler: function(content) {
@@ -115,7 +115,7 @@ module.exports = function(client) {
 		},
 
 		updateCollections: function() {
-			this.delegate.getSync().getDaresAndInstancesByUserId(this.user._id, (function(dares) {
+			this.delegate.getSync().getDaresAndInstancesByUserId(this.user._id, _(function(dares) {
 				this.collectionTheirs.update({title: 'Dares by ' + this.user.screenname, dares: dares}, this.delegate.getUserId());
 			}).bind(this));
 		},

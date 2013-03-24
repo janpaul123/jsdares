@@ -20,7 +20,7 @@ var getAugmentedObject = function() {
 				type: 'function',
 				example: 'drive(3)',
 				string: '[function robot.drive]',
-				func: this.drive.bind(this),
+				func: _(this.drive).bind(this),
 				cost: 0.7
 			},
 			turnLeft: {
@@ -29,7 +29,7 @@ var getAugmentedObject = function() {
 				type: 'function',
 				example: 'turnLeft()',
 				string: '[function robot.turnLeft]',
-				func: this.turn.bind(this),
+				func: _(this.turn).bind(this),
 				cost: 0.7
 			},
 			turnRight: {
@@ -38,7 +38,7 @@ var getAugmentedObject = function() {
 				type: 'function',
 				example: 'turnRight()',
 				string: '[function robot.turnRight]',
-				func: this.turn.bind(this),
+				func: _(this.turn).bind(this),
 				cost: 0.7
 			},
 			detectWall: {
@@ -47,7 +47,7 @@ var getAugmentedObject = function() {
 				type: 'function',
 				example: 'detectWall()',
 				string: '[function robot.detectWall]',
-				func: this.detectWall.bind(this),
+				func: _(this.detectWall).bind(this),
 				cost: 0.2
 			},
 			detectGoal: {
@@ -56,7 +56,7 @@ var getAugmentedObject = function() {
 				type: 'function',
 				example: 'detectGoal()',
 				string: '[function robot.detectGoal]',
-				func: this.detectGoal.bind(this),
+				func: _(this.detectGoal).bind(this),
 				cost: 0.2
 			}
 		}
@@ -226,8 +226,8 @@ module.exports = function(output) {
 			this.readOnly = options.readOnly || false;
 
 			this.$container = $('<div class="robot-not-highlighting"></div>');
-			this.$container.on('mouseup', this.containerMouseUp.bind(this));
-			this.$container.on('mouseleave', this.containerMouseLeave.bind(this));
+			this.$container.on('mouseup', _(this.containerMouseUp).bind(this));
+			this.$container.on('mouseleave', _(this.containerMouseLeave).bind(this));
 			this.$div.append(this.$container);
 
 			this.highlighting = false;
@@ -242,7 +242,7 @@ module.exports = function(output) {
 
 			if (!this.readOnly) {
 				this.$container.addClass('robot-interactive');
-				this.robot.$initial.on('mousedown', this.initialMouseDown.bind(this));
+				this.robot.$initial.on('mousedown', _(this.initialMouseDown).bind(this));
 				this.updateInterface();
 			}
 
@@ -542,8 +542,8 @@ module.exports = function(output) {
 			if ($element !== null) {
 				$element.data('eventPosition', this.eventPosition);
 				$element.data('index', this.events[this.eventPosition].calls.length);
-				$element.on('mousemove', this.pathMouseMove.bind(this));
-				$element.on('mouseleave', this.pathMouseLeave.bind(this));
+				$element.on('mousemove', _(this.pathMouseMove).bind(this));
+				$element.on('mouseleave', _(this.pathMouseLeave).bind(this));
 			}
 			this.events[this.eventPosition].calls.push({
 				stepNum: context.getStepNum(),
@@ -557,9 +557,9 @@ module.exports = function(output) {
 
 		updateInterface: function() {
 			if (!this.readOnly) {
-				$('.robot-maze-block').click(this.clickBlock.bind(this));
-				$('.robot-maze-line-vertical').click(this.clickVerticalLine.bind(this));
-				$('.robot-maze-line-horizontal').click(this.clickHorizontalLine.bind(this));
+				$('.robot-maze-block').click(_(this.clickBlock).bind(this));
+				$('.robot-maze-line-vertical').click(_(this.clickVerticalLine).bind(this));
+				$('.robot-maze-line-horizontal').click(_(this.clickHorizontalLine).bind(this));
 			}
 		},
 
@@ -621,7 +621,7 @@ module.exports = function(output) {
 				this.draggingInitial = true;
 				this.dragX = (event.pageX - offset.left)%blockSize - blockSize/2;
 				this.dragY = (event.pageY - offset.top)%blockSize - blockSize/2;
-				this.$container.on('mousemove', this.containerMouseMove.bind(this));
+				this.$container.on('mousemove', _(this.containerMouseMove).bind(this));
 				this.robot.$initial.addClass('robot-initial-dragging');
 				event.preventDefault();
 				this.robot.drawInitial();

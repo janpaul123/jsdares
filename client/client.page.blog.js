@@ -16,14 +16,14 @@ MoviePlayer.prototype = {
 		this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="1100" height="630" frameborder="0"></iframe>');
 
 		this.player = $f(this.$iframe[0]);
-		this.player.addEvent('ready', this.addEvents.bind(this));
+		this.player.addEvent('ready', _(this.addEvents).bind(this));
 
 		var $picture = $('<img src="' + picturePath + '"></img>');
 
 		var $pictureContainer = $('<div class="movie-player-picture-container"></div>');
 		$pictureContainer.append($picture);
 		$pictureContainer.append('<div class="movie-player-play"></div>');
-		$pictureContainer.on('click', this.onPictureClick.bind(this));
+		$pictureContainer.on('click', _(this.onPictureClick).bind(this));
 
 		this.$div.append($pictureContainer);
 		this.$div.append('<div class="movie-player-overlay"></div>');
@@ -40,9 +40,9 @@ MoviePlayer.prototype = {
 	},
 
 	addEvents: function() {
-		this.player.addEvent('play',   this.onPlay.bind(this));
-		this.player.addEvent('pause',  this.onPause.bind(this));
-		this.player.addEvent('finish', this.onPause.bind(this));
+		this.player.addEvent('play',   _(this.onPlay).bind(this));
+		this.player.addEvent('pause',  _(this.onPause).bind(this));
+		this.player.addEvent('finish', _(this.onPause).bind(this));
 	},
 
 	onPlay: function() {
@@ -87,14 +87,14 @@ module.exports = function(client) {
 
 			var collection = new dares.Collection(this, this.$blog.find('.blog-collection'));
 
-			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', (function(content) {
+			this.delegate.getSync().getCollectionAndDaresAndInstances('5009684ce78955fbcf405844', _(function(content) {
 				collection.update(content, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 
-			this.$blog.find('.janpaul123').on('click', (function() { this.delegate.navigateTo('/superheroes/janpaul123'); return false; }).bind(this));
+			this.$blog.find('.janpaul123').on('click', _(function() { this.delegate.navigateTo('/superheroes/janpaul123'); return false; }).bind(this));
 
-			this.$blog.find('.blog-intro-example-buttons-movie').on('click', this.showMovie.bind(this));
-			this.$blog.find('.blog-intro-example-buttons-game').on('click', this.showGame.bind(this));
+			this.$blog.find('.blog-intro-example-buttons-movie').on('click', _(this.showMovie).bind(this));
+			this.$blog.find('.blog-intro-example-buttons-game').on('click', _(this.showGame).bind(this));
 
 			var $mazeLink = this.$blog.find('.blog-dares-maze');
 			var $mazeArrow = this.$blog.find('.blog-arrow-maze');

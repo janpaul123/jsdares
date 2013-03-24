@@ -51,7 +51,7 @@ module.exports = function(dares) {
 				}
 			
 				if (this.delay > 0 && call.draws) {
-					this.timeout = setTimeout(this.animateNext.bind(this), this.delay);
+					this.timeout = setTimeout(_(this.animateNext).bind(this), this.delay);
 					return;
 				}
 			}
@@ -68,7 +68,7 @@ module.exports = function(dares) {
 			this.size = this.canvas.getSize();
 
 			this.$originalCanvasContainer = $('<div class="dare-imagematch-original-container"><div class="dare-original-refresh"><i class="icon icon-repeat icon-white"></i></div></div>');
-			this.$originalCanvasContainer.on('click', this.animateImage.bind(this));
+			this.$originalCanvasContainer.on('click', _(this.animateImage).bind(this));
 			this.$div.append(this.$originalCanvasContainer);
 			this.$originalCanvas = $('<canvas class="dare-imagematch-original-canvas" width="' + this.size + '" height="' + this.size + '"></canvas>');
 			this.$originalCanvasContainer.append(this.$originalCanvas);
@@ -153,9 +153,9 @@ module.exports = function(dares) {
 			this.resultContext.putImageData(resultImageData, 0, 0);
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(1, 500, this.animationMatchingStartCallback.bind(this));
-			this.animation.addSegment(Math.ceil(this.size/10), 50, this.animationMatchingCallback.bind(this));
-			this.animation.addRemoveSegment(500, this.animationMatchingFinishCallback.bind(this));
+			this.animation.addSegment(1, 500, _(this.animationMatchingStartCallback).bind(this));
+			this.animation.addSegment(Math.ceil(this.size/10), 50, _(this.animationMatchingCallback).bind(this));
+			this.animation.addRemoveSegment(500, _(this.animationMatchingFinishCallback).bind(this));
 			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.ImageMatch.minPercentage);
 			this.animation.play();
 		},

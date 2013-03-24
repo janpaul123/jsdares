@@ -246,7 +246,7 @@ module.exports = function(dares) {
 				}
 
 				if (segment.delay > 0) {
-					this.timeout = setTimeout(this.animateNext.bind(this), segment.delay);
+					this.timeout = setTimeout(_(this.animateNext).bind(this), segment.delay);
 					return;
 				}
 			}
@@ -297,7 +297,7 @@ module.exports = function(dares) {
 			$div.append(this.$description);
 
 			this.$submit = $('<div class="btn btn-success dare-submit">Submit solution</div>');
-			this.$submit.on('click', this.submit.bind(this));
+			this.$submit.on('click', _(this.submit).bind(this));
 			this.$description.append(this.$submit);
 		};
 
@@ -321,7 +321,7 @@ module.exports = function(dares) {
 			if (this.options.instance.text) {
 				this.editor.setText(this.options.instance.text);
 			}
-			this.editor.setTextChangeCallback(this.updateProgram.bind(this));
+			this.editor.setTextChangeCallback(_(this.updateProgram).bind(this));
 		};
 
 		dare.hasError = function() {
@@ -340,8 +340,8 @@ module.exports = function(dares) {
 			if (!this.completed || points > this.highscore) {
 				this.completed = true;
 				this.highscore = points;
-				this.animation.addSegment(1, 0, this.animationHighscoreBlinkCallback.bind(this));
-				this.animation.addSegment(points, 5, this.animationHighscoreIncreaseCallback.bind(this));
+				this.animation.addSegment(1, 0, _(this.animationHighscoreBlinkCallback).bind(this));
+				this.animation.addSegment(points, 5, _(this.animationHighscoreIncreaseCallback).bind(this));
 			}
 			if (this.completed) {
 				this.options.instance.completed = this.completed;
@@ -362,15 +362,15 @@ module.exports = function(dares) {
 
 		dare.addLineAnimation = function() {
 			this.contentLines = this.editor.getContentLines();
-			this.animation.addSegment(1, 500, this.animationLinesStartCallback.bind(this));
-			this.animation.addSegment(this.contentLines.length, Math.min(500, Math.max(1300/this.contentLines.length, 50)), this.animationLinesCallback.bind(this));
-			this.animation.addRemoveSegment(0, this.animationLinesFinishCallback.bind(this));
+			this.animation.addSegment(1, 500, _(this.animationLinesStartCallback).bind(this));
+			this.animation.addSegment(this.contentLines.length, Math.min(500, Math.max(1300/this.contentLines.length, 50)), _(this.animationLinesCallback).bind(this));
+			this.animation.addRemoveSegment(0, _(this.animationLinesFinishCallback).bind(this));
 			return (this.dareOptions.maxLines-this.contentLines.length)*this.dareOptions.lineReward;
 		};
 
 		dare.addToAnimation = function(points, enough) {
 			if (!this.$points.is(':visible')) {
-				this.animation.prependSegment(1, 400, this.animationSlideDown.bind(this));
+				this.animation.prependSegment(1, 400, _(this.animationSlideDown).bind(this));
 			}
 
 			if (this.linePoints !== null) {
@@ -381,7 +381,7 @@ module.exports = function(dares) {
 				this.updateHighScore(points);
 			}
 
-			this.animation.addSegment(1, 0, this.animationFinish.bind(this));
+			this.animation.addSegment(1, 0, _(this.animationFinish).bind(this));
 		};
 
 		dare.animationSlideDown = function() {

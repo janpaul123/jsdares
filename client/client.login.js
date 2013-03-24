@@ -58,8 +58,8 @@ module.exports = function(client) {
 			this.$loader = $('<i class="icon icon-loader login-loader hide"></i>');
 			this.$div.append(this.$form, this.$loader);
 
-			this.$form.on('submit', this.loginHandler.bind(this));
-			this.$register.on('click', this.registerHandler.bind(this));
+			this.$form.on('submit', _(this.loginHandler).bind(this));
+			this.$register.on('click', _(this.registerHandler).bind(this));
 		},
 
 		showLogout: function() {
@@ -74,8 +74,8 @@ module.exports = function(client) {
 			this.$connectionError.tooltip({'title': 'Connection error', placement: 'bottom'});
 			this.$div.append(this.$logout, this.$details, this.$connectionError);
 
-			this.$details.on('click', this.detailsHandler.bind(this));
-			this.$logout.on('click', this.logoutHandler.bind(this));
+			this.$details.on('click', _(this.detailsHandler).bind(this));
+			this.$logout.on('click', _(this.logoutHandler).bind(this));
 		},
 
 		update: function(data) {
@@ -104,7 +104,7 @@ module.exports = function(client) {
 			} else {
 				this.$invalid.addClass('hide');
 				this.$loader.removeClass('hide');
-				this.delegate.getSync().login(username, password, (function(error) {
+				this.delegate.getSync().login(username, password, _(function(error) {
 					this.$loader.addClass('hide');
 					if (error.status === 404) {
 						this.$invalid.removeClass('hide');
@@ -136,7 +136,7 @@ module.exports = function(client) {
 		setTimeout: function(time) {
 			if (this.timeout !== null) window.clearTimeout(this.timeout);
 
-			this.timeout = window.setTimeout((function() {
+			this.timeout = window.setTimeout(_(function() {
 				this.timeout = null;
 				this.delegate.getSync().getLoginData();
 			}).bind(this), time);
@@ -198,14 +198,14 @@ module.exports = function(client) {
 			this.$div.append(this.$footer);
 
 
-			this.$form.on('submit', this.submitHandler.bind(this));
-			this.$register.on('click', this.submitHandler.bind(this));
-			this.$username.on('blur keyup', this.checkUsername.bind(this));
-			this.$password.on('blur keyup', this.checkPassword.bind(this));
-			this.$email.on('blur keyup', this.checkEmail.bind(this));
+			this.$form.on('submit', _(this.submitHandler).bind(this));
+			this.$register.on('click', _(this.submitHandler).bind(this));
+			this.$username.on('blur keyup', _(this.checkUsername).bind(this));
+			this.$password.on('blur keyup', _(this.checkPassword).bind(this));
+			this.$email.on('blur keyup', _(this.checkEmail).bind(this));
 
 			this.modal = this.$div.modal();
-			this.$div.on('hidden', this.remove.bind(this));
+			this.$div.on('hidden', _(this.remove).bind(this));
 
 			this.checkUsername();
 			this.checkPassword();
@@ -233,10 +233,10 @@ module.exports = function(client) {
 			if (username.length > 0) {
 				if (shared.validation.username(username)) {
 					this.$usernameIcon.addClass('icon-loader');
-					this.sync.checkUsername(username, (function() {
+					this.sync.checkUsername(username, _(function() {
 						this.$usernameIcon.removeClass('icon-ok-sign-color icon-exclamation-sign-color icon-loader');
 						this.$usernameIcon.addClass('icon-ok-sign-color');
-					}).bind(this), (function() {
+					}).bind(this), _(function() {
 						this.$usernameIcon.removeClass('icon-ok-sign-color icon-exclamation-sign-color icon-loader');
 						this.$usernameIcon.addClass('icon-exclamation-sign-color');
 						this.$usernameTooltip.removeClass('hide');
@@ -278,10 +278,10 @@ module.exports = function(client) {
 			if (email.length > 0) {
 				if (shared.validation.email(email)) {
 					this.$emailIcon.addClass('icon-loader');
-					this.sync.checkEmail(email, (function() {
+					this.sync.checkEmail(email, _(function() {
 						this.$emailIcon.removeClass('icon-ok-sign-color icon-exclamation-sign-color icon-loader');
 						this.$emailIcon.addClass('icon-ok-sign-color');
-					}).bind(this), (function() {
+					}).bind(this), _(function() {
 						this.$emailIcon.removeClass('icon-ok-sign-color icon-exclamation-sign-color icon-loader');
 						this.$emailIcon.addClass('icon-exclamation-sign-color');
 						this.$emailTooltip.removeClass('hide');
@@ -328,11 +328,11 @@ module.exports = function(client) {
 
 			if (shared.validation.username(username) && shared.validation.password(password) && shared.validation.email(email)) {
 				this.$submitIcon.removeClass('hide');
-				this.sync.register(username, password, email, (function() {
+				this.sync.register(username, password, email, _(function() {
 					this.$submitIcon.addClass('hide');
 					this.$div.addClass('header-register-done');
 					this.$div.find('.header-register-confirmation-email').text(email);
-				}).bind(this), (function () {
+				}).bind(this), _(function () {
 					this.$submitIcon.addClass('hide');
 				}).bind(this));
 			}

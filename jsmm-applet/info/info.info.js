@@ -131,9 +131,9 @@ module.exports = function(info) {
 			this.highlighting = false;
 			this.scopeTracker = null;
 
-			this.itemClick = this.itemClick.bind(this);
-			this.mouseMove = this.mouseMove.bind(this);
-			this.mouseLeave = this.mouseLeave.bind(this);
+			this.itemClick = _(this.itemClick).bind(this);
+			this.mouseMove = _(this.mouseMove).bind(this);
+			this.mouseLeave = _(this.mouseLeave).bind(this);
 		},
 
 		remove: function() {
@@ -287,9 +287,9 @@ module.exports = function(info) {
 			this.commandTracker = null;
 			this.globalEvents = [];
 
-			this.itemClick = this.itemClick.bind(this);
-			this.mouseMove = this.mouseMove.bind(this);
-			this.mouseLeave = this.mouseLeave.bind(this);
+			this.itemClick = _(this.itemClick).bind(this);
+			this.mouseMove = _(this.mouseMove).bind(this);
+			this.mouseLeave = _(this.mouseLeave).bind(this);
 		},
 
 		addCommands: function(tables) {

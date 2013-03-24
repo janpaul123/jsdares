@@ -64,7 +64,7 @@ module.exports = function() {
 		init: function(content) {
 			this.content = content;
 
-			apiGet('instances', {}, (function(instances) {
+			apiGet('instances', {}, _(function(instances) {
 				console.log(instances);
 				for (var j=0; j<this.content.dares.length; j++) {
 					var dare = this.content.dares[j];

@@ -14,7 +14,7 @@ module.exports = function(client) {
 
 			var $collectionMine = $('<div class="create-collection-mine"></div>');
 			this.collectionMine = new dares.Collection(this, $collectionMine);
-			this.collectionMine.addButton('<i class="icon icon-plus-sign"></i> New', this.newHandler.bind(this));
+			this.collectionMine.addButton('<i class="icon icon-plus-sign"></i> New', _(this.newHandler).bind(this));
 			this.$div.append($collectionMine);
 		},
 
@@ -32,13 +32,13 @@ module.exports = function(client) {
 		},
 
 		updateCollections: function() {
-			this.delegate.getSync().getDaresAndInstancesByUserId(this.delegate.getUserId(), (function(dares) {
+			this.delegate.getSync().getDaresAndInstancesByUserId(this.delegate.getUserId(), _(function(dares) {
 				this.collectionMine.update({title: 'My created dares', dares: dares}, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
 		},
 
 		newHandler: function() {
-			this.delegate.getSync().createDare(this.createDareSuccessfulHandler.bind(this));
+			this.delegate.getSync().createDare(_(this.createDareSuccessfulHandler).bind(this));
 		},
 
 		createDareSuccessfulHandler: function(content) {

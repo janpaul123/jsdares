@@ -17,7 +17,7 @@ module.exports = function(output) {
 					type: 'function',
 					example: 'log("Hello world!")',
 					string: '[function console.log]',
-					func: this.log.bind(this),
+					func: _(this.log).bind(this),
 					cost: 3
 				},
 				clear: {
@@ -26,7 +26,7 @@ module.exports = function(output) {
 					type: 'function',
 					example: 'clear()',
 					string: '[function console.clear]',
-					func: this.clear.bind(this),
+					func: _(this.clear).bind(this),
 					cost: 4
 				},
 				setColor: {
@@ -35,7 +35,7 @@ module.exports = function(output) {
 					type: 'function',
 					example: 'setColor("#a00")',
 					string: '[function console.setColor]',
-					func: this.setColor.bind(this),
+					func: _(this.setColor).bind(this),
 					cost: 0.2
 				}
 			}
@@ -91,7 +91,7 @@ module.exports = function(output) {
 		init: function(editor, options, $div) {
 			this.$div = $div;
 			this.$div.addClass('output console');
-			this.$div.on('scroll', this.refreshAutoScroll.bind(this));
+			this.$div.on('scroll', _(this.refreshAutoScroll).bind(this));
 
 			this.$container = $('<div class="console-container"></div>');
 			this.$div.append(this.$container);
@@ -319,8 +319,8 @@ module.exports = function(output) {
 			this.highlighting = true;
 			this.$div.addClass('console-highlighting');
 			this.$div.off('mousemove mouseleave');
-			this.$div.on('mousemove', this.mouseMove.bind(this));
-			this.$div.on('mouseleave', this.mouseLeave.bind(this));
+			this.$div.on('mousemove', _(this.mouseMove).bind(this));
+			this.$div.on('mouseleave', _(this.mouseLeave).bind(this));
 			this.autoScroll = false;
 			this.$div.removeClass('console-autoscroll');
 			this.updateEventHighlight();

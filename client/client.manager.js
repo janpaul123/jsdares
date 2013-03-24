@@ -25,11 +25,11 @@ module.exports = function(client) {
 			this.login = new client.Login(this);
 			this.sync = new client.Sync(this);
 			this.history = window.History;
-			this.history.Adapter.bind(window, 'statechange', this.stateChange.bind(this));
+			this.history.Adapter.bind(window, 'statechange', _(this.stateChange).bind(this));
 			this.loginData = window.jsdaresLoginData;
 
 			this.modalUI = new applet.UI();
-			this.modalUI.setCloseCallback(this.closeDareCallback.bind(this));
+			this.modalUI.setCloseCallback(_(this.closeDareCallback).bind(this));
 
 			this.page = null;
 			this.urlChange(window.location.pathname);
@@ -136,7 +136,7 @@ module.exports = function(client) {
 
 		viewDare: function(id) {
 			this.dareId = id;
-			this.getSync().getDareAndInstance(id, (function(dare) {
+			this.getSync().getDareAndInstance(id, _(function(dare) {
 				if (dare._id === this.dareId) {
 					this.instance = dare.instance;
 					this.modalUI.openModal();
@@ -147,7 +147,7 @@ module.exports = function(client) {
 
 		editDare: function(id) {
 			this.dareId = id;
-			this.getSync().getDareEdit(id, (function(dare) {
+			this.getSync().getDareEdit(id, _(function(dare) {
 				if (dare._id === this.dareId) {
 					this.instance = dare.instance;
 					this.modalUI.openModal();

@@ -57,7 +57,7 @@ module.exports = function(output) {
 					info: 'canvas.width',
 					type: 'variable',
 					example: 'width',
-					get: (function() { return this.size; }).bind(this),
+					get: _(function() { return this.size; }).bind(this),
 					set: function() { throw '<var>width</var> cannot be set'; },
 					cost: 0.2
 				},
@@ -66,7 +66,7 @@ module.exports = function(output) {
 					info: 'canvas.height',
 					type: 'variable',
 					example: 'height',
-					get: (function() { return this.size; }).bind(this),
+					get: _(function() { return this.size; }).bind(this),
 					set: function() { throw '<var>height</var> cannot be set'; },
 					cost: 0.2
 				},
@@ -76,7 +76,7 @@ module.exports = function(output) {
 					type: 'function',
 					example: 'getContext("2d")',
 					string: '[function canvas.getContext]',
-					func: (function(node, name, args) {
+					func: _(function(node, name, args) {
 						if (args.length !== 1) {
 							throw '<var>getContext</var> takes exactly <var>1</var> argument';
 						} else if (args[0] !== '2d') {
@@ -99,7 +99,7 @@ module.exports = function(output) {
 					name: name,
 					info: 'context.' + name,
 					type: 'function',
-					func: this.handleMethod.bind(this),
+					func: _(this.handleMethod).bind(this),
 					example: func.example,
 					string: '[function context.' + name + ']',
 					cost: func.cost || 0.2
@@ -109,8 +109,8 @@ module.exports = function(output) {
 					name: name,
 					info: 'context.' + name,
 					type: 'variable',
-					get: this.handleAttributeGet.bind(this),
-					set: this.handleAttributeSet.bind(this),
+					get: _(this.handleAttributeGet).bind(this),
+					set: _(this.handleAttributeSet).bind(this),
 					example: func.example,
 					cost: func.cost || 0.2
 				};
@@ -564,8 +564,8 @@ module.exports = function(output) {
 				this.highlightCallIndex = -1;
 				this.$div.addClass('canvas-highlighting');
 				this.$div.off('mousemove mouseleave');
-				this.$div.on('mousemove', this.mouseMove.bind(this));
-				this.$div.on('mouseleave', this.mouseLeave.bind(this));
+				this.$div.on('mousemove', _(this.mouseMove).bind(this));
+				this.$div.on('mouseleave', _(this.mouseLeave).bind(this));
 				this.eventHighlightingInternal = false;
 				if (this.eventsPosLength > 0) {
 					this.render();

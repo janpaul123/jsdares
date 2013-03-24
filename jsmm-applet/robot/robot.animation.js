@@ -50,11 +50,11 @@ module.exports = function(output) {
 
 			if (animation.type === 'wall') {
 				this.setLight(animation.wall ? 'red' : 'green');
-				this.animateTimeout = setTimeout(this.animationEnd.bind(this), this.duration*this.detectWallLength);
+				this.animateTimeout = setTimeout(_(this.animationEnd).bind(this), this.duration*this.detectWallLength);
 			} else if (animation.type === 'delay') {
-				this.animateTimeout = setTimeout(this.animationEnd.bind(this), this.duration*animation.length);
+				this.animateTimeout = setTimeout(_(this.animationEnd).bind(this), this.duration*animation.length);
 			} else {
-				this.animateTimeout = setTimeout(this.animationStart.bind(this), 0);
+				this.animateTimeout = setTimeout(_(this.animationStart).bind(this), 0);
 			}
 		},
 
@@ -140,8 +140,8 @@ module.exports = function(output) {
 			this.animateTimeout = null;
 			var animation = this.animationQueue[this.number];
 			var duration = (this.duration*animation.length).toFixed(5);
-			//this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', this.animationEnd.bind(this));
-			this.animateTimeout = window.setTimeout(this.animationEnd.bind(this), duration*1000);
+			//this.$robot.on('transitionend webkitTransitionEnd MSTransitionEnd oTransitionEnd', _(this.animationEnd).bind(this));
+			this.animateTimeout = window.setTimeout(_(this.animationEnd).bind(this), duration*1000);
 
 			if (animation.type === 'movement') {
 				clayer.setCss3(this.$robot, 'transition', 'left ' + duration + 's linear, top ' + duration + 's linear');

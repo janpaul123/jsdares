@@ -7,11 +7,11 @@ module.exports = function(output) {
 		init: function(editor, options) {
 			this.editor = editor;
 
-			this.keyDown = this.keyDown.bind(this);
-			this.keyUp = this.keyUp.bind(this);
+			this.keyDown = _(this.keyDown).bind(this);
+			this.keyUp = _(this.keyUp).bind(this);
 			$(document).on('keydown', this.keyDown);
 			$(document).on('keyup', this.keyUp);
-			this.doInterval = this.doInterval.bind(this);
+			this.doInterval = _(this.doInterval).bind(this);
 
 			this.onmousemove = [];
 			this.onmousedown = [];
@@ -46,10 +46,10 @@ module.exports = function(output) {
 				info: 'events.' + name + '.' + fullType,
 				type: 'variable',
 				example: fullType + ' = ' + niceType,
-				get: (function(name) {
+				get: _(function(name) {
 							return this[fullType][current].func;
 					}).bind(this),
-				set: (function(context, name, value) {
+				set: _(function(context, name, value) {
 						this.checkStart();
 						if (value.type !== 'functionPointer') {
 							throw 'You can only set <var>' + name + '</var> to a function declared by you';
@@ -57,7 +57,7 @@ module.exports = function(output) {
 						var info = this[fullType][current];
 						info.func = value;
 						if (info.handle === null) {
-							info.handle = (function(event) {
+							info.handle = _(function(event) {
 								this[niceType](current, event);
 							}).bind(this);
 							this[fullType][current].$element.on(type, info.handle);
@@ -81,16 +81,16 @@ module.exports = function(output) {
 						info: 'events.document.onkeydown',
 						type: 'variable',
 						example: 'onkeydown = keyDown',
-						get: this.handleKeyboardGet.bind(this),
-						set: this.handleKeyboardSet.bind(this)
+						get: _(this.handleKeyboardGet).bind(this),
+						set: _(this.handleKeyboardSet).bind(this)
 					},
 					onkeyup: {
 						name: 'onkeyup',
 						info: 'events.document.onkeyup',
 						type: 'variable',
 						example: 'onkeyup = keyUp',
-						get: this.handleKeyboardGet.bind(this),
-						set: this.handleKeyboardSet.bind(this)
+						get: _(this.handleKeyboardGet).bind(this),
+						set: _(this.handleKeyboardSet).bind(this)
 					}
 				}
 			};
@@ -107,7 +107,7 @@ module.exports = function(output) {
 						type: 'function',
 						example: 'setInterval(func, 30)',
 						string: '[function window.setInterval]',
-						func: this.handleTimeCall.bind(this)
+						func: _(this.handleTimeCall).bind(this)
 					}
 				}
 			};
@@ -194,7 +194,7 @@ module.exports = function(output) {
 			} else {
 				this.fireMouseEvent(this.onmousemove[num], event);
 				onmousemove.lastEvent = null;
-				onmousemove.timer = setTimeout((function() {
+				onmousemove.timer = setTimeout(_(function() {
 					onmousemove.timer = null;
 					if (onmousemove.lastEvent !== null) {
 						this.mouseMove(num, onmousemove.lastEvent);

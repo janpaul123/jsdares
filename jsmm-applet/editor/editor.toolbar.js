@@ -24,8 +24,8 @@ module.exports = function(editor) {
 			this.speed = 0.01;
 			this.restartTimeout = null;
 
-			this.startAnimation = this.startAnimation.bind(this);
-			this.restartAnimation = this.restartAnimation.bind(this);
+			this.startAnimation = _(this.startAnimation).bind(this);
+			this.restartAnimation = _(this.restartAnimation).bind(this);
 		},
 
 		animate: function(animate) {
@@ -102,16 +102,16 @@ module.exports = function(editor) {
 			this.$div = $div;
 			this.editor = ed;
 
-			this.$div.on('mouseenter', this.mouseEnter.bind(this));
-			this.$div.on('mouseleave', this.mouseLeave.bind(this));
+			this.$div.on('mouseenter', _(this.mouseEnter).bind(this));
+			this.$div.on('mouseleave', _(this.mouseLeave).bind(this));
 
 			this.$reload = $('<button class="btn btn-primary editor-toolbar-reload"><i class="icon icon-repeat icon-white"></i></button>');
-			this.$reload.on('click', this.reload.bind(this));
+			this.$reload.on('click', _(this.reload).bind(this));
 			this.$div.append(this.$reload);
 
 			this.$playPause = $('<button class="btn btn-primary dropdown-toggle editor-toolbar-run-playpause"></button>');
 			this.$playPause.tooltip({title: 'play/pause (<strong>esc</strong>)', placement: 'bottom'});
-			this.$playPause.on('click', this.playPause.bind(this));
+			this.$playPause.on('click', _(this.playPause).bind(this));
 			this.$div.append(this.$playPause);
 
 			this.playPauseAnimation = new editor.PlayPauseAnimation(this.$playPause);
@@ -129,7 +129,7 @@ module.exports = function(editor) {
 			this.$div.append(this.$stepBarContainer);
 
 			this.$stepBarErrorIcon = $('<i class="icon-exclamation-sign-color editor-toolbar-run-step-bar-error-icon"/></i>');
-			this.$stepBarErrorIcon.on('click', this.errorIconClick.bind(this));
+			this.$stepBarErrorIcon.on('click', _(this.errorIconClick).bind(this));
 			this.$stepBarContainer.append(this.$stepBarErrorIcon);
 
 			this.$stepBarIcon = $('<i></i>');
@@ -306,9 +306,9 @@ module.exports = function(editor) {
 			this.runBar = new editor.RunBar($runBar, this.editor);
 			this.$div.append($runBar);
 
-			this.keyDown = this.keyDown.bind(this);
-			this.keyUp = this.keyUp.bind(this);
-			this.lostFocus = this.lostFocus.bind(this);
+			this.keyDown = _(this.keyDown).bind(this);
+			this.keyUp = _(this.keyUp).bind(this);
+			this.lostFocus = _(this.lostFocus).bind(this);
 			$(document).on('keydown', this.keyDown);
 			$(document).on('keyup', this.keyUp);
 			$(window).on('blur', this.lostFocus);

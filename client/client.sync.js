@@ -100,7 +100,7 @@ module.exports = function(client) {
 				type: 'get',
 				data: data || {},
 				dataType: 'json',
-				success: (function(response) {
+				success: _(function(response) {
 					if (response.loginData) this.delegate.updateLoginData(response.loginData);
 					if (success) {
 						if (success(response) !== false) this.delegate.connectionSuccess(response);
@@ -108,7 +108,7 @@ module.exports = function(client) {
 						this.delegate.connectionSuccess(response);
 					}
 				}).bind(this),
-				error: (function(message) {
+				error: _(function(message) {
 					if (error) {
 						if (error(message) !== false) this.delegate.connectionError(message);
 					} else {
@@ -125,7 +125,7 @@ module.exports = function(client) {
 				data: JSON.stringify(data || {}),
 				contentType: 'application/json; charset=utf-8',
 				dataType: 'json',
-				success: (function(response) {
+				success: _(function(response) {
 					if (response.loginData) this.delegate.updateLoginData(response.loginData);
 					if (success) {
 						if (success(response) !== false) this.delegate.connectionSuccess(response);
@@ -133,7 +133,7 @@ module.exports = function(client) {
 						this.delegate.connectionSuccess(response);
 					}
 				}).bind(this),
-				error: (function(message) {
+				error: _(function(message) {
 					if (error) {
 						if (error(message) !== false) this.delegate.connectionError(message);
 					} else {
@@ -147,7 +147,7 @@ module.exports = function(client) {
 			this.delayedPostData[name] = data;
 			if (this.postTimeout === null) {
 				this.flushPostDelayed();
-				this.postTimeout = setTimeout(this.flushPostDelayed.bind(this), 5000);
+				this.postTimeout = setTimeout(_(this.flushPostDelayed).bind(this), 5000);
 			}
 		},
 

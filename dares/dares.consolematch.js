@@ -67,7 +67,7 @@ module.exports = function(dares) {
 				this.applyCall(this.calls[this.position++]);
 			
 				if (this.delay > 0) {
-					this.timeout = setTimeout(this.animateNext.bind(this), this.delay);
+					this.timeout = setTimeout(_(this.animateNext).bind(this), this.delay);
 					return;
 				}
 			}
@@ -96,7 +96,7 @@ module.exports = function(dares) {
 			this.appendDescription(this.$div);
 
 			this.$originalConsoleContainer = $('<div class="dare-consolematch-original-container"></div>');
-			this.$originalConsoleContainer.on('click', this.animateConsole.bind(this));
+			this.$originalConsoleContainer.on('click', _(this.animateConsole).bind(this));
 			this.$div.append(this.$originalConsoleContainer);
 
 			this.$resultConsole = $('<canvas class="dare-consolematch-result"></canvas>');
@@ -199,9 +199,9 @@ module.exports = function(dares) {
 			animationSteps = Math.ceil(this.animationRects.length/this.stepSize);
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(1, 500, this.animationMatchingStartCallback.bind(this));
-			this.animation.addSegment(animationSteps, Math.max(1500/animationSteps, 30), this.animationMatchingCallback.bind(this));
-			this.animation.addRemoveSegment(500, this.animationMatchingFinishCallback.bind(this));
+			this.animation.addSegment(1, 500, _(this.animationMatchingStartCallback).bind(this));
+			this.animation.addSegment(animationSteps, Math.max(1500/animationSteps, 30), _(this.animationMatchingCallback).bind(this));
+			this.animation.addRemoveSegment(500, _(this.animationMatchingFinishCallback).bind(this));
 			
 			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.ConsoleMatch.minPercentage);
 			this.animation.play();

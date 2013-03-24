@@ -77,7 +77,7 @@ module.exports = function(dares) {
 			this.robot = this.ui.getOutput('robot');
 
 			this.$originalRobotContainer = $('<span class="dare-robotgoal-original-container"></span>');
-			this.$originalRobotContainer.on('click', this.animateRobot.bind(this));
+			this.$originalRobotContainer.on('click', _(this.animateRobot).bind(this));
 			this.$div.append(this.$originalRobotContainer);
 
 			if (this.dareOptions.hidePreview) {
@@ -131,9 +131,9 @@ module.exports = function(dares) {
 			var points = this.visitedGoals.length * this.dareOptions.RobotGoal.goalReward;
 
 			this.animation = new dares.SegmentedAnimation();
-			this.animation.addSegment(1, 200, this.animationGoalStartCallback.bind(this));
-			this.animation.addSegment(this.visitedGoals.length, 500, this.animationGoalCallback.bind(this));
-			this.animation.addRemoveSegment(500, this.animationGoalFinishCallback.bind(this));
+			this.animation.addSegment(1, 200, _(this.animationGoalStartCallback).bind(this));
+			this.animation.addSegment(this.visitedGoals.length, 500, _(this.animationGoalCallback).bind(this));
+			this.animation.addRemoveSegment(500, _(this.animationGoalFinishCallback).bind(this));
 
 			this.addToAnimation(points, this.visitedGoals.length >= this.minGoals);
 			this.animation.play();

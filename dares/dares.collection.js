@@ -75,7 +75,7 @@ module.exports = function(dares) {
 					}
 
 					$item.data('_id', dare._id);
-					$item.on('click', this.itemViewClick.bind(this));
+					$item.on('click', _(this.itemViewClick).bind(this));
 
 					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
 					/*
@@ -90,7 +90,7 @@ module.exports = function(dares) {
 
 					if (this.userId === dare.userId || this.admin) {
 						var $editButton = $('<button class="btn dares-body-edit">Edit</button>');
-						$editButton.on('click', this.itemEditClick.bind(this));
+						$editButton.on('click', _(this.itemEditClick).bind(this));
 						$item.append($editButton);
 					} else if (dare.instance) {
 						$item.append('<span class="dares-body-highscore"><i class="icon-trophy"></i> ' + dare.instance.highscore +'</span>');

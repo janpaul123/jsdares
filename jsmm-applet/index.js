@@ -25,7 +25,7 @@ module.exports.UI.prototype = {
 	init: function($main, globalOptions) {
 		if ($main === undefined) { // use modal mode
 			this.$modal = $('<div class="ui-modal"></div>');
-			// this.$modal.on('click', this.close.bind(this));
+			// this.$modal.on('click', _(this.close).bind(this));
 			$('body').append(this.$modal);
 
 			this.$main = $('<div class="ui-modal-ui"></div>');
@@ -33,7 +33,7 @@ module.exports.UI.prototype = {
 
 			this.$close = $('<a href="#" class="ui-close">&times;</a>');
 			this.$main.append(this.$close);
-			this.$close.on('click', this.closeHandler.bind(this));
+			this.$close.on('click', _(this.closeHandler).bind(this));
 		} else {
 			this.$modal = null;
 			this.$main = $main;
@@ -135,7 +135,7 @@ module.exports.UI.prototype = {
 	loadOutputs: function(outputs) {
 		for (var name in outputs) {
 			if (outputs[name].enabled) {
-				outputs[name].prepareTextElement = this.prepareTextElement.bind(this);
+				outputs[name].prepareTextElement = _(this.prepareTextElement).bind(this);
 
 				var output;
 				if (this.paneOutputs.indexOf(name) >= 0) {
@@ -181,7 +181,7 @@ module.exports.UI.prototype = {
 		var $link = $('<a href="#"><i class="icon icon-white ' + this.icons[name] + '"></i> ' + name + '</a>');
 		$tab.append($link);
 
-		$link.click((function(event) {
+		$link.click(_(function(event) {
 			event.preventDefault();
 			this.selectTab(name);
 		}).bind(this));
