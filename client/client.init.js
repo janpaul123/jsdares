@@ -5,12 +5,12 @@ module.exports = function(client) {
 	client.init = function() {
 		var manager = new client.Manager();
 
-		$('#header-title').on('click', function(event) {
+		$('.header-logo').on('click', function(event) {
 			event.preventDefault();
 			manager.navigateTo('/');
 		});
 
-		$('#footer-about').on('click', function(event) {
+		$('.footer-about').on('click', function(event) {
 			event.preventDefault();
 			manager.navigateTo('/about');
 		});

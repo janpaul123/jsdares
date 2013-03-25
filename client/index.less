@@ -16,7 +16,7 @@ body, input, button, select, textarea {
 }
 
 strong {
-	color: #000;
+	color: @orange;
 }
 
 .tooltip strong {
@@ -45,26 +45,21 @@ strong {
 .header {
 	position: relative;
 
-	.header-title {
+	.header-logo {
 		position: relative;
+		display: inline-block;
 		z-index: 2;
-		font-size: 4em;
-		line-height: 70px;
-		margin-left: 5px;
-		text-shadow: 0 0 2px black, 0px 2px 3px #fff;
-		text-decoration: none;
+		width: 135px;
+		height: 120px;
+		background: url(img/logo/135x120-OFF.png) no-repeat;
 
-		.header-js {
-			font-family: 'Oleo Script', cursive;
-			font-weight: normal;
-			font-size: 1.25em;
-			color: #BAD2DE;
+		&:hover {
+			background: url(img/logo/135x120-ON.png) no-repeat;
 		}
+	}
 
-		.header-dares {
-			font-weight: bold;
-			color: #C0DEBA;
-		}
+	.header-logo-preload {
+		background: url(img/logo/135x120-ON.png) no-repeat;
 	}
 
 	#header-menu {
@@ -211,7 +206,7 @@ strong {
 	text-align: center;
 
 	text-shadow: 0 0 2px black, 0px 2px 3px #fff;
-	margin: 25px 0;
+	margin: 10px 0 30px;
 
 	strong {
 		font-family: 'Oleo Script', cursive;
@@ -259,14 +254,14 @@ strong {
 		width: 100%;
 
 		.how-text-1 {
-			width: 40%;
+			width: 500px;
 		}
 
 		.how-text-2 {
 			position: absolute;
-			left: 50%;
+			left: 550px;
 			top: 0px;
-			width: 45%;
+			width: 500px;
 		}
 	}
 }
