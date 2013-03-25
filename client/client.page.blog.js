@@ -96,6 +96,10 @@ module.exports = function(client) {
 			this.$blog.find('.blog-intro-example-buttons-movie').on('click', _(this.showMovie).bind(this));
 			this.$blog.find('.blog-intro-example-buttons-game').on('click', _(this.showGame).bind(this));
 
+			if ('ontouchstart' in document.documentElement) {
+				this.$blog.find('.blog-intro-example-buttons').hide();
+			}
+
 			var $mazeLink = this.$blog.find('.blog-dares-maze');
 			var $mazeArrow = this.$blog.find('.blog-arrow-maze');
 			$mazeLink.on('click', function() { $mazeArrow.removeClass('arrow-animate'); window.setTimeout(function() { $mazeArrow.addClass('arrow-animate'); }, 0); return false; });
