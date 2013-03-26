@@ -111,6 +111,8 @@ module.exports = function(client) {
 			var $collaborate = this.$blog.find('.blog-collaborate');
 			$collaborate.attr('href', $collaborate.attr('href') + 'res.com');
 
+			this.introMoviePlayer = $f(this.$blog.find('.blog-intro-example-movie-iframe')[0]);
+
 			this.showMovie();
 			this.updateCollection();
 		},
@@ -131,6 +133,8 @@ module.exports = function(client) {
 
 		showGame: function() {
 			if (this.exampleUI) return;
+
+			this.introMoviePlayer.api('pause');
 
 			this.$blog.find('.blog-intro-example').removeClass('blog-intro-example-active-movie');
 			this.$blog.find('.blog-intro-example').addClass('blog-intro-example-active-game');
@@ -178,7 +182,7 @@ module.exports = function(client) {
 			'<p><strong>How are we going to implement such a <a href="http://worrydream.com">Victorian</a> programming environment?</strong></p>',
 			'<p>So, here&rsquo;s an attempt:</p>',
 			'<div class="blog-intro-example">',
-			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62406846?title=0&byline=0&portrait=0" width="1100" height="630" frameborder="0"></iframe></div>',
+			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" id="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62406846?title=0&byline=0&portrait=0&api=1&player_id=blog-intro-example-movie-iframe" width="1100" height="630" frameborder="0"></iframe></div>',
 			'<div class="blog-intro-example-game"></div>',
 			'<div class="blog-intro-example-buttons"><span class="blog-intro-example-buttons-movie">Video</span><span class="blog-intro-example-buttons-game">Game</span></div>',
 			'</div>',
