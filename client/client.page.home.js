@@ -102,8 +102,6 @@ module.exports = function(client) {
 				this.$arrow = null;
 			}
 
-			window.bla = this.exampleEditor;
-
 			if (splitUrl[0] === 'dare' || splitUrl[0] === 'edit') {
 				this.exampleEditor.disable();
 				this.closeModal();
