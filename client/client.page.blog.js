@@ -13,23 +13,24 @@ MoviePlayer.prototype = {
 
 		this.$div.addClass('movie-player');
 
-		this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="1100" height="630" frameborder="0"></iframe>');
+		if ('ontouchstart' in document.documentElement) {
+			this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="287" height="165" frameborder="0"></iframe>');
+			this.$div.addClass('movie-player-touch');
+		} else {
+			this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="485" height="278" frameborder="0"></iframe>');
+			this.player = $f(this.$iframe[0]);
+			this.player.addEvent('ready', _(this.addEvents).bind(this));
 
-		this.player = $f(this.$iframe[0]);
-		this.player.addEvent('ready', _(this.addEvents).bind(this));
+			var $picture = $('<img src="' + picturePath + '"></img>');
+			var $pictureContainer = $('<div class="movie-player-picture-container"></div>');
+			$pictureContainer.append($picture);
+			$pictureContainer.append('<div class="movie-player-play"></div>');
+			$pictureContainer.on('click', _(this.onPictureClick).bind(this));
+			this.$div.append($pictureContainer);
+		}
 
-		var $picture = $('<img src="' + picturePath + '"></img>');
-
-		var $pictureContainer = $('<div class="movie-player-picture-container"></div>');
-		$pictureContainer.append($picture);
-		$pictureContainer.append('<div class="movie-player-play"></div>');
-		$pictureContainer.on('click', _(this.onPictureClick).bind(this));
-
-		this.$div.append($pictureContainer);
-		this.$div.append('<div class="movie-player-overlay"></div>');
+		// this.$div.append('<div class="movie-player-overlay"></div>');
 		this.$div.append(this.$iframe);
-
-		this.$iframe.hide();
 	},
 
 	remove: function() {
@@ -46,18 +47,17 @@ MoviePlayer.prototype = {
 	},
 
 	onPlay: function() {
-		this.$iframe.show();
 		this.$div.addClass('movie-player-active');
 	},
 
 	onPause: function() {
-		this.$iframe.hide();
 		this.$div.removeClass('movie-player-active');
 	},
 
 	onPictureClick: function() {
-		this.player.api('seekTo', 0);
+		// this.player.api('seekTo', 0);
 		this.player.api('play');
+		return false;
 	}
 };
 
@@ -97,7 +97,7 @@ module.exports = function(client) {
 			this.$blog.find('.blog-intro-example-buttons-game').on('click', _(this.showGame).bind(this));
 
 			if ('ontouchstart' in document.documentElement) {
-				this.$blog.find('.blog-intro-example-buttons').hide();
+				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-touch');
 			}
 
 			var $mazeLink = this.$blog.find('.blog-dares-maze');
