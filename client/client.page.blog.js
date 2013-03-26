@@ -70,6 +70,8 @@ module.exports = function(client) {
 			this.delegate = delegate;
 			this.$div = $div;
 
+			$('.main-wrapper').addClass('main-wrapper-blog');
+
 			this.$blog = $('<div class="blog"></div>');
 			this.$blog.html(this.blogHTML.join(''));
 			this.$div.append(this.$blog);
@@ -119,6 +121,7 @@ module.exports = function(client) {
 
 		remove: function() {
 			this.$blog.remove();
+			$('.main-wrapper').removeClass('main-wrapper-blog');
 		},
 
 		showMovie: function() {
