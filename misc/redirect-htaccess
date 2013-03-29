@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule (.*) http://www.jsdares.com/$1 [R=301,L] 
