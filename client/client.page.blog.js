@@ -72,7 +72,7 @@ module.exports = function(client) {
 
 			$('.main-wrapper').addClass('main-wrapper-blog');
 
-			this.$blog = $('<div class="blog"></div>');
+			this.$blog = $('<article class="blog"></article>');
 			this.$blog.html(this.blogHTML.join(''));
 			this.$div.append(this.$blog);
 
@@ -89,7 +89,7 @@ module.exports = function(client) {
 
 			this.collection = new dares.Collection(this, this.$blog.find('.blog-collection'));
 
-			this.$blog.find('.janpaul123').on('click', _(function() { this.delegate.navigateTo('/superheroes/janpaul123'); return false; }).bind(this));
+			this.$blog.find('.blog-about').on('click', _(function() { this.delegate.navigateTo('/about'); return false; }).bind(this));
 
 			this.$blog.find('.blog-intro-example-buttons-movie').on('click', _(this.showMovie).bind(this));
 			this.$blog.find('.blog-intro-example-buttons-game').on('click', _(this.showGame).bind(this));
@@ -185,9 +185,9 @@ module.exports = function(client) {
 			'<p><strong>How are we going to implement such a <a href="http://worrydream.com">Victorian</a> programming environment?</strong></p>',
 			'<p>So, here&rsquo;s an attempt:</p>',
 			'<div class="blog-intro-example">',
-			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" id="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62406846?title=0&byline=0&portrait=0&api=1&player_id=blog-intro-example-movie-iframe" width="1100" height="630" frameborder="0"></iframe></div>',
+			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" id="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62745777?title=0&byline=0&portrait=0&api=1&player_id=blog-intro-example-movie-iframe" width="1100" height="630" frameborder="0"></iframe></div>',
 			'<div class="blog-intro-example-game"></div>',
-			'<div class="blog-intro-example-buttons"><span class="blog-intro-example-buttons-movie">Video</span><span class="blog-intro-example-buttons-game">Game</span></div>',
+			'<div class="blog-intro-example-buttons"><span class="blog-intro-example-buttons-movie"><i class="icon icon-white icon-film"></i> Video</span><span class="blog-intro-example-buttons-game"><i class="icon icon-white icon-star" style="margin-top: 1px"></i> Game</span></div>',
 			'</div>',
 			'<p>I am presenting a programming environment designed for creating and understanding programs. The focus of the design is on <strong>learning programming</strong>, with tools that visualise the behaviour of programs, reinforce the connection between the code and its output, and encourage tinkering. It currently runs a stripped-down version of Javascript<span class="blog-star">*</span><span class="blog-sidenote">* I&rsquo;ve tried to contain some of Javascript&rsquo;s bad parts by writing a <a href="http://www.eric.ed.gov/ERICWebPortal/search/detailmini.jsp?_nfpb=true&_&ERICExtSearch_SearchValue_0=ED388228&ERICExtSearch_SearchType_0=no&accno=ED388228">sub-language</a> called <strong>js--</strong>. Overall though I&rsquo;ve taken a <a href="http://osteele.com/posts/2004/11/ides">tools first</a> approach.</span>, but it is designed to support any programming language.',
 			'<p>Around this programming environment I&rsquo;ve built an educational platform called <strong>jsdares</strong>, for &ldquo;Javascript dares&rdquo;. On this platform, anyone can write programming puzzles, which students can solve by writing programs.</p>',
@@ -263,7 +263,9 @@ module.exports = function(client) {
 			'<p>We should not blindfold the next generation of programmers.</p>',
 			'</div>',
 			'<div class="blog-box blog-author">',
-			'<a href="/superheroes/janpaul123" class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-user"></i> JanPaul123</span></a>',
+			'<p>Huge thanks to Arno van der Vegt, Mark IJbema, Jens Kanis, Martijn Russchen, Frans Schreuder, Martin Nørgaard Gregersen, and Femke Hoornveld for their helpful comments. Thanks again to the authors of <a href="/about" class="blog-about">libraries</a>, sources of <a href="/about" class="blog-about">inspiration</a>, and those who contributed to my <a href="http://thesis.jsdares.com">thesis</a>.</p>',
+			'<div class="blog-line"></div>',
+			'<a href="http://twitter.com/janpaul123" class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-twitter-blue"></i> @JanPaul123</span></a>',
 			'<p><em><a href="http://janpaulposma.nl">Jan Paul Posma</a> is a programmer, teacher at a <a href="http://stichting-scn.nl">youth hackerspace</a>, and devout Victorian. When not working on programming interfaces, he&rsquo;s curbing misinformation at <a href="http://factlink.com">Factlink</a>, and improving education at <a href="http://versal.com">Versal</a>.</em></p>',
 			'<p>April 2013. Code: <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a>. Text and videos: <a href="http://creativecommons.org/licenses/by/3.0/deed.en_GB">CC BY 3.0</a>.</p>',
 			'</div>'
