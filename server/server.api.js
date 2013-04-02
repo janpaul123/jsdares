@@ -391,8 +391,8 @@ module.exports = function(server) {
 
 		getUsersAll: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				// limit to 50 for now
-				this.db.users.findItems({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 50}, this.existsCallback(req, res, function(array) {
+				// limit to 10000 for now
+				this.db.users.findItems({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 10000}, this.existsCallback(req, res, function(array) {
 					var users = [];
 					for (var i=0; i<array.length; i++) {
 						users.push(shared.dares.sanitizeInput(array[i], shared.dares.userOptions));
