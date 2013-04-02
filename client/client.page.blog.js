@@ -89,6 +89,7 @@ module.exports = function(client) {
 
 			this.collection = new dares.Collection(this, this.$blog.find('.blog-collection'));
 
+			this.$blog.find('.janpaul123').on('click', _(function() { this.delegate.navigateTo('/superheroes/janpaul123'); return false; }).bind(this));
 			this.$blog.find('.blog-about').on('click', _(function() { this.delegate.navigateTo('/about'); return false; }).bind(this));
 
 			this.$blog.find('.blog-intro-example-buttons-movie').on('click', _(this.showMovie).bind(this));
@@ -268,7 +269,7 @@ module.exports = function(client) {
 			'<div class="blog-box blog-author">',
 			'<p>Huge thanks to Arno van der Vegt, Mark IJbema, Jens Kanis, Martijn Russchen, Frans Schreuder, Martin Nørgaard Gregersen, and Femke Hoornveld for their helpful comments. Thanks again to the authors of <a href="/about" class="blog-about">libraries</a>, sources of <a href="/about" class="blog-about">inspiration</a>, and those who contributed to my <a href="http://thesis.jsdares.com">thesis</a>.</p>',
 			'<div class="blog-line"></div>',
-			'<a href="http://twitter.com/janpaul123" class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-twitter-blue"></i> @JanPaul123</span></a>',
+			'<a href="/superheroes/janpaul123" class="btn janpaul123"><img src="https://en.gravatar.com/userimage/7626980/caf975f52288bcac2b54655d45a48ea0.jpeg"/><span><i class="icon icon-user"></i> JanPaul123</span></a>',
 			'<p><em><a href="http://janpaulposma.nl">Jan Paul Posma</a> is a programmer, teacher at a <a href="http://stichting-scn.nl">youth hackerspace</a>, and devout Victorian. When not working on programming interfaces, he&rsquo;s curbing misinformation at <a href="http://factlink.com">Factlink</a>, and improving education at <a href="http://versal.com">Versal</a>.</em></p>',
 			'<p>April 2013. Code: <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a>. Text and videos: <a href="http://creativecommons.org/licenses/by/3.0/deed.en_GB">CC BY 3.0</a>.</p>',
 			'</div>'
