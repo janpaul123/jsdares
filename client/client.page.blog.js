@@ -19,18 +19,24 @@ MoviePlayer.prototype = {
 		} else {
 			this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="485" height="278" frameborder="0"></iframe>');
 			this.player = $f(this.$iframe[0]);
-			this.player.addEvent('ready', _(this.addEvents).bind(this));
+			this.player.addEvent('ready', _(this.onReady).bind(this));
 
 			var $picture = $('<img src="' + picturePath + '"></img>');
-			var $pictureContainer = $('<div class="movie-player-picture-container"></div>');
-			$pictureContainer.append($picture);
-			$pictureContainer.append('<div class="movie-player-play"></div>');
-			$pictureContainer.on('click', _(this.onPictureClick).bind(this));
-			this.$div.append($pictureContainer);
+			this.$pictureContainer = $('<div class="movie-player-picture-container"></div>');
+			this.$pictureContainer.append($picture);
+			this.$div.append(this.$pictureContainer);
 		}
 
 		// this.$div.append('<div class="movie-player-overlay"></div>');
 		this.$div.append(this.$iframe);
+	},
+
+	onReady: function() {
+		this.$pictureContainer.append('<div class="movie-player-play"></div>');
+		this.$pictureContainer.on('click', _(this.onPictureClick).bind(this));
+		this.player.addEvent('play',   _(this.onPlay).bind(this));
+		this.player.addEvent('pause',  _(this.onPause).bind(this));
+		this.player.addEvent('finish', _(this.onPause).bind(this));
 	},
 
 	remove: function() {
@@ -38,12 +44,6 @@ MoviePlayer.prototype = {
 		this.$div.removeClass('movie-player');
 		this.$div.removeClass('movie-player-active');
 		this.$div.off('click');
-	},
-
-	addEvents: function() {
-		this.player.addEvent('play',   _(this.onPlay).bind(this));
-		this.player.addEvent('pause',  _(this.onPause).bind(this));
-		this.player.addEvent('finish', _(this.onPause).bind(this));
 	},
 
 	onPlay: function() {
@@ -82,7 +82,7 @@ module.exports = function(client) {
 			this.robotUI.loadOutputs({ robot: {enabled: true, state: '{"columns": 5, "rows": 5, "initialX": 2, "initialY": 4, "initialAngle": 90, "mazeObjects": 17, "verticalActive": [[false,false,false,false,false],[false,true,true,false,false],[true,false,false,false,false],[false,true,false,false,true],[false,true,true,true,false]], "horizontalActive": [[false,false,false,false,false],[false,false,true,true,true],[false,true,true,true,true],[false,true,false,false,false],[false,false,false,false,false]], "blockGoal": [[false,false,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]] }' }, math: {enabled: true} });
 			this.robotUI.selectTab('robot');
 
-			this.$blog.find('.blog-robots-example .robot-initial').on('mousedown', (function() {
+			this.$blog.find('.blog-robots-example .robot-initial').on('mousedown', _(function() {
 				this.$blog.find('.blog-robots-example-help').hide();
 			}).bind(this));
 
@@ -99,8 +99,18 @@ module.exports = function(client) {
 			this.$blog.find('.blog-intro-example-buttons-movie').on('click', _(this.showMovie).bind(this));
 			this.$blog.find('.blog-intro-example-buttons-game').on('click', _(this.showGame).bind(this));
 
+			this.introMoviePlayer = $f(this.$blog.find('.blog-intro-example-movie-iframe')[0]);
+
 			if ('ontouchstart' in document.documentElement) {
 				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-touch');
+			} else {
+				this.showGame();
+				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-video-unsupported');
+
+				this.introMoviePlayer.addEvent('ready', _(function() {
+					this.$blog.find('.blog-intro-example').removeClass('blog-intro-example-video-unsupported');
+					this.showMovie();
+				}).bind(this));
 			}
 
 			var $mazeLink = this.$blog.find('.blog-dares-maze');
@@ -118,9 +128,6 @@ module.exports = function(client) {
 			var $collaborate = this.$blog.find('.blog-collaborate');
 			$collaborate.attr('href', $collaborate.attr('href') + 'res.com');
 
-			this.introMoviePlayer = $f(this.$blog.find('.blog-intro-example-movie-iframe')[0]);
-
-			this.showMovie();
 			this.updateCollection();
 		},
 
