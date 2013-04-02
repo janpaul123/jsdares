@@ -261,7 +261,7 @@ module.exports = function(client) {
 			'</div>',
 			'<div class="blog-box blog-disruption">',
 			'<a name="disruption"></a>',
-			'<h2>Disruption!</h2>',
+			'<h2>Why education?</h2>',
 			'<div class="blog-disruption-left">',
 				'<p>Bret Victor points out that we should not ask ourselves how his ideas apply to real-world programming, but rather how we can redesign programming itself to become inherently visualisable. Still, we live in a world in which there are widely used programming languages and tools. <strong>What is the path we need to take for a better world?</strong></p>',
 				'<p>I&rsquo;ve consciously chosen to work on education, based on the ideas of <a href="http://www.claytonchristensen.com/">Clayton Christensen</a> of disruptive innovation. This is <em>&ldquo;a process by which a product or service takes root initially in simple applications at the bottom of a market and then relentlessly moves up market, eventually displacing established competitors.&rdquo;</em> A disruptive innovation <em>&ldquo;allows a whole new population of consumers at the bottom of a market access to a product or service.&rdquo;</em></p>',
