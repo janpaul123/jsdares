@@ -82,6 +82,10 @@ module.exports = function(client) {
 			this.robotUI.loadOutputs({ robot: {enabled: true, state: '{"columns": 5, "rows": 5, "initialX": 2, "initialY": 4, "initialAngle": 90, "mazeObjects": 17, "verticalActive": [[false,false,false,false,false],[false,true,true,false,false],[true,false,false,false,false],[false,true,false,false,true],[false,true,true,true,false]], "horizontalActive": [[false,false,false,false,false],[false,false,true,true,true],[false,true,true,true,true],[false,true,false,false,false],[false,false,false,false,false]], "blockGoal": [[false,false,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]] }' }, math: {enabled: true} });
 			this.robotUI.selectTab('robot');
 
+			this.$blog.find('.blog-robots-example .robot-initial').on('mousedown', (function() {
+				this.$blog.find('.blog-robots-example-help').hide();
+			}).bind(this));
+
 			var mp1 = new MoviePlayer(this.$blog.find('.movie-games-1'), '/img/blog/fr-manipulation-small.png', 62291930);
 			var mp2 = new MoviePlayer(this.$blog.find('.movie-games-2'), '/img/blog/fr-time-small.png', 62319512);
 			var mp3 = new MoviePlayer(this.$blog.find('.movie-games-3'), '/img/blog/fr-time-highlighting-small.png', 62319511);
@@ -219,7 +223,8 @@ module.exports = function(client) {
 			'</div>',
 			'<div class="blog-robots-example-container">',
 			'<div class="blog-robots-example"></div>',
-			'<div class="blog-sidenote" style="width: 300px; margin-top: 390px; text-align: center;">A robot navigating through a maze is a natural visualisation of a depth-first search algorithm.</div>',
+			'<div class="blog-robots-example-help">Drag me!<div class="blog-robots-example-help-arrow"></div></div>',
+			'<div class="blog-sidenote" style="width: 300px; top: 410px; text-align: center;">A robot navigating through a maze is a natural visualisation of a depth-first search algorithm.</div>',
 			'</div>',
 			'<div class="blog-box blog-robots">',
 			'<a name="robots"></a>',

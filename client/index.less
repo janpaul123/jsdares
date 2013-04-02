@@ -547,21 +547,46 @@ body {
 		}
 	}
 
-	.blog-robots-example {
-		position: absolute;
-		left: 680px;
-		width: 350px;
+	.blog-robots-example-container {
+		position: relative;
 
-		.ui-background, .ui-editor, .ui-toolbar, .ui-stepbar, .arrow {
-			display: none !important;
+		.blog-robots-example {
+			position: absolute;
+			left: 680px;
+			width: 350px;
+
+			.ui-background, .ui-editor, .ui-toolbar, .ui-stepbar, .arrow {
+				display: none !important;
+			}
+
+			.ui-output .tab-content, .output {
+				background-color: transparent;
+			}
+
+			.ui-output {
+				width: 400px;
+			}
 		}
 
-		.ui-output .tab-content, .output {
-			background-color: transparent;
-		}
+		.blog-robots-example-help {
+			position: absolute;
+			top: 330px;
+			right: 258px;
+			padding: 3px 5px;
+			z-index: 100000;
+			
+			background-color: rgba(50,50,50,0.8);
+			color: white;
+			border-radius: 5px;
 
-		.ui-output {
-			width: 400px;
+			.blog-robots-example-help-arrow {
+				position: absolute;
+				right: -6px;
+				top: 7px;
+				border-top: round(6px) solid transparent;
+				border-bottom: round(6px) solid transparent;
+				border-left: 6px solid rgba(50,50,50,0.8);
+			}
 		}
 	}
 
