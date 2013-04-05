@@ -432,7 +432,7 @@ body {
 		margin-top: 20px;
 	}
 
-	.blog-intro, .blog-now-what, .blog-author {
+	.blog-top, .blog-intro, .blog-now-what, .blog-author {
 		margin-left: (@applet-width - 600px)/2;
 
 		.blog-sidenote {
@@ -441,25 +441,8 @@ body {
 		}
 	}
 
-	.blog-intro {
-		h1 {
-			display: block;
-			width: 800px;
-			margin-left: -(800px - 600px)/2 - 30px;
-			margin-top: 20px;
-			margin-bottom: 40px;
-
-			color: #C0DEBA;
-			font-family: 'Oleo Script', cursive;
-			text-shadow: 0 0 2px black, 0px 2px 3px #fff;
-			text-align: center;
-			font-size: 80px;
-			line-height: 80px;
-
-			.victor {
-				color: #BAD2De;
-			}
-		}
+	.blog-top {
+		background-color: transparent;
 
 		.blog-intro-example {
 			position: relative;
@@ -520,6 +503,27 @@ body {
 		}
 	}
 
+	.blog-intro {
+		h1 {
+			display: block;
+			width: 800px;
+			margin-left: -(800px - 600px)/2 - 30px;
+			margin-top: 20px;
+			margin-bottom: 40px;
+
+			color: #C0DEBA;
+			font-family: 'Oleo Script', cursive;
+			text-shadow: 0 0 2px black, 0px 2px 3px #fff;
+			text-align: center;
+			font-size: 80px;
+			line-height: 80px;
+
+			strong {
+				color: #BAD2De;
+			}
+		}
+	}
+
 	h2 {
 		display: block;
 		margin-bottom: 20px;
@@ -551,15 +555,22 @@ body {
 			right: 640px;
 			margin-top: -10px;
 		}
+
+		.blog-games-piece {
+			min-height: 165px;
+			margin-top: 30px;
+		}
 	}
 
 	.blog-robots-example-container {
-		position: relative;
+		position: absolute;
+		left: 650px;
+		margin-top: -150px;
 
 		.blog-robots-example {
-			position: absolute;
-			left: 680px;
 			width: 350px;
+			height: 390px;
+			overflow: hidden;
 
 			.ui-background, .ui-editor, .ui-toolbar, .ui-stepbar, .arrow {
 				display: none !important;
@@ -577,7 +588,7 @@ body {
 		.blog-robots-example-help {
 			position: absolute;
 			top: 330px;
-			right: 258px;
+			right: 205px;
 			padding: 3px 5px;
 			z-index: 100000;
 			
@@ -610,6 +621,11 @@ body {
 
 			.blog-arrow-maze {
 				top: 264px;
+				left: 100px;
+			}
+
+			.blog-arrow-zigzag {
+				top: 305px;
 				left: 100px;
 			}
 

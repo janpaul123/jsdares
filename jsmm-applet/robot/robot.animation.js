@@ -54,7 +54,7 @@ module.exports = function(output) {
 			} else if (animation.type === 'delay') {
 				this.animateTimeout = setTimeout(_(this.animationEnd).bind(this), this.duration*animation.length);
 			} else {
-				this.animateTimeout = setTimeout(_(this.animationStart).bind(this), 0);
+				this.animateTimeout = _.defer(_(this.animationStart).bind(this));
 			}
 		},
 
