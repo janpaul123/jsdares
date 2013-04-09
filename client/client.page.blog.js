@@ -200,7 +200,7 @@ module.exports = function(client) {
 
 		blogHTML: [
 			'<div class="blog-box blog-top">',
-			'<p style="margin-bottom: 30px;"><em>&ldquo;Maybe we don&rsquo;t need a silver bullet. We just need to take off our blindfolds to see where we&rsquo;re firing.&rdquo;</em> &mdash; Bret Victor in <a href="http://worrydream.com/LearnableProgramming">Learnable Programming</a></p>',
+			'<p style="margin-bottom: 60px;"><em>&ldquo;Maybe we don&rsquo;t need a silver bullet. We just need to take off our blindfolds to see where we&rsquo;re firing.&rdquo;</em> &mdash; Bret Victor in <a href="http://worrydream.com/LearnableProgramming">Learnable Programming</a></p>',
 			'<div class="blog-intro-example">',
 			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" id="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62745777?title=0&byline=0&portrait=0&api=1&player_id=blog-intro-example-movie-iframe" width="1100" height="630" frameborder="0"></iframe></div>',
 			'<div class="blog-intro-example-game"></div>',
