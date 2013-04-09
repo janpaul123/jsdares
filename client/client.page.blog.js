@@ -19,12 +19,13 @@ MoviePlayer.prototype = {
 		} else {
 			this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="485" height="278" frameborder="0"></iframe>');
 			this.player = $f(this.$iframe[0]);
-			this.player.addEvent('ready', _(this.onReady).bind(this));
 
 			var $picture = $('<img src="' + picturePath + '"></img>');
 			this.$pictureContainer = $('<div class="movie-player-picture-container"></div>');
 			this.$pictureContainer.append($picture);
 			this.$div.append(this.$pictureContainer);
+
+			this.player.addEvent('ready', _(this.onReady).bind(this));
 		}
 
 		// this.$div.append('<div class="movie-player-overlay"></div>');
@@ -32,11 +33,15 @@ MoviePlayer.prototype = {
 	},
 
 	onReady: function() {
-		this.$pictureContainer.append('<div class="movie-player-play"></div>');
-		this.$pictureContainer.on('click', _(this.onPictureClick).bind(this));
-		this.player.addEvent('play',   _(this.onPlay).bind(this));
-		this.player.addEvent('pause',  _(this.onPause).bind(this));
-		this.player.addEvent('finish', _(this.onPause).bind(this));
+		try {
+			this.$pictureContainer.append('<div class="movie-player-play"></div>');
+			this.$pictureContainer.on('click', _(this.onPictureClick).bind(this));
+			this.player.addEvent('play',   _(this.onPlay).bind(this));
+			this.player.addEvent('pause',  _(this.onPause).bind(this));
+			this.player.addEvent('finish', _(this.onPause).bind(this));
+		} catch (e) {
+			window.location.reload();
+		}
 	},
 
 	remove: function() {
@@ -178,6 +183,8 @@ module.exports = function(client) {
 		},
 
 		navigateTo: function(splitUrl) {
+			document.title = "jsdares - Peeking through the blindfold";
+
 			if (splitUrl[0] === 'dare' || splitUrl[0] === 'edit') {
 				if (this.exampleUI) {
 					this.exampleEditor.disable();

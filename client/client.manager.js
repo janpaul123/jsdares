@@ -95,6 +95,7 @@ module.exports = function(client) {
 		},
 
 		refresh: function() {
+			document.title = "jsdares";
 			this.page.navigateTo(this.splitUrl);
 			this.navigateDare(this.splitUrl);
 		},
