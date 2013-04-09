@@ -105,6 +105,7 @@ module.exports = function(client) {
 
 			if ('ontouchstart' in document.documentElement) {
 				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-touch');
+				this.$blog.find('.blog-warning').hide();
 			} else {
 				this.showGame();
 				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-video-unsupported');
@@ -112,6 +113,7 @@ module.exports = function(client) {
 				this.introMoviePlayer.addEvent('ready', _(function() {
 					this.$blog.find('.blog-intro-example').removeClass('blog-intro-example-video-unsupported');
 					this.showMovie();
+					this.$blog.find('.blog-warning').hide();
 				}).bind(this));
 			}
 
@@ -205,6 +207,7 @@ module.exports = function(client) {
 			'<div class="blog-intro-example-buttons"><span class="blog-intro-example-buttons-movie"><i class="icon icon-white icon-film"></i> Video</span><span class="blog-intro-example-buttons-game"><i class="icon icon-white icon-star" style="margin-top: 1px"></i> Game</span></div>',
 			'</div>',
 			'</div>',
+			'<div class="blog-box blog-warning"><strong>Note: your browser does not support videos, so you they have been hidden.</strong></div>',
 			'<div class="blog-box blog-intro">',
 			'<h1>Peeking through<br/><strong>the blindfold</strong></h1>',
 			'<p>For more than a year I have been working on an open source programming environment designed for <strong>creating and understanding programs</strong>. With tools that visualise the behaviour of programs, reinforce the connection between the code and its output, and encourage tinkering. Eventually I decided on creating this website, <strong>jsdares</strong>, which is an &ldquo;open programming course&rdquo;.</p>',
