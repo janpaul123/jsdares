@@ -10,7 +10,9 @@ module.exports = function(client) {
 
 		init: function(delegate, $div) {
 			this.delegate = delegate;
-			this.$div = $div;
+			this.$div = $('<div class="learn"></div>');
+
+			$div.append(this.$div);
 
 			var $collectionPlayed = $('<div class="learn-collection-played"></div>');
 			this.collectionPlayed = new dares.Collection(this, $collectionPlayed);
@@ -24,7 +26,7 @@ module.exports = function(client) {
 		remove: function() {
 			this.collectionPlayed.remove();
 			this.collectionAll.remove();
-			this.$div.html('');
+			this.$div.remove();
 		},
 
 		navigateTo: function(splitUrl) {

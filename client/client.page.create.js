@@ -10,7 +10,9 @@ module.exports = function(client) {
 
 		init: function(delegate, $div) {
 			this.delegate = delegate;
-			this.$div = $div;
+			this.$div = $('<div class="create"></div>');
+
+			$div.append(this.$div);
 
 			var $collectionMine = $('<div class="create-collection-mine"></div>');
 			this.collectionMine = new dares.Collection(this, $collectionMine);
@@ -20,7 +22,7 @@ module.exports = function(client) {
 
 		remove: function() {
 			this.collectionMine.remove();
-			this.$div.html('');
+			this.$div.remove();
 		},
 
 		navigateTo: function(splitUrl) {
