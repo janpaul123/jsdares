@@ -14,5 +14,10 @@ module.exports = function(client) {
 			event.preventDefault();
 			manager.navigateTo('/about');
 		});
+
+		$('.footer-blindfold').on('click', function(event) {
+			event.preventDefault();
+			manager.navigateTo('/blindfold');
+		});
 	};
 };
