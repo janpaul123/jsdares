@@ -231,7 +231,19 @@ module.exports = function(client) {
 
 			var username = this.$username.val();
 			if (username.length > 0) {
-				if (shared.validation.username(username)) {
+				if (!shared.validation.usernameNotTooShort(username)) {
+					this.$usernameIcon.addClass('icon-exclamation-sign-color');
+					this.$usernameTooltip.removeClass('hide');
+					this.$usernameTooltipText.text('Username is too short');
+				} else if (!shared.validation.usernameNotTooLong(username)) {
+					this.$usernameIcon.addClass('icon-exclamation-sign-color');
+					this.$usernameTooltip.removeClass('hide');
+					this.$usernameTooltipText.text('Username is too long');
+				} else if (!shared.validation.username(username)) {
+					this.$usernameIcon.addClass('icon-exclamation-sign-color');
+					this.$usernameTooltip.removeClass('hide');
+					this.$usernameTooltipText.text('Invalid username');
+				} else {
 					this.$usernameIcon.addClass('icon-loader');
 					this.sync.checkUsername(username, _(function() {
 						this.$usernameIcon.removeClass('icon-ok-sign-color icon-exclamation-sign-color icon-loader');
@@ -242,14 +254,6 @@ module.exports = function(client) {
 						this.$usernameTooltip.removeClass('hide');
 						this.$usernameTooltipText.text('Username is already taken');
 					}).bind(this));
-				} else if (shared.validation.usernameLength(username)) {
-					this.$usernameIcon.addClass('icon-exclamation-sign-color');
-					this.$usernameTooltip.removeClass('hide');
-					this.$usernameTooltipText.text('Invalid username');
-				} else {
-					this.$usernameIcon.addClass('icon-exclamation-sign-color');
-					this.$usernameTooltip.removeClass('hide');
-					this.$usernameTooltipText.text('Username is too short');
 				}
 			}
 		},
