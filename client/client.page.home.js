@@ -13,7 +13,7 @@ module.exports = function(client) {
 			this.delegate = delegate;
 			this.$div = $div;
 
-			this.$aboutText = $('<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an experimental proof-of-concept. <a href="/blindfold" class="homepage-blindfold-link">Learn more&hellip;</a><span></p>');
+			this.$aboutText = $('<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an open source proof-of-concept. <a href="/blindfold" class="homepage-blindfold-link">Learn more&hellip;</a><span></p>');
 			this.$aboutText.find('.homepage-blindfold-link').on('click', _(function(e) { e.preventDefault(); this.delegate.navigateTo('/blindfold'); }).bind(this));
 			this.$div.append(this.$aboutText);
 
