@@ -46,11 +46,20 @@ module.exports = function(server) {
 			var app = connect();
 			if (options.logs.requests) app.use(connect.logger('tiny'));
 
+			var b = browserify();
+			b.add(options.browserify.entry);
+			b.bundle(options.browserify, function(err, src) {
+				if (err) {
+					console.log("Error: " + err);
+				} else {
+					fs.writeFile(options.assets + '/browserify.js', src);
+				}
+			});
+
 			app.use(noCache)
 				.use(objects.common.getMiddleware())
 				.use('/api', objects.api.getMiddleware())
 				.use(lessMiddleware(options.less))
-				.use(browserify(options.browserify))
 				.use('', function(req, res, next) {
 					if (mainUrls.indexOf(req.url.split('/')[1] || 'intro') >= 0 || req.url === '/') req.url = '/index.html';
 					next();
