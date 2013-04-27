@@ -31,5 +31,3 @@
 First of all, reporting [issues](https://github.com/janpaul123/jsdares/issues) and fixing bugs is always great!
 
 Right now the focus is on refactoring the codebase to make it more modular, so we can easily extract components to other projects and integrate new functionality. If you want to use functionality from jsdares in your own project, you can help extracting it. And integrating your own and new functionality into jsdares is of course also very welcome! Just drop me a line at <jp@jsdares.com>.
-
-And you can also help by buying presents for Femke.
