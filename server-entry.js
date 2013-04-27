@@ -21,10 +21,6 @@ require('./server').init({
 		debug: debug_enabled,
 		cache: !debug_enabled
 	},
-	less: {
-		src: __dirname + '/client',
-		dest: __dirname + '/assets-dev'
-	},
 	logs: {
 		requests: debug_enabled
 	},
