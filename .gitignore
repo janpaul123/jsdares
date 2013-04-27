@@ -6,3 +6,4 @@ index.css
 init.sh
 .DS_Store
 node_modules
+assets-dev/browserify.js
