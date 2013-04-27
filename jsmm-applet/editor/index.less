@@ -324,10 +324,15 @@ div.colorpicker div.circle.lightness {
 	}
 
 	.editor-toolbar-run-bar {
+		> button, > div {
+			vertical-align: top;
+		}
+
 		.editor-toolbar-reload {
 			background-image: -webkit-linear-gradient(top, lighten(@btnPrimaryBackground, 15%), @btnPrimaryBackgroundHighlight);
 			background-size: 1px 55px;
 			background-position: 0px -29px;
+			padding: 4px 8px;
 
 			&.editor-toolbar-reload-blink {
 				.animation(editor-toolbar-reload-blink-anim, 0.75s, linear, infinite, alternate);
@@ -340,14 +345,17 @@ div.colorpicker div.circle.lightness {
 		}
 
 		.editor-toolbar-run-slider-container {
-			float: left;
-			margin-left: -1px;
-			margin-top: -10px;
+			display: inline-block;
+			position: relative;
+			top: -10px;
+			left: -1px;
 			overflow: hidden;
+			padding-bottom: 12px;
 			//.transition(margin-left 0.05s linear);
 
 			.editor-toolbar-run-slider-button {
-				margin-top: 10px;
+				position: relative;
+				top: 10px;
 				padding: 0px;
 				height: 26px;
 				.transition(margin-left 0.2s linear);
