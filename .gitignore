@@ -1,7 +1,8 @@
 server-local.js
-jsmm.sublime-workspace
-jsmm.sublime-project
+*.sublime-workspace
+*.sublime-project
 deploy
 index.css
 init.sh
 .DS_Store
+node_modules
