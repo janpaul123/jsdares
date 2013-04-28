@@ -37,38 +37,38 @@ module.exports = function(server) {
 		objects.database.open(function(err, db) {
 			if (err) {
 				console.log('MongoDB error:', err);
-				return;
+				process.exit(1);
 			}
-
-			server.dares(objects.database);
-
-			var app = connect();
-			if (options.logs.requests) app.use(connect.logger('tiny'));
-
-			var b = browserify();
-			b.add(options.browserify.entry);
-			b.bundle(options.browserify, function(err, src) {
-				if (err) {
-					console.log("Error: " + err);
-				} else {
-					fs.writeFile(options.assets + '/browserify.js', src);
-				}
-			});
-
-			app.use(noCache)
-				.use(objects.common.getMiddleware())
-				.use('/api', objects.api.getMiddleware())
-				.use('', function(req, res, next) {
-					if (mainUrls.indexOf(req.url.split('/')[1] || 'intro') >= 0 || req.url === '/') req.url = '/index.html';
-					next();
-				})
-				.use('/index.html', function(req, res, next) {
-					var loginData = {};
-					if (req.session && req.session.loginData) loginData = req.session.loginData;
-					res.end(indexFile.replace('{/*AUTOFILL in server.init.js*/}', JSON.stringify(loginData)));
-				})
-				.use(connect['static'](options.assets))
-				.listen(options.port);
 		});
+
+		server.dares(objects.database);
+
+		var app = connect();
+		if (options.logs.requests) app.use(connect.logger('tiny'));
+
+		var b = browserify();
+		b.add(options.browserify.entry);
+		b.bundle(options.browserify, function(err, src) {
+			if (err) {
+				console.log("Error: " + err);
+			} else {
+				fs.writeFile(options.assets + '/browserify.js', src);
+			}
+		});
+
+		app.use(noCache)
+			.use(objects.common.getMiddleware())
+			.use('/api', objects.api.getMiddleware())
+			.use('', function(req, res, next) {
+				if (mainUrls.indexOf(req.url.split('/')[1] || 'intro') >= 0 || req.url === '/') req.url = '/index.html';
+				next();
+			})
+			.use('/index.html', function(req, res, next) {
+				var loginData = {};
+				if (req.session && req.session.loginData) loginData = req.session.loginData;
+				res.end(indexFile.replace('{/*AUTOFILL in server.init.js*/}', JSON.stringify(loginData)));
+			})
+			.use(connect['static'](options.assets))
+			.listen(options.port);
 	};
 };
