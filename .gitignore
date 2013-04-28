@@ -2,5 +2,4 @@
 *.sublime-project
 .DS_Store
 node_modules
-assets-dev/index.css
-assets-dev/browserify.js
+dist

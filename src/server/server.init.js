@@ -32,7 +32,7 @@ module.exports = function(server) {
 			next();
 		};
 
-		var indexFile = fs.readFileSync('assets-dev/index.html').toString();
+		var indexFile = fs.readFileSync(options.assets + '/index.html').toString();
 
 		objects.database.open(function(err, db) {
 			if (err) {

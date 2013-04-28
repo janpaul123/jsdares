@@ -16,8 +16,8 @@ module.exports = function(server) {
 
 			this.templates = {};
 			for (var i=0; i<templates.length; i++) {
-				this.templates[templates[i] + '-text'] = fs.readFileSync('server/mails/' + templates[i] + '-text.mustache', 'utf8');
-				this.templates[templates[i] + '-html'] = fs.readFileSync('server/mails/' + templates[i] + '-html.mustache', 'utf8');
+				this.templates[templates[i] + '-text'] = fs.readFileSync(__dirname + '/mails/' + templates[i] + '-text.mustache', 'utf8');
+				this.templates[templates[i] + '-html'] = fs.readFileSync(__dirname + '/mails/' + templates[i] + '-html.mustache', 'utf8');
 			}
 		},
 
