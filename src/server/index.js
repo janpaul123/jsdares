@@ -2,7 +2,7 @@
 "use strict";
 
 var server = {};
-require('./server.init')(server);
+require('./server.middleware')(server);
 require('./server.common')(server);
 require('./server.mailer')(server);
 require('./server.api')(server);

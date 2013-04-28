@@ -1,7 +1,6 @@
 /*jshint node:true*/
 "use strict";
 
-var connect = require('connect');
 var mongo = require('mongoskin');
 var uuid = require('node-uuid');
 var browserify = require('browserify');
@@ -9,15 +8,15 @@ var fs = require('fs');
 var mainUrls = ['intro', 'dare', 'edit', 'full', 'learn', 'create', 'superheroes', 'about', 'blindfold'];
 
 module.exports = function(server) {
-	server.init = function(options) {
+	server.middleware = function(connect, options) {
 		var objects = {
 			database: mongo.db(options.mongodb),
 			mailer: new server.Mailer(options.mailer)
 		};
-		
+
 		objects.common = new server.Common(options.api, objects);
 		objects.api = new server.API(options.api, objects);
-		
+
 		objects.database.bind('users');
 		objects.database.bind('collections');
 		objects.database.bind('dares');
@@ -70,5 +69,7 @@ module.exports = function(server) {
 			})
 			.use(connect['static'](options.assets))
 			.listen(options.port);
+
+		return app;
 	};
 };

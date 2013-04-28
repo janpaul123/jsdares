@@ -1,2 +1,2 @@
-web: node server-entry.js
+web: grunt
 mongod: mongod
