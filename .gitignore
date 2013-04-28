@@ -1,9 +1,6 @@
-server-local.js
 *.sublime-workspace
 *.sublime-project
-deploy
-index.css
-init.sh
 .DS_Store
 node_modules
+assets-dev/index.css
 assets-dev/browserify.js
