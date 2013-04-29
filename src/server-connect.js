@@ -1,8 +1,4 @@
-/*jshint node:true*/
-"use strict";
-
 process.env.JSDARES_ENV = process.env.JSDARES_ENV || 'development';
-process.env.JSDARES_PORT = process.env.JSDARES_PORT || 3000;
 process.env.JSDARES_MONGO_DB_PATH = process.env.JSDARES_MONGO_DB_PATH || 'localhost:27017/jsdares';
 process.env.JSDARES_EMAIL = process.env.JSDARES_EMAIL || 'test@test.com';
 process.env.JSDARES_EMAIL_NAME = process.env.JSDARES_EMAIL_NAME || 'jsdares';
@@ -12,8 +8,7 @@ process.env.JSDARES_COOKIE_SECRET = process.env.JSDARES_COOKIE_SECRET || 'somese
 
 var debug_enabled = (process.env.JSDARES_ENV === 'development');
 
-require('./server').init({
-	port: process.env.JSDARES_PORT,
+var options = {
 	mongodb: 'mongodb://' + process.env.JSDARES_MONGO_DB_PATH + '?auto_reconnect',
 	assets: __dirname + '/assets',
 	browserify: {
@@ -50,6 +45,7 @@ require('./server').init({
 		},
 		log: debug_enabled
 	}
-});
+};
 
-console.log('Webserver loaded on port ' + process.env.JSDARES_PORT);
+var connect = require('connect');
+module.exports = require('./server').middleware(connect, options);
