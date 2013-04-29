@@ -65,10 +65,10 @@ module.exports = function(server) {
 			.use('/index.html', function(req, res, next) {
 				var loginData = {};
 				if (req.session && req.session.loginData) loginData = req.session.loginData;
-				res.end(indexFile.replace('{/*AUTOFILL in server.init.js*/}', JSON.stringify(loginData)));
+				res.write(indexFile.replace('{/*AUTOFILL in server.init.js*/}', JSON.stringify(loginData)));
+				res.end();
 			})
-			.use(connect['static'](options.assets))
-			.listen(options.port);
+			.use(connect['static'](options.assets));
 
 		return app;
 	};
