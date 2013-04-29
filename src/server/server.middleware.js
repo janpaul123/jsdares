@@ -3,7 +3,6 @@
 
 var mongo = require('mongoskin');
 var uuid = require('node-uuid');
-var browserify = require('browserify');
 var fs = require('fs');
 var mainUrls = ['intro', 'dare', 'edit', 'full', 'learn', 'create', 'superheroes', 'about', 'blindfold'];
 
@@ -44,16 +43,6 @@ module.exports = function(server) {
 
 		var app = connect();
 		if (options.logs.requests) app.use(connect.logger('tiny'));
-
-		var b = browserify();
-		b.add(options.browserify.entry);
-		b.bundle(options.browserify, function(err, src) {
-			if (err) {
-				console.log("Error: " + err);
-			} else {
-				fs.writeFile(options.assets + '/browserify.js', src);
-			}
-		});
 
 		app.use(noCache)
 			.use(objects.common.getMiddleware())

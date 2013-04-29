@@ -35,7 +35,8 @@
     "grunt-contrib-copy": "~0.4.0",
     "grunt-contrib-livereload": "~0.1.2",
     "grunt-express": "~0.3.3",
-    "grunt-regarde": "~0.1.1"
+    "grunt-regarde": "~0.1.1",
+    "grunt-browserify": "~0.2.3"
   },
   "engines": {
     "node": "0.10.x",

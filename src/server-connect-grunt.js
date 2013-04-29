@@ -14,11 +14,11 @@ var debug_enabled = (process.env.JSDARES_ENV === 'development');
 var options = {
 	mongodb: 'mongodb://' + process.env.JSDARES_MONGO_DB_PATH + '?auto_reconnect',
 	assets: __dirname + '/assets',
-	browserify: {
-		entry: __dirname + '/client-entry.js',
-		debug: debug_enabled,
-		cache: !debug_enabled
-	},
+	// browserify: {
+	// 	entry: __dirname + '/client-entry.js',
+	// 	debug: debug_enabled,
+	// 	cache: !debug_enabled
+	// },
 	logs: {
 		requests: debug_enabled
 	},

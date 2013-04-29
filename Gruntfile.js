@@ -27,6 +27,13 @@ module.exports = function(grunt) {
 			}
 		},
 
+		browserify: {
+			client: {
+				src: 'src/client-entry.js',
+				dest: 'dist/assets/browserify.js'
+			}
+		},
+
 		express: {
 			server: {
 				options: {
@@ -39,7 +46,7 @@ module.exports = function(grunt) {
 		regarde: {
 			scripts: {
 				files: ['src/**/*.js', 'src/**/*.json', 'src/**/*.coffee'],
-				tasks: ['copy', 'express-restart']
+				tasks: ['copy', 'browserify', 'express-restart']
 			},
 
 			styles: {
@@ -61,8 +68,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-livereload');
 	grunt.loadNpmTasks('grunt-express');
 	grunt.loadNpmTasks('grunt-regarde');
+	grunt.loadNpmTasks('grunt-browserify');
 
-	grunt.registerTask('dist', ['clean', 'copy', 'less']);
+	grunt.registerTask('dist', ['clean', 'copy', 'less', 'browserify']);
 	grunt.registerTask('server', ['livereload-start', 'express', 'regarde']);
 
 	grunt.registerTask('default', ['dist', 'server']);
