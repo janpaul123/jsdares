@@ -27,17 +27,20 @@
     "crypto": "~0.0",
     "nodemailer": "~0.4",
     "underscore": "~1.4",
-    "twitter-bootstrap": "~2.1"
+    "twitter-bootstrap": "~2.1",
+    "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.7",
+    "grunt-contrib-less": "~0.5.1",
+    "grunt-contrib-copy": "~0.4.0",
+    "grunt-contrib-livereload": "~0.1.2",
+    "grunt-express": "~0.3.3",
+    "grunt-regarde": "~0.1.1"
   },
   "engines": {
     "node": "0.10.x",
     "npm": "1.2.x"
   },
-  "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-less": "~0.5.1",
-    "grunt-contrib-copy": "~0.4.0",
-    "grunt-express": "~0.3.3",
-    "grunt-regarde": "~0.1.1"
+  "scripts": {
+    "postinstall": "echo postinstall time; ./node_modules/.bin/grunt heroku"
   }
 }

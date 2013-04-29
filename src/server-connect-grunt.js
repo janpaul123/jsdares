@@ -1,3 +1,6 @@
+/*jshint node:true*/
+"use strict";
+
 process.env.JSDARES_ENV = process.env.JSDARES_ENV || 'development';
 process.env.JSDARES_MONGO_DB_PATH = process.env.JSDARES_MONGO_DB_PATH || 'localhost:27017/jsdares';
 process.env.JSDARES_EMAIL = process.env.JSDARES_EMAIL || 'test@test.com';
@@ -48,4 +51,7 @@ var options = {
 };
 
 var connect = require('connect');
-module.exports = require('./server').middleware(connect, options);
+var app = connect();
+app.use(require('grunt-contrib-livereload/lib/utils').livereloadSnippet);
+app.use(require('./server').middleware(connect, options));
+module.exports = app;

@@ -27,25 +27,25 @@ module.exports = function(grunt) {
 			server: {
 				options: {
 					port: process.env.JSDARES_PORT,
-					server: path.resolve('./dist/server-connect')
+					server: path.resolve('./dist/server-connect-grunt')
 				}
 			}
 		},
 
 		regarde: {
 			scripts: {
-				files: ['src/**/*.js', 'src/**/*.coffee'],
-				tasks: ['express-restart']
+				files: ['src/**/*.js', 'src/**/*.json', 'src/**/*.coffee'],
+				tasks: ['copy', 'express-restart']
 			},
 
 			styles: {
 				files: ['src/**/*.less', 'src/**/*.css'],
-				tasks: ['less']
+				tasks: ['less', 'livereload']
 			},
 
 			assets: {
 				files: ['src/assets/**'],
-				tasks: ['copy']
+				tasks: ['copy', 'livereload']
 			}
 		}
 
@@ -53,8 +53,13 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-livereload');
 	grunt.loadNpmTasks('grunt-express');
 	grunt.loadNpmTasks('grunt-regarde');
 
-	grunt.registerTask('default', ['copy', 'less', 'express', 'regarde']);
+	grunt.registerTask('dist', ['copy', 'less']);
+	grunt.registerTask('server', ['livereload-start', 'express', 'regarde']);
+
+	grunt.registerTask('default', ['dist', 'server']);
+	grunt.registerTask('heroku', ['dist']);
 };
