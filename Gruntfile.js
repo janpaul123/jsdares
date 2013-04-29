@@ -5,6 +5,10 @@ process.env.JSDARES_PORT = process.env.JSDARES_PORT || 3000;
 module.exports = function(grunt) {
 	grunt.initConfig({
 
+		clean: {
+			all: ['dist']
+		},
+
 		copy: {
 			all: {
 				files: [{
@@ -53,11 +57,12 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-livereload');
 	grunt.loadNpmTasks('grunt-express');
 	grunt.loadNpmTasks('grunt-regarde');
 
-	grunt.registerTask('dist', ['copy', 'less']);
+	grunt.registerTask('dist', ['clean', 'copy', 'less']);
 	grunt.registerTask('server', ['livereload-start', 'express', 'regarde']);
 
 	grunt.registerTask('default', ['dist', 'server']);
