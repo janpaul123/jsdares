@@ -16,12 +16,12 @@
 1. Install [node.js](http://nodejs.org).
 2. Install [mongodb](http://www.mongodb.org).
 3. Install dependencies: `npm install`.
-4. Start mongodb: `mongod`.
-5. Start the jsdares server `node server-entry.js`.
-6. Open your webbrowser at `localhost:3000`.
-7. Register a user with username **janpaul123**.
-8. Restart the server and reload the page.
-9. Done!
+4. Install the grunt client: `npm install -g grunt-cli`.
+5. Start mongodb: `mongod`.
+6. Run grunt: `grunt`.
+7. Done!
+
+To load the default dares, register a user with username **janpaul123** and restart the server. Automatically dares will be created for this user, and the user will get admin rights.
 
 # Spinoff projects
 - [Clayer](https://github.com/janpaul123/clayer), a direct interaction library based on [BVlayer](http://worrydream.com/Home2011/Script/LayerScript/).
