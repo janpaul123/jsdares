@@ -1,6 +1,7 @@
 /*jshint node:true*/
 "use strict";
 
-process.env.JSDARES_PORT = process.env.JSDARES_PORT || 3000;
+// Use PORT for Heroku
+process.env.PORT = process.env.PORT || 3000;
 
-require('./server-connect-grunt').listen(process.env.JSDARES_PORT);
+require('./server-connect-grunt').listen(process.env.PORT);
