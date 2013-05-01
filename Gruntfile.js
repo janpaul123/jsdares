@@ -27,9 +27,20 @@ module.exports = function(grunt) {
 			}
 		},
 
+		coffee: {
+			all: {
+				expand: true,
+				cwd: 'src',
+				src: ['**/*.coffee'],
+				dest: 'dist',
+				// ext: '.js' doesn't work because of grunt crazyness: https://github.com/gruntjs/grunt/pull/625
+				rename: function(dest, name) { return dest + '/' + name.replace(/\.coffee$/gi, '.js'); }
+			}
+		},
+
 		browserify: {
 			client: {
-				src: 'src/client-entry.js',
+				src: 'dist/client-entry.js',
 				dest: 'dist/assets/browserify.js'
 			}
 		},
@@ -46,7 +57,7 @@ module.exports = function(grunt) {
 		regarde: {
 			scripts: {
 				files: ['src/**/*.js', 'src/**/*.json', 'src/**/*.coffee'],
-				tasks: ['copy', 'browserify', 'express-restart']
+				tasks: ['copy', 'coffee', 'browserify', 'express-restart']
 			},
 
 			styles: {
@@ -62,15 +73,16 @@ module.exports = function(grunt) {
 
 	});
 
-	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-coffee');
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-livereload');
 	grunt.loadNpmTasks('grunt-express');
 	grunt.loadNpmTasks('grunt-regarde');
 	grunt.loadNpmTasks('grunt-browserify');
 
-	grunt.registerTask('dist', ['clean', 'copy', 'less', 'browserify']);
+	grunt.registerTask('dist', ['clean', 'copy', 'coffee', 'browserify', 'less']);
 	grunt.registerTask('server', ['livereload-start', 'express', 'regarde']);
 
 	grunt.registerTask('default', ['dist', 'server']);
