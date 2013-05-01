@@ -69,6 +69,12 @@ module.exports = function(grunt) {
 				files: ['src/assets/**'],
 				tasks: ['copy', 'livereload']
 			}
+		},
+
+		open : {
+			dev : {
+				path: 'http://localhost:' + process.env.JSDARES_PORT
+			}
 		}
 
 	});
@@ -81,9 +87,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-express');
 	grunt.loadNpmTasks('grunt-regarde');
 	grunt.loadNpmTasks('grunt-browserify');
+	grunt.loadNpmTasks('grunt-open');
 
 	grunt.registerTask('dist', ['clean', 'copy', 'coffee', 'browserify', 'less']);
-	grunt.registerTask('server', ['livereload-start', 'express', 'regarde']);
+	grunt.registerTask('server', ['livereload-start', 'express', 'open', 'regarde']);
 
 	grunt.registerTask('default', ['dist', 'server']);
 	grunt.registerTask('heroku', ['dist']);
