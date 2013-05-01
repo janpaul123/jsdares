@@ -1,6 +1,9 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+// load colorPicker lib
+require('./colorpicker/jquery.ui.colorPicker');
+
 module.exports.clayer = require('./clayer');
 module.exports.editor = require('./editor');
 module.exports.info = require('./info');

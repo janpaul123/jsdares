@@ -1,8 +1,6 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var applet = require('../jsmm-applet');
-
 module.exports = function(shared) {
 	shared.dares = {};
 
