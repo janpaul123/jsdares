@@ -8,8 +8,8 @@ module.exports = (client) ->
   class client.MenuHeader
     constructor: (delegate) ->
       @delegate = delegate
-      @$div = $("#header-menu")
-      @$arrow = $("#header-arrow")
+      @$div = $('#header-menu')
+      @$arrow = $('#header-arrow')
       @$tabs = []
       @$links = []
       @$locks = []
@@ -17,15 +17,15 @@ module.exports = (client) ->
       @locksShown = false
 
       for menuItem, i in menu
-        $tab = $("<li></li>")
-        $link = $("<a href=\"#\">" + menuItem.title + " </a>")
-        $lock = $("<i class=\"icon icon-lock-color hide\"></i>")
+        $tab = $('<li></li>')
+        $link = $('<a href="#">' + menuItem.title + ' </a>')
+        $lock = $('<i class="icon icon-lock-color hide"></i>')
         $link.append $lock
         $tab.append $link
         @$div.append $tab
 
-        $link.data "index", i
-        $link.on "click", _(@clickHandler).bind(this)
+        $link.data 'index', i
+        $link.on 'click', _(@clickHandler).bind(this)
         @$tabs.push $tab
         @$links.push $link
         @$locks.push $lock
@@ -35,36 +35,36 @@ module.exports = (client) ->
 
     clickHandler: (event) ->
       event.preventDefault()
-      index = $(event.delegateTarget).data("index")
+      index = $(event.delegateTarget).data('index')
       if @locksShown && menu[index].locked
         $arrow = @$arrow
-        $arrow.removeClass "arrow-animate"
+        $arrow.removeClass 'arrow-animate'
         window.setTimeout (->
-          $arrow.addClass "arrow-animate"
+          $arrow.addClass 'arrow-animate'
         ), 0
       else
-        @delegate.navigateTo "/" + menu[index].url
+        @delegate.navigateTo '/' + menu[index].url
 
     mouseMoveHandler: (event) ->
-      @$arrow.addClass "arrow-active"
+      @$arrow.addClass 'arrow-active'
 
     mouseLeaveHandler: (event) ->
-      @$arrow.removeClass "arrow-active arrow-animate"
+      @$arrow.removeClass 'arrow-active arrow-animate'
 
     navigateTo: (splitUrl) ->
-      @$div.children("li").removeClass "active"
-      index = @urls[splitUrl[0] || ""]
+      @$div.children('li').removeClass 'active'
+      index = @urls[splitUrl[0] || '']
 
-      @$tabs[index].addClass "active" if index?
+      @$tabs[index].addClass 'active' if index?
 
     showLocks: (show) ->
-      @$arrow.removeClass "arrow-animate"
+      @$arrow.removeClass 'arrow-animate'
       @locksShown = show
 
       for menuItem, i in menu
         hideLock = !show || !menuItem.locked
-        @$locks[i].toggleClass "hide", hideLock
-        @$links[i].off "mousemove mouseleave"
+        @$locks[i].toggleClass 'hide', hideLock
+        @$links[i].off 'mousemove mouseleave'
         unless hideLock
-          @$links[i].on "mousemove", _(@mouseMoveHandler).bind(this)
-          @$links[i].on "mouseleave", _(@mouseLeaveHandler).bind(this)
+          @$links[i].on 'mousemove', _(@mouseMoveHandler).bind(this)
+          @$links[i].on 'mouseleave', _(@mouseLeaveHandler).bind(this)

@@ -1,14 +1,14 @@
 module.exports = (client) ->
   client.init = ->
     manager = new client.Manager()
-    $(".header-logo").on "click", (event) ->
+    $('.header-logo').on 'click', (event) ->
       event.preventDefault()
-      manager.navigateTo "/"
+      manager.navigateTo '/'
 
-    $(".footer-about").on "click", (event) ->
+    $('.footer-about').on 'click', (event) ->
       event.preventDefault()
-      manager.navigateTo "/about"
+      manager.navigateTo '/about'
 
-    $(".footer-blindfold").on "click", (event) ->
+    $('.footer-blindfold').on 'click', (event) ->
       event.preventDefault()
-      manager.navigateTo "/blindfold"
+      manager.navigateTo '/blindfold'

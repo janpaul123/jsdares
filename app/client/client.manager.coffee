@@ -1,5 +1,5 @@
-applet = require("../jsmm-applet")
-dares = require("../dares")
+applet = require('../jsmm-applet')
+dares = require('../dares')
 
 pageConstructors = [
   {regex: /^dare/, type: 'PageHome'},
@@ -16,12 +16,12 @@ pageConstructors = [
 module.exports = (client) ->
   class client.Manager
     constructor: ->
-      @$div = $("#content")
+      @$div = $('#content')
       @menu = new client.MenuHeader(this)
       @login = new client.Login(this)
       @sync = new client.Sync(this)
       @history = window.History
-      @history.Adapter.bind window, "statechange", _(@stateChange).bind(this)
+      @history.Adapter.bind window, 'statechange', _(@stateChange).bind(this)
       @loginData = window.jsdaresLoginData
       
       @modalUI = new applet.UI()
@@ -53,7 +53,7 @@ module.exports = (client) ->
     connectionError: (error) ->
       @login.showConnectionError()
       if console
-        console.error "Connection error: " + error
+        console.error 'Connection error: ' + error
 
     connectionSuccess: (response) ->
       @login.hideConnectionError()
@@ -69,21 +69,21 @@ module.exports = (client) ->
     addHistory: (url) ->
       @history.pushState null, null, url
 
-      _gaq.push ["_trackPageview", url] # Google Analytics
+      _gaq.push ['_trackPageview', url] # Google Analytics
 
     stateChange: ->
       state = @history.getState()
       @urlChange state.hash
 
     refresh: ->
-      document.title = "jsdares"
+      document.title = 'jsdares'
       @page.navigateTo @splitUrl
       @navigateDare @splitUrl
 
     urlChange: (url) ->
       @modalUI.closeModal()
 
-      url = (url || "/").substring(1)
+      url = (url || '/').substring(1)
 
       type = null
 
@@ -93,10 +93,10 @@ module.exports = (client) ->
           break
 
       unless type?
-        type = "PageHome"
-        url = ""
+        type = 'PageHome'
+        url = ''
 
-      @splitUrl = url.split("/")
+      @splitUrl = url.split('/')
 
       if @page == null || @page.type != type
         @removePage()
@@ -106,9 +106,9 @@ module.exports = (client) ->
       @refresh()
 
     navigateDare: (splitUrl) ->
-      if @splitUrl[@splitUrl.length - 2] is "dare"
+      if @splitUrl[@splitUrl.length - 2] is 'dare'
         @viewDare @splitUrl[@splitUrl.length - 1]
-      else @editDare @splitUrl[@splitUrl.length - 1]  if @splitUrl[@splitUrl.length - 2] is "edit"
+      else @editDare @splitUrl[@splitUrl.length - 1]  if @splitUrl[@splitUrl.length - 2] is 'edit'
 
     viewDare: (id) ->
       @dareId = id
@@ -127,4 +127,4 @@ module.exports = (client) ->
           new dares.Editor(this, @modalUI, dare)
 
     closeDareCallback: ->
-      @navigateTo "/" + @splitUrl.slice(0, -2).join("/")  if ["dare", "edit"].indexOf(@splitUrl[@splitUrl.length - 2] >= 0)
+      @navigateTo '/' + @splitUrl.slice(0, -2).join('/')  if ['dare', 'edit'].indexOf(@splitUrl[@splitUrl.length - 2] >= 0)

@@ -1,19 +1,19 @@
-dares = require("../dares")
+dares = require('../dares')
 
 module.exports = (client) ->
   class client.PageCreate
 
-    type: "PageCreate"
+    type: 'PageCreate'
 
     constructor: (delegate, $div) ->
       @delegate = delegate
-      @$div = $("<div class=\"create\"></div>")
+      @$div = $('<div class="create"></div>')
 
       $div.append @$div
 
-      $collectionMine = $("<div class=\"create-collection-mine\"></div>")
+      $collectionMine = $('<div class="create-collection-mine"></div>')
       @collectionMine = new dares.Collection(this, $collectionMine)
-      @collectionMine.addButton "<i class=\"icon icon-plus-sign\"></i> New", _(@newHandler).bind(this)
+      @collectionMine.addButton '<i class="icon icon-plus-sign"></i> New', _(@newHandler).bind(this)
       @$div.append $collectionMine
 
     remove: ->
@@ -22,14 +22,14 @@ module.exports = (client) ->
 
     navigateTo: (splitUrl) ->
       unless @delegate.getUserId()
-        @delegate.navigateTo "/"
+        @delegate.navigateTo '/'
       else
         @updateCollections()
 
     updateCollections: ->
       @delegate.getSync().getDaresAndInstancesByUserId @delegate.getUserId(), (dares) =>
         @collectionMine.update
-          title: "My created dares"
+          title: 'My created dares'
           dares: dares
         , @delegate.getUserId(), @delegate.getAdmin()
 
@@ -40,7 +40,7 @@ module.exports = (client) ->
       @editDare content._id
 
     viewDare: (id) ->
-      @delegate.navigateTo "/create/dare/" + id
+      @delegate.navigateTo '/create/dare/' + id
 
     editDare: (id) ->
-      @delegate.navigateTo "/create/edit/" + id
+      @delegate.navigateTo '/create/edit/' + id

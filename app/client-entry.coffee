@@ -1,2 +1,2 @@
 $ ->
-  require("./client").init()
+  require('./client').init()

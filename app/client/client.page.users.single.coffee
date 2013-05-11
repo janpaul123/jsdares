@@ -1,15 +1,15 @@
-applet = require("../jsmm-applet")
-dares = require("../dares")
+applet = require('../jsmm-applet')
+dares = require('../dares')
 
 module.exports = (client) ->
   class client.PageUsersSingle
 
-    type: "PageUsersSingle"
+    type: 'PageUsersSingle'
     
     constructor: (delegate, $div) ->
       @delegate = delegate
 
-      @$container = $("<div class=\"users-single\"></div>")
+      @$container = $('<div class="users-single"></div>')
       $div.append @$container
 
       @page = null
@@ -39,13 +39,13 @@ module.exports = (client) ->
       @user = user
       @username = username
 
-      $collectionPlayed = $("<div class=\"superheroes-collection-played\"></div>")
+      $collectionPlayed = $('<div class="superheroes-collection-played"></div>')
       @collectionPlayed = new dares.Collection(this, $collectionPlayed)
       @$div.append $collectionPlayed
       
-      $collectionMine = $("<div class=\"superheroes-collection-mine\"></div>")
+      $collectionMine = $('<div class="superheroes-collection-mine"></div>')
       @collectionMine = new dares.Collection(this, $collectionMine)
-      @collectionMine.addButton "<i class=\"icon icon-plus-sign\"></i> New", _(@newHandler).bind(this)
+      @collectionMine.addButton '<i class="icon icon-plus-sign"></i> New', _(@newHandler).bind(this)
       @$div.append $collectionMine
       
       @updateCollections()
@@ -53,18 +53,18 @@ module.exports = (client) ->
     remove: ->
       @collectionPlayed.remove()
       @collectionMine.remove()
-      @$div.html ""
+      @$div.html ''
 
     updateCollections: ->
       @delegate.getSync().getDaresAndInstancesPlayed @delegate.getUserId(), (dares) =>
         @collectionPlayed.update
-          title: "Played dares"
+          title: 'Played dares'
           dares: dares
         , @delegate.getUserId(), @delegate.getAdmin()
 
       @delegate.getSync().getDaresAndInstancesByUserId @delegate.getUserId(), (dares) =>
         @collectionMine.update
-          title: "My created dares"
+          title: 'My created dares'
           dares: dares
         , @delegate.getUserId(), @delegate.getAdmin()
 
@@ -73,10 +73,10 @@ module.exports = (client) ->
         @editDare content._id
 
     viewDare: (id) ->
-      @delegate.navigateTo "/superheroes/" + @username.toLowerCase() + "/dare/" + id
+      @delegate.navigateTo '/superheroes/' + @username.toLowerCase() + '/dare/' + id
 
     editDare: (id) ->
-      @delegate.navigateTo "/superheroes/" + @username.toLowerCase() + "/edit/" + id
+      @delegate.navigateTo '/superheroes/' + @username.toLowerCase() + '/edit/' + id
 
 
   class client.PageUsersOther
@@ -87,7 +87,7 @@ module.exports = (client) ->
       @user = user
       @username = username
 
-      $collectionTheirs = $("<div class=\"superheroes-collection-theirs\"></div>")
+      $collectionTheirs = $('<div class="superheroes-collection-theirs"></div>')
       @collectionTheirs = new dares.Collection this, $collectionTheirs
       @$div.append $collectionTheirs
 
@@ -95,17 +95,17 @@ module.exports = (client) ->
 
     remove: ->
       @collectionTheirs.remove()
-      @$div.html ""
+      @$div.html ''
 
     updateCollections: ->
       @delegate.getSync().getDaresAndInstancesByUserId @user._id, (dares) =>
         @collectionTheirs.update
-          title: "Dares by " + @user.screenname
+          title: 'Dares by ' + @user.screenname
           dares: dares
         , @delegate.getUserId()
 
     viewDare: (id) ->
-      @delegate.navigateTo "/superheroes/" + @username.toLowerCase() + "/dare/" + id
+      @delegate.navigateTo '/superheroes/' + @username.toLowerCase() + '/dare/' + id
 
     editDare: (id) ->
-      @delegate.navigateTo "/superheroes/" + @username.toLowerCase() + "/edit/" + id
+      @delegate.navigateTo '/superheroes/' + @username.toLowerCase() + '/edit/' + id

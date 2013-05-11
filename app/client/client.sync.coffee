@@ -1,5 +1,3 @@
-#jshint node:true jquery:true
-"use strict"
 module.exports = (client) ->
   class client.Sync
 
@@ -12,71 +10,71 @@ module.exports = (client) ->
       @clearPostTimeout()
 
     getCollection: (_id, success) ->
-      @apiGet "collection", {_id}, success
+      @apiGet 'collection', {_id}, success
 
     getCollectionAndDaresAndInstances: (_id, success) ->
-      @apiGet "collectionAndDaresAndInstances", {_id}, success
+      @apiGet 'collectionAndDaresAndInstances', {_id}, success
 
     getDare: (_id, success) ->
-      @apiGet "dare", {_id}, success
+      @apiGet 'dare', {_id}, success
 
     getDareAndInstance: (_id, success) ->
-      @apiGet "dareAndInstance", {_id}, success
+      @apiGet 'dareAndInstance', {_id}, success
 
     getDareEdit: (_id, success) ->
-      @apiGet "dareEdit", {_id}, success
+      @apiGet 'dareEdit', {_id}, success
 
     getDaresAndInstancesByUserId: (userId, success) ->
-      @apiGet "daresAndInstancesByUserId", {userId}, success
+      @apiGet 'daresAndInstancesByUserId', {userId}, success
 
     getDaresAndInstancesPlayed: (userId, success) ->
-      @apiGet "daresAndInstancesPlayed", {userId}, success
+      @apiGet 'daresAndInstancesPlayed', {userId}, success
 
     getDaresAndInstancesAll: (success) ->
-      @apiGet "daresAndInstancesAll", {}, success
+      @apiGet 'daresAndInstancesAll', {}, success
 
     getUserByUsername: (username, success) ->
-      @apiGet "userByUsername", {username}, success
+      @apiGet 'userByUsername', {username}, success
 
     getUsersAll: (success) ->
-      @apiGet "usersAll", {}, success
+      @apiGet 'usersAll', {}, success
 
     updateProgram: (instance) ->
-      @apiPostDelayed "program", instance
+      @apiPostDelayed 'program', instance
 
     updateInstance: (instance, success) ->
-      @apiPost "instance", instance, success
+      @apiPost 'instance', instance, success
 
     createDare: (success, error) ->
-      @apiPost "dareCreate", {}, success, error
+      @apiPost 'dareCreate', {}, success, error
 
     updateDare: (dare, success, error) ->
-      @apiPost "dareEdit", dare, success, error
+      @apiPost 'dareEdit', dare, success, error
 
     register: (username, password, email, success, error) ->
-      @apiPost "register", {username, password, email}, success, error
+      @apiPost 'register', {username, password, email}, success, error
 
     login: (username, password, error) ->
-      @apiPost "login", {username, password}, `undefined`, error
+      @apiPost 'login', {username, password}, `undefined`, error
 
     logout: ->
-      @apiPost "logout"
+      @apiPost 'logout'
 
     checkUsername: (username, success, error) ->
-      @apiGet "checkUsername", {username}, success, error
+      @apiGet 'checkUsername', {username}, success, error
 
     checkEmail: (email, success, error) ->
-      @apiGet "checkEmail", {email}, success, error
+      @apiGet 'checkEmail', {email}, success, error
 
     getLoginData: ->
-      @apiGet "loginData"
+      @apiGet 'loginData'
 
     apiGet: (name, data, success, error) ->
       $.ajax
-        url: "/api/get/" + name
-        type: "get"
+        url: '/api/get/' + name
+        type: 'get'
         data: data || {}
-        dataType: "json"
+        dataType: 'json'
         success: (response) =>
           @delegate.updateLoginData response.loginData  if response.loginData
           if success
@@ -91,11 +89,11 @@ module.exports = (client) ->
 
     apiPost: (name, data, success, error) ->
       $.ajax
-        url: "/api/post/" + name
-        type: "post"
+        url: '/api/post/' + name
+        type: 'post'
         data: JSON.stringify(data || {})
-        contentType: "application/json; charset=utf-8"
-        dataType: "json"
+        contentType: 'application/json; charset=utf-8'
+        dataType: 'json'
         success: (response) =>
           @delegate.updateLoginData response.loginData  if response.loginData
           if success
