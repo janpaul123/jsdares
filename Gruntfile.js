@@ -13,7 +13,7 @@ module.exports = function(grunt) {
 			all: {
 				files: [{
 					expand: true,
-					cwd: 'src',
+					cwd: 'app',
 					src: '**',
 					dest: 'dist'
 				}]
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
 
 		less: {
 			client: {
-				src: 'src/client/index.less',
+				src: 'app/client/index.less',
 				dest: 'dist/assets/index.css'
 			}
 		},
@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 		coffee: {
 			all: {
 				expand: true,
-				cwd: 'src',
+				cwd: 'app',
 				src: ['**/*.coffee'],
 				dest: 'dist',
 				// ext: '.js' doesn't work because of grunt crazyness: https://github.com/gruntjs/grunt/pull/625
@@ -56,17 +56,17 @@ module.exports = function(grunt) {
 
 		regarde: {
 			scripts: {
-				files: ['src/**/*.js', 'src/**/*.json', 'src/**/*.coffee'],
+				files: ['app/**/*.js', 'app/**/*.json', 'app/**/*.coffee'],
 				tasks: ['copy', 'coffee', 'browserify', 'express-restart']
 			},
 
 			styles: {
-				files: ['src/**/*.less', 'src/**/*.css'],
+				files: ['app/**/*.less', 'app/**/*.css'],
 				tasks: ['less', 'livereload']
 			},
 
 			assets: {
-				files: ['src/assets/**'],
+				files: ['app/assets/**'],
 				tasks: ['copy', 'livereload']
 			}
 		},
