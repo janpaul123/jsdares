@@ -140,7 +140,7 @@ module.exports = (client) ->
 
         for user in users
           if user.screenname != 'JanPaul123'
-            $button = $('<button class="btn"><i class="icon icon-user"></i> ' + user.screenname + '</button>')
+            $button = $("""<button class="btn"><i class="icon icon-user"></i> #{user.screenname}</button>""")
             $button.on 'click', => @delegate.navigateTo '/superheroes/' + user.link
             @$superheroes.append $button
 

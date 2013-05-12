@@ -18,7 +18,7 @@ module.exports = (client) ->
 
       for menuItem, i in menu
         $tab = $('<li></li>')
-        $link = $('<a href="#">' + menuItem.title + ' </a>')
+        $link = $("""<a href="#">#{menuItem.title} </a>""")
         $lock = $('<i class="icon icon-lock-color hide"></i>')
         $link.append $lock
         $tab.append $link

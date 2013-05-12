@@ -10,10 +10,10 @@ class MoviePlayer
     @$div.addClass 'movie-player'
 
     if 'ontouchstart' of document.documentElement
-      @$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="287" height="165" frameborder="0"></iframe>')
+      @$iframe = $("""<iframe class="movie-player-iframe" id="movie-player-iframe-#{id}" src="http://player.vimeo.com/video/#{id}?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-#{id}" width="287" height="165" frameborder="0"></iframe>""")
       @$div.addClass 'movie-player-touch'
     else
-      @$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="485" height="278" frameborder="0"></iframe>')
+      @$iframe = $("""<iframe class="movie-player-iframe" id="movie-player-iframe-#{id}" src="http://player.vimeo.com/video/#{id}?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-#{id}" width="485" height="278" frameborder="0"></iframe>""")
       @player = $f(@$iframe[0])
 
       $picture = $('<img src="' + picturePath + '"></img>')
