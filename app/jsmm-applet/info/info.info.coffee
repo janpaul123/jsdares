@@ -65,7 +65,7 @@ module.exports = (info) ->
     infoTable.addGlobalEvent $canvas, 'mousedown', canvasEventWrapper($canvas, canvas.onmousedown) if canvas.onmousedown?
     infoTable.addGlobalEvent $canvas, 'mouseup', canvasEventWrapper($canvas, canvas.onmouseup) if canvas.onmouseup?
     
-    if canvas.onmousedown? or canvas.onmouseup?
+    if canvas.onmousedown? || canvas.onmouseup?
       $canvas.addClass 'info-table-content-clickable'
       infoTable.addGlobalEvent $canvas, 'click', (e) ->
         e.stopPropagation()
@@ -79,7 +79,7 @@ module.exports = (info) ->
     $container = $('<div class="robot-container info-table-content-container"></div>')
     $wrapper.append $container
     
-    state = state or '{"columns":4,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":0,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":0}'
+    state = state || '{"columns":4,"rows":4,"initialX":1,"initialY":3,"initialAngle":90,"mazeObjects":0,"verticalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"horizontalActive":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"blockGoal":[[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]],"numGoals":0}'
     rob = new robot.Robot($container, true, 48, state)
     rob.insertDelay 100000
     
@@ -163,7 +163,7 @@ module.exports = (info) ->
     renderHighlights: ->
       @removeHighlights()
       nodeIds = @nodeIds
-      if @scopeTracker? and nodeIds
+      if @scopeTracker? && nodeIds
         for nodeId in nodeIds
           highlightIds = @scopeTracker.getHighlightIdsByNodeId nodeId
           for highlightId in highlightIds
@@ -231,7 +231,7 @@ module.exports = (info) ->
 
     mouseMove: (event) ->
       event.stopPropagation()
-      if @highlighting and @commandTracker?
+      if @highlighting && @commandTracker?
         @removeHighlights()
         $target = $(event.delegateTarget)
         if $target.data('id')?
@@ -316,7 +316,7 @@ module.exports = (info) ->
     renderHighlights: ->
       @removeHighlights()
       nodeIds = @nodeIds
-      if @commandTracker? and nodeIds
+      if @commandTracker? && nodeIds
         for nodeId in nodeIds
           highlightIds = @commandTracker.getHighlightIdsByTopNodeId(nodeId)
           for highlightId in highlightIds
@@ -398,7 +398,7 @@ module.exports = (info) ->
       @$tables.find('.info-table-item-highlight').removeClass 'info-table-item-highlight'
 
     mouseMove: (event) ->
-      if @highlighting and @commandTracker?
+      if @highlighting && @commandTracker?
         @removeHighlights()
         $target = $(event.delegateTarget)
         if $target.data('id')?
@@ -500,7 +500,6 @@ module.exports = (info) ->
         filter = []
 
         for command in commands
-          command = commands[i]
           matches = regex.exec(command)
           id = matches[1]
           example = matches[4]
