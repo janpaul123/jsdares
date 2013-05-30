@@ -59,7 +59,7 @@ module.exports = (client) ->
       @login.hideConnectionError()
 
     updateLoginData: (loginData) ->
-      if @loginData.loggedIn isnt loginData.loggedIn
+      if @loginData.loggedIn != loginData.loggedIn
         @loginData = loginData # already do this here for if the page requests it
         @refresh()
       @loginData = loginData

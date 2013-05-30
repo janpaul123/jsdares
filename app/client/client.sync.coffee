@@ -97,12 +97,12 @@ module.exports = (client) ->
         success: (response) =>
           @delegate.updateLoginData response.loginData  if response.loginData
           if success
-            @delegate.connectionSuccess response  if success(response) isnt false
+            @delegate.connectionSuccess response  if success(response) != false
           else
             @delegate.connectionSuccess response
         error: (message) =>
           if error
-            @delegate.connectionError message  if error(message) isnt false
+            @delegate.connectionError message  if error(message) != false
           else
             @delegate.connectionError message
 

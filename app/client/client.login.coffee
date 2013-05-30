@@ -116,21 +116,21 @@ module.exports = (client) ->
       @register = new client.Register(this, @delegate.getSync(), @$username.val(), @$password.val())  unless @register
 
     registerClosed: ->
-      @register = `undefined`
+      @register = null
 
     setTimeout: (time) ->
-      window.clearTimeout @timeout  if @timeout isnt null
-      @timeout = window.setTimeout(_(->
+      window.clearTimeout @timeout if @timeout?
+      @timeout = window.setTimeout (=>
         @timeout = null
         @delegate.getSync().getLoginData()
-      ).bind(this), time)
+      ), time
 
     showConnectionError: ->
-      @$connectionError.removeClass 'hide'  if @$connectionError
-      @$invalid.addClass 'hide'  if @$invalid
+      @$connectionError.removeClass 'hide' if @$connectionError
+      @$invalid.addClass 'hide' if @$invalid
 
     hideConnectionError: ->
-      @$connectionError.addClass 'hide'  if @$connectionError
+      @$connectionError.addClass 'hide' if @$connectionError
 
   class client.Register
     constructor: (delegate, sync, username, password) ->
