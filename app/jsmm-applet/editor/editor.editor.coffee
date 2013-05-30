@@ -76,9 +76,9 @@ module.exports = (editor) ->
       for eventHandler in @eventHandlers
         eventHandler[funcName].apply eventHandler, [].slice.call(arguments, 1)
 
-    callOutputs: (funcName) ->
+    callOutputs: (funcName, args...) ->
       for outputName of @outputs
-        @outputs[outputName][funcName].apply @outputs[outputName], [].slice.call(arguments, 1)  if @outputs[outputName][funcName] isnt `undefined`
+        @outputs[outputName][funcName]?.apply @outputs[outputName], args
 
     enable: ->
       @surface.enable()
@@ -295,7 +295,7 @@ module.exports = (editor) ->
       
       changeOffset = newText.length - (column2 - column)
       
-      if changeOffset isnt 0
+      if changeOffset != 0
         for editable in @editablesByLine[line]
           editable.offsetColumn column, changeOffset
 
