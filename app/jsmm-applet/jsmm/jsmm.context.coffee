@@ -1,4 +1,5 @@
 module.exports = (jsmm) ->
+
   class jsmm.CommandTracker
 
     constructor: ->
@@ -32,39 +33,39 @@ module.exports = (jsmm) ->
 
     logScope: (stepNum, node, data) ->
       switch data.type
-        when "assignment"
+        when 'assignment'
           obj = data.scope.find(data.name)
           if obj?
             if data.scope.parent? and data.scope.vars[data.name]?
               @addAssignment stepNum, node, @scopes.length - 1, data.name, jsmm.stringify(obj.value, data.scope), true
             else
               @addAssignment stepNum, node, 0, data.name, jsmm.stringify(obj.value, data.scope), true
-        when "return"
+        when 'return'
           @calls.push
-            type: "return"
+            type: 'return'
             stepNum: stepNum
-        when "enter"
+        when 'enter'
           @scopes.push {}
           @calls.push
-            type: "enter"
+            type: 'enter'
             stepNum: stepNum
             name: data.name
             position: @scopes.length - 1
 
           for name of data.scope.vars
-            @addAssignment stepNum, node, @scopes.length - 1, name, jsmm.stringify(data.scope.vars[name].value, data.scope), data.name != "global"
+            @addAssignment stepNum, node, @scopes.length - 1, name, jsmm.stringify(data.scope.vars[name].value, data.scope), data.name != 'global'
 
     getState: (stepNum) ->
       stack = []
       for call in @calls
         break if call.stepNum > stepNum
         switch call.type
-          when "assignment"
+          when 'assignment'
             level = stack[(if call.position is 0 then 0 else stack.length - 1)]
             scope = level.scope
             unless scope[call.name]?
               scope[call.name] =
-                id: call.position + "-" + call.name
+                id: call.position + '-' + call.name
                 name: call.name
                 value: call.value
 
@@ -72,18 +73,18 @@ module.exports = (jsmm) ->
             scope[call.name].value = call.value
             if call.stepNum == stepNum
               scope[call.name].highlight = true
-          when "return"
+          when 'return'
             stack.pop()
-          when "enter"
+          when 'enter'
             stack.push
-              id: "" + call.position
+              id: '' + call.position
               name: call.name
               names: []
               scope: {}
       stack
 
     getHighlightNodeIdsById: (id) ->
-      split = id.split("-")
+      split = id.split('-')
       return [] if split.length < 2
       scope = @scopes[split[0]]
       return [] unless scope?
@@ -99,9 +100,9 @@ module.exports = (jsmm) ->
         @scopes[position][name][node.id] = true
         topNodeId = node.getTopNode().id
         @nodeIds[topNodeId] ?= []
-        @nodeIds[topNodeId].push position + "-" + name
+        @nodeIds[topNodeId].push position + '-' + name
       @calls.push
-        type: "assignment"
+        type: 'assignment'
         stepNum: stepNum
         position: position
         name: name
@@ -109,22 +110,22 @@ module.exports = (jsmm) ->
 
   class jsmm.Array
 
-    type: "array"
-    string: "[array]"
+    type: 'array'
+    string: '[array]'
 
     constructor: (values) ->
       @values = []
       for value, i in values
         @values[i] =
-          type: "local"
+          type: 'local'
           value: value
 
       that = this
       @properties = length:
-        name: "length"
-        info: "array.length"
-        type: "variable"
-        example: "length"
+        name: 'length'
+        info: 'array.length'
+        type: 'variable'
+        example: 'length'
         get: @getLength
         set: @setLength
 
@@ -137,17 +138,17 @@ module.exports = (jsmm) ->
     getArrayValue: (index) ->
       if index < @values.length
         @values[index] ?=
-          type: "local"
+          type: 'local'
           value: `undefined`
         @values[index]
       else
-        type: "newArrayValue"
+        type: 'newArrayValue'
         array: this
         index: index
 
     setArrayValue: (index, value) ->
       @values[index] =
-        type: "local"
+        type: 'local'
         value: value
 
     getCopy: ->
@@ -165,16 +166,16 @@ module.exports = (jsmm) ->
       @arrays = []
       @functions = {}
 
-      for name, var of vars
+      for name, variable of vars
         @vars[name] =
-          type: "local"
-          value: var
+          type: 'local'
+          value: variable
 
-        if typeof var == "object" && var.type == "arrayPointer"
-          @addArrayItems copyScope, var.id 
+        if typeof variable == 'object' && variable.type == 'arrayPointer'
+          @addArrayItems copyScope, variable.id 
         
-        if typeof var == "object" && var.type == "functionPointer"
-          @functions[var.name] = copyScope.functions[var.name] 
+        if typeof variable == 'object' && variable.type == 'functionPointer'
+          @functions[variable.name] = copyScope.functions[variable.name] 
 
       @parent = parent || null
 
@@ -185,22 +186,21 @@ module.exports = (jsmm) ->
     addArrayItems: (copyScope, id) ->
       @arrays[id] = copyScope.arrays[id].getCopy()
       for value in copyScope.arrays[id].values
-        if value? && typeof value.value == "object" && value.value.type == "arrayPointer"
-        @addArrayItems copyScope, value.value.id
+        if value? && typeof value.value == 'object' && value.value.type == 'arrayPointer'
+          @addArrayItems copyScope, value.value.id
 
     find: (name) ->
       scope = this
-      loop
+      while scope?
         return scope.vars[name] if scope.vars[name]?
         scope = scope.parent
-        break unless scope?
       `undefined`
 
     getCopy: ->
       vars = {}
       arrays = []
-      for name, var of @vars
-        vars[name] = var.value
+      for name, variable of @vars
+        vars[name] = variable.value
       new jsmm.Scope(vars, @parent, @topParent)
 
     registerArray: (array) ->
@@ -216,39 +216,40 @@ module.exports = (jsmm) ->
     declareFunction: (name, func) ->
       @topParent.functions[name] = func
       @vars[name] =
-        type: "local"
+        type: 'local'
         value:
-          type: "functionPointer"
+          type: 'functionPointer'
           name: name
-          string: "[function " + name + "]"
+          string: "[function #{name}]"
 
     getFunction: (name) ->
       @topParent.functions[name]
 
   
   # scope is optional, only for verbose output, such as content of arrays
-  jsmm.stringify = (value, scope) ->
-    if value is `undefined`
-      "undefined"
-    else if scope isnt `undefined` and typeof value is "object" and value.type is "arrayPointer"
+  jsmm.stringify = (value, scope=null) ->
+    if value == `undefined`
+      'undefined'
+    else if scope? && typeof value == 'object' && value.type == 'arrayPointer'
       scope.getArray(value.id).serialize scope
-    else if typeof value is "object"
+    else if typeof value == 'object'
       value.string
     else
       JSON.stringify value
 
-  jsmm.Context = ->
-    @init.apply this, arguments
 
-  jsmm.Context:: =
-    init: (tree, scope, limits) ->
+  class jsmm.Context
+
+    constructor: (tree, scope, limits) ->
       @tree = tree
       @scope = scope
       @scopeStack = [@scope]
       @startScope = scope.getCopy()
+      
       @limits = limits
       @executionCounter = 0
       @costCounter = 0
+      
       @steps = []
       @callStackNodes = []
       @callIdsByNodeIds = {}
@@ -258,9 +259,8 @@ module.exports = (jsmm) ->
       @callNodeId = null
       @callId = null
       @error = null
-
     
-    #/ OUTPUT FUNCTIONS ///
+    ## OUTPUT FUNCTIONS ##
     getCallNodeId: ->
       @callNodeId
 
@@ -274,39 +274,41 @@ module.exports = (jsmm) ->
       @scopeTracker
 
     throwTimeout: (nodeId) ->
-      throw new jsmm.msg.Error(nodeId or @callNodeId, "Program takes too long to run")
-
+      throw new jsmm.msg.Error nodeId || @callNodeId,
+        'Program takes too long to run'
     
-    #/ TREE/RUNNER FUNCTIONS ///
+    ## TREE/RUNNER FUNCTIONS ##
     run: (funcName, args) ->
       @scopeTracker.logScope -1, @tree.programNode,
-        type: "enter"
+        type: 'enter'
         scope: @scope
-        name: "global"
+        name: 'global'
 
-      func = undefined
-      if funcName isnt `undefined`
+      if funcName?
         func = @scope.getFunction(funcName)
-        if func is `undefined`
-          @error = new jsmm.msg.Error(0, "Function <var>" + funcName + "</var> could not be found")
+        unless func?
+          @error = new jsmm.msg.Error 0,
+            "Function <var>#{funcName}</var> could not be found"
           @pushStep @error
           return
         @isFunctionContext = true
       else
         func = @tree.programNode.getRunFunction()
         @isFunctionContext = false
+
       try
         func this, args
       catch error
-        if error.type is "Error"
+        if error.type == 'Error'
           @error = error
         else
-          @error = new jsmm.msg.Error(0, "An unknown error has occurred", error)
-          throw error  if jsmm.debug
+          @error = new jsmm.msg.Error 0,
+            'An unknown error has occurred', error
+          throw error if jsmm.debug
         @pushStep @error
 
     hasError: ->
-      @error isnt null
+      @error?
 
     getError: ->
       @error
@@ -322,90 +324,83 @@ module.exports = (jsmm) ->
 
     getCallIdsByNodeIds: (nodeIds) ->
       callIds = {}
-      i = 0
-
-      while i < nodeIds.length
-        id = nodeIds[i]
-        if @callIdsByNodeIds[id] isnt `undefined`
-          j = 0
-
-          while j < @callIdsByNodeIds[id].length
-            callIds[@callIdsByNodeIds[id][j]] = true
-            j++
-        i++
+      for nodeId in nodeIds
+        if @callIdsByNodeIds[nodeId]?
+          for callId in @callIdsByNodeIds[nodeIds]
+            callIds[callId] = true
       Object.keys callIds
 
     getNodeIdByStepNum: (stepNum) ->
-      @steps[stepNum].nodeId  unless stepNum >= @steps.length
+      if stepNum >= @steps.length
+        0
+      else
+        @steps[stepNum].nodeId
 
-    
-    #/ JS-- PROGRAM FUNCTIONS ///
+    ## JS-- PROGRAM FUNCTIONS ##
     enterCall: (node) ->
       @callStackNodes.push node
-      
-      #throw new jsmm.msg.Error(node.id, 'Too many nested function calls have been made already, perhaps there is infinite recursion somewhere');
-      @throwTimeout node.id  if @callStackNodes.length > @limits.callStackDepth
+      if @callStackNodes.length > @limits.callStackDepth
+        @throwTimeout node.id
 
     leaveCall: ->
       @callStackNodes.pop()
 
     enterFunction: (node, vars, fullName) ->
-      @scope = new jsmm.Scope(vars, @scopeStack[0])
+      @scope = new jsmm.Scope vars, @scopeStack[0]
       @scopeStack.push @scope
       @scopeTracker.logScope @getStepNum(), node,
-        type: "enter"
+        type: 'enter'
         scope: @scope
         name: fullName
-
       @calledFunctions.push node.name
 
     leaveFunction: (node) ->
       @scopeStack.pop()
-      @scope = @scopeStack[@scopeStack.length - 1]
+      @scope = _.last(@scopeStack)
       @scopeTracker.logScope @getStepNum(), node,
-        type: "return"
+        type: 'return'
         scope: @scope
-
 
     addAssignment: (node, name) ->
       @scopeTracker.logScope @getStepNum(), node,
-        type: "assignment"
+        type: 'assignment'
         scope: @scope
         name: name
-
 
     externalCall: (node, funcValue, args) ->
       @callNodeId = node.id
       @callId = node.id
-      i = 0
 
-      while i < @callStackNodes.length
-        @callId += "-" + @callStackNodes[i].getTopNode().id
-        i++
-      i = 0
-      while i < @callStackNodes.length
-        nodeId = @callStackNodes[i].getTopNode().id
-        @callIdsByNodeIds[nodeId] = []  if @callIdsByNodeIds[nodeId] is `undefined`
-        @callIdsByNodeIds[nodeId].push @callId  if @callIdsByNodeIds[nodeId].indexOf(@callId) < 0
-        i++
-      @costCounter += funcValue.cost or 1
-      @throwTimeout node.id  if @costCounter > @limits.costCounter
+      for callStackNode in @callStackNodes
+        nodeId = callStackNode.getTopNode().id
+        @callId += '-' + nodeId
+
+
+      for callStackNode in @callStackNodes
+        nodeId = callStackNode.getTopNode().id
+        @callIdsByNodeIds[nodeId] ?= []
+        @callIdsByNodeIds[nodeId].push @callId unless @callId in @callIdsByNodeIds[nodeId]
+
+      @costCounter += funcValue.cost || 1
+      if @costCounter > @limits.costCounter
+        @throwTimeout node.id
+
       try
         return funcValue.func.call(null, this, funcValue.name, args)
       catch error
-        
         # augmented functions should do their own error handling, so wrap the resulting strings in jsmm messages
-        if typeof error is "string"
+        if typeof error is 'string'
           throw new jsmm.msg.Error(node.id, error)
         else
           throw error
 
     inFunction: ->
-      @isFunctionContext or @callStackNodes.length > 0
+      @isFunctionContext || @callStackNodes.length > 0
 
     increaseExecutionCounter: (node, amount) ->
       @executionCounter += amount
-      @throwTimeout node.id  if @executionCounter > @limits.executionCounter
+      if @executionCounter > @limits.executionCounter
+        @throwTimeout node.id
 
     pushStep: (step) ->
       @steps.push step

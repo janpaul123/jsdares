@@ -1,12 +1,9 @@
-#jshint node:true
-"use strict"
 module.exports = (jsmm) ->
-  jsmm.SimpleRunner = ->
-    @init.apply this, arguments
 
-  jsmm.SimpleRunner:: =
-    init: (scope, options) ->
-      @options = options or {}
+  class jsmm.SimpleRunner
+
+    constructor: (scope, options) ->
+      @options = options || {}
       @scope = new jsmm.Scope(scope)
       @error = null
       @context = null
@@ -18,10 +15,11 @@ module.exports = (jsmm) ->
       else
         @context = new jsmm.Context(tree, @scope, jsmm.defaultLimits.base)
         @context.run()
-        @error = @context.getError()  if @context.hasError()
+        if @context.hasError()
+          @error = @context.getError()
 
     hasError: ->
-      @error isnt null
+      @error?
 
     getError: ->
       @error
@@ -32,15 +30,14 @@ module.exports = (jsmm) ->
     getContext: ->
       @context
 
-  jsmm.Event = ->
-    @init.apply this, arguments
+  
+  class jsmm.Event
 
-  jsmm.Event:: =
-    init: (runner, type, funcName, args) ->
+    constructor: (runner, type, funcName, args) ->
       @runner = runner
       @type = type
-      @funcName = funcName or `undefined`
-      @args = args or []
+      @funcName = funcName || null
+      @args = args || []
       @context = null
 
     run: (tree, scope, limits) ->
@@ -49,148 +46,150 @@ module.exports = (jsmm) ->
       @context.run @funcName, @args
       @runner.delegate.endEvent @context
 
-  jsmm.Runner = ->
-    @init.apply this, arguments
 
-  jsmm.Runner:: =
-    init: (delegate, scope, limits) ->
+  class jsmm.Runner
+
+    constructor: (delegate, scope, limits) ->
       @delegate = delegate
       @scope = new jsmm.Scope(scope)
       @exampleScope = @scope
-      @limits = limits or jsmm.defaultLimits
+      @limits = limits || jsmm.defaultLimits
+
       @tree = null
-      @baseEvent = new jsmm.Event(this, "base")
+      @baseEvent = new jsmm.Event(this, 'base')
       @events = [@baseEvent]
       @eventNum = 0
       @stepNum = Infinity
       @runScope = null
       @errorEventNums = []
+
       @paused = false
       @interactive = false
       @enabled = false
       @baseCodeChanged = false
-      @interactiveSignature = ""
+      @interactiveSignature = ''
 
     selectBaseEvent: ->
-      if @events.length isnt 1 or @eventNum isnt 0 or @events[0] isnt @baseEvent
+      if @events.length != 1 || @eventNum != 0 || @events[0] != @baseEvent
         @events = [@baseEvent]
         @stepNum = Infinity
+
       @eventNum = 0
       @interactive = false
       @paused = false
       @baseCodeChanged = false
-      @interactiveSignature = ""
+      @interactiveSignature = ''
       @errorEventNums = []
       @delegate.clearReload()
       @delegate.clearAllEvents()
       @baseEvent.run @tree, @scope.getCopy(), @limits.base
       @runScope = @baseEvent.context.getBaseScope().getCopy()
+
       if @baseEvent.context.hasError()
         @errorEventNums.push 0
         @paused = true
       else
         @exampleScope = @runScope
+
       @updateStepping()
       @delegate.runnerChanged()
 
     canReceiveEvents: ->
-      @enabled and not @isStatic() and not @hasError()
+      @enabled && !@isStatic() && !@hasError()
 
     isStatic: ->
-      not @interactive or @paused or @isStepping()
+      !@interactive || @paused || @isStepping()
 
     addEvent: (type, funcName, args) ->
-      unless @canReceiveEvents()
-        false
+      return false unless @canReceiveEvents()
+      
+      event = new jsmm.Event(this, type, funcName, args)
+      event.run @tree, @runScope, @limits.event
+      @runScope = event.context.getBaseScope().getCopy()
+      
+      @eventNum = @events.length
+      @events.push event
+      if @events.length > @limits.history
+        @events.shift()
+        @eventNum--
+        @delegate.popFirstEvent()
+      if event.context.hasError()
+        @errorEventNums.push @events.length - 1
+        @paused = true
+        @delegate.runnerChanged()
       else
-        event = new jsmm.Event(this, type, funcName, args)
-        event.run @tree, @runScope, @limits.event
-        @runScope = event.context.getBaseScope().getCopy()
-        @eventNum = @events.length
-        @events.push event
-        if @events.length > @limits.history
-          @events.shift()
-          @eventNum--
-          @delegate.popFirstEvent()
-        if event.context.hasError()
-          @errorEventNums.push @events.length - 1
-          @paused = true
-          @delegate.runnerChanged()
-        else
-          @exampleScope = @runScope
-          @delegate.runnerChangedEvent()
-        true
+        @exampleScope = @runScope
+        @delegate.runnerChangedEvent()
+      true
 
     newTree: (tree) ->
       @tree = tree
-      if @baseEvent.context isnt null
-        if @tree.compareAll(@baseEvent.context)
-          if @interactive
-            @errorEventNums = []
-            if not @paused or @eventNum < 0
-              
-              # don't check if only functions have changed here, as when the base code is changed,
-              # the base event should also be invalidated
-              @delegate.clearEventsToEnd()
-              @events = []
-              @eventNum = -1
-              @stepNum = Infinity
+      return @selectBaseEvent() unless @baseEvent.context?
+
+      if @tree.compareAll(@baseEvent.context)
+        return @selectBaseEvent() unless @interactive
+        
+        @errorEventNums = []
+        if !@paused || @eventNum < 0
+          # don't check if only functions have changed here, as when the base code == changed,
+          # the base event should also be invalidated
+          @delegate.clearEventsToEnd()
+          @events = []
+          @eventNum = -1
+          @stepNum = Infinity
+          @tree.programNode.getFunctionFunction() @runScope
+          
+          if @tree.compareBase(@baseEvent.context)
+            @baseCodeChanged = true
+        else
+          if @events[0] == @baseEvent
+            oldSignature = @interactiveSignature
+            @delegate.clearAllEvents()
+            @baseEvent.run @tree, @scope.getCopy(), @limits.base
+            @runScope = @baseEvent.context.getBaseScope().getCopy()
+            if @baseEvent.context.hasError()
+              @errorEventNums.push 0
+              # when there was an error, functions may not have been declared
               @tree.programNode.getFunctionFunction() @runScope
-              @baseCodeChanged = true  if @tree.compareBase(@baseEvent.context)
+              @baseCodeChanged = false
             else
-              start = undefined
-              if @events[0] is @baseEvent
-                oldSignature = @interactiveSignature
-                @delegate.clearAllEvents()
-                @baseEvent.run @tree, @scope.getCopy(), @limits.base
-                @runScope = @baseEvent.context.getBaseScope().getCopy()
-                if @baseEvent.context.hasError()
-                  @errorEventNums.push 0
-                  
-                  # when there was an error, functions may not have been declared
-                  @tree.programNode.getFunctionFunction() @runScope
-                  @baseCodeChanged = false
-                else
-                  @exampleScope = @runScope
-                  @baseCodeChanged = (oldSignature isnt @interactiveSignature)
-                  @interactiveSignature = oldSignature # restore it for future comparisons
-                start = 1
-              else if @tree.compareFunctions(@baseEvent.context)
-                @delegate.clearEventsFrom 0
-                @runScope = @events[0].context.getStartScope().getCopy()
-                @tree.programNode.getFunctionFunction() @runScope
-                start = 0
-                @baseCodeChanged = true  if @tree.compareBase(@baseEvent.context)
-              else
-                start = Infinity
-                @baseCodeChanged = true
-              i = start
+              @exampleScope = @runScope
+              @baseCodeChanged = (oldSignature != @interactiveSignature)
+              @interactiveSignature = oldSignature # restore it for future comparisons
+            start = 1
+          else if @tree.compareFunctions(@baseEvent.context)
+            @delegate.clearEventsFrom 0
+            @runScope = @events[0].context.getStartScope().getCopy()
+            @tree.programNode.getFunctionFunction() @runScope
+            start = 0
 
-              while i < @events.length
-                @events[i].run @tree, @runScope, @limits.event
-                @runScope = @events[i].context.getBaseScope().getCopy()
-                if @events[i].context.hasError()
-                  @errorEventNums.push i
-                else
-                  @exampleScope = @runScope
-                i++
-              @updateStepping()
+            if @tree.compareBase(@baseEvent.context)
+              @baseCodeChanged = true
           else
-            @selectBaseEvent()
-            return
-        @baseEvent.context.tree = @tree
-        @delegate.runnerChanged()
-      else
-        @selectBaseEvent()
+            start = Infinity
+            @baseCodeChanged = true
 
+          for i in [start...@events.length]
+            event = @events[i]
+            event.run @tree, @runScope, @limits.event
+            @runScope = event.context.getBaseScope().getCopy()
+            if event.context.hasError()
+              @errorEventNums.push i
+            else
+              @exampleScope = @runScope
+
+          @updateStepping()
+
+      @baseEvent.context.tree = @tree
+      @delegate.runnerChanged()
     
-    #/ EVENTS ///
+    ## EVENTS ##
     play: ->
       @paused = false
       @stepNum = Infinity
       if @eventNum < @events.length - 1
         @runScope = @events[@eventNum + 1].context.getStartScope().getCopy()
-        @events = @events.slice(0, @eventNum + 1)
+        @events = @events[0..@eventNum]
         @delegate.clearEventsFrom @eventNum + 1
       @delegate.runnerChanged()
 
@@ -199,7 +198,7 @@ module.exports = (jsmm) ->
       @delegate.runnerChanged()
 
     reload: ->
-      @stepNum = Infinity  if @stepNum isnt Infinity
+      @stepNum = Infinity
       @selectBaseEvent()
 
     isPaused: ->
@@ -215,37 +214,36 @@ module.exports = (jsmm) ->
       @eventNum
 
     setEventNum: (eventNum) ->
-      if eventNum >= 0 and eventNum < @events.length
+      if 0 <= eventNum < @events.length
         @eventNum = eventNum
         @step = Infinity
       @delegate.runnerChanged()
 
     getEventType: ->
-      if @eventNum < 0
-        ""
-      else
+      if @eventNum >= 0
         @events[@eventNum].type
+      else
+        ''
 
     isBaseEventSelected: ->
-      @eventNum is 0 and @events[0] is @baseEvent
+      @eventNum == 0 && @events[0] == @baseEvent
 
-    
-    #/ STEPPING ///
+    ## STEPPING ##
     isStepping: ->
       @stepNum < Infinity
 
     canStep: ->
-      @eventNum >= 0 and @getStepTotal() > 0 and @enabled
+      @eventNum >= 0 && @getStepTotal() > 0 && @enabled
 
     restart: ->
-      @stepNum = Infinity  if @stepNum isnt Infinity
+      @stepNum = Infinity
       @delegate.runnerChanged()
 
     stepForward: ->
       if @canStep()
         if @stepNum < @events[@eventNum].context.steps.length - 1
           @stepNum++
-        else if @stepNum is Infinity
+        else if @stepNum == Infinity
           @stepNum = 0
         else
           @stepNum = Infinity
@@ -253,9 +251,10 @@ module.exports = (jsmm) ->
 
     stepBackward: ->
       if @canStep()
-        if @stepNum < Infinity and @stepNum > 0
+        if 0 < @stepNum < Infinity
           @stepNum--
-        else @stepNum = Infinity  if @stepNum < Infinity
+        else
+          @stepNum = Infinity
         @delegate.runnerChanged()
 
     getStepTotal: ->
@@ -265,17 +264,18 @@ module.exports = (jsmm) ->
       @stepNum
 
     setStepNum: (stepNum) ->
-      @stepNum = stepNum  if stepNum >= 0 and stepNum < @events[@eventNum].context.steps.length
+      if 0 <= stepNum < @events[@eventNum].context.steps.length
+        @stepNum = stepNum
       @delegate.runnerChanged()
 
     updateStepping: ->
       total = @getStepTotal()
       if total <= 0
         @stepNum = Infinity
-      else @stepNum = total - 1  if @stepNum < Infinity and @stepNum >= total
-
+      else if total <= @stepNum < Infinity
+        @stepNum = total - 1
     
-    #/ CONTROLS ///
+    ## CONTROLS ##
     enable: ->
       @enabled = true
 
@@ -291,7 +291,7 @@ module.exports = (jsmm) ->
     makeInteractive: (signature) ->
       @interactive = true
       @interactiveSignature = signature
-      @paused = true  if @isStepping()
+      @paused = true if @isStepping()
 
     hasbaseCodeChanged: ->
       @baseCodeChanged
@@ -301,11 +301,10 @@ module.exports = (jsmm) ->
         @events[@eventNum].context.getAllSteps()
       else
         []
-
     
-    #/ ERRORS & MSG ///
+    ## ERRORS & MSG ##
     hasError: ->
-      @eventNum >= 0 and @events[@eventNum].context.hasError()
+      @eventNum >= 0 && @events[@eventNum].context.hasError()
 
     getError: ->
       @events[@eventNum].context.getError()
@@ -314,13 +313,12 @@ module.exports = (jsmm) ->
       @errorEventNums
 
     getMessage: ->
-      if @eventNum < 0 or @events[@eventNum].context is null or @stepNum is Infinity
+      if @eventNum < 0 || @events[@eventNum].context == null || @stepNum == Infinity
         null
       else
-        @events[@eventNum].context.steps[@stepNum] or null
+        @events[@eventNum].context.steps[@stepNum] || null
 
-    
-    #/ UTILS ///
+    ## UTILS ##
     getCallIdsByNodeIds: (nodeIds) ->
       if @eventNum >= 0
         @events[@eventNum].context.getCallIdsByNodeIds nodeIds
@@ -328,19 +326,13 @@ module.exports = (jsmm) ->
         []
 
     getAllCallIdsByNodeIds: (nodeIds) ->
-      callIds = []
-      i = 0
-
-      while i < @events.length
-        callIds[i] = @events[i].context.getCallIdsByNodeIds(nodeIds)
-        i++
-      callIds
+      (e.context.getCallIdsByNodeIds(nodeIds) for e in @events)
 
     getExamples: (text) ->
       jsmm.editor.autocompletion.getExamples @exampleScope, text
 
     getFunctionNode: ->
-      if @events[@eventNum] is @baseEvent or @eventNum < 0
+      if @events[@eventNum] == @baseEvent || @eventNum < 0
         null
       else
         @tree.getFunctionNode @events[@eventNum].funcName
