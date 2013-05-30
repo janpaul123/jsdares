@@ -56,7 +56,7 @@ module.exports = (client) ->
               in as few lines of code as possible. They start simple, and
               become more difficult as you progress.
             </div>
-            <div class="how-text-2"><
+            <div class="how-text-2">
               For now we only provide a number of <strong>examples</strong>.
               In the future we will provide some collections of dares to start
               with, and you will also be able to make and share your own dares.
