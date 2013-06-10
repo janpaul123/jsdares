@@ -243,7 +243,7 @@ module.exports = function(client) {
 			'<a name="games"></a>',
 			'<h2>Games!</h2>',
 			'<p>From years of volunteering at a <a href="http://stichting-scn.nl">youth hackerspace</a>, I&rsquo;ve learned one thing: kids love making games!<span class="blog-star">*</span><span class="blog-sidenote">* Pro-tip: not only kids love making games.</span> Therefore jsdares has been designed with the goal of teaching how to make simple games. <em>What is cooler than knowing you are soon able to create games?</em></p>',
-			'<p>In order to build an environment that supports creating and understanding games, I have implemented some of <a href="http://worrydream.com">Bret Victor&rsquo;s ideas</a><span class="blog-star">*</span><span class="blog-sidenote">* Or as some like to call them, &ldquo;<em>Victorian</em> ideas&rdquo;.</span>. Let&rsquo;s look at a few.</p>',
+			'<p>In order to build an environment that supports creating and understanding games, I have implemented some of <a href="http://worrydream.com">Bret Victor&rsquo;s ideas</a><span class="blog-star">*</span><span class="blog-sidenote">* Or, as some like to call them, &ldquo;<em>Victorian</em> ideas&rdquo;.</span>. Let&rsquo;s look at a few.</p>',
 			'<div class="blog-movie-piece">',
 			'<p><div class="movie-games-1" style="margin-top: 0px"></div>',
 			'<strong>Immediate connection.</strong> On the left side of the screen a game runs. On the right side of the screen the code driving that game is shown. Whenever the code is changed, even by one character, the game immediately runs the new code. No compiling, linking, and running again.</p>',
