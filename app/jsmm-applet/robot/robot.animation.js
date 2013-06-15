@@ -183,7 +183,6 @@ module.exports = function(output) {
 			y = Math.round(y*this.blockSize + this.blockSize/2);
       var str = 'translate3d(' + x + 'px, ' + y + 'px, 0) rotate(' + Math.round(90-angle) + 'deg)';
       if (this.blockSize !== 64) str += ' scale(' + this.scale + ')';
-      console.info(str);
 			clayer.setCss3(this.$robot, 'transform', str);
     },
 
