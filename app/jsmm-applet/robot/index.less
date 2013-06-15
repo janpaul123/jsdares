@@ -23,7 +23,7 @@
 
 	.robot-maze-block {
 		position: absolute;
-		
+
 		.robot-container.robot-interactive & {
 			cursor: pointer;
 		}
@@ -76,7 +76,7 @@
 		position: absolute;
 		height: @hover-size;
 		margin-top: -@hover-size/2;
-		
+
 		.robot-container.robot-interactive & {
 			cursor: pointer;
 		}
@@ -133,8 +133,8 @@
 
 .robot-robot {
 	position: absolute;
-	top: 150px;
-	left: 150px;
+	top: 0px;
+	left: 0px;
 	width: 38px;
 	margin-left: -38px/2;
 	height: 44px;
@@ -207,7 +207,7 @@
 
 			-webkit-backface-visibility: hidden;
 		}
-		
+
 	}
 
 	.robot-path-point {
@@ -274,7 +274,7 @@
 	&.robot-path-line .robot-path-line-inside {
 		background-color: rgba(0, 110, 220, 0.40);
 	}
-	
+
 	&.robot-path-point .robot-path-point-inside {
 		background-color: rgba(0, 110, 220, 0.40);
 
@@ -317,7 +317,7 @@
 			background-color: rgba(5, 195, 5, 0.85) !important;
 		}
 	}
-	
+
 	&.robot-path-point {
 		.opacity(100);
 		z-index: 16 !important;

@@ -15,7 +15,7 @@ module.exports = function(output) {
 			if (this.blockSize !== 64) {
 				clayer.setCss3(this.$robot, 'transform', 'scale(' + this.scale + ')');
 			}
-			
+
 			this.rotationFactor = 0.75;
 			this.detectWallLength = 40000;
 			this.animationQueue = [];
@@ -70,8 +70,7 @@ module.exports = function(output) {
 					} else {
 						var animation = this.animationQueue[this.animationQueue.length-1];
 						this.resetRobot();
-						this.setPosition(animation.x2 || animation.x, animation.y2 || animation.y);
-						this.setOrientation(animation.angle2 || animation.angle);
+						this.setPosition(animation.x2 || animation.x, animation.y2 || animation.y, animation.angle2 || animation.angle);
 						this.setLight('default');
 					}
 					this.clearTimeout();
@@ -131,8 +130,7 @@ module.exports = function(output) {
 
 		setInitial: function(animation) {
 			this.resetRobot();
-			this.setPosition(animation.x, animation.y);
-			this.setOrientation(animation.angle);
+			this.setPosition(animation.x, animation.y, animation.angle);
 			this.setLight('default');
 		},
 
@@ -144,8 +142,8 @@ module.exports = function(output) {
 			this.animateTimeout = window.setTimeout(_(this.animationEnd).bind(this), duration*1000);
 
 			if (animation.type === 'movement') {
-				clayer.setCss3(this.$robot, 'transition', 'left ' + duration + 's linear, top ' + duration + 's linear');
-				this.setPosition(animation.x2, animation.y2);
+				clayer.setCss3(this.$robot, 'transition', 'transform ' + duration + 's linear', true);
+				this.setPosition(animation.x2, animation.y2, animation.angle);
 
 				if (animation.goals !== null) {
 					for (var i=0; i<animation.goals.length; i++) {
@@ -155,7 +153,7 @@ module.exports = function(output) {
 			} else if (animation.type === 'rotation') {
 				duration = this.rotationFactor*duration;
 				clayer.setCss3(this.$robot, 'transition', 'transform ' + duration + 's linear', true);
-				this.setOrientation(animation.angle2);
+				this.setPosition(animation.x, animation.y, animation.angle2);
 			}
 		},
 
@@ -180,14 +178,14 @@ module.exports = function(output) {
 			}
 		},
 
-		setPosition: function(x, y) {
-			this.$robot.css('left', Math.round(x*this.blockSize + this.blockSize/2));
-			this.$robot.css('top', Math.round(y*this.blockSize + this.blockSize/2));
-		},
-
-		setOrientation: function(angle) {
-			clayer.setCss3(this.$robot, 'transform', 'rotate(' + Math.round(90-angle) + 'deg)' + (this.blockSize !== 64 ? ' scale(' + this.scale + ')' : ''));
-		},
+		setPosition: function(x, y, angle) {
+			x = Math.round(x*this.blockSize + this.blockSize/2);
+			y = Math.round(y*this.blockSize + this.blockSize/2);
+      var str = 'translate3d(' + x + 'px, ' + y + 'px, 0) rotate(' + Math.round(90-angle) + 'deg)';
+      if (this.blockSize !== 64) str += ' scale(' + this.scale + ')';
+      console.info(str);
+			clayer.setCss3(this.$robot, 'transform', str);
+    },
 
 		setLight: function(state) {
 			this.$robot.removeClass('robot-green robot-red');
