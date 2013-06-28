@@ -78,7 +78,7 @@ module.exports = function(dares) {
 
 			this.editor = this.ui.addEditor(this.options.editor);
 			this.editor.setTextChangeCallback(_(this.textChangeCallback).bind(this));
-			
+
 			this.reload();
 			this.ui.selectTab('editor');
 			this.selectProgram('config');
