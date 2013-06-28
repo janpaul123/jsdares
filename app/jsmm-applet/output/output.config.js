@@ -36,6 +36,10 @@ module.exports = function(output) {
 		init: function(definition) {
 			this.definition = definition;
 			this.augmentedObjects = {};
+			this.clear();
+		},
+
+		clear: function() {
 			this.config = {};
 		},
 
@@ -232,7 +236,7 @@ module.exports = function(output) {
 		},
 
 		outputClearAllEvents: function() {
-			this.config = new output.Config(this.definition);
+			this.config.clear();
 		},
 
 		outputSetEventStep: function() {
