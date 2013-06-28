@@ -367,6 +367,7 @@ module.exports = function(editor) {
 			}
 			this.delayedUpdate();
 			this.surface.restoreCursor(offset2, changeOffset);
+			this.callTextChangeCallback();
 		},
 
 		/// HIGHLIGHTING METHODS AND CALLBACKS ///
