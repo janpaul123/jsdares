@@ -157,10 +157,6 @@ module.exports = function(dares) {
 			this.$saveError.removeClass('hide');
 		},
 
-		typeButtonClickHandler: function(event) {
-			this.selectDareType($(event.delegateTarget).data('id'));
-		},
-
 		robotStateChanged: function(state) {
 			this.options.outputStates.robot = state;
 		},
