@@ -77,17 +77,6 @@ module.exports = function(dares) {
 					$item.data('_id', dare._id);
 					$item.on('click', _(this.itemViewClick).bind(this));
 
-					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
-					/*
-					for (var j=0; j<dare.outputs.length; j++) {
-						var output = dare.outputs[j];
-						if (this.icons[output] !== undefined) {
-							$name.append('<span class="dares-body-output"><i class="icon icon-white ' + this.icons[output] + '"></i> ' + output + '</span>');
-						}
-					}
-					*/
-					$item.append($name);
-
 					if (this.userId === dare.userId || this.admin) {
 						var $editButton = $('<button class="btn dares-body-edit">Edit</button>');
 						$editButton.on('click', _(this.itemEditClick).bind(this));
@@ -108,6 +97,17 @@ module.exports = function(dares) {
 					highscore += ' <span title="' + statistics.total + ' users attempted this dare">(' + statistics.total + ')</span>';
 
 					$item.append('<span class="dares-body-highscore">' + highscore +'</span>');
+
+					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
+					/*
+					for (var j=0; j<dare.outputs.length; j++) {
+						var output = dare.outputs[j];
+						if (this.icons[output] !== undefined) {
+							$name.append('<span class="dares-body-output"><i class="icon icon-white ' + this.icons[output] + '"></i> ' + output + '</span>');
+						}
+					}
+					*/
+					$item.append($name);
 
 					this.$body.append($item);
 				}
