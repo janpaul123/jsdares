@@ -10,7 +10,7 @@ module.exports = function(client) {
 
 		init: function(delegate, $div) {
 			this.delegate = delegate;
-			this.$div = $('<div class="learn"></div>');
+			this.$div = $('<div class="learn"><p style="margin: 25px">You can <strong>learn programming</strong> by completing dares created by the jsdares community. It\'s a bit messy still, later on we will organise these dares into lessons.</p></div>');
 
 			$div.append(this.$div);
 
