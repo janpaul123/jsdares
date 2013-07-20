@@ -69,7 +69,7 @@ module.exports = function(server) {
 								for (var i=0; i<collection.dareIds.length && !collection.dareIds[i].equals(dare._id); i++) continue;
 								return i;
 							});
-							this.addInstancesAndStatistics(req, res, collection.dares, function() {
+							this.addInstancesAndStatisticsAndUsers(req, res, collection.dares, function() {
 								this.end(req, res, collection);
 							});
 						}));
@@ -78,9 +78,11 @@ module.exports = function(server) {
 			});
 		},
 
-		addInstancesAndStatistics: function(req, res, dares, callback) {
+		addInstancesAndStatisticsAndUsers: function(req, res, dares, callback) {
 			this.addInstances(req, res, dares, function(dares) {
-				this.addStatistics(req, res, dares, callback);
+				this.addStatistics(req, res, dares, function(dares) {
+					this.addUsers(req, res, dares, callback);
+				});
 			});
 		},
 
@@ -120,6 +122,23 @@ module.exports = function(server) {
 						if (statistics[j]._id.equals(dares[i]._id)) {
 							statistics[j].highscore = statistics[j].highscore || 0;
 							dares[i].statistics = statistics[j];
+							break;
+						}
+					}
+				}
+				(callback.bind(this))(dares);
+			}));
+		},
+
+		addUsers: function(req, res, dares, callback) {
+			this.db.users.findItems({_id: {$in: _.pluck(dares, 'userId')}}, this.errorCallback(req, res, function(users) {
+				console.info(users);
+				for (var i=0; i<dares.length; i++) {
+					dares[i].user = null;
+					for (var j=0; j<users.length; j++) {
+						if (users[j]._id === dares[i].userId) { // Note: not 'equals since this is a uuid'
+							var user = users[j];
+							dares[i].user = {link: user.link, screenname: user.screenname};
 							break;
 						}
 					}
@@ -192,7 +211,7 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
 				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
-					this.addInstancesAndStatistics(req, res, array, function(array) {
+					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
 				}));
@@ -202,7 +221,7 @@ module.exports = function(server) {
 		getDaresAndInstancesNewest: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 10}, this.existsCallback(req, res, function(array) {
-					this.addInstancesAndStatistics(req, res, array, function(array) {
+					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
 				}));
@@ -213,7 +232,7 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
 				this.db.dares.findItems({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
-					this.addInstancesAndStatistics(req, res, array, function(array) {
+					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
 				}));
@@ -233,7 +252,9 @@ module.exports = function(server) {
 						}
 
 						this.addStatistics(req, res, dares, function(dares) {
-							this.end(req, res, dares);
+							this.addUsers(req, res, dares, function(dares) {
+								this.end(req, res, dares);
+							});
 						});
 					});
 				}));
