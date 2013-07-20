@@ -102,19 +102,6 @@ module.exports = function(dares) {
 					$item.append('<span class="dares-body-highscore">' + highscore +'</span>');
 
 					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
-
-					if (this.showAuthors) {
-						var $link = $('<a class="btn dares-body-author" href="/superheroes/' + dare.user.link + '"><i class="icon-user"></i> ' + dare.user.screenname + '</a>');
-						$link.on('click', _(this.authorClick).bind(this));
-
-						var $authors = $('<div></div>');
-						$authors.append($link);
-
-						$authors.append(' <span class="dares-body-time">' + relativeDate(new Date(dare.modifiedTime || dare.createdTime)) + '</span>');
-
-						$name.append($authors);
-					}
-
 					/*
 					for (var j=0; j<dare.outputs.length; j++) {
 						var output = dare.outputs[j];
@@ -124,6 +111,19 @@ module.exports = function(dares) {
 					}
 					*/
 					$item.append($name);
+
+					if (this.showAuthors) {
+						var $link = $('<a class="btn dares-body-author" href="/superheroes/' + dare.user.link + '"><i class="icon-user"></i> ' + dare.user.screenname + '</a>');
+						$link.on('click', _(this.authorClick).bind(this));
+
+						var $authors = $('<div></div>');
+						$authors.append($link);
+
+						var timeAgo = relativeDate(new Date(dare.modifiedTime || dare.createdTime));
+						$authors.append(' <span class="dares-body-time" title="created or modified ' + timeAgo + '">' + timeAgo + '</span>');
+
+						$item.append($authors);
+					}
 
 					this.$body.append($item);
 				}

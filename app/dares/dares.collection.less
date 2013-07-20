@@ -61,13 +61,6 @@
 					margin-left: 3px;
 				}
 				*/
-
-				.dares-body-time {
-					font-size: 13px;
-					font-weight: normal;
-					color: #999;
-					margin-left: 10px;
-				}
 			}
 
 			.dares-body-highscore {
@@ -83,6 +76,14 @@
 				margin-left: 10px;
 			}
 
+			.dares-body-time {
+				float: right;
+				font-size: 14px;
+				margin-left: 10px;
+				margin-top: 2px;
+				visibility: hidden;
+			}
+
 			&:hover {
 				background-color: lighten(hsl(110, 35%, 80%), 2%);
 
@@ -93,10 +94,14 @@
 				.dares-body-edit {
 					visibility: visible;
 				}
+
+				.dares-body-time {
+					visibility: visible;
+				}
 			}
 
 			&.dares-body-unpublished {
-				color: #aaa;
+				color: #999;
 			}
 
 			&.dares-body-completed {
