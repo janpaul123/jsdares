@@ -15,11 +15,11 @@ module.exports = function(client) {
 			$div.append(this.$div);
 
 			var $collectionPlayed = $('<div class="learn-collection-played"></div>');
-			this.collectionPlayed = new dares.Collection(this, $collectionPlayed);
+			this.collectionPlayed = new dares.Collection(this, $collectionPlayed, true);
 			this.$div.append($collectionPlayed);
 
 			var $collectionAll = $('<div class="learn-collection-all"></div>');
-			this.collectionAll = new dares.Collection(this, $collectionAll);
+			this.collectionAll = new dares.Collection(this, $collectionAll, true);
 			this.$div.append($collectionAll);
 		},
 

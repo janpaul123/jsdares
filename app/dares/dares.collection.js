@@ -6,9 +6,11 @@ module.exports = function(dares) {
 	dares.Collection.prototype = {
 		icons: {console: 'icon-list-alt', canvas: 'icon-picture', robot: 'icon-th'},
 
-		init: function(delegate, $collection) {
+		init: function(delegate, $collection, showAuthors) {
 			this.delegate = delegate;
 			this.$collection = $collection;
+			this.showAuthors = showAuthors;
+
 			this.$collection.addClass('dares-collection');
 
 			this.$header = $('<div class="dares-header"></div>');
@@ -99,6 +101,13 @@ module.exports = function(dares) {
 					$item.append('<span class="dares-body-highscore">' + highscore +'</span>');
 
 					var $name = $('<span class="dares-body-name">' + dare.name + ' </span>');
+
+					if (this.showAuthors) {
+						var $link = $('<a class="btn dares-body-author" href="/superheroes/' + dare.user.link + '"><i class="icon-user"></i> ' + dare.user.screenname + '</a>');
+						$link.on('click', _(this.authorClick).bind(this));
+						$name.append($('<div></div>').append($link));
+					}
+
 					/*
 					for (var j=0; j<dare.outputs.length; j++) {
 						var output = dare.outputs[j];
@@ -124,6 +133,15 @@ module.exports = function(dares) {
 			event.stopImmediatePropagation();
 			var $target = $(event.delegateTarget).parent();
 			this.delegate.editDare($target.data('_id'));
+		},
+
+		authorClick: function(event) {
+			event.stopImmediatePropagation();
+			event.stopPropagation();
+			event.preventDefault();
+			var $target = $(event.delegateTarget);
+			// Hack: pass in actual manager or so
+			this.delegate.delegate.navigateTo($target.attr('href'));
 		}
 	};
 };

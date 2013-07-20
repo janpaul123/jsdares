@@ -50,7 +50,7 @@ module.exports = function(client) {
 			this.username = username;
 
 			var $collectionPlayed = $('<div class="superheroes-collection-played"></div>');
-			this.collectionPlayed = new dares.Collection(this, $collectionPlayed);
+			this.collectionPlayed = new dares.Collection(this, $collectionPlayed, true);
 			this.$div.append($collectionPlayed);
 
 			var $collectionMine = $('<div class="superheroes-collection-mine"></div>');
@@ -105,7 +105,7 @@ module.exports = function(client) {
 			var $collectionTheirs = $('<div class="superheroes-collection-theirs"></div>');
 			this.collectionTheirs = new dares.Collection(this, $collectionTheirs);
 			this.$div.append($collectionTheirs);
-			
+
 			this.updateCollections();
 		},
 
