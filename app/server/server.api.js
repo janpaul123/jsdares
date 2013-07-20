@@ -69,12 +69,18 @@ module.exports = function(server) {
 								for (var i=0; i<collection.dareIds.length && !collection.dareIds[i].equals(dare._id); i++) continue;
 								return i;
 							});
-							this.addInstances(req, res, collection.dares, false, function() {
+							this.addInstancesAndStatistics(req, res, collection.dares, false, function() {
 								this.end(req, res, collection);
 							});
 						}));
 					}));
 				});
+			});
+		},
+
+		addInstancesAndStatistics: function(req, res, dares, filter, callback) {
+			this.addInstances(req, res, dares, filter, function(dares) {
+				this.addStatistics(req, res, dares, filter, callback);
 			});
 		},
 
@@ -90,6 +96,36 @@ module.exports = function(server) {
 					}
 				}
 				if (filter) dares = _.filter(dares, function(dare) { return dare.instance !== null; });
+				(callback.bind(this))(dares);
+			}));
+		},
+
+		addStatistics: function(req, res, dares, filter, callback) {
+			this.db.instances.aggregate([
+				{$match: {dareId: {$in: _.pluck(dares, '_id')}}},
+				{$project: {
+					highscore: 1,
+					dareId: 1,
+					numCompleted : { $cond : [ "$completed", 1, 0 ] }
+				}},
+				{$group: {
+					_id: '$dareId',
+					total: {$sum: 1},
+					completed: {$sum: '$numCompleted'},
+					highscore: {$max: '$highscore'}
+				}}
+			], this.errorCallback(req, res, function(statistics) {
+				console.log(statistics);
+				for (var i=0; i<dares.length; i++) {
+					dares[i].statistics = null;
+					for (var j=0; j<statistics.length; j++) {
+						if (statistics[j]._id.equals(dares[i]._id)) {
+							dares[i].statistics = statistics[j];
+							break;
+						}
+					}
+				}
+				if (filter) dares = _.filter(dares, function(dare) { return dare.statistics !== null; });
 				(callback.bind(this))(dares);
 			}));
 		},
@@ -158,7 +194,7 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
 				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
-					this.addInstances(req, res, array, false, function(array) {
+					this.addInstancesAndStatistics(req, res, array, false, function(array) {
 						this.end(req, res, array);
 					});
 				}));
@@ -168,7 +204,7 @@ module.exports = function(server) {
 		getDaresAndInstancesNewest: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 10}, this.existsCallback(req, res, function(array) {
-					this.addInstances(req, res, array, false, function(array) {
+					this.addInstancesAndStatistics(req, res, array, false, function(array) {
 						this.end(req, res, array);
 					});
 				}));
@@ -179,7 +215,7 @@ module.exports = function(server) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
 				this.db.dares.findItems({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
-					this.addInstances(req, res, array, false, function(array) {
+					this.addInstancesAndStatistics(req, res, array, false, function(array) {
 						this.end(req, res, array);
 					});
 				}));

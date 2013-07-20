@@ -38,8 +38,6 @@
 			cursor: pointer;
 
 			> span, > button {
-				display: inline-block;
-				.ie7-inline-block();
 				font-size: 14px;
 
 				&.dares-body-cell-hide {
@@ -63,19 +61,23 @@
 			}
 
 			.dares-body-highscore {
+				float: right;
 				visibility: hidden;
-				width: 90px;
 				font-size: 14px;
-				text-align: right;
 			}
 
 			.dares-body-edit {
-				visibility: hidden;
 				float: right;
+				visibility: hidden;
+				margin-left: 10px;
 			}
 
 			&:hover {
 				background-color: lighten(hsl(110, 35%, 80%), 2%);
+
+				.dares-body-highscore {
+					visibility: visible;
+				}
 
 				.dares-body-edit {
 					visibility: visible;
@@ -91,10 +93,6 @@
 
 				&:hover {
 					background-color: lighten(hsl(110, 35%, 80%), 2%);
-				}
-
-				.dares-body-highscore {
-					visibility: visible;
 				}
 			}
 		}
