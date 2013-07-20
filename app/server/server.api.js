@@ -231,7 +231,10 @@ module.exports = function(server) {
 							dare.instance = array[i];
 							dares.push(dare);
 						}
-						this.end(req, res, dares);
+
+						this.addStatistics(req, res, dares, function(dares) {
+							this.end(req, res, dares);
+						});
 					});
 				}));
 			});
