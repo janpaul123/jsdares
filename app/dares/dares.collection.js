@@ -98,16 +98,15 @@ module.exports = function(dares) {
 					if (dare.instance && dare.instance.highscore) {
 						highscore = '<i class="icon-trophy"></i> <span title="completed with ' + dare.instance.highscore + ' points">' + dare.instance.highscore + '</span>';
 					}
-					if (dare.statistics && dare.statistics.total) {
-						if (dare.statistics.highscore) {
-							highscore += '/<span title="maximum score (so far) is ' + dare.statistics.highscore + ' points">' + dare.statistics.highscore + '</span>';
-						}
 
-						var percentage = Math.round(100*dare.statistics.completed/dare.statistics.total);
-						highscore += ' <i class="icon-tasks"></i> ';
-						highscore += '<span title="' + percentage + '% of attempts succeeded">' + percentage + '%</span>';
-						highscore += ' <span title="' + dare.statistics.total + ' users attempted this dare">(' + dare.statistics.total + ')</span>';
-					}
+					var statistics = _.extend({highscore: 0, total: 0, completed: 0}, dare.statistics || {});
+
+					highscore += '/<span title="maximum score (so far) is ' + statistics.highscore + ' points">' + statistics.highscore + '</span>';
+					var percentage = Math.round(100*statistics.completed/statistics.total) || 0;
+					highscore += ' <i class="icon-tasks"></i> ';
+					highscore += '<span title="' + percentage + '% of attempts succeeded">' + percentage + '%</span>';
+					highscore += ' <span title="' + statistics.total + ' users attempted this dare">(' + statistics.total + ')</span>';
+
 					$item.append('<span class="dares-body-highscore">' + highscore +'</span>');
 
 					this.$body.append($item);

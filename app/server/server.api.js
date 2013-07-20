@@ -119,6 +119,7 @@ module.exports = function(server) {
 					dares[i].statistics = null;
 					for (var j=0; j<statistics.length; j++) {
 						if (statistics[j]._id.equals(dares[i]._id)) {
+							statistics[j].highscore = statistics[j].highscore || 0;
 							dares[i].statistics = statistics[j];
 							break;
 						}
