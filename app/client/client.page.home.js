@@ -1,19 +1,23 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
-var applet = require('../jsmm-applet');
-var dares = require('../dares');
-
 module.exports = function(client) {
+	client.getPageHomeHtml = function() {
+		return client.PageHome.prototype.about + client.PageHome.prototype.how + client.PageHome.prototype.now;
+	};
+
 	client.PageHome = function() { return this.init.apply(this, arguments); };
 	client.PageHome.prototype = {
 		type: 'PageHome',
 
 		init: function(delegate, $div) {
+			var applet = require('../jsmm-applet');
+			var dares = require('../dares');
+
 			this.delegate = delegate;
 			this.$div = $div;
 
-			this.$aboutText = $('<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an open source proof-of-concept. <a href="/blindfold" class="homepage-blindfold-link">Learn more&hellip;</a><span></p>');
+			this.$aboutText = $(this.about);
 			this.$aboutText.find('.homepage-blindfold-link').on('click', _(function(e) { e.preventDefault(); this.delegate.navigateTo('/blindfold'); }).bind(this));
 			this.$div.append(this.$aboutText);
 
@@ -32,7 +36,7 @@ module.exports = function(client) {
 			$('.example-text-top').css('margin-left', -$('.example-text-top').width()/2);
 			$('.example-text-bottom').css('margin-left', -$('.example-text-bottom').width()/2);
 
-			this.$how = $('<div class="how"><div class="how-header">Getting started</div><div class="how-text"><div class="how-text-1">You learn programming by completing <strong>dares</strong>. These are short puzzles in which you have to copy the example, in as few lines of code as possible. They start simple, and become more difficult as you progress.</div><div class="how-text-2"><!-- Get started with learning the <strong>basics</strong> of programming. If you already know some programming, you can take an <strong>interface</strong> crash course. Or just <strong>discover</strong> all the dares! --> For now we only provide a number of <strong>examples</strong>. In the future we will provide some collections of dares to start with, and you will also be able to make and share your own dares. You can also play around in the <strong>full editor</strong>.</div></div></div>');
+			this.$how = $(this.how);
 			this.$div.append(this.$how);
 
 			this.$intro = $('<div class="intro"></div>');
@@ -53,12 +57,16 @@ module.exports = function(client) {
 			this.$intro.append(this.$introButton);
 			this.$div.append(this.$intro);
 
-			this.$div.append('<div class="how"><div class="how-header">Now what?</div><div class="how-text"><div class="how-text-1">When are we going to make games? Well, <strong>you have been tricked</strong>. We don\'t have the dares yet to learn you program games. The game on top is a showcase of how game programming could work some day, so you can try pausing the game, understanding how it works, and modifying it.</div><div class="how-text-2">If you\'re an advanced programmer, please <strong>help us</strong> create more dares! It would be great if one day we would have the entire path from learning fundamentals to making games.</div></div></div>');
+			this.$div.append(this.now);
 
 			this.fullEditor = null;
 
 			this.updateCollections();
 		},
+
+		about: '<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an open source proof-of-concept. <a href="/blindfold" class="homepage-blindfold-link">Learn more&hellip;</a><span></p>',
+		how: '<div class="how"><div class="how-header">Getting started</div><div class="how-text"><div class="how-text-1">You learn programming by completing <strong>dares</strong>. These are short puzzles in which you have to copy the example, in as few lines of code as possible. They start simple, and become more difficult as you progress.</div><div class="how-text-2"><!-- Get started with learning the <strong>basics</strong> of programming. If you already know some programming, you can take an <strong>interface</strong> crash course. Or just <strong>discover</strong> all the dares! --> For now we only provide a number of <strong>examples</strong>. In the future we will provide some collections of dares to start with, and you will also be able to make and share your own dares. You can also play around in the <strong>full editor</strong>.</div></div></div>',
+		now: '<div class="how"><div class="how-header">Now what?</div><div class="how-text"><div class="how-text-1">When are we going to make games? Well, <strong>you have been tricked</strong>. We don\'t have the dares yet to learn you program games. The game on top is a showcase of how game programming could work some day, so you can try pausing the game, understanding how it works, and modifying it.</div><div class="how-text-2">If you\'re an advanced programmer, please <strong>help us</strong> create more dares! It would be great if one day we would have the entire path from learning fundamentals to making games.</div></div></div>',
 
 		remove: function() {
 			this.$aboutText.remove();

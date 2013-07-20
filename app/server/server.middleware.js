@@ -6,6 +6,9 @@ var uuid = require('node-uuid');
 var fs = require('fs');
 var mainUrls = ['intro', 'dare', 'edit', 'full', 'learn', 'create', 'superheroes', 'about', 'blindfold'];
 
+var client = {};
+require('../client/client.page.home')(client);
+
 module.exports = function(server) {
 	server.middleware = function(connect, options) {
 		var objects = {
@@ -54,7 +57,11 @@ module.exports = function(server) {
 			.use('/index.html', function(req, res, next) {
 				var loginData = {};
 				if (req.session && req.session.loginData) loginData = req.session.loginData;
-				res.write(indexFile.replace('{/*AUTOFILL in server.init.js*/}', JSON.stringify(loginData)));
+
+				var output = indexFile;
+				output = output.replace('{/*AUTOFILL jsdaresLoginData in server.middleware.js*/}', JSON.stringify(loginData));
+				output = output.replace('<!--AUTOFILL html content in server.middleware.js-->', client.getPageHomeHtml());
+				res.write(output);
 				res.end();
 			})
 			.use(connect['static'](options.assets));

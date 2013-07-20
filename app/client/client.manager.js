@@ -56,6 +56,7 @@ module.exports = function(client) {
 		},
 
 		removePage: function() {
+			this.$div.html('');
 			if (this.page !== null) {
 				this.page.remove();
 				this.page = null;
@@ -112,7 +113,7 @@ module.exports = function(client) {
 					break;
 				}
 			}
-			
+
 			if (type === null) {
 				type = 'PageHome';
 				url = '';
