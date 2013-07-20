@@ -1,6 +1,8 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var relativeDate = require('relative-date');
+
 module.exports = function(dares) {
 	dares.Collection = function() { return this.init.apply(this, arguments); };
 	dares.Collection.prototype = {
@@ -104,7 +106,13 @@ module.exports = function(dares) {
 					if (this.showAuthors) {
 						var $link = $('<a class="btn dares-body-author" href="/superheroes/' + dare.user.link + '"><i class="icon-user"></i> ' + dare.user.screenname + '</a>');
 						$link.on('click', _(this.authorClick).bind(this));
-						$name.append($('<div></div>').append($link));
+
+						var $authors = $('<div></div>');
+						$authors.append($link);
+
+						$authors.append(' <span class="dares-body-time">' + relativeDate(new Date(dare.modifiedTime || dare.createdTime)) + '</span>');
+
+						$name.append($authors);
 					}
 
 					/*

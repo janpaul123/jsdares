@@ -37,7 +37,8 @@
     "grunt-express": "~0.3.3",
     "grunt-regarde": "~0.1.1",
     "grunt-open": "~0.2.0",
-    "grunt-browserify": "~1.0.0"
+    "grunt-browserify": "~1.0.0",
+    "relative-date": "~1.1.1"
   },
   "engines": {
     "node": "0.10.x",
