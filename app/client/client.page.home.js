@@ -19,7 +19,7 @@ module.exports = function(client) {
 
 			this.modalUI = new applet.UI();
 			this.modalUI.setCloseCallback(_(this.closeCallback).bind(this));
-			
+
 			this.$example = $('<div class="example"></div>');
 			this.$div.append(this.$example);
 
@@ -52,6 +52,8 @@ module.exports = function(client) {
 			this.$introButton.on('click', _(function(event) { this.delegate.navigateTo('/full'); }).bind(this));
 			this.$intro.append(this.$introButton);
 			this.$div.append(this.$intro);
+
+			this.$div.append('<div class="how"><div class="how-header">Now what?</div><div class="how-text"><div class="how-text-1">When are we going to make games? Well, <strong>you have been tricked</strong>. We don\'t have the dares yet to learn you program games. The game on top is a showcase of how game programming could work some day, so you can try pausing the game, understanding how it works, and modifying it.</div><div class="how-text-2">If you\'re an advanced programmer, please <strong>help us</strong> create more dares! It would be great if one day we would have the entire path from learning fundamentals to making games.</div></div></div>');
 
 			this.fullEditor = null;
 
