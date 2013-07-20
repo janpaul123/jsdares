@@ -191,11 +191,13 @@ module.exports = function(jsmm) {
 			this.functions = {};
 			for (var name in vars) {
 				this.vars[name] = {type: 'local', value: vars[name]};
-				if (typeof vars[name] === 'object' && vars[name].type === 'arrayPointer') {
-					this.addArrayItems(copyScope, vars[name].id);
-				}
-				if (typeof vars[name] === 'object' && vars[name].type === 'functionPointer') {
-					this.functions[vars[name].name] = copyScope.functions[vars[name].name];
+				if (copyScope) {
+					if (typeof vars[name] === 'object' && vars[name].type === 'arrayPointer') {
+						this.addArrayItems(copyScope, vars[name].id);
+					}
+					if (typeof vars[name] === 'object' && vars[name].type === 'functionPointer') {
+						this.functions[vars[name].name] = copyScope.functions[vars[name].name];
+					}
 				}
 			}
 			this.parent = parent || null;
