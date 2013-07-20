@@ -114,7 +114,6 @@ module.exports = function(server) {
 					highscore: {$max: '$highscore'}
 				}}
 			], this.errorCallback(req, res, function(statistics) {
-				console.log(statistics);
 				for (var i=0; i<dares.length; i++) {
 					dares[i].statistics = null;
 					for (var j=0; j<statistics.length; j++) {
