@@ -96,7 +96,7 @@ module.exports = function(dares) {
 					var percentage = Math.round(100*statistics.completed/statistics.total) || 0;
 					highscore += ' <i class="icon-tasks"></i> ';
 					highscore += '<span title="' + percentage + '% of users who tried this dare finished it">' + percentage + '%</span>';
-					highscore += ' <span title="' + statistics.completed + ' out of ' + statistics.total + ' users finished this dare">(' + statistics.total + ')</span>';
+					highscore += ' <span title="' + statistics.completed + ' out of ' + statistics.total + ' users finished this dare">(' + statistics.completed + ')</span>';
 
 					$item.append('<span class="dares-body-highscore">' + highscore +'</span>');
 
