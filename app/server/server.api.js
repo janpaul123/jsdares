@@ -254,7 +254,7 @@ module.exports = function(server) {
 					this.db.instances.findItems({_id: id}, this.userIdCallback(req, res, function(array) {
 						this.db.instances.update(
 							{_id: id},
-							{$set: {text: req.body.text, completed: req.body.completed, highscore: req.body.highscore, modifiedTime: new Date(), submittedTime: new Date()}},
+							{$set: {text: req.body.text, completed: req.body.completed, highscore: parseInt(req.body.highscore, 10), modifiedTime: new Date(), submittedTime: new Date()}},
 							{safe: true},
 							this.postResponseCallback(req, res)
 						);
