@@ -52,6 +52,10 @@ var options = {
 
 var connect = require('connect');
 var app = connect();
-app.use(require('grunt-contrib-livereload/lib/utils').livereloadSnippet);
+
+if (process.env.JSDARES_ENV === 'development') {
+	app.use(require('grunt-contrib-livereload/lib/utils').livereloadSnippet);
+}
+
 app.use(require('./server').middleware(connect, options));
 module.exports = app;
