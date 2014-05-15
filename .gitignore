@@ -1,5 +1,5 @@
 *.sublime-workspace
 *.sublime-project
 .DS_Store
-node_modules
-dist
+/node_modules
+/dist

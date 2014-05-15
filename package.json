@@ -45,6 +45,6 @@
     "npm": "1.2.x"
   },
   "scripts": {
-    "postinstall": "echo postinstall time; ./node_modules/.bin/grunt heroku"
+    "prepublish": "grunt compile"
   }
 }

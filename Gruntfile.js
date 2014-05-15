@@ -89,9 +89,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-open');
 
-	grunt.registerTask('dist', ['clean', 'copy', 'coffee', 'browserify', 'less']);
+	grunt.registerTask('compile', ['clean', 'copy', 'coffee', 'browserify', 'less']);
 	grunt.registerTask('server', ['livereload-start', 'express', 'open', 'regarde']);
-
-	grunt.registerTask('default', ['dist', 'server']);
-	grunt.registerTask('heroku', ['dist']);
+	grunt.registerTask('default', ['compile', 'server']);
 };
