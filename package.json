@@ -13,7 +13,6 @@
   ],
   "dependencies": {
     "jison": "~0.4",
-    "coffee-script": "~1.6",
     "connect": "^2.16.2",
     "mongoskin": "~0.5",
     "node-uuid": "~1.4",
