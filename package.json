@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "jison": "~0.4",
-    "connect": "^2.16.2",
+    "connect": "^2.17.1",
     "mongoskin": "~0.5",
     "node-uuid": "~1.4",
     "mustache": "^0.8.1",
