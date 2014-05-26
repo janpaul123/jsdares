@@ -19,11 +19,6 @@ module.exports = function(server) {
 		objects.common = new server.Common(options.api, objects);
 		objects.api = new server.API(options.api, objects);
 
-		objects.database.bind('users');
-		objects.database.bind('collections');
-		objects.database.bind('dares');
-		objects.database.bind('instances');
-
 		var noCache = function(req, res, next) {
 			res.on('header', function(header) {
 				res.setHeader('Cache-Control', 'private, max-age=0');

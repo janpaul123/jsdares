@@ -52,7 +52,7 @@ module.exports = function(server) {
 		getCollection: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collections.findById(id, this.existsCallback(req, res, function(collection) {
+					this.db.collection('collections').findById(id, this.existsCallback(req, res, function(collection) {
 						this.end(req, res, collection);
 					}));
 				});
@@ -62,9 +62,9 @@ module.exports = function(server) {
 		getCollectionAndDaresAndInstances: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collections.findById(id, this.errorCallback(req, res, function(collection) {
+					this.db.collection('collections').findById(id, this.errorCallback(req, res, function(collection) {
 						if (!collection) this.common.error(req, res, 404);
-						else this.db.dares.findItems({_id: {$in: collection.dareIds}}, this.errorCallback(req, res, function(dares) {
+						else this.db.collection('dares').findItems({_id: {$in: collection.dareIds}}, this.errorCallback(req, res, function(dares) {
 							collection.dares = _.sortBy(dares, function(dare) {
 								for (var i=0; i<collection.dareIds.length && !collection.dareIds[i].equals(dare._id); i++) continue;
 								return i;
@@ -87,7 +87,7 @@ module.exports = function(server) {
 		},
 
 		addInstances: function(req, res, dares, callback) {
-			this.db.instances.findItems({dareId: {$in: _.pluck(dares, '_id')}, userId: req.session.userId}, this.errorCallback(req, res, function(instances) {
+			this.db.collection('instances').findItems({dareId: {$in: _.pluck(dares, '_id')}, userId: req.session.userId}, this.errorCallback(req, res, function(instances) {
 				for (var i=0; i<dares.length; i++) {
 					dares[i].instance = null;
 					for (var j=0; j<instances.length; j++) {
@@ -102,7 +102,7 @@ module.exports = function(server) {
 		},
 
 		addStatistics: function(req, res, dares, callback) {
-			this.db.instances.aggregate([
+			this.db.collection('instances').aggregate([
 				{$match: {dareId: {$in: _.pluck(dares, '_id')}}},
 				{$project: {
 					highscore: 1,
@@ -131,7 +131,7 @@ module.exports = function(server) {
 		},
 
 		addUsers: function(req, res, dares, callback) {
-			this.db.users.findItems({_id: {$in: _.pluck(dares, 'userId')}}, this.errorCallback(req, res, function(users) {
+			this.db.collection('users').findItems({_id: {$in: _.pluck(dares, 'userId')}}, this.errorCallback(req, res, function(users) {
 				console.info(users);
 				for (var i=0; i<dares.length; i++) {
 					dares[i].user = null;
@@ -148,7 +148,7 @@ module.exports = function(server) {
 		},
 
 		addDares: function(req, res, items, filter, callback) {
-			this.db.dares.findItems({_id: {$in: _.pluck(items, 'dareId')}, userId: req.session.userId}, this.errorCallback(req, res, function(dares) {
+			this.db.collection('dares').findItems({_id: {$in: _.pluck(items, 'dareId')}, userId: req.session.userId}, this.errorCallback(req, res, function(dares) {
 				for (var i=0; i<items.length; i++) {
 					items[i].dare = null;
 					for (var j=0; j<dares.length; j++) {
@@ -166,7 +166,7 @@ module.exports = function(server) {
 		getDare: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.dares.findById(id, this.existsCallback(req, res, function(dare) {
+					this.db.collection('dares').findById(id, this.existsCallback(req, res, function(dare) {
 						this.end(req, res, dare);
 					}));
 				});
@@ -176,14 +176,14 @@ module.exports = function(server) {
 		getDareAndInstance: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.dares.findById(id, this.errorCallback(req, res, function(dare) {
+					this.db.collection('dares').findById(id, this.errorCallback(req, res, function(dare) {
 						if (dare) {
-							this.db.instances.findOne({userId: req.session.userId, dareId: dare._id}, this.errorCallback(req, res, function(instance) {
+							this.db.collection('instances').findOne({userId: req.session.userId, dareId: dare._id}, this.errorCallback(req, res, function(instance) {
 								if (instance) {
 									dare.instance = instance;
 									this.end(req, res, dare);
 								} else {
-									this.db.instances.insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, {safe: true}, this.errorCallback(req, res, function(instances) {
+									this.db.collection('instances').insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, {safe: true}, this.errorCallback(req, res, function(instances) {
 										dare.instance = instances[0];
 										this.end(req, res, dare);
 									}));
@@ -200,7 +200,7 @@ module.exports = function(server) {
 		getDareEdit: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.dares.findById(id, this.userIdCallback(req, res, function(dare) {
+					this.db.collection('dares').findById(id, this.userIdCallback(req, res, function(dare) {
 						this.end(req, res, dare);
 					}));
 				});
@@ -210,7 +210,7 @@ module.exports = function(server) {
 		getDaresAndInstancesAll: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
-				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
+				this.db.collection('dares').findItems({}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
 					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
@@ -220,7 +220,7 @@ module.exports = function(server) {
 
 		getDaresAndInstancesNewest: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.dares.findItems({}, {'sort': [['createdTime', 'desc']], limit: 10}, this.existsCallback(req, res, function(array) {
+				this.db.collection('dares').findItems({}, {'sort': [['createdTime', 'desc']], limit: 10}, this.existsCallback(req, res, function(array) {
 					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
@@ -231,7 +231,7 @@ module.exports = function(server) {
 		getDaresAndInstancesByUserId: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
-				this.db.dares.findItems({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
+				this.db.collection('dares').findItems({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
 					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
@@ -241,7 +241,7 @@ module.exports = function(server) {
 
 		getDaresAndInstancesPlayed: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.instances.findItems({userId: req.query.userId}, {'sort': [['modifiedTime', 'desc']]}, this.existsCallback(req, res, function(array) {
+				this.db.collection('instances').findItems({userId: req.query.userId}, {'sort': [['modifiedTime', 'desc']]}, this.existsCallback(req, res, function(array) {
 					this.addDares(req, res, array, true, function(array) {
 						var dares = [];
 						for (var i=0; i<array.length; i++) {
@@ -264,8 +264,8 @@ module.exports = function(server) {
 		postProgram: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.body._id, function(id) {
-					this.db.instances.findItems({_id: id}, this.userIdCallback(req, res, function(array) {
-						this.db.instances.update({_id: id}, {$set: {text: req.body.text, modifiedTime: new Date()}});
+					this.db.collection('instances').findItems({_id: id}, this.userIdCallback(req, res, function(array) {
+						this.db.collection('instances').update({_id: id}, {$set: {text: req.body.text, modifiedTime: new Date()}});
 						this.end(req, res);
 					}));
 				});
@@ -275,8 +275,8 @@ module.exports = function(server) {
 		postInstance: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.body._id, function(id) {
-					this.db.instances.findItems({_id: id}, this.userIdCallback(req, res, function(array) {
-						this.db.instances.update(
+					this.db.collection('instances').findItems({_id: id}, this.userIdCallback(req, res, function(array) {
+						this.db.collection('instances').update(
 							{_id: id},
 							{$set: {text: req.body.text, completed: req.body.completed, highscore: parseInt(req.body.highscore, 10), modifiedTime: new Date(), submittedTime: new Date()}},
 							{safe: true},
@@ -294,7 +294,7 @@ module.exports = function(server) {
 				dare.createdTime = new Date();
 				dare.modifiedTime = new Date();
 
-				this.db.dares.insert(
+				this.db.collection('dares').insert(
 					dare,
 					{safe: true},
 					this.userIdCallback(req, res, function(dares) {
@@ -316,8 +316,8 @@ module.exports = function(server) {
 					delete dare._id;
 					delete dare.userId;
 					delete dare.instance;
-					this.db.dares.findOne({_id: id}, this.userIdCallback(req, res, function(array) {
-						this.db.dares.update(
+					this.db.collection('dares').findOne({_id: id}, this.userIdCallback(req, res, function(array) {
+						this.db.collection('dares').update(
 							{_id: id},
 							{$set: dare},
 							{safe: true},
@@ -330,7 +330,7 @@ module.exports = function(server) {
 
 		postRegister: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.users.findById(req.session.userId, this.errorCallback(req, res, function(user) {
+				this.db.collection('users').findById(req.session.userId, this.errorCallback(req, res, function(user) {
 					if (!user) {
 						this.common.error(req, res, 404);
 					} else if (!req.body.username || !shared.validation.username(req.body.username)) {
@@ -340,18 +340,18 @@ module.exports = function(server) {
 					} else if (!req.body.email || !shared.validation.email(req.body.email)) {
 						this.common.error(req, res, 400, 'Invalid email');
 					} else {
-						this.db.users.findOne({'auth.local.username': req.body.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
+						this.db.collection('users').findOne({'auth.local.username': req.body.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
 							if (user) {
 								this.common.error(req, res, 400, 'Username already exists');
 							} else {
-								this.db.users.findOne({'auth.local.email': req.body.email.toLowerCase()}, this.errorCallback(req, res, function(user2) {
+								this.db.collection('users').findOne({'auth.local.email': req.body.email.toLowerCase()}, this.errorCallback(req, res, function(user2) {
 									if (user2) {
 										this.common.error(req, res, 400, 'Email already exists');
 									} else {
 										var salt = uuid.v4(), password = uuid.v4().substr(-12);
 										this.getHash(req.body.password, salt, this.errorCallback(req, res, function(hash) {
 											this.mailer.sendRegister(req.body.email.toLowerCase(), req.body.username);
-											this.db.users.update(
+											this.db.collection('users').update(
 												{_id: req.session.userId},
 												{$set: {
 													'screenname': req.body.username,
@@ -383,11 +383,11 @@ module.exports = function(server) {
 
 		postLogin: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.users.findOne({'auth.local.username': req.body.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
+				this.db.collection('users').findOne({'auth.local.username': req.body.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
 					if (user) {
 						this.getHash(req.body.password, user.auth.local.salt, this.errorCallback(req, res, function(hash) {
 							if (hash === user.auth.local.hash) {
-								this.db.users.update(
+								this.db.collection('users').update(
 									{_id: user._id},
 									{$set: {'ips.login' : this.common.getIP(req), 'loginTime': new Date()}}
 								);
@@ -396,7 +396,7 @@ module.exports = function(server) {
 									this.end(req, res);
 								}).bind(this));
 							} else {
-								this.db.users.update(
+								this.db.collection('users').update(
 									{_id: user._id},
 									{$set: {'ips.passwordError' : this.common.getIP(req)}}
 								);
@@ -422,7 +422,7 @@ module.exports = function(server) {
 		getCheckUsername: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				if (req.query.username && shared.validation.username(req.query.username)) {
-					this.db.users.findOne({'auth.local.username': req.query.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
+					this.db.collection('users').findOne({'auth.local.username': req.query.username.toLowerCase()}, this.errorCallback(req, res, function(user) {
 						if (user) {
 							this.common.error(req, res, 400, 'Username exists already');
 						} else {
@@ -438,7 +438,7 @@ module.exports = function(server) {
 		getUserByUsername: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				if (req.query.username && shared.validation.username(req.query.username)) {
-					this.db.users.findOne({'auth.local.username': req.query.username.toLowerCase()}, this.existsCallback(req, res, function(user) {
+					this.db.collection('users').findOne({'auth.local.username': req.query.username.toLowerCase()}, this.existsCallback(req, res, function(user) {
 						this.end(req, res, shared.dares.sanitizeInput(user, shared.dares.userOptions));
 					}));
 				} else {
@@ -450,7 +450,7 @@ module.exports = function(server) {
 		getUsersAll: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 10000 for now
-				this.db.users.findItems({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 10000}, this.existsCallback(req, res, function(array) {
+				this.db.collection('users').findItems({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 10000}, this.existsCallback(req, res, function(array) {
 					var users = [];
 					for (var i=0; i<array.length; i++) {
 						users.push(shared.dares.sanitizeInput(array[i], shared.dares.userOptions));
@@ -463,7 +463,7 @@ module.exports = function(server) {
 		getCheckEmail: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				if (req.query.email && shared.validation.email(req.query.email)) {
-					this.db.users.findOne({'auth.local.email': req.query.email.toLowerCase()}, this.errorCallback(req, res, function(user) {
+					this.db.collection('users').findOne({'auth.local.email': req.query.email.toLowerCase()}, this.errorCallback(req, res, function(user) {
 						if (user) {
 							this.common.error(req, res, 400, 'Email exists already');
 						} else {

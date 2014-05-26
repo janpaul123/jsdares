@@ -6,17 +6,17 @@ var uuid = require('node-uuid');
 
 module.exports = function(server) {
 	server.dares = function(db) {
-		db.users.findOne({'auth.local.username': 'janpaul123'}, function(error, user) {
+		db.collection('users').findOne({'auth.local.username': 'janpaul123'}, function(error, user) {
 			if (error) throw error;
 			else if (!user) console.error('Could not update pre-set values since there is no user "janpaul123"');
 			else {
-				db.users.update({'auth.local.username': 'janpaul123'}, {$set: {admin: true}});
+				db.collection('users').update({'auth.local.username': 'janpaul123'}, {$set: {admin: true}}, function(){});
 
-				db.collections.insert([
+				db.collection('collections').insert([
 					{_id: new db.ObjectID('5009684ce78955fbcf405844'), createdTime: new Date()},
 					{_id: new db.ObjectID('30000000078955fbcf405844'), createdTime: new Date()}
 				], {safe:true}, function(err, doc) {
-					db.collections.update({_id : new db.ObjectID('5009684ce78955fbcf405844')},
+					db.collection('collections').update({_id : new db.ObjectID('5009684ce78955fbcf405844')},
 						{$set: {
 							userId: user._id,
 							difficulty: 1,
@@ -37,7 +37,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collections.update({_id : new db.ObjectID('30000000078955fbcf405844')},
+					db.collection('collections').update({_id : new db.ObjectID('30000000078955fbcf405844')},
 						{$set: {
 							userId: user._id,
 							difficulty: 2,
@@ -59,7 +59,7 @@ module.exports = function(server) {
 					);
 				});
 
-				db.dares.insert([
+				db.collection('dares').insert([
 					{_id: new db.ObjectID('300000000000000000000000'), createdTime: new Date()},
 					{_id: new db.ObjectID('300000000000000000000001'), createdTime: new Date()},
 					{_id: new db.ObjectID('300000000000000000000002'), createdTime: new Date()},
@@ -83,7 +83,7 @@ module.exports = function(server) {
 					{_id: new db.ObjectID('300000000000000000000109'), createdTime: new Date()},
 					{_id: new db.ObjectID('300000000000000000000110'), createdTime: new Date()}
 				], {safe:true}, function(err, doc) {
-					db.dares.update({_id: new db.ObjectID('300000000000000000000000')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000000')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -95,8 +95,8 @@ module.exports = function(server) {
 							editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\n'}
 						}}
 					);
-					
-					db.dares.update({_id: new db.ObjectID('300000000000000000000001')},
+
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000001')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -109,7 +109,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000002')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000002')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -122,7 +122,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000003')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000003')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -135,7 +135,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000004')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000004')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -148,7 +148,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000005')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000005')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -161,7 +161,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000006')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000006')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -174,7 +174,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000007')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000007')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -187,7 +187,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000008')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000008')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -200,7 +200,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000009')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000009')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -212,7 +212,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000010')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000010')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -224,7 +224,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000100')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000100')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -236,7 +236,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000101')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000101')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -248,7 +248,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000102')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000102')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -260,7 +260,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000103')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000103')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -272,7 +272,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000104')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000104')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -284,7 +284,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000105')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000105')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -296,7 +296,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000106')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000106')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -308,7 +308,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000107')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000107')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -321,7 +321,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000108')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000108')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -333,7 +333,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000109')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000109')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -345,7 +345,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.dares.update({_id: new db.ObjectID('300000000000000000000110')},
+					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000110')},
 						{ $set: {
 							userId: user._id,
 							published: true,
