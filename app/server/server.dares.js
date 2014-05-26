@@ -3,6 +3,7 @@
 
 var connect = require('connect');
 var uuid = require('node-uuid');
+var mongo = require('mongoskin');
 
 module.exports = function(server) {
 	server.dares = function(db) {
@@ -13,77 +14,77 @@ module.exports = function(server) {
 				db.collection('users').update({'auth.local.username': 'janpaul123'}, {$set: {admin: true}}, function(){});
 
 				db.collection('collections').insert([
-					{_id: new db.ObjectID('5009684ce78955fbcf405844'), createdTime: new Date()},
-					{_id: new db.ObjectID('30000000078955fbcf405844'), createdTime: new Date()}
+					{_id: new mongo.ObjectID('5009684ce78955fbcf405844'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('30000000078955fbcf405844'), createdTime: new Date()}
 				], {safe:true}, function(err, doc) {
-					db.collection('collections').update({_id : new db.ObjectID('5009684ce78955fbcf405844')},
+					db.collection('collections').update({_id : new mongo.ObjectID('5009684ce78955fbcf405844')},
 						{$set: {
 							userId: user._id,
 							difficulty: 1,
 							title: "Rollin' Robots",
 							dareIds: [
-								new db.ObjectID('300000000000000000000000'),
-								new db.ObjectID('300000000000000000000001'),
-								new db.ObjectID('300000000000000000000002'),
-								new db.ObjectID('300000000000000000000003'),
-								new db.ObjectID('300000000000000000000004'),
-								new db.ObjectID('300000000000000000000005'),
-								new db.ObjectID('300000000000000000000006'),
-								new db.ObjectID('300000000000000000000007'),
-								new db.ObjectID('300000000000000000000008'),
-								new db.ObjectID('300000000000000000000009'),
-								new db.ObjectID('300000000000000000000010')
+								new mongo.ObjectID('300000000000000000000000'),
+								new mongo.ObjectID('300000000000000000000001'),
+								new mongo.ObjectID('300000000000000000000002'),
+								new mongo.ObjectID('300000000000000000000003'),
+								new mongo.ObjectID('300000000000000000000004'),
+								new mongo.ObjectID('300000000000000000000005'),
+								new mongo.ObjectID('300000000000000000000006'),
+								new mongo.ObjectID('300000000000000000000007'),
+								new mongo.ObjectID('300000000000000000000008'),
+								new mongo.ObjectID('300000000000000000000009'),
+								new mongo.ObjectID('300000000000000000000010')
 							]
 						}}
 					);
 
-					db.collection('collections').update({_id : new db.ObjectID('30000000078955fbcf405844')},
+					db.collection('collections').update({_id : new mongo.ObjectID('30000000078955fbcf405844')},
 						{$set: {
 							userId: user._id,
 							difficulty: 2,
 							title: "Famous people",
 							dareIds: [
-								new db.ObjectID('300000000000000000000100'),
-								new db.ObjectID('300000000000000000000101'),
-								new db.ObjectID('300000000000000000000102'),
-								new db.ObjectID('300000000000000000000103'),
-								new db.ObjectID('300000000000000000000104'),
-								new db.ObjectID('300000000000000000000105'),
-								new db.ObjectID('300000000000000000000106'),
-								new db.ObjectID('300000000000000000000107'),
-								new db.ObjectID('300000000000000000000108'),
-								new db.ObjectID('300000000000000000000109'),
-								new db.ObjectID('300000000000000000000110')
+								new mongo.ObjectID('300000000000000000000100'),
+								new mongo.ObjectID('300000000000000000000101'),
+								new mongo.ObjectID('300000000000000000000102'),
+								new mongo.ObjectID('300000000000000000000103'),
+								new mongo.ObjectID('300000000000000000000104'),
+								new mongo.ObjectID('300000000000000000000105'),
+								new mongo.ObjectID('300000000000000000000106'),
+								new mongo.ObjectID('300000000000000000000107'),
+								new mongo.ObjectID('300000000000000000000108'),
+								new mongo.ObjectID('300000000000000000000109'),
+								new mongo.ObjectID('300000000000000000000110')
 							]
 						}}
 					);
 				});
 
 				db.collection('dares').insert([
-					{_id: new db.ObjectID('300000000000000000000000'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000001'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000002'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000003'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000004'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000005'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000006'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000007'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000008'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000009'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000010'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000100'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000101'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000102'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000103'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000104'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000105'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000106'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000107'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000108'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000109'), createdTime: new Date()},
-					{_id: new db.ObjectID('300000000000000000000110'), createdTime: new Date()}
+					{_id: new mongo.ObjectID('300000000000000000000000'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000001'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000002'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000003'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000004'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000005'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000006'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000007'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000008'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000009'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000010'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000100'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000101'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000102'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000103'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000104'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000105'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000106'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000107'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000108'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000109'), createdTime: new Date()},
+					{_id: new mongo.ObjectID('300000000000000000000110'), createdTime: new Date()}
 				], {safe:true}, function(err, doc) {
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000000')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000000')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -96,7 +97,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000001')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000001')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -109,7 +110,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000002')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000002')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -122,7 +123,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000003')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000003')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -135,7 +136,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000004')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000004')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -148,7 +149,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000005')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000005')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -161,7 +162,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000006')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000006')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -174,7 +175,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000007')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000007')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -187,7 +188,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000008')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000008')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -200,7 +201,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000009')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000009')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -212,7 +213,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000010')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000010')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -224,7 +225,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000100')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000100')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -236,7 +237,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000101')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000101')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -248,7 +249,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000102')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000102')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -260,7 +261,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000103')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000103')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -272,7 +273,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000104')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000104')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -284,7 +285,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000105')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000105')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -296,7 +297,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000106')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000106')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -308,7 +309,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000107')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000107')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -321,7 +322,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000108')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000108')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -333,7 +334,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000109')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000109')},
 						{ $set: {
 							userId: user._id,
 							published: true,
@@ -345,7 +346,7 @@ module.exports = function(server) {
 						}}
 					);
 
-					db.collection('dares').update({_id: new db.ObjectID('300000000000000000000110')},
+					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000110')},
 						{ $set: {
 							userId: user._id,
 							published: true,

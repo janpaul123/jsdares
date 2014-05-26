@@ -6,6 +6,7 @@ var uuid = require('node-uuid');
 var crypto = require('crypto');
 var _ = require('underscore');
 var shared = require('../shared');
+var mongo = require('mongoskin');
 
 var localAuth = {
 	iterations: 30000,
@@ -510,7 +511,7 @@ module.exports = function(server) {
 
 		createObjectId: function(req, res, id, callback) {
 			try {
-				var objectId = new this.db.ObjectID(id);
+				var objectId = new mongo.ObjectID(id);
 				(callback.bind(this))(objectId);
 			} catch(error) {
 				this.common.error(req, res, 404);
