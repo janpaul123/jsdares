@@ -1,6 +1,6 @@
 var path = require('path');
 
-process.env.JSDARES_PORT = process.env.JSDARES_PORT || 3000;
+process.env.PORT = process.env.PORT || 3000;
 
 module.exports = function(grunt) {
 	grunt.initConfig({
@@ -48,8 +48,8 @@ module.exports = function(grunt) {
 		express: {
 			server: {
 				options: {
-					port: process.env.JSDARES_PORT,
-					server: path.resolve('./dist/server-connect-grunt')
+					port: process.env.PORT,
+					script: path.resolve('./dist/server-entry.js')
 				}
 			}
 		},
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
 		regarde: {
 			scripts: {
 				files: ['app/**/*.js', 'app/**/*.json', 'app/**/*.coffee'],
-				tasks: ['copy', 'coffee', 'browserify', 'express-restart']
+				tasks: ['copy', 'coffee', 'browserify', 'express']
 			},
 
 			styles: {
@@ -73,7 +73,7 @@ module.exports = function(grunt) {
 
 		open : {
 			dev : {
-				path: 'http://localhost:' + process.env.JSDARES_PORT
+				path: 'http://localhost:' + process.env.PORT
 			}
 		}
 
@@ -84,7 +84,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-livereload');
-	grunt.loadNpmTasks('grunt-express');
+	grunt.loadNpmTasks('grunt-express-server');
 	grunt.loadNpmTasks('grunt-regarde');
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-open');
