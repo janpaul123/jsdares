@@ -5,6 +5,7 @@ var connect = require('connect');
 var uuid = require('node-uuid');
 var crypto = require('crypto');
 var _ = require('underscore');
+var mongo = require('mongodb');
 
 var localAuth = {
 	iterations: 30000,
@@ -47,7 +48,7 @@ module.exports = function(server) {
 				};
 
 				if (req.session.userId) {
-					that.db.collection('users').findById(req.session.userId, function(error, user) {
+					that.db.collection('users').findOne({_id: req.session.userId}, function(error, user) {
 						if (error) {
 							that.error(req, res, 500, 'setUserId error: ' + error);
 							pause.resume();

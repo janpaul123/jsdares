@@ -53,7 +53,7 @@ module.exports = function(server) {
 		getCollection: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collection('collections').findById(id, this.existsCallback(req, res, function(collection) {
+					this.db.collection('collections').findOne({_id: id}, this.existsCallback(req, res, function(collection) {
 						this.end(req, res, collection);
 					}));
 				});
@@ -63,7 +63,7 @@ module.exports = function(server) {
 		getCollectionAndDaresAndInstances: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collection('collections').findById(id, this.errorCallback(req, res, function(collection) {
+					this.db.collection('collections').findOne({_id: id}, this.errorCallback(req, res, function(collection) {
 						if (!collection) this.common.error(req, res, 404);
 						else this.db.collection('dares').findItems({_id: {$in: collection.dareIds}}, this.errorCallback(req, res, function(dares) {
 							collection.dares = _.sortBy(dares, function(dare) {
@@ -167,7 +167,7 @@ module.exports = function(server) {
 		getDare: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collection('dares').findById(id, this.existsCallback(req, res, function(dare) {
+					this.db.collection('dares').findOne({_id: id}, this.existsCallback(req, res, function(dare) {
 						this.end(req, res, dare);
 					}));
 				});
@@ -177,7 +177,7 @@ module.exports = function(server) {
 		getDareAndInstance: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collection('dares').findById(id, this.errorCallback(req, res, function(dare) {
+					this.db.collection('dares').findOne({_id: id}, this.errorCallback(req, res, function(dare) {
 						if (dare) {
 							this.db.collection('instances').findOne({userId: req.session.userId, dareId: dare._id}, this.errorCallback(req, res, function(instance) {
 								if (instance) {
@@ -201,7 +201,7 @@ module.exports = function(server) {
 		getDareEdit: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.query._id, function(id) {
-					this.db.collection('dares').findById(id, this.userIdCallback(req, res, function(dare) {
+					this.db.collection('dares').findOne({_id: id}, this.userIdCallback(req, res, function(dare) {
 						this.end(req, res, dare);
 					}));
 				});
@@ -331,7 +331,7 @@ module.exports = function(server) {
 
 		postRegister: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.collection('users').findById(req.session.userId, this.errorCallback(req, res, function(user) {
+				this.db.collection('users').findOne({_id: req.session.userId}, this.errorCallback(req, res, function(user) {
 					if (!user) {
 						this.common.error(req, res, 404);
 					} else if (!req.body.username || !shared.validation.username(req.body.username)) {
