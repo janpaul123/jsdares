@@ -133,7 +133,6 @@ module.exports = function(server) {
 
 		addUsers: function(req, res, dares, callback) {
 			this.db.collection('users').find({_id: {$in: _.pluck(dares, 'userId')}}).toArray(this.errorCallback(req, res, function(users) {
-				console.info(users);
 				for (var i=0; i<dares.length; i++) {
 					dares[i].user = null;
 					for (var j=0; j<users.length; j++) {
