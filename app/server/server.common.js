@@ -34,7 +34,7 @@ module.exports = function(server) {
 
 				var newUserId = function() {
 					req.session.userId = uuid.v4();
-					that.db.collection('users').insert({_id: req.session.userId, createdTime: new Date(), ips: {initial : that.getIP(req)}}, {safe:true}, function(error, users) {
+					that.db.collection('users').insert({_id: req.session.userId, createdTime: new Date(), ips: {initial : that.getIP(req)}}, function(error, users) {
 						if (error) {
 							that.error(req, res, 500, 'setUserId error: ' + error);
 							pause.resume();

@@ -3,7 +3,7 @@
 
 var connect = require('connect');
 var uuid = require('node-uuid');
-var mongo = require('mongoskin');
+var mongo = require('mongodb');
 
 module.exports = function(server) {
 	server.dares = function(db) {
@@ -16,7 +16,9 @@ module.exports = function(server) {
 				db.collection('collections').insert([
 					{_id: new mongo.ObjectID('5009684ce78955fbcf405844'), createdTime: new Date()},
 					{_id: new mongo.ObjectID('30000000078955fbcf405844'), createdTime: new Date()}
-				], {safe:true}, function(err, doc) {
+				], function(err, doc) {
+					// leave duplicate errors
+
 					db.collection('collections').update({_id : new mongo.ObjectID('5009684ce78955fbcf405844')},
 						{$set: {
 							userId: user._id,
@@ -35,7 +37,7 @@ module.exports = function(server) {
 								new mongo.ObjectID('300000000000000000000009'),
 								new mongo.ObjectID('300000000000000000000010')
 							]
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('collections').update({_id : new mongo.ObjectID('30000000078955fbcf405844')},
@@ -56,7 +58,7 @@ module.exports = function(server) {
 								new mongo.ObjectID('300000000000000000000109'),
 								new mongo.ObjectID('300000000000000000000110')
 							]
-						}}
+						}}, {w:0}
 					);
 				});
 
@@ -83,7 +85,9 @@ module.exports = function(server) {
 					{_id: new mongo.ObjectID('300000000000000000000108'), createdTime: new Date()},
 					{_id: new mongo.ObjectID('300000000000000000000109'), createdTime: new Date()},
 					{_id: new mongo.ObjectID('300000000000000000000110'), createdTime: new Date()}
-				], {safe:true}, function(err, doc) {
+				], function(err, doc) {
+					// leave duplicate errors
+
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000000')},
 						{ $set: {
 							userId: user._id,
@@ -94,7 +98,7 @@ module.exports = function(server) {
 							original: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(3);',
 							outputStates: {robot: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":4,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false]]}'},
 							editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(2);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000001')},
@@ -107,7 +111,7 @@ module.exports = function(server) {
 							original: 'robot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);',
 							outputStates: {robot: '{"columns":5,"rows":5,"initialX":2,"initialY":4,"initialAngle":90,"mazeObjects":5,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"horizontalActive":[[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,true,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'},
 							editor: {text: 'robot.drive(3);\nrobot.turnRight();\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000002')},
@@ -120,7 +124,7 @@ module.exports = function(server) {
 							original: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(2);',
 							outputStates: {robot: '{"columns":5,"rows":5,"initialX":4,"initialY":4,"initialAngle":90,"mazeObjects":12,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,true,true,true],[true,true,true,true,false],[false,true,true,true,true]],"horizontalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]],"blockGoal":[[false,false,false,true,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false],[false,false,false,false,false]]}'},
 							editor: {text: 'robot.drive(4);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000003')},
@@ -133,7 +137,7 @@ module.exports = function(server) {
 							original: 'robot.drive(2);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(1);',
 							outputStates: {robot: '{"columns":5,"rows":5,"initialX":1,"initialY":4,"initialAngle":90,"mazeObjects":12,"verticalActive":[[false,false,false,false,false],[false,false,false,false,false],[false,false,true,false,false],[false,true,false,true,false],[false,false,true,false,false]],"horizontalActive":[[false,false,false,false,false],[false,false,true,false,false],[false,true,false,true,false],[false,false,true,false,true],[false,false,false,false,false]],"blockGoal":[[false,false,false,false,false],[false,true,false,false,false],[false,false,false,false,false],[true,false,false,false,false],[false,false,false,true,false]]}'},
 							editor: {}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000004')},
@@ -146,7 +150,7 @@ module.exports = function(server) {
 							original: 'robot.drive(7);\nrobot.turnRight();\nrobot.drive(6);\nrobot.turnRight();\nrobot.drive(7);\nrobot.turnRight();\nrobot.drive(4);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(1);',
 							outputStates: {robot: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":7,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"blockGoal":[[true,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,true],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[true,false,false,false,false,false,false,true],[false,false,false,false,true,false,false,false]],"numGoals":1}'},
 							editor: {text: 'robot.drive(3);\nrobot.turnRight();\nrobot.drive(3);\nrobot.turnRight();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nrobot.turnLeft();\nrobot.drive(1);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000005')},
@@ -159,7 +163,7 @@ module.exports = function(server) {
 							original: 'function leftright() {\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nleftright();\nleftright();\nleftright();\nleftright();\nleftright();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(4);\nrobot.turnRight();\nleftright();\nleftright();\nleftright();\nrobot.drive(3);',
 							outputStates: {robot: '{"columns":8,"rows":8,"initialX":5,"initialY":7,"initialAngle":90,"mazeObjects":48,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false],[false,false,true,false,true,false,false,false],[false,false,false,true,false,true,false,false],[false,false,true,false,true,false,true,false],[false,true,false,true,false,true,false,true],[false,false,true,false,true,false,true,true],[false,false,false,true,false,true,true,true]],"horizontalActive":[[false,true,false,true,false,false,false,false],[false,true,true,false,true,false,false,false],[false,true,true,true,false,true,false,false],[false,true,true,false,true,false,true,false],[false,true,false,true,false,true,false,true],[false,false,true,false,true,false,true,false],[false,false,false,true,false,true,false,false],[false,false,false,false,true,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,true,false,false],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,true]]}'},
 							editor: {text: 'function leftright() {\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nleftright();\nleftright();\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000006')},
@@ -172,7 +176,7 @@ module.exports = function(server) {
 							original: 'function zigzag() {\n  robot.drive(2);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nzigzag();\nrobot.drive(2);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();\nrobot.drive(1);\nrobot.turnRight();\nrobot.drive(1);\nzigzag();',
 							outputStates: {robot: '{"columns":6,"rows":6,"initialX":0,"initialY":5,"initialAngle":90,"mazeObjects":26,"verticalActive":[[false,false,false,false,false,false],[false,false,false,false,true,false],[false,false,true,true,false,false],[false,true,false,false,false,false],[true,false,false,true,true,false],[false,true,false,false,false,false]],"horizontalActive":[[false,false,false,true,false,false],[false,false,true,false,true,false],[false,true,false,false,false,false],[false,false,true,false,false,false],[false,false,true,true,false,true],[false,false,false,false,true,false]],"blockGoal":[[false,false,true,false,true,false],[false,false,false,true,false,false],[true,false,false,false,false,false],[false,true,false,false,false,false],[true,false,false,true,false,false],[false,false,true,false,true,false]]}'},
 							editor: {}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000007')},
@@ -185,7 +189,7 @@ module.exports = function(server) {
 							original: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\nforwardRight(7);\nforwardRight(7);\nforwardRight(6);\nforwardRight(6);\nforwardRight(5);\nforwardRight(5);\nforwardRight(4);\nforwardRight(4);\nforwardRight(3);\nforwardRight(3);\nforwardRight(2);\nforwardRight(2);\nforwardRight(1);\nforwardRight(1);',
 							outputStates: {robot: '{"columns":8,"rows":8,"initialX":0,"initialY":7,"initialAngle":90,"mazeObjects":50,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,true,false],[false,false,false,true,true,true,false,false],[false,false,false,false,true,false,false,false],[false,false,false,true,true,false,false,false],[false,false,true,true,true,true,false,false],[false,true,true,true,true,true,true,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,false,true],[false,true,true,true,false,false,true,true],[false,true,true,true,false,true,true,true],[false,true,true,false,false,false,true,true],[false,true,false,false,false,false,false,true],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,true,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
 							editor: {text: 'function forwardRight(distance) {\n  robot.drive(distance);\n  robot.turnRight();\n}\n\nforwardRight(7);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000008')},
@@ -198,7 +202,7 @@ module.exports = function(server) {
 							original: 'function move(distance) {\n  robot.drive(distance);\n  robot.turnLeft();\n  robot.drive(1);\n  robot.turnLeft();\n  robot.drive(distance);\n  robot.turnRight();\n  robot.drive(1);\n  robot.turnRight();\n}\n\nmove(6);\nmove(4);\nmove(2);',
 							outputStates: {robot: '{"columns":7,"rows":7,"initialX":6,"initialY":6,"initialAngle":90,"mazeObjects":31,"verticalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,true,false],[false,false,false,false,false,true,true],[false,false,true,true,true,true,false],[false,false,false,true,true,true,true],[true,true,true,true,true,true,false],[false,true,true,true,true,true,true]],"horizontalActive":[[false,false,false,false,false,false,false],[false,false,false,false,true,false,false],[false,false,false,false,true,false,false],[false,false,true,false,false,false,false],[false,false,true,false,false,false,false],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,true],[false,false,false,false,false,false,false],[false,false,false,false,false,false,false]]}'},
 							editor: {}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000009')},
@@ -210,7 +214,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ImageMatch";\nconfig.dare.ImageMatch.speed = 500;\nconfig.dare.ImageMatch.minPercentage = 97;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.outputs.canvas.enabled = true;\nconfig.outputs.canvas.size = 256;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "canvas.getContext,context.fillRect,context.fillStyle";\nconfig.outputs.info.scope = false;\n',
 							original: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\ncontext.fillRect(50, 100, 100, 50);\ncontext.fillRect(50, 150, 30, 50);\ncontext.fillRect(120, 150, 30, 50);',
 							editor: {text: 'var context = canvas.getContext("2d");\n\ncontext.fillRect(150, 50, 50, 50);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000010')},
@@ -222,7 +226,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ImageMatch";\nconfig.dare.ImageMatch.speed = 200;\nconfig.dare.ImageMatch.minPercentage = 97;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.outputs.canvas.enabled = true;\nconfig.outputs.canvas.size = 512;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.arithmetic.numbers[1],jsmm.function[0],canvas.getContext,context.fillRect,context.fillStyle";\nconfig.outputs.info.scope = false;\n',
 							original: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n  context.fillRect(x+50, y+100, 100, 50);\n  context.fillRect(x+50, y+150, 30, 50);\n  context.fillRect(x+120, y+150, 30, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\nanimal(250, 250);',
 							editor: {text: 'var context = canvas.getContext("2d");\n\nfunction animal(x, y) {\n  context.fillRect(x+150, y+50, 50, 50);\n}\n\nanimal(0, 0);\nanimal(250, 0);\nanimal(0, 250);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000100')},
@@ -234,7 +238,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 500;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 5;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,console.log";\nconfig.outputs.info.scope = false;\n',
 							original: 'console.log("Hello world!");\nconsole.log("Right now I am learning programming.");\nconsole.log("Soon I will make more interesting programs.");',
 							editor: {text: 'console.log("Hello world!");\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000101')},
@@ -246,7 +250,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 50;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 20;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log";\nconfig.outputs.info.scope = false;\n',
 							original: 'function person(name, born) {\n  console.log("Name    : " + name);\n  console.log("Born in : " + born);\n  console.log("");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");',
 							editor: {text: 'function person(name, born) {\n  console.log(name + "...");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000102')},
@@ -258,7 +262,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 12;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log";\nconfig.outputs.info.scope = false;\n',
 							original: 'function calculate(a, b) {\n  console.log("a is " + a);\n  console.log("b is " + b);\n  console.log("a times b is " + a*b);\n  console.log("");\n}\n\ncalculate(1, 1);\ncalculate(3, 5);\ncalculate(9, 8);\ncalculate(123456789, 0);\ncalculate(299792458, 3600);',
 							editor: {text: 'function calculate(a, b) {\n}\n\ncalculate(1, 1);\ncalculate(3, 5);\ncalculate(9, 8);\ncalculate(123456789, 0);\ncalculate(299792458, 3600);'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000103')},
@@ -270,7 +274,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 80;\nconfig.dare.maxLines = 13;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = false;\n',
 							original: 'function calculate(a, b) {\n  console.log("a + b = " + (a+b));\n  console.log("a - b = " + (a-b));\n  console.log("a * b = " + (a*b));\n  console.log("a / b = " + (a/b));\n  console.log("");\n}\n\ncalculate(8, 4);\ncalculate(10, 20);\ncalculate(0.5, 0.75);\ncalculate(-500, 500);\ncalculate(5, 4);',
 							editor: {text: 'function calculate(a, b) {\n  console.log("a * b = " + (a*b));\n}\n\ncalculate(8, 4);\ncalculate(10, 20);\ncalculate(0.5, 0.75);\ncalculate(-500, 500);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000104')},
@@ -282,7 +286,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 22;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = false;\n',
 							original: 'function person(name, born) {\n  console.log("Name    : " + name);\n  console.log("Born in : " + born);\n  console.log("(" + (2013-born) + " years ago)");\n  console.log("");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");',
 							editor: {text: 'function person(name, born) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815);\nperson("Ada Lovelace", 1815);\nperson("George Boole", 1815);\nperson("Grace Hopper", 1906);\nperson("Alan Turing", 1912);\nperson("Douglas Engelbart", 1925);\nperson("Bill Gates", 1955);\nperson("Steve Jobs", 1955);\nperson("Linus Torvalds", 1969);\nperson("Tim Berners-Lee", 1955);\nconsole.log("And many more...");'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000105')},
@@ -294,7 +298,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 11;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = false;\n',
 							original: 'function comparisons(number) {\n  console.log(number + " less than 10: " + (number < 10));\n  console.log(number + " equal to 10: " + (number == 10));\n  console.log(number + " more than 10: " + (number > 10));\n  console.log("");\n}\n\ncomparisons(-10);\ncomparisons(5);\ncomparisons(10);\ncomparisons(15);',
 							editor: {text: 'function comparisons(number) {\n  console.log(number + " less than 10: " + (number < 10));\n  console.log(number + " equal to 10: " + (number == 10));\n}\n\ncomparisons(-10);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000106')},
@@ -306,7 +310,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 5;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.while,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',
 							original: 'var counter = 1;\nwhile(counter <= 20) {\n  console.log(counter);\n  counter = counter+1;\n}\n',
 							editor: {text: 'var counter = 1;\nwhile(counter < 300) {\n  console.log(counter);\n  counter = counter*2;\n}\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000107')},
@@ -319,7 +323,7 @@ module.exports = function(server) {
 							original: 'var counter = 1;\nwhile(counter <= 7) {\n  robot.drive(counter);\n  robot.turnLeft();\n  counter++;\n}',
 							outputStates: {robot: '{"columns":8,"rows":8,"initialX":4,"initialY":3,"initialAngle":90,"mazeObjects":45,"verticalActive":[[false,false,false,false,false,false,false,false],[false,true,true,true,true,true,true,true],[false,false,true,true,true,true,false,false],[false,false,false,true,true,false,false,false],[false,false,false,true,false,false,false,false],[false,false,true,true,false,false,false,false],[false,true,true,true,true,false,false,false],[true,true,true,true,true,true,false,false]],"horizontalActive":[[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,true,true,false,false,false,true,false],[false,true,true,true,false,true,true,false],[false,true,true,false,true,true,true,false],[false,true,false,false,false,true,true,false],[false,false,false,false,false,false,true,false],[false,false,false,false,false,false,false,false]],"blockGoal":[[false,false,false,false,false,false,false,true],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
 							editor: {text: 'robot.drive(1);\nrobot.turnLeft();\nrobot.drive(2);\nrobot.turnLeft();\nrobot.drive(3);\nrobot.turnLeft();\nrobot.drive(4);\nrobot.turnLeft();\nrobot.drive(5);\nrobot.turnLeft();\nrobot.drive(6);\nrobot.turnLeft();\nrobot.drive(7);\nrobot.turnLeft();\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000108')},
@@ -331,7 +335,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 200;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 10;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.if,jsmm.else,jsmm.while,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',
 							original: 'function hello(hour) {\n  if (hour < 12) {\n    console.log("Good morning at " + hour);\n  } else {\n    console.log("Good afternoon at " + hour);\n  }\n}\n\nvar hour = 5;\nwhile(hour <= 19) {\n  hello(hour);\n  hour = hour + 1;\n}',
 							editor: {text: 'function hello(hour) {\n  if (hour < 12) {\n    console.log("Good morning");\n  } else {\n    console.log("");\n  }\n}\n\nhello(10);\n'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000109')},
@@ -343,7 +347,7 @@ module.exports = function(server) {
 							configProgram: 'config.dare.type = "ConsoleMatch";\nconfig.dare.ConsoleMatch.speed = 50;\nconfig.dare.ConsoleMatch.minPercentage = 97;\nconfig.dare.maxLines = 22;\nconfig.dare.lineReward = 10;\nconfig.outputs.console.enabled = true;\nconfig.outputs.info.enabled = true;\nconfig.outputs.info.commands = "jsmm.number,jsmm.string,jsmm.boolean,jsmm.var,jsmm.assignment,jsmm.arithmetic.numbers,jsmm.arithmetic.strings,jsmm.logic.equality,jsmm.logic.comparison,jsmm.logic.inversion,jsmm.logic.booleans,jsmm.if,jsmm.else,jsmm.while,jsmm.function[0],jsmm.function[1],console.log,console.clear,console.setColor";\nconfig.outputs.info.scope = true;\n',
 							original: 'function person(name, born, died, knownFor) {\n  console.log("Name      : " + name);\n  console.log("Born in   : " + born);\n  if (died > 0) {\n    console.log("Died in   : " + died);\n  }\n  console.log("Known for : " + knownFor);\n  console.log("");\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815, 1871, "first computer");\nperson("Ada Lovelace", 1815, 1852, "first programmer");\nperson("George Boole", 1815, 1864, "Boolean logic");\nperson("Grace Hopper", 1906, 1992, "first language");\nperson("Alan Turing", 1912, 1954, "Turing machine");\nperson("Douglas Engelbart", 1925, 0, "Computer mouse");\nperson("Bill Gates", 1955, 0, "Microsoft");\nperson("Steve Jobs", 1955, 2011, "Apple");\nperson("Linus Torvalds", 1969, 0, "Linux");\nperson("Tim Berners-Lee", 1955, 0, "World Wide Web");\nconsole.log("And many more...");',
 							editor: {text: 'function person(name, born, died, knownFor) {\n}\n\nconsole.log("Famous people in computing:");\nconsole.log("");\nperson("Charles Babbage", 1815, 1871, "first computer");\nperson("Ada Lovelace", 1815, 1852, "first programmer");\nperson("George Boole", 1815, 1864, "Boolean logic");\nperson("Grace Hopper", 1906, 1992, "first language");\nperson("Alan Turing", 1912, 1954, "Turing machine");\nperson("Douglas Engelbart", 1925, 0, "Computer mouse");\nperson("Bill Gates", 1955, 0, "Microsoft");\nperson("Steve Jobs", 1955, 2011, "Apple");\nperson("Linus Torvalds", 1969, 0, "Linux");\nperson("Tim Berners-Lee", 1955, 0, "World Wide Web");\nconsole.log("And many more...");'}
-						}}
+						}}, {w:0}
 					);
 
 					db.collection('dares').update({_id: new mongo.ObjectID('300000000000000000000110')},
@@ -356,7 +360,7 @@ module.exports = function(server) {
 							original: 'var counter = 0;\nwhile(counter <= 40) {\n  robot.drive(1);\n  if (robot.detectWall()) {\n    robot.turnLeft();\n  }\n  counter++;\n}',
 							outputStates: {robot: '{"columns":8,"rows":8,"initialX":7,"initialY":7,"initialAngle":90,"mazeObjects":34,"verticalActive":[[false,false,false,false,false,false,false,false],[false,false,true,false,true,false,false,false],[false,false,true,false,false,false,false,false],[false,true,false,false,false,false,true,false],[false,true,false,false,false,true,true,false],[false,false,false,false,false,true,false,false],[false,false,false,false,false,true,false,false],[false,false,false,true,false,false,true,false]],"horizontalActive":[[false,false,false,false,true,false,false,false],[false,false,true,true,true,false,false,true],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,true],[false,false,false,false,true,true,true,false],[false,false,false,true,true,false,false,true],[false,true,false,false,false,false,false,false]],"blockGoal":[[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,true,false],[false,false,false,true,false,false,false,false],[false,false,false,false,false,false,false,false],[false,true,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,true,true,false,true,false],[false,false,false,false,false,false,false,false]],"numGoals":1}'},
 							editor: {text: 'var counter = 0;\nwhile(counter <= 5) {\n  robot.drive(1);\n  console.log(robot.detectWall());\n  counter++;\n}'}
-						}}
+						}}, {w:0}
 					);
 
 					console.log('Pre-set values updated; userId of "janpaul123": ' + user._id);

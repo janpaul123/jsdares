@@ -6,7 +6,7 @@ var uuid = require('node-uuid');
 var crypto = require('crypto');
 var _ = require('underscore');
 var shared = require('../shared');
-var mongo = require('mongoskin');
+var mongo = require('mongodb');
 
 var localAuth = {
 	iterations: 30000,
@@ -65,7 +65,7 @@ module.exports = function(server) {
 				this.createObjectId(req, res, req.query._id, function(id) {
 					this.db.collection('collections').findOne({_id: id}, this.errorCallback(req, res, function(collection) {
 						if (!collection) this.common.error(req, res, 404);
-						else this.db.collection('dares').findItems({_id: {$in: collection.dareIds}}, this.errorCallback(req, res, function(dares) {
+						else this.db.collection('dares').find({_id: {$in: collection.dareIds}}).toArray(this.errorCallback(req, res, function(dares) {
 							collection.dares = _.sortBy(dares, function(dare) {
 								for (var i=0; i<collection.dareIds.length && !collection.dareIds[i].equals(dare._id); i++) continue;
 								return i;
@@ -88,7 +88,7 @@ module.exports = function(server) {
 		},
 
 		addInstances: function(req, res, dares, callback) {
-			this.db.collection('instances').findItems({dareId: {$in: _.pluck(dares, '_id')}, userId: req.session.userId}, this.errorCallback(req, res, function(instances) {
+			this.db.collection('instances').find({dareId: {$in: _.pluck(dares, '_id')}, userId: req.session.userId}).toArray(this.errorCallback(req, res, function(instances) {
 				for (var i=0; i<dares.length; i++) {
 					dares[i].instance = null;
 					for (var j=0; j<instances.length; j++) {
@@ -132,7 +132,7 @@ module.exports = function(server) {
 		},
 
 		addUsers: function(req, res, dares, callback) {
-			this.db.collection('users').findItems({_id: {$in: _.pluck(dares, 'userId')}}, this.errorCallback(req, res, function(users) {
+			this.db.collection('users').find({_id: {$in: _.pluck(dares, 'userId')}}).toArray(this.errorCallback(req, res, function(users) {
 				console.info(users);
 				for (var i=0; i<dares.length; i++) {
 					dares[i].user = null;
@@ -149,7 +149,7 @@ module.exports = function(server) {
 		},
 
 		addDares: function(req, res, items, filter, callback) {
-			this.db.collection('dares').findItems({_id: {$in: _.pluck(items, 'dareId')}, userId: req.session.userId}, this.errorCallback(req, res, function(dares) {
+			this.db.collection('dares').find({_id: {$in: _.pluck(items, 'dareId')}, userId: req.session.userId}).toArray(this.errorCallback(req, res, function(dares) {
 				for (var i=0; i<items.length; i++) {
 					items[i].dare = null;
 					for (var j=0; j<dares.length; j++) {
@@ -184,7 +184,7 @@ module.exports = function(server) {
 									dare.instance = instance;
 									this.end(req, res, dare);
 								} else {
-									this.db.collection('instances').insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, {safe: true}, this.errorCallback(req, res, function(instances) {
+									this.db.collection('instances').insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, this.errorCallback(req, res, function(instances) {
 										dare.instance = instances[0];
 										this.end(req, res, dare);
 									}));
@@ -211,7 +211,7 @@ module.exports = function(server) {
 		getDaresAndInstancesAll: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
-				this.db.collection('dares').findItems({}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
+				this.db.collection('dares').find({}, {'sort': [['createdTime', 'desc']], limit: 500}).toArray(this.existsCallback(req, res, function(array) {
 					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
@@ -221,7 +221,7 @@ module.exports = function(server) {
 
 		getDaresAndInstancesNewest: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.collection('dares').findItems({}, {'sort': [['createdTime', 'desc']], limit: 10}, this.existsCallback(req, res, function(array) {
+				this.db.collection('dares').find({}, {'sort': [['createdTime', 'desc']], limit: 10}).toArray(this.existsCallback(req, res, function(array) {
 					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
@@ -232,7 +232,7 @@ module.exports = function(server) {
 		getDaresAndInstancesByUserId: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 500 to be sure
-				this.db.collection('dares').findItems({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}, this.existsCallback(req, res, function(array) {
+				this.db.collection('dares').find({userId: req.query.userId}, {'sort': [['createdTime', 'desc']], limit: 500}).toArray(this.existsCallback(req, res, function(array) {
 					this.addInstancesAndStatisticsAndUsers(req, res, array, function(array) {
 						this.end(req, res, array);
 					});
@@ -242,7 +242,7 @@ module.exports = function(server) {
 
 		getDaresAndInstancesPlayed: function(req, res, next) {
 			this.tryCatch(req, res, function() {
-				this.db.collection('instances').findItems({userId: req.query.userId}, {'sort': [['modifiedTime', 'desc']]}, this.existsCallback(req, res, function(array) {
+				this.db.collection('instances').find({userId: req.query.userId}, {'sort': [['modifiedTime', 'desc']]}).toArray(this.existsCallback(req, res, function(array) {
 					this.addDares(req, res, array, true, function(array) {
 						var dares = [];
 						for (var i=0; i<array.length; i++) {
@@ -265,9 +265,12 @@ module.exports = function(server) {
 		postProgram: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.body._id, function(id) {
-					this.db.collection('instances').findItems({_id: id}, this.userIdCallback(req, res, function(array) {
-						this.db.collection('instances').update({_id: id}, {$set: {text: req.body.text, modifiedTime: new Date()}});
-						this.end(req, res);
+					this.db.collection('instances').find({_id: id}).toArray(this.userIdCallback(req, res, function(array) {
+						this.db.collection('instances').update(
+							{_id: id},
+							{$set: {text: req.body.text, modifiedTime: new Date()}},
+							this.postResponseCallback(req, res)
+						);
 					}));
 				});
 			});
@@ -276,11 +279,10 @@ module.exports = function(server) {
 		postInstance: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				this.createObjectId(req, res, req.body._id, function(id) {
-					this.db.collection('instances').findItems({_id: id}, this.userIdCallback(req, res, function(array) {
+					this.db.collection('instances').find({_id: id}).toArray(this.userIdCallback(req, res, function(array) {
 						this.db.collection('instances').update(
 							{_id: id},
 							{$set: {text: req.body.text, completed: req.body.completed, highscore: parseInt(req.body.highscore, 10), modifiedTime: new Date(), submittedTime: new Date()}},
-							{safe: true},
 							this.postResponseCallback(req, res)
 						);
 					}));
@@ -297,7 +299,6 @@ module.exports = function(server) {
 
 				this.db.collection('dares').insert(
 					dare,
-					{safe: true},
 					this.userIdCallback(req, res, function(dares) {
 						if (dares.length !== 1) {
 							this.common.error(req, res, 'When creating a new dare, not one dare inserted: ' + dares.length);
@@ -321,7 +322,6 @@ module.exports = function(server) {
 						this.db.collection('dares').update(
 							{_id: id},
 							{$set: dare},
-							{safe: true},
 							this.postResponseCallback(req, res)
 						);
 					}));
@@ -364,7 +364,6 @@ module.exports = function(server) {
 													'ips.registration' : this.common.getIP(req),
 													'registeredTime': new Date()
 												}},
-												{safe: true},
 												this.errorCallback(req, res, function(doc) {
 													console.log('NEW USER: ' + req.body.username);
 													this.common.setUserId(req, res, (function() {
@@ -390,16 +389,19 @@ module.exports = function(server) {
 							if (hash === user.auth.local.hash) {
 								this.db.collection('users').update(
 									{_id: user._id},
-									{$set: {'ips.login' : this.common.getIP(req), 'loginTime': new Date()}}
+									{$set: {'ips.login' : this.common.getIP(req), 'loginTime': new Date()}},
+									this.errorCallback(function() {
+										req.session.userId = user._id; // TODO: merge with current user id
+										this.common.setUserId(req, res, (function() {
+											this.end(req, res);
+										}).bind(this));
+									})
 								);
-								req.session.userId = user._id; // TODO: merge with current user id
-								this.common.setUserId(req, res, (function() {
-									this.end(req, res);
-								}).bind(this));
 							} else {
 								this.db.collection('users').update(
 									{_id: user._id},
-									{$set: {'ips.passwordError' : this.common.getIP(req)}}
+									{$set: {'ips.passwordError' : this.common.getIP(req)}},
+									{w:0}
 								);
 								this.common.error(req, res, 404);
 							}
@@ -451,7 +453,7 @@ module.exports = function(server) {
 		getUsersAll: function(req, res, next) {
 			this.tryCatch(req, res, function() {
 				// limit to 10000 for now
-				this.db.collection('users').findItems({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 10000}, this.existsCallback(req, res, function(array) {
+				this.db.collection('users').find({'link': {$exists: true}}, {'sort': [['registeredTime', 'desc']], limit: 10000}).toArray(this.existsCallback(req, res, function(array) {
 					var users = [];
 					for (var i=0; i<array.length; i++) {
 						users.push(shared.dares.sanitizeInput(array[i], shared.dares.userOptions));
