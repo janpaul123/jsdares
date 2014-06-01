@@ -31,7 +31,6 @@
     "node-uuid": "^1.4",
     "nodemailer": "^0.6.5",
     "relative-date": "^1.1.1",
-    "twitter-bootstrap": "^2.1.1",
     "underscore": "^1.6.0"
   },
   "engines": {
