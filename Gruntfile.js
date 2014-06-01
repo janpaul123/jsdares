@@ -54,10 +54,13 @@ module.exports = function(grunt) {
 			}
 		},
 
-		regarde: {
+		watch: {
 			scripts: {
 				files: ['app/**/*.js', 'app/**/*.json', 'app/**/*.coffee'],
-				tasks: ['copy', 'coffee', 'browserify', 'express']
+				tasks: ['copy', 'coffee', 'browserify', 'express'],
+        options: {
+          spawn: false
+        }
 			},
 
 			styles: {
@@ -84,12 +87,12 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-livereload');
-	grunt.loadNpmTasks('grunt-express-server');
-	grunt.loadNpmTasks('grunt-regarde');
+	grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-express-server');
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-open');
 
 	grunt.registerTask('compile', ['clean', 'copy', 'coffee', 'browserify', 'less']);
-	grunt.registerTask('server', ['livereload-start', 'express', 'open', 'regarde']);
+	grunt.registerTask('server', ['livereload-start', 'express', 'open', 'watch']);
 	grunt.registerTask('default', ['compile', 'server']);
 };
