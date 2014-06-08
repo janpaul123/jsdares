@@ -389,7 +389,7 @@ module.exports = function(server) {
 								this.db.collection('users').update(
 									{_id: user._id},
 									{$set: {'ips.login' : this.common.getIP(req), 'loginTime': new Date()}},
-									this.errorCallback(function() {
+									this.errorCallback(req, res, function() {
 										req.session.userId = user._id; // TODO: merge with current user id
 										this.common.setUserId(req, res, (function() {
 											this.end(req, res);
