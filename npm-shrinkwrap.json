@@ -2604,70 +2604,65 @@
       }
     },
     "mongodb": {
-      "version": "1.4.39",
-      "from": "mongodb@>=1.4.5 <2.0.0",
-      "resolved": "https://registry.npmjs.org/mongodb/-/mongodb-1.4.39.tgz",
+      "version": "2.0.45",
+      "from": "mongodb@2.0.45",
+      "resolved": "https://registry.npmjs.org/mongodb/-/mongodb-2.0.45.tgz",
       "dependencies": {
-        "bson": {
-          "version": "0.2.22",
-          "from": "bson@>=0.2.0 <0.3.0",
-          "resolved": "https://registry.npmjs.org/bson/-/bson-0.2.22.tgz",
+        "mongodb-core": {
+          "version": "1.2.14",
+          "from": "mongodb-core@1.2.14",
+          "resolved": "https://registry.npmjs.org/mongodb-core/-/mongodb-core-1.2.14.tgz",
           "dependencies": {
-            "nan": {
-              "version": "1.8.4",
-              "from": "nan@>=1.8.0 <1.9.0",
-              "resolved": "https://registry.npmjs.org/nan/-/nan-1.8.4.tgz"
-            }
-          }
-        },
-        "kerberos": {
-          "version": "0.0.11",
-          "from": "kerberos@0.0.11",
-          "resolved": "https://registry.npmjs.org/kerberos/-/kerberos-0.0.11.tgz",
-          "dependencies": {
-            "nan": {
-              "version": "1.8.4",
-              "from": "nan@>=1.8.0 <1.9.0",
-              "resolved": "https://registry.npmjs.org/nan/-/nan-1.8.4.tgz"
+            "bson": {
+              "version": "0.4.12",
+              "from": "bson@>=0.4.0 <0.5.0",
+              "resolved": "https://registry.npmjs.org/bson/-/bson-0.4.12.tgz"
+            },
+            "kerberos": {
+              "version": "0.0.14",
+              "from": "kerberos@>=0.0.0 <0.1.0",
+              "resolved": "https://registry.npmjs.org/kerberos/-/kerberos-0.0.14.tgz",
+              "dependencies": {
+                "nan": {
+                  "version": "2.0.9",
+                  "from": "nan@>=2.0.0 <2.1.0",
+                  "resolved": "https://registry.npmjs.org/nan/-/nan-2.0.9.tgz"
+                }
+              }
             }
           }
         },
         "readable-stream": {
-          "version": "2.0.2",
-          "from": "readable-stream@latest",
-          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.0.2.tgz",
+          "version": "1.0.31",
+          "from": "readable-stream@1.0.31",
+          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-1.0.31.tgz",
           "dependencies": {
             "core-util-is": {
               "version": "1.0.1",
               "from": "core-util-is@>=1.0.0 <1.1.0",
               "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.1.tgz"
             },
-            "inherits": {
-              "version": "2.0.1",
-              "from": "inherits@>=2.0.1 <2.1.0",
-              "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
-            },
             "isarray": {
               "version": "0.0.1",
               "from": "isarray@0.0.1",
               "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
-            },
-            "process-nextick-args": {
-              "version": "1.0.3",
-              "from": "process-nextick-args@>=1.0.0 <1.1.0",
-              "resolved": "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-1.0.3.tgz"
             },
             "string_decoder": {
               "version": "0.10.31",
               "from": "string_decoder@>=0.10.0 <0.11.0",
               "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-0.10.31.tgz"
             },
-            "util-deprecate": {
-              "version": "1.0.1",
-              "from": "util-deprecate@>=1.0.1 <1.1.0",
-              "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.1.tgz"
+            "inherits": {
+              "version": "2.0.1",
+              "from": "inherits@>=2.0.1 <2.1.0",
+              "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
             }
           }
+        },
+        "es6-promise": {
+          "version": "2.1.1",
+          "from": "es6-promise@2.1.1",
+          "resolved": "https://registry.npmjs.org/es6-promise/-/es6-promise-2.1.1.tgz"
         }
       }
     },
