@@ -60,8 +60,6 @@ module.exports = function(client) {
 			this.$div.append(this.now);
 
 			this.fullEditor = null;
-
-			this.updateCollections();
 		},
 
 		about: '<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an open source proof-of-concept. <a href="/blindfold" class="homepage-blindfold-link">Learn more&hellip;</a><span></p>',
