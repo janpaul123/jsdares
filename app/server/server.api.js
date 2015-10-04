@@ -183,8 +183,8 @@ module.exports = function(server) {
 									dare.instance = instance;
 									this.end(req, res, dare);
 								} else {
-									this.db.collection('instances').insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, this.errorCallback(req, res, function(instances) {
-										dare.instance = instances[0];
+									this.db.collection('instances').insert({ userId: req.session.userId, dareId: dare._id, createdTime: new Date() }, this.errorCallback(req, res, function(result) {
+										dare.instance = result.ops[0];
 										this.end(req, res, dare);
 									}));
 								}
@@ -298,7 +298,8 @@ module.exports = function(server) {
 
 				this.db.collection('dares').insert(
 					dare,
-					this.userIdCallback(req, res, function(dares) {
+					this.userIdCallback(req, res, function(result) {
+						var dares = result.ops;
 						if (dares.length !== 1) {
 							this.common.error(req, res, 'When creating a new dare, not one dare inserted: ' + dares.length);
 						} else {
