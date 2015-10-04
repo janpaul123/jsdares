@@ -103,6 +103,12 @@ module.exports = function(server) {
 		},
 
 		addStatistics: function(req, res, dares, callback) {
+			if (!req.session.loginData.admin) {
+				// For now, don't add statistics except for admins.
+				(callback.bind(this))(dares);
+				return;
+			}
+
 			this.db.collection('instances').aggregate([
 				{$match: {dareId: {$in: _.pluck(dares, '_id')}}},
 				{$project: {
