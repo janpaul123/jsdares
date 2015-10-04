@@ -298,8 +298,7 @@ module.exports = function(server) {
 
 				this.db.collection('dares').insert(
 					dare,
-					this.userIdCallback(req, res, function(result) {
-						var dares = result.ops;
+					this.userIdCallback(req, res, function(dares) {
 						if (dares.length !== 1) {
 							this.common.error(req, res, 'When creating a new dare, not one dare inserted: ' + dares.length);
 						} else {
@@ -487,6 +486,11 @@ module.exports = function(server) {
 
 		userIdCallback: function(req, res, callback) {
 			return this.existsCallback(req, res, function(doc) {
+				if (doc.ops && doc.insertedCount) {
+					// new insertOneWriteOpResultObject object for .insert and .update calls
+					doc = doc.ops;
+				}
+
 				var array = doc;
 				if (!_.isArray(doc)) array = [doc];
 
