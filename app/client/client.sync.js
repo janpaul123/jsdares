@@ -1,6 +1,8 @@
 /*jshint node:true jquery:true*/
 "use strict";
 
+var _ = require('underscore');
+
 module.exports = function(client) {
 	client.Sync = function() { return this.init.apply(this, arguments); };
 	client.Sync.prototype = {
@@ -8,6 +10,11 @@ module.exports = function(client) {
 			this.delegate = delegate;
 			this.postTimeout = null;
 			this.delayedPostData = {};
+
+      this.checkUsername =
+        _.throttle(this.checkUsername.bind(this), 1000);
+      this.checkEmail =
+        _.throttle(this.checkEmail.bind(this), 1000);
 		},
 
 		remove: function() {
