@@ -14,13 +14,9 @@
 - Cohesively designed experience.
 
 ## Installation
-1. Install [node.js](http://nodejs.org).
-2. Install [mongodb](http://www.mongodb.org).
-3. Install dependencies: `npm install`.
-4. Install the grunt client: `npm install -g grunt-cli`.
-5. Start mongodb: `mongod`.
-6. Run grunt: `grunt`.
-7. Done!
+1. Install dependencies: `npm install`.
+2. Run grunt: `node_modules/.bin/grunt`.
+3. Done! Serve using some webserver, on the root domain.
 
 To load the default dares, register a user with username **janpaul123** and restart the server. Automatically dares will be created for this user, and the user will get admin rights.
 
@@ -29,6 +25,4 @@ To load the default dares, register a user with username **janpaul123** and rest
 - [Robot](https://github.com/janpaul123/robot), a robot applet based on the robot environment.
 
 ## Contributing
-First of all, reporting [issues](https://github.com/janpaul123/jsdares/issues) and fixing bugs is always great!
-
-Right now the focus is on refactoring the codebase to make it more modular, so we can easily extract components to other projects and integrate new functionality. If you want to use functionality from jsdares in your own project, you can help extracting it. And integrating your own and new functionality into jsdares is of course also very welcome! Just drop me a line at <jp@jsdares.com>.
+PRs and bug reports are always welcome! :)

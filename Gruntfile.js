@@ -23,7 +23,7 @@ module.exports = function(grunt) {
 		less: {
 			client: {
 				src: 'app/client/index.less',
-				dest: 'dist/assets/index.css'
+				dest: 'dist/index.css'
 			}
 		},
 
@@ -41,23 +41,14 @@ module.exports = function(grunt) {
 		browserify: {
 			client: {
 				src: 'dist/client-entry.js',
-				dest: 'dist/assets/browserify.js'
-			}
-		},
-
-		express: {
-			server: {
-				options: {
-					port: process.env.PORT,
-					script: path.resolve('./dist/server-entry.js')
-				}
+				dest: 'dist/browserify.js'
 			}
 		},
 
 		watch: {
 			scripts: {
 				files: ['app/**/*.js', 'app/**/*.json', 'app/**/*.coffee'],
-				tasks: ['copy', 'coffee', 'browserify', 'express'],
+				tasks: ['copy', 'coffee', 'browserify'],
         options: {
           spawn: false
         }
@@ -73,13 +64,6 @@ module.exports = function(grunt) {
 				tasks: ['copy', 'livereload']
 			}
 		},
-
-		open : {
-			dev : {
-				path: 'http://localhost:' + process.env.PORT
-			}
-		}
-
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-copy');
@@ -88,11 +72,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-livereload');
 	grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-express-server');
 	grunt.loadNpmTasks('grunt-browserify');
-	grunt.loadNpmTasks('grunt-open');
 
 	grunt.registerTask('compile', ['clean', 'copy', 'coffee', 'browserify', 'less']);
-	grunt.registerTask('server', ['livereload-start', 'express', 'open', 'watch']);
+	grunt.registerTask('server', ['livereload-start', 'watch']);
 	grunt.registerTask('default', ['compile', 'server']);
 };

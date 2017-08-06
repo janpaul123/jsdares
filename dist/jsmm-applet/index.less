@@ -1,0 +1,263 @@
+@import "colorpicker/jquery.ui.colorPicker.less";
+@import "global.less";
+@import "arrows.less";
+@import "clayer/index.less";
+@import "robot/index.less";
+@import "editor/index.less";
+@import "output/index.less";
+@import "info/index.less";
+
+.modal-open {
+	overflow: hidden;
+}
+
+.ui-main {
+	color: #fbfbfb;
+	font-size: 14px;
+	line-height: 21px;
+	font-weight: lighter;
+	position: relative;
+	width: @applet-width;
+	height: @applet-height;
+
+	li {
+		line-height: 24px;
+	}
+
+	strong {
+		color: white;
+	}
+}
+
+.ui-background {
+	position: absolute;
+	top: 40px;
+	left: 0px;
+	width: @applet-width;
+	height: @applet-height - 40px;
+	background-color: #333;
+	.box-shadow(0px 0px 10px rgba(0, 0, 0, 0.2));
+	z-index: 1;
+}
+
+.ui-editor {
+	position: absolute;
+	top: 40px;
+	right: 0px;
+	width: floor(@applet-width/2);
+	height: @applet-height - 40 - @stepbar-height;
+}
+
+.ui-output {
+	position: absolute;
+	top: 13px;
+	left: 0px;
+	width: round(@applet-width/2);
+	height: @applet-height - 13 - @stepbar-height;
+	.transition(bottom 0.5s ease-in-out);
+
+	.nav-tabs {
+		border-bottom: none;
+		margin: 0;
+		position: relative;
+		z-index: 2;
+
+		li {
+			position:relative;
+			top: 35px;
+			.transition(top 0.5s ease-out);
+
+			&.tab-button-enabled {
+				top: 0px;
+			}
+		}
+
+		li > a {
+			padding: 6px 10px 3px;
+			margin-right: 4px;
+			line-height: 18px;
+			font-size: 13px;
+			color: white;
+			border: none;
+			.buttonBackground(#333, #222);
+			background-color: #222;
+			@shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0,0,0,.05);
+			.box-shadow(@shadow);
+
+			&:hover, &:focus {
+				color: white;
+				border: none;
+				background-color: #222;
+				background-position: 0 -30px;
+				.transition(background-position .1s linear);
+			}
+		}
+
+		.active > a {
+			background-position: 0 0px !important;
+			.transition(none) !important;
+			.buttonBackground(#555, #333);
+			background-color: #333;
+		}
+	}
+
+	.tab-output {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		right: 0px;
+		bottom: 0px;
+		width: auto;
+		height: auto;
+		overflow: auto;
+	}
+
+	.tab-content {
+		display: block;
+		position: absolute;
+		left: 0px;
+		right: 0px;
+		top: 27px;
+		bottom: 0px;
+		width: auto;
+		height: auto;
+		background-color: #333;
+		z-index: 3;
+	}
+
+	var {
+		.code-inline();
+	}
+}
+
+.ui-toolbar {
+	position: absolute;
+	//top: 45px;
+	top: 0px;
+	left: floor(@applet-width/2) + 26px + 1px;
+	background-color: #333;
+	margin: 0;
+	z-index: 51;
+	.border-top-left-radius(5px);
+	.border-top-right-radius(5px);
+
+	@shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 -2px 4px rgba(0, 0, 0, 0.05);
+	.box-shadow(@shadow);
+}
+
+.ui-stepbar {
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
+	width: @applet-width;
+	height: @stepbar-height - 1;
+	background-color: #333;
+	border-top: solid 1px @editor-margin-border-color;
+	z-index: 4;
+}
+
+.ui-close {
+	position: absolute;
+	display: block;
+	top: 6px;
+	right: 0px;
+	background-color: #333;
+	padding: 5px 0;
+	color: #CCC;
+	font-size: 24px;
+	line-height: 24px;
+	text-decoration: none;
+	z-index: 52;
+	width: 40px;
+	height: 24px;
+	text-align: center;
+	font-weight: bold;
+
+	-webkit-font-smoothing: antialiased;
+
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+	.border-top-left-radius(5px);
+	.border-top-right-radius(5px);
+
+	@shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 -2px 4px rgba(0, 0, 0, 0.05);
+	.box-shadow(@shadow);
+
+	&:hover {
+		color: white;
+		text-decoration: none;
+	}
+}
+
+/* put in bootstrap, forgot btn-warning */
+.btn-warning .caret {
+  border-top-color: #ffffff;
+  opacity: 0.75;
+  filter: alpha(opacity=75);
+}
+
+.ui-home {
+	padding: 15px;
+	a {
+		color: #5be;
+	}
+	div {
+		margin-top: 10px;
+	}
+	h3 {
+		border-top: 1px solid #555;
+		margin: 15px 0px 10px;
+		padding-top: 15px;
+	}
+}
+
+.ui-modal {
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: none;
+	z-index: @zindexModal;
+
+	&.ui-modal-active {
+		display: block;
+	}
+
+	.ui-modal-ui {
+		position: absolute;
+		left: 50%;
+		top: -50%;
+		margin-left: round(-@applet-width/2);
+		margin-top: round(-@applet-height/2);
+		.transition(top 0.25s ease-in-out);
+
+		&.ui-modal-ui-active {
+			top: 50%;
+		}
+	}
+
+	// from http://matthamm.com/box-shadow-curl.html
+	.ui-modal-ui::before, .ui-modal-ui::after {
+		content: '';
+		z-index: -1;
+		position: absolute;
+		left: 20px;
+		bottom: 16px;
+		width: 300px;
+		max-width: 300px;
+		max-height: 100px;
+		height: 100px;
+		@shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+		.box-shadow(@shadow);
+		@transform: skew(-15deg) rotate(-6deg);
+		.transform(@transform);
+	}
+
+	.ui-modal-ui::after {
+		left: auto;
+		right: 20px;
+		@transform: skew(15deg) rotate(6deg);
+		.transform(@transform);
+	}
+}

@@ -1,0 +1,53 @@
+.dare-robotgoal {
+	.dare-robotgoal-original-container {
+		float: right;
+		position: relative;
+		margin: 0px 1px 5px 15px;
+		cursor: pointer;
+		margin-top: 10px;
+		overflow: hidden;
+		
+		&:hover .dare-original-refresh {
+			display: block;
+		}
+	}
+
+	.dare-points-robotgoal {
+		.dare-points-robotgoal-squares {
+			margin-left: 3px;
+
+			.dare-points-robotgoal-square {
+				width: 40px;
+				height: 40px;
+				display: inline-block;
+				border: 3px solid #eee;
+				margin-right: 20px;
+				margin-bottom: 5px;
+				.transition(background-color 0.3s linear);
+
+				&.dare-points-robotgoal-square-active {
+					background-color: #080;
+				}
+
+				&.dare-points-robotgoal-square-blink {
+					background-color: lighten(#080, 7%);
+				}
+			}
+
+			.dare-points-robotgoal-optional {
+				display: inline-block;
+				background: #222;
+				padding: 10px 10px 3px;
+				.border-radius(5px);
+				margin-left: -6px;
+			}
+
+			.dare-points-robotgoal-optional-text {
+				position: relative;
+				bottom: 18px;
+				margin-left: -8px;
+				color: #bbb;
+			}
+		}
+	}
+}

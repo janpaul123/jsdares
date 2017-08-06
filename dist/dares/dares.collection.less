@@ -1,0 +1,116 @@
+.dares-collection {
+	background-color: rgb(252,252,252);
+	width: 410px;
+	border: 1px solid hsl(110, 35%, 80%);
+	border-radius: 5px;
+
+	.dares-header {
+		background-color: hsl(110, 35%, 80%);
+		padding: 10px 10px;
+		position: relative;
+
+		.dares-header-title {
+			font-size: 18px;
+			line-height: 18px;
+			font-weight: bold;
+		}
+
+		.dares-header-difficulty {
+			// position: absolute;
+			// top: 10px;
+			// right: 10px;
+			float: right;
+
+			.icon-star-yellow {
+				margin-left: 2px;
+			}
+		}
+
+		.dares-header-buttons {
+			float: right;
+			margin-top: -5px;
+		}
+	}
+
+	.dares-body {
+		.dares-body-item {
+			padding: 10px;
+			cursor: pointer;
+
+			> span, > button {
+				font-size: 14px;
+
+				&.dares-body-cell-hide {
+					.opacity(20);
+				}
+			}
+
+			button {
+				font-size: 13px;
+				margin-top: -4px;
+			}
+
+			.dares-body-name {
+				width: 410px-90-20;
+				font-weight: bold;
+				min-height: 16px;
+
+				/*
+				.dares-body-output {
+					.output-badge();
+					margin-left: 3px;
+				}
+				*/
+			}
+
+			.dares-body-highscore {
+				float: right;
+				visibility: hidden;
+				font-size: 14px;
+				margin-left: 10px;
+			}
+
+			.dares-body-edit {
+				float: right;
+				visibility: hidden;
+				margin-left: 10px;
+			}
+
+			.dares-body-time {
+				float: right;
+				font-size: 14px;
+				margin-left: 10px;
+				margin-top: 2px;
+				visibility: hidden;
+			}
+
+			&:hover {
+				background-color: lighten(hsl(110, 35%, 80%), 2%);
+
+				.dares-body-highscore {
+					visibility: visible;
+				}
+
+				.dares-body-edit {
+					visibility: visible;
+				}
+
+				.dares-body-time {
+					visibility: visible;
+				}
+			}
+
+			&.dares-body-unpublished {
+				color: #999;
+			}
+
+			&.dares-body-completed {
+				background-color: lighten(hsl(110, 35%, 80%), 9%);
+
+				&:hover {
+					background-color: lighten(hsl(110, 35%, 80%), 2%);
+				}
+			}
+		}
+	}
+}

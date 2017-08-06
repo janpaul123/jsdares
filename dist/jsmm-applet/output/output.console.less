@@ -1,0 +1,70 @@
+.console-highlighting {
+	cursor: crosshair;
+}
+
+.console-container {
+	.code-well();
+	.code-foreground();
+	position: relative;
+	overflow: hidden;
+}
+
+.console-autoscroll {
+	border-bottom: 1px solid @console-auto-scroll-border-color;
+}
+
+.console-content {
+	padding: 10px;
+	position: relative;
+}
+
+.console-line {
+	min-height: @code-line-height;
+	border: none;
+	margin: 0px;
+	outline: none;
+	resize: none;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	display: none;
+}
+
+.console-line-visible {
+	display: block;
+}
+
+.console-line-highlight-time {
+	background-color: rgba(0, 110, 220, 0.30);
+	.opacity(40);
+	display: block;
+
+	&.console-line-visible {
+		.opacity(100);
+	}
+}
+
+.console-highlighting-current-event .console-line-highlight-event,
+.console-container:hover .console-line-highlight-event,
+.console-line-highlight-time.console-line-highlight-event {
+	background-color: rgba(0, 110, 220, 0.50);
+}
+
+.console-line-highlight-line, .console-line-highlight-step {
+	background-color: @highlight-color !important;
+}
+
+.console-target {
+	padding: 10px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	.opacity(20);
+
+	.console-line {
+		display: block;
+	}
+}
+
+.console-error {
+	opacity: 0.5;
+}

@@ -1,0 +1,45 @@
+.canvas-highlighting {
+	cursor: crosshair;
+}
+
+.canvas-container {
+	.canvas-well();
+	position: relative;
+	//width: 100%; screws up mouse event positions
+
+	.canvas-canvas {
+		//width: 100%;
+	}
+	
+	.canvas-target {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		//width: 100%;
+		.opacity(20);
+	}
+}
+
+.canvas-error {
+	opacity: 0.5;
+}
+
+.canvas-mirror {
+	.canvas-well();
+	//visibility: hidden;
+	display: none;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+.canvas-show-mirror .canvas-mirror {
+	position: relative;
+	visibility: visible;
+	width: 100%;
+	max-width: @canvas-max-outer-width - @output-padding*2;
+	background-color: @canvas-background-color;
+	@shadow: 0px 2px 5px rgba(0,0,0,0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.4);
+	.box-shadow(@shadow);
+	.border-radius(4px);
+}

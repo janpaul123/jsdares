@@ -1,0 +1,58 @@
+@dare-editor-arrow-size: 6px;
+@dare-editor-box-color: hsla(0, 0%, 15%, 0.9);
+
+.dare-editor {
+	padding: 15px;
+
+	.dare-editor-top-toolbar, .dare-editor-program-group {
+		position: relative;
+		background-color: @dare-editor-box-color;
+		padding: 5px;
+		.border-radius(5px);
+	}
+
+	.dare-editor-top-toolbar {
+		display: inline-block;
+		margin-top: 0px;
+		padding-bottom: 0px;
+
+		.dare-editor-top-toolbar-loader, .dare-editor-top-toolbar-error {
+			position: absolute;
+			right: -25px;
+			top: 11px;
+		}
+
+		.dare-editor-top-toolbar-error {
+			.opacity(80);
+			cursor: pointer;
+		}
+
+		.dare-editor-top-toolbar-error:hover {
+			.opacity(100);
+		}
+	}
+
+	.dare-editor-program-group {
+		position: absolute;
+		right: 8px;
+		top: 15px;
+
+		.dare-editor-program-group-arrow {
+				#popoverArrow > .left(@dare-editor-arrow-size, @dare-editor-box-color);
+				position: absolute;
+				margin-right: -@dare-editor-arrow-size;
+		}
+	}
+
+	.dare-editor-input-group {
+		.dare-editor-input-name {
+			width: 100%;
+		}
+
+		.dare-editor-input-description {
+			width: 100%;
+			height: 200px;
+		}
+	}
+
+}
