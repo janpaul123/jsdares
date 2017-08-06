@@ -3,7 +3,7 @@
 
 module.exports = function(client) {
 	client.getPageHomeHtml = function() {
-		return client.PageHome.prototype.about + client.PageHome.prototype.how + client.PageHome.prototype.now;
+		return client.PageHome.prototype.about + client.PageHome.prototype.how;
 	};
 
 	client.PageHome = function() { return this.init.apply(this, arguments); };
@@ -52,25 +52,27 @@ module.exports = function(client) {
 			this.collection2 = new dares.Collection(this, $collection2);
 			this.$intro.append($collection2);
 
+			var $collection3 = $('<div class="intro-collection3"></div>');
+			this.collection3 = new dares.Collection(this, $collection3);
+			this.$intro.append($collection3);
+
 			this.$introButton = $('<button class="intro-full-editor btn btn-large">Open full editor</button>');
 			this.$introButton.on('click', _(function(event) { this.delegate.navigateTo('?full'); }).bind(this));
 			this.$intro.append(this.$introButton);
 			this.$div.append(this.$intro);
-
-			this.$div.append(this.now);
 
 			this.fullEditor = null;
 		},
 
 		about: '<div class="homepage-title">Make your own <strong>games</strong> by learning <strong>JavaScript</strong> programming!</div><p class="homepage-about-text"><strong>jsdares</strong> is an open source proof-of-concept. <a href="?blindfold" class="homepage-blindfold-link">Learn more&hellip;</a><span></p>',
 		how: '<div class="how"><div class="how-header">Getting started</div><div class="how-text"><div class="how-text-1">You learn programming by completing <strong>dares</strong>. These are short puzzles in which you have to copy the example, in as few lines of code as possible. They start simple, and become more difficult as you progress.</div><div class="how-text-2"><!-- Get started with learning the <strong>basics</strong> of programming. If you already know some programming, you can take an <strong>interface</strong> crash course. Or just <strong>discover</strong> all the dares! --> For now we only provide a number of <strong>examples</strong>. In the future we will provide some collections of dares to start with, and you will also be able to make and share your own dares. You can also play around in the <strong>full editor</strong>.</div></div></div>',
-		now: '<div class="how"><div class="how-header">Now what?</div><div class="how-text"><div class="how-text-1">If you want to learn more, sign up for an account, and click <strong>Learn</strong> at the top of the page. There you can find dares built by the community. We don\'t have the dares yet to learn how to program games, but feel free to play around with the game at the top of the page. Try pausing the game, understanding how it works, and modifying it.</div><div class="how-text-2">If you\'re already an advanced programmer, please <strong>help us</strong> create more dares! It would be great if one day we would have the entire path from learning fundamentals to making games.</div></div></div>',
 
 		remove: function() {
 			this.$aboutText.remove();
 			this.exampleUI.remove();
 			this.collection1.remove();
 			this.collection2.remove();
+			this.collection3.remove();
 			this.$example.remove();
 			this.$how.remove();
 			this.$intro.remove();
@@ -98,10 +100,13 @@ module.exports = function(client) {
 			this.delegate.getSync().getCollectionAndDaresAndInstances('30000000078955fbcf405844', _(function(content) {
 				this.collection2.update(content, this.delegate.getUserId(), this.delegate.getAdmin());
 			}).bind(this));
+			this.delegate.getSync().getCollectionAndDaresAndInstances('communityContributedDaresCollection', _(function(content) {
+				this.collection3.update(content, this.delegate.getUserId(), this.delegate.getAdmin());
+			}).bind(this));
 		},
 
 		closeCallback: function() {
-      this.delegate.navigateTo('?');
+			this.delegate.navigateTo('?');
 		},
 
 		navigateTo: function(splitUrl) {
