@@ -9,10 +9,6 @@ var pageConstructors = [
 	{regex: /^edit/, type: 'PageHome'},
 	{regex: /^full/, type: 'PageHome'},
 	{regex: /^about/, type: 'PageAbout'},
-	{regex: /^learn/, type: 'PageLearn'},
-	{regex: /^create/, type: 'PageCreate'},
-	{regex: /^superheroes$/, type: 'PageUsersList'},
-	{regex: /^superheroes/, type: 'PageUsersSingle'},
 	{regex: /^blindfold/, type: 'PageBlog'}
 ];
 
@@ -21,12 +17,9 @@ module.exports = function(client) {
 	client.Manager.prototype = {
 		init: function() {
 			this.$div = $('#content');
-			this.menu = new client.MenuHeader(this);
-			this.login = new client.Login(this);
-			this.sync = new client.Sync(this);
+			this.sync = new client.Sync();
 			this.history = window.History;
 			this.history.Adapter.bind(window, 'statechange', _(this.stateChange).bind(this));
-			this.loginData = window.jsdaresLoginData;
 
 			this.modalUI = new applet.UI();
 			this.modalUI.setCloseCallback(_(this.closeDareCallback).bind(this));
@@ -39,16 +32,16 @@ module.exports = function(client) {
 			return this.sync;
 		},
 
-		getLoginData: function() {
-			return this.loginData;
+		getLoginData: function() { // TODO(JP)
+			return {};
 		},
 
-		getUserId: function() {
-			return this.loginData ? this.loginData.userId : undefined;
+		getUserId: function() { // TODO(JP)
+			return undefined;
 		},
 
-		getAdmin: function() {
-			return this.loginData ? this.loginData.admin : false;
+		getAdmin: function() { // TODO(JP)
+			return false;
 		},
 
 		navigateTo: function(url) {
@@ -61,27 +54,6 @@ module.exports = function(client) {
 				this.page.remove();
 				this.page = null;
 			}
-		},
-
-		connectionError: function(error) {
-			this.login.showConnectionError();
-			if (console) {
-				console.error('Connection error: ' + error);
-			}
-		},
-
-		connectionSuccess: function(response) {
-			this.login.hideConnectionError();
-		},
-
-		updateLoginData: function(loginData) {
-			if (this.loginData.loggedIn !== loginData.loggedIn) {
-				this.loginData = loginData; // already do this here for if the page requests it
-				this.refresh();
-			}
-			this.loginData = loginData;
-			this.login.update(this.loginData);
-			this.menu.showLocks(!this.loginData.loggedIn);
 		},
 
 		addHistory: function(url) {
@@ -124,7 +96,6 @@ module.exports = function(client) {
 				this.removePage();
 				this.page = new client[type](this, this.$div);
 			}
-			this.menu.navigateTo(this.splitUrl);
 			this.refresh();
 		},
 

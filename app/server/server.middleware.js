@@ -45,11 +45,7 @@ module.exports = function(server) {
 					next();
 				})
 				.use('/index.html', function(req, res, next) {
-					var loginData = {};
-					if (req.session && req.session.loginData) loginData = req.session.loginData;
-
 					var output = indexFile;
-					output = output.replace('{/*AUTOFILL jsdaresLoginData in server.middleware.js*/}', JSON.stringify(loginData));
 					output = output.replace('<!--AUTOFILL html content in server.middleware.js-->', client.getPageHomeHtml());
 					res.write(output);
 					res.end();

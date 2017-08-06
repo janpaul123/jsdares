@@ -6,8 +6,7 @@ var _ = require('underscore');
 module.exports = function(client) {
 	client.Sync = function() { return this.init.apply(this, arguments); };
 	client.Sync.prototype = {
-		init: function(delegate) {
-			this.delegate = delegate;
+		init: function() {
 			this.postTimeout = null;
 			this.delayedPostData = {};
 
@@ -107,21 +106,6 @@ module.exports = function(client) {
 				type: 'get',
 				data: data || {},
 				dataType: 'json',
-				success: _(function(response) {
-					if (response.loginData) this.delegate.updateLoginData(response.loginData);
-					if (success) {
-						if (success(response) !== false) this.delegate.connectionSuccess(response);
-					} else {
-						this.delegate.connectionSuccess(response);
-					}
-				}).bind(this),
-				error: _(function(message) {
-					if (error) {
-						if (error(message) !== false) this.delegate.connectionError(message);
-					} else {
-						this.delegate.connectionError(message);
-					}
-				}).bind(this)
 			});
 		},
 
@@ -132,21 +116,6 @@ module.exports = function(client) {
 				data: JSON.stringify(data || {}),
 				contentType: 'application/json; charset=utf-8',
 				dataType: 'json',
-				success: _(function(response) {
-					if (response.loginData) this.delegate.updateLoginData(response.loginData);
-					if (success) {
-						if (success(response) !== false) this.delegate.connectionSuccess(response);
-					} else {
-						this.delegate.connectionSuccess(response);
-					}
-				}).bind(this),
-				error: _(function(message) {
-					if (error) {
-						if (error(message) !== false) this.delegate.connectionError(message);
-					} else {
-						this.delegate.connectionError(message);
-					}
-				}).bind(this)
 			});
 		},
 

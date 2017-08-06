@@ -51,166 +51,6 @@ body {
 	width: @applet-width;
 }
 
-.header {
-	position: relative;
-
-	.header-logo {
-		position: relative;
-		display: inline-block;
-		z-index: 2;
-		width: 135px;
-		height: 120px;
-		background: url(img/logo/135x120-OFF.png) no-repeat;
-
-		&:hover {
-			background: url(img/logo/135x120-ON.png) no-repeat;
-		}
-	}
-
-	.header-logo-preload {
-		background: url(img/logo/135x120-ON.png) no-repeat;
-	}
-
-	#header-menu {
-		position: absolute;
-		z-index: 1;
-		top: 23px;
-		left: 300px;
-
-		li {
-			display: inline;
-			list-style: none;
-			margin:0 5px;
-
-			a {
-				color: hsl(0, 0%, 40%);
-				font-size: 1em;
-				padding-top: 8px;
-				padding-bottom: 6px;
-			}
-
-			&.active a {
-				background-color: rgb(200, 224, 236);
-			}
-
-			.icon {
-				vertical-align: middle;
-				margin-top: -5px;
-			}
-		}
-	}
-
-	#header-arrow {
-		position: absolute;
-		right: 14px;
-		top: 55px;
-	}
-
-	#header-login {
-		position: absolute;
-		top: 25px;
-		right: 0px;
-		width: 100%;
-
-		form {
-			margin: 0;
-		}
-
-		.login-field-username, .login-field-password, .btn-group, .login-error, .login-loader, .login-logout, .login-details {
-			float: right;
-			margin-right: 5px;
-		}
-
-		.btn-group, .login-logout {
-			margin-right: 0;
-		}
-
-		.login-error {
-			margin: 6px 10px 0;
-			cursor: pointer;
-			.opacity(80);
-
-			&:hover {
-				.opacity(100);
-			}
-		}
-
-		.login-loader {
-			margin-top: 6px;
-			margin-right: 10px;
-		}
-
-		.login-details {
-			margin-right: 10px;
-
-			.login-details-name {
-				margin-right: 5px;
-				font-weight: bold;
-			}
-
-			.login-details-points, .icon-trophy {
-				display: none;
-			}
-		}
-	}
-}
-
-.header-register {
-	form {
-		margin: 15px 0 0;
-	}
-
-	.modal-footer {
-		text-align: left;
-	}
-
-	.header-register-icon-right {
-		margin-left: 7px;
-		position: relative;
-		width: 250px;
-		font-style: normal;
-	}
-
-	.tooltip {
-		display: inline-block;
-		position: absolute;
-		top: -10px;
-		left: 17px;
-		.opacity(100);
-
-		&.hide {
-			display: none;
-		}
-	}
-
-	.modal-footer .icon-loader {
-		margin-left: 10px;
-		margin-top: 1px;
-	}
-
-	.header-register-confirmation {
-		display: none;
-	}
-
-	&.header-register-done {
-		.header-register-form {
-			display: none;
-		}
-
-		.header-register-submit {
-			display: none;
-		}
-
-		.header-register-confirmation {
-			display: block;
-		}
-	}
-}
-
-.learn, .create {
-	overflow: hidden;
-}
-
 .homepage-title {
 	color: #C0DEBA;
 	font-size: 4em;
@@ -302,10 +142,6 @@ body {
 	padding: 10px 10px 8px;
 }
 
-.users-single {
-	overflow: hidden;
-}
-
 .volunteers-superheroes button {
 	margin-right: 5px;
 	margin-bottom: 5px;
@@ -326,12 +162,6 @@ body {
 		padding: 5px;
 	}
 }
-
-.create-collection-mine, .learn-collection-played, .learn-collection-all, .superheroes-collection-played, .superheroes-collection-mine, .superheroes-collection-theirs {
-	float: left;
-	margin: 20px;
-}
-
 
 .movie-player {
 	position: relative;
