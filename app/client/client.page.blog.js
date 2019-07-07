@@ -221,7 +221,7 @@ module.exports = function(client) {
 			'<p>A maze is a familiar kind of puzzle, and leaves lots of room for creativity. When learning more about programming, students can revisit already completed mazes with even smarter solutions.</p>',
 			'<div class="blog-movie-piece">',
 			'<p><div class="movie-robot" style="margin-top: 10px"></div>',
-			'When removing all the walls, students can drive the robot around to make pretty shapes, just as with Papert&rsquo;s original turtles. These could drive around on sheets of paper, with a pen attached to it. Papert has shown that even complex mathematical ideas such as differential equations can be discovered naturally by driving around robots to create shapes.',
+			'When removing all the walls, students can drive the robot around to make pretty shapes, just as with Papert&rsquo;s original turtles. These could drive around on sheets of paper, with a pen attached to it. Papert has shown that even complex mathematical ideas such as differential equations can be discovered naturally by driving around robots to create shapes.<br><br>',
 			'<p>The robot environment is a simple piece of code that uses mostly CSS3 transitions. If you want to use it in your own project, please look at the <a href="https://github.com/janpaul123/robot">stand-alone library</a> that has been extracted out of jsdares!</p>',
 			'</div>',
 			'</div>',
