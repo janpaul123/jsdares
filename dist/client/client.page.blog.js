@@ -5,67 +5,6 @@ var applet = require('../jsmm-applet');
 var dares = require('../dares');
 var $f = require('./client.page.blog.froogaloop');
 
-var MoviePlayer = function() { return this.init.apply(this, arguments); };
-MoviePlayer.prototype = {
-	init: function($div, picturePath, id) {
-		this.$div = $div;
-		this.id = id;
-
-		this.$div.addClass('movie-player');
-
-		if ('ontouchstart' in document.documentElement) {
-			this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="287" height="165" frameborder="0"></iframe>');
-			this.$div.addClass('movie-player-touch');
-		} else {
-			this.$iframe = $('<iframe class="movie-player-iframe" id="movie-player-iframe-' + id + '" src="http://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&api=1&player_id=movie-player-iframe-' + id + '" width="485" height="278" frameborder="0"></iframe>');
-			this.player = $f(this.$iframe[0]);
-
-			var $picture = $('<img src="' + picturePath + '"></img>');
-			this.$pictureContainer = $('<div class="movie-player-picture-container"></div>');
-			this.$pictureContainer.append($picture);
-			this.$div.append(this.$pictureContainer);
-
-			this.player.addEvent('ready', _(this.onReady).bind(this));
-		}
-
-		// this.$div.append('<div class="movie-player-overlay"></div>');
-		this.$div.append(this.$iframe);
-	},
-
-	onReady: function() {
-		try {
-			this.$pictureContainer.append('<div class="movie-player-play"></div>');
-			this.$pictureContainer.on('click', _(this.onPictureClick).bind(this));
-			this.player.addEvent('play',   _(this.onPlay).bind(this));
-			this.player.addEvent('pause',  _(this.onPause).bind(this));
-			this.player.addEvent('finish', _(this.onPause).bind(this));
-		} catch (e) {
-			window.location.reload();
-		}
-	},
-
-	remove: function() {
-		this.$div.html('');
-		this.$div.removeClass('movie-player');
-		this.$div.removeClass('movie-player-active');
-		this.$div.off('click');
-	},
-
-	onPlay: function() {
-		this.$div.addClass('movie-player-active');
-	},
-
-	onPause: function() {
-		this.$div.removeClass('movie-player-active');
-	},
-
-	onPictureClick: function() {
-		// this.player.api('seekTo', 0);
-		this.player.api('play');
-		return false;
-	}
-};
-
 module.exports = function(client) {
 	client.PageBlog = function() { return this.init.apply(this, arguments); };
 	client.PageBlog.prototype = {
@@ -91,12 +30,15 @@ module.exports = function(client) {
 				this.$blog.find('.blog-robots-example-help').hide();
 			}).bind(this));
 
-			var mp1 = new MoviePlayer(this.$blog.find('.movie-games-1'), 'dist/img/blog/fr-manipulation-small.png', 62291930);
-			var mp2 = new MoviePlayer(this.$blog.find('.movie-games-2'), 'dist/img/blog/fr-time-small.png', 62319512);
-			var mp3 = new MoviePlayer(this.$blog.find('.movie-games-3'), 'dist/img/blog/fr-time-highlighting-small.png', 62319511);
-			var mp4 = new MoviePlayer(this.$blog.find('.movie-games-4'), 'dist/img/blog/fr-stepping-small.png', 62319510);
-			var mp5 = new MoviePlayer(this.$blog.find('.movie-robot'), 'dist/img/blog/fr-various-spiral-small.png', 63630633);
-			var mp6 = new MoviePlayer(this.$blog.find('.movie-dares'), 'dist/img/blog/fr-various-dares-small.png', 63631592);
+      function generateVideo(path) {
+        return '<div class="movie-player"><div class="movie-player-iframe""><video autoplay loop muted poster="' + path + '.jpg" style="width: 317px"><source src="' + path + '.webm" type="video/webm"><source src="' + path + '.mp4" type="video/mp4"></video></div></div>';
+      }
+			this.$blog.find('.movie-games-1').html(generateVideo('dist/img/blog/jsdares-manipulation'));
+			this.$blog.find('.movie-games-2').html(generateVideo('dist/img/blog/jsdares-time'));
+			this.$blog.find('.movie-games-3').html(generateVideo('dist/img/blog/jsdares-time-highlighting'));
+			this.$blog.find('.movie-games-4').html(generateVideo('dist/img/blog/jsdares-stepping'));
+			this.$blog.find('.movie-robot').html(generateVideo('dist/img/blog/jsdares-spiral'));
+			this.$blog.find('.movie-dares').html(generateVideo('dist/img/blog/jsdares-dare'));
 
 			this.collection = new dares.Collection(this, this.$blog.find('.blog-collection'));
 
@@ -105,21 +47,11 @@ module.exports = function(client) {
 			this.$blog.find('.blog-intro-example-buttons-movie').on('click', _(this.showMovie).bind(this));
 			this.$blog.find('.blog-intro-example-buttons-game').on('click', _(this.showGame).bind(this));
 
-			this.introMoviePlayer = $f(this.$blog.find('.blog-intro-example-movie-iframe')[0]);
-
-			if ('ontouchstart' in document.documentElement) {
-				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-touch');
-				this.$blog.find('.blog-warning').hide();
-			} else {
-				this.showGame();
-				this.$blog.find('.blog-intro-example').addClass('blog-intro-example-video-unsupported');
-
-				this.introMoviePlayer.addEvent('ready', _(function() {
-					this.$blog.find('.blog-intro-example').removeClass('blog-intro-example-video-unsupported');
-					this.showMovie();
-					this.$blog.find('.blog-warning').hide();
-				}).bind(this));
-			}
+      this.showGame();
+      this.$blog.find('.blog-intro-example').addClass('blog-intro-example-video-unsupported');
+      this.$blog.find('.blog-intro-example').removeClass('blog-intro-example-video-unsupported');
+      this.showMovie();
+      this.$blog.find('.blog-warning').hide();
 
 			var $mazeLink = this.$blog.find('.blog-dares-maze');
 			var $mazeArrow = this.$blog.find('.blog-arrow-maze');
@@ -163,7 +95,7 @@ module.exports = function(client) {
 		showGame: function() {
 			if (this.exampleUI) return;
 
-			this.introMoviePlayer.api('pause');
+			// this.introMoviePlayer.api('pause');
 
 			this.$blog.find('.blog-intro-example').removeClass('blog-intro-example-active-movie');
 			this.$blog.find('.blog-intro-example').addClass('blog-intro-example-active-game');
@@ -208,7 +140,7 @@ module.exports = function(client) {
 			'<div class="blog-box blog-top">',
 			'<p style="margin-bottom: 60px;"><em>&ldquo;Maybe we don&rsquo;t need a silver bullet. We just need to take off our blindfolds to see where we&rsquo;re firing.&rdquo;</em> &mdash; Bret Victor in <a href="http://worrydream.com/LearnableProgramming">Learnable Programming</a></p>',
 			'<div class="blog-intro-example">',
-			'<div class="blog-intro-example-movie"><iframe class="blog-intro-example-movie-iframe" id="blog-intro-example-movie-iframe" src="http://player.vimeo.com/video/62745777?title=0&byline=0&portrait=0&api=1&player_id=blog-intro-example-movie-iframe" width="1100" height="630" frameborder="0"></iframe></div>',
+			'<div class="blog-intro-example-movie"><div class="blog-intro-example-movie-iframe" id="blog-intro-example-movie-iframe"><video autoplay loop muted poster="dist/img/blog/jsdares.jpg" style="width: 1100px"><source src="dist/img/blog/jsdares.webm" type="video/webm"><source src="dist/img/blog/jsdares.mp4" type="video/mp4"></video></div></div>',
 			'<div class="blog-intro-example-game"></div>',
 			'<div class="blog-intro-example-buttons"><span class="blog-intro-example-buttons-movie"><i class="icon icon-white icon-film"></i> Video</span><span class="blog-intro-example-buttons-game"><i class="icon icon-white icon-star" style="margin-top: 1px"></i> Game</span></div>',
 			'</div>',

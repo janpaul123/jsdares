@@ -5779,11 +5779,10 @@ body {
 }
 .movie-player .movie-player-iframe {
   position: absolute;
-  top: -55px;
-  left: -128px;
-  width: 485px;
+  top: 0px;
+  left: -315px;
+  width: 317px;
   height: 278px;
-  display: none;
 }
 .movie-player.movie-player-active {
   z-index: 100000;
