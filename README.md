@@ -5,7 +5,7 @@
 ## Features
 - Collaborative platform for anyone to create and solve programming puzzles: "dares".
 - Custom parser for a subset of Javascript: "js--".
-- Runtime that saves *everything*, and allows moving through the program execution with ease, inspired by [Omniscient Debugger](http://www.lambdacs.com/debugger/).
+- Runtime that saves *everything*, and allows moving through the program execution with ease, inspired by [Omniscient Debugger](https://github.com/OmniscientDebugger/LewisOmniscientDebugger).
 - Advanced interface for making games that allows going back in time, visualises how the code maps to the output, and makes it easy to tinker with the code, inspired by [Bret Victor](http://www.worrydream.com).
 - Robot environment for learning the basics of programming, based on the [Logo turtle](http://el.media.mit.edu/logo-foundation) and [Karel the Robot](http://karel.sourceforge.net).
 - Canvas and console environments based on the standard browser components.
