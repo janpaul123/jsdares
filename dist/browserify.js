@@ -314,7 +314,7 @@ module.exports = function(client) {
 			this.$blog.find('.blog-intro-example').addClass('blog-intro-example-active-game');
 
 			this.exampleUI = new applet.UI(this.$blog.find('.blog-intro-example-game'), {hideTabs: true});
-			var exampleText = '// Adapted from billmill.org/static/canvastutorial\n// This code is still relatively complicated -- if you\n// can come up with a nice game for on the front page\n// which is fun, simple, and shows off the capabilities\n// of the interface, then contact me at jp@jsdares.com :)\n\nvar context = canvas.getContext("2d");\n\nvar bricks = [];\nvar paddleWidth, paddleHeight, bricksNumX, bricksNumY;\nvar brickWidth, brickHeight, brickMargin, paddleX;\nvar ballX, ballY, ballVx, ballVy, ballDirx, ballDiry;\nvar restart = true;\n\nfor (var y=0; y<20; y++) {\n  bricks[y] = [];\n  for (var x=0; x<20; x++) {\n    bricks[y][x] = true;\n  }\n}\n\nfunction setValues() {\n  paddleWidth = 80;\n  paddleHeight = 12;\n  bricksNumX = 7;\n  bricksNumY = 5;\n  brickWidth = canvas.width / bricksNumX;\n  brickHeight = 20;\n  brickMargin = 4;\n  ballVx = 7;\n  ballVy = 12;\n}\n\nfunction init() {\n  restart = false;\n  paddleX = canvas.width/2;\n  ballX = 40;\n  ballY = 150;\n  ballDirx = 1;\n  ballDiry = 1;\n  for (var y=0; y<13; y++) {\n    for (var x=0; x<13; x++) {\n      bricks[y][x] = true;\n    }\n  }\n}\n\nfunction clear() {\n  context.clearRect(0, 0, canvas.width, canvas.height);  \n}\n\nfunction circle(x, y) {\n  context.beginPath();\n  context.arc(x, y, 10, 0, 2*Math.PI);\n  context.fill();\n}\n\nfunction drawPaddle() {\n  var x = paddleX - paddleWidth/2;\n  var y = canvas.height - paddleHeight;\n  context.fillRect(x, y, paddleWidth, paddleHeight);\n}\n\nfunction mouseMove(event) {\n  paddleX = event.layerX;\n}\n\nfunction hitHorizontal() {\n  if (ballX < 0) {\n    ballDirx = -ballDirx;\n  } else if (ballX >= canvas.width) {\n    ballDirx = -ballDirx;\n  }\n}\n\nfunction hitVertical() {\n  if (ballY < 0) {\n    ballDiry = -ballDiry;\n  } else if (ballY < brickHeight*bricksNumY) {\n    var bx = Math.floor(ballX/brickWidth);\n    var by = Math.floor(ballY/brickHeight);\n    \n    if (bx >= 0 && bx < bricksNumX) {\n      if (bricks[by][bx]) {\n        bricks[by][bx] = false;\n        ballDiry = -ballDiry;\n      }\n    }\n  } else if (ballY >= canvas.height-paddleHeight) {\n    var paddleLeft = paddleX-paddleWidth/2;\n    var paddleRight = paddleX+paddleWidth/2;\n    if (ballX >= paddleLeft && ballX <= paddleRight) {\n      ballDiry = -ballDiry;\n    } else {\n      restart = true;\n      return false;\n    }\n  }\n  return true;\n}\n\nfunction drawBricks() {\n  for (var by=0; by<bricksNumY; by++) {\n    for (var bx=0; bx<bricksNumX; bx++) {\n      if (bricks[by][bx]) {\n        var x = bx * brickWidth + brickMargin/2;\n        var y = by * brickHeight + brickMargin/2;\n        var width = brickWidth - brickMargin;\n        var height = brickHeight - brickMargin;\n        context.fillRect(x, y, width, height);\n      }\n    }\n  }\n}\n\nfunction tick() {\n  if (restart) {\n    init();\n    return;\n  }\n  setValues();\n  clear();\n  drawPaddle();\n  \n  ballX += ballVx*ballDirx;\n  ballY += ballVy*ballDiry;\n  \n  hitHorizontal();\n  if (hitVertical()) {\n    circle(ballX, ballY);\n    drawBricks();\n  } else {\n    clear();\n  }\n}\n\ncanvas.onmousemove = mouseMove;\nwindow.setInterval(tick, 30);';
+			var exampleText = '// Adapted from billmill.org/static/canvastutorial\n// This code is still relatively complicated -- if you\n// can come up with a nice game for on the front page\n// which is fun, simple, and shows off the capabilities\n// of the interface, then contact me :)\n\nvar context = canvas.getContext("2d");\n\nvar bricks = [];\nvar paddleWidth, paddleHeight, bricksNumX, bricksNumY;\nvar brickWidth, brickHeight, brickMargin, paddleX;\nvar ballX, ballY, ballVx, ballVy, ballDirx, ballDiry;\nvar restart = true;\n\nfor (var y=0; y<20; y++) {\n  bricks[y] = [];\n  for (var x=0; x<20; x++) {\n    bricks[y][x] = true;\n  }\n}\n\nfunction setValues() {\n  paddleWidth = 80;\n  paddleHeight = 12;\n  bricksNumX = 7;\n  bricksNumY = 5;\n  brickWidth = canvas.width / bricksNumX;\n  brickHeight = 20;\n  brickMargin = 4;\n  ballVx = 7;\n  ballVy = 12;\n}\n\nfunction init() {\n  restart = false;\n  paddleX = canvas.width/2;\n  ballX = 40;\n  ballY = 150;\n  ballDirx = 1;\n  ballDiry = 1;\n  for (var y=0; y<13; y++) {\n    for (var x=0; x<13; x++) {\n      bricks[y][x] = true;\n    }\n  }\n}\n\nfunction clear() {\n  context.clearRect(0, 0, canvas.width, canvas.height);  \n}\n\nfunction circle(x, y) {\n  context.beginPath();\n  context.arc(x, y, 10, 0, 2*Math.PI);\n  context.fill();\n}\n\nfunction drawPaddle() {\n  var x = paddleX - paddleWidth/2;\n  var y = canvas.height - paddleHeight;\n  context.fillRect(x, y, paddleWidth, paddleHeight);\n}\n\nfunction mouseMove(event) {\n  paddleX = event.layerX;\n}\n\nfunction hitHorizontal() {\n  if (ballX < 0) {\n    ballDirx = -ballDirx;\n  } else if (ballX >= canvas.width) {\n    ballDirx = -ballDirx;\n  }\n}\n\nfunction hitVertical() {\n  if (ballY < 0) {\n    ballDiry = -ballDiry;\n  } else if (ballY < brickHeight*bricksNumY) {\n    var bx = Math.floor(ballX/brickWidth);\n    var by = Math.floor(ballY/brickHeight);\n    \n    if (bx >= 0 && bx < bricksNumX) {\n      if (bricks[by][bx]) {\n        bricks[by][bx] = false;\n        ballDiry = -ballDiry;\n      }\n    }\n  } else if (ballY >= canvas.height-paddleHeight) {\n    var paddleLeft = paddleX-paddleWidth/2;\n    var paddleRight = paddleX+paddleWidth/2;\n    if (ballX >= paddleLeft && ballX <= paddleRight) {\n      ballDiry = -ballDiry;\n    } else {\n      restart = true;\n      return false;\n    }\n  }\n  return true;\n}\n\nfunction drawBricks() {\n  for (var by=0; by<bricksNumY; by++) {\n    for (var bx=0; bx<bricksNumX; bx++) {\n      if (bricks[by][bx]) {\n        var x = bx * brickWidth + brickMargin/2;\n        var y = by * brickHeight + brickMargin/2;\n        var width = brickWidth - brickMargin;\n        var height = brickHeight - brickMargin;\n        context.fillRect(x, y, width, height);\n      }\n    }\n  }\n}\n\nfunction tick() {\n  if (restart) {\n    init();\n    return;\n  }\n  setValues();\n  clear();\n  drawPaddle();\n  \n  ballX += ballVx*ballDirx;\n  ballY += ballVy*ballDiry;\n  \n  hitHorizontal();\n  if (hitVertical()) {\n    circle(ballX, ballY);\n    drawBricks();\n  } else {\n    clear();\n  }\n}\n\ncanvas.onmousemove = mouseMove;\nwindow.setInterval(tick, 30);';
 			this.exampleEditor = this.exampleUI.addEditor({text: exampleText});
 			this.exampleUI.loadOutputs({ canvas: {enabled: true}, events: {enabled: true, mouseObjects: ['canvas']}, math: {enabled: true} });
 			this.exampleUI.selectTab('canvas');
@@ -518,7 +518,7 @@ module.exports = function(client) {
 			this.$div.append(this.$example);
 
 			this.exampleUI = new applet.UI(this.$example, {hideTabs: true});
-			var exampleText = '// Adapted from billmill.org/static/canvastutorial\n// This code is still relatively complicated -- if you\n// can come up with a nice game for on the front page\n// which is fun, simple, and shows off the capabilities\n// of the interface, then contact me at jp@jsdares.com :)\n\nvar context = canvas.getContext("2d");\n\nvar bricks = [];\nvar paddleWidth, paddleHeight, bricksNumX, bricksNumY;\nvar brickWidth, brickHeight, brickMargin, paddleX;\nvar ballX, ballY, ballVx, ballVy, ballDirx, ballDiry;\nvar restart = true;\n\nfor (var y=0; y<20; y++) {\n  bricks[y] = [];\n  for (var x=0; x<20; x++) {\n    bricks[y][x] = true;\n  }\n}\n\nfunction setValues() {\n  paddleWidth = 80;\n  paddleHeight = 12;\n  bricksNumX = 7;\n  bricksNumY = 5;\n  brickWidth = canvas.width / bricksNumX;\n  brickHeight = 20;\n  brickMargin = 4;\n  ballVx = 7;\n  ballVy = 12;\n}\n\nfunction init() {\n  restart = false;\n  paddleX = canvas.width/2;\n  ballX = 40;\n  ballY = 150;\n  ballDirx = 1;\n  ballDiry = 1;\n  for (var y=0; y<13; y++) {\n    for (var x=0; x<13; x++) {\n      bricks[y][x] = true;\n    }\n  }\n}\n\nfunction clear() {\n  context.clearRect(0, 0, canvas.width, canvas.height);  \n}\n\nfunction circle(x, y) {\n  context.beginPath();\n  context.arc(x, y, 10, 0, 2*Math.PI);\n  context.fill();\n}\n\nfunction drawPaddle() {\n  var x = paddleX - paddleWidth/2;\n  var y = canvas.height - paddleHeight;\n  context.fillRect(x, y, paddleWidth, paddleHeight);\n}\n\nfunction mouseMove(event) {\n  paddleX = event.layerX;\n}\n\nfunction hitHorizontal() {\n  if (ballX < 0) {\n    ballDirx = -ballDirx;\n  } else if (ballX >= canvas.width) {\n    ballDirx = -ballDirx;\n  }\n}\n\nfunction hitVertical() {\n  if (ballY < 0) {\n    ballDiry = -ballDiry;\n  } else if (ballY < brickHeight*bricksNumY) {\n    var bx = Math.floor(ballX/brickWidth);\n    var by = Math.floor(ballY/brickHeight);\n    \n    if (bx >= 0 && bx < bricksNumX) {\n      if (bricks[by][bx]) {\n        bricks[by][bx] = false;\n        ballDiry = -ballDiry;\n      }\n    }\n  } else if (ballY >= canvas.height-paddleHeight) {\n    var paddleLeft = paddleX-paddleWidth/2;\n    var paddleRight = paddleX+paddleWidth/2;\n    if (ballX >= paddleLeft && ballX <= paddleRight) {\n      ballDiry = -ballDiry;\n    } else {\n      restart = true;\n      return false;\n    }\n  }\n  return true;\n}\n\nfunction drawBricks() {\n  for (var by=0; by<bricksNumY; by++) {\n    for (var bx=0; bx<bricksNumX; bx++) {\n      if (bricks[by][bx]) {\n        var x = bx * brickWidth + brickMargin/2;\n        var y = by * brickHeight + brickMargin/2;\n        var width = brickWidth - brickMargin;\n        var height = brickHeight - brickMargin;\n        context.fillRect(x, y, width, height);\n      }\n    }\n  }\n}\n\nfunction tick() {\n  if (restart) {\n    init();\n    return;\n  }\n  setValues();\n  clear();\n  drawPaddle();\n  \n  ballX += ballVx*ballDirx;\n  ballY += ballVy*ballDiry;\n  \n  hitHorizontal();\n  if (hitVertical()) {\n    circle(ballX, ballY);\n    drawBricks();\n  } else {\n    clear();\n  }\n}\n\ncanvas.onmousemove = mouseMove;\nwindow.setInterval(tick, 30);';
+			var exampleText = '// Adapted from billmill.org/static/canvastutorial\n// This code is still relatively complicated -- if you\n// can come up with a nice game for on the front page\n// which is fun, simple, and shows off the capabilities\n// of the interface, then contact me :)\n\nvar context = canvas.getContext("2d");\n\nvar bricks = [];\nvar paddleWidth, paddleHeight, bricksNumX, bricksNumY;\nvar brickWidth, brickHeight, brickMargin, paddleX;\nvar ballX, ballY, ballVx, ballVy, ballDirx, ballDiry;\nvar restart = true;\n\nfor (var y=0; y<20; y++) {\n  bricks[y] = [];\n  for (var x=0; x<20; x++) {\n    bricks[y][x] = true;\n  }\n}\n\nfunction setValues() {\n  paddleWidth = 80;\n  paddleHeight = 12;\n  bricksNumX = 7;\n  bricksNumY = 5;\n  brickWidth = canvas.width / bricksNumX;\n  brickHeight = 20;\n  brickMargin = 4;\n  ballVx = 7;\n  ballVy = 12;\n}\n\nfunction init() {\n  restart = false;\n  paddleX = canvas.width/2;\n  ballX = 40;\n  ballY = 150;\n  ballDirx = 1;\n  ballDiry = 1;\n  for (var y=0; y<13; y++) {\n    for (var x=0; x<13; x++) {\n      bricks[y][x] = true;\n    }\n  }\n}\n\nfunction clear() {\n  context.clearRect(0, 0, canvas.width, canvas.height);  \n}\n\nfunction circle(x, y) {\n  context.beginPath();\n  context.arc(x, y, 10, 0, 2*Math.PI);\n  context.fill();\n}\n\nfunction drawPaddle() {\n  var x = paddleX - paddleWidth/2;\n  var y = canvas.height - paddleHeight;\n  context.fillRect(x, y, paddleWidth, paddleHeight);\n}\n\nfunction mouseMove(event) {\n  paddleX = event.layerX;\n}\n\nfunction hitHorizontal() {\n  if (ballX < 0) {\n    ballDirx = -ballDirx;\n  } else if (ballX >= canvas.width) {\n    ballDirx = -ballDirx;\n  }\n}\n\nfunction hitVertical() {\n  if (ballY < 0) {\n    ballDiry = -ballDiry;\n  } else if (ballY < brickHeight*bricksNumY) {\n    var bx = Math.floor(ballX/brickWidth);\n    var by = Math.floor(ballY/brickHeight);\n    \n    if (bx >= 0 && bx < bricksNumX) {\n      if (bricks[by][bx]) {\n        bricks[by][bx] = false;\n        ballDiry = -ballDiry;\n      }\n    }\n  } else if (ballY >= canvas.height-paddleHeight) {\n    var paddleLeft = paddleX-paddleWidth/2;\n    var paddleRight = paddleX+paddleWidth/2;\n    if (ballX >= paddleLeft && ballX <= paddleRight) {\n      ballDiry = -ballDiry;\n    } else {\n      restart = true;\n      return false;\n    }\n  }\n  return true;\n}\n\nfunction drawBricks() {\n  for (var by=0; by<bricksNumY; by++) {\n    for (var bx=0; bx<bricksNumX; bx++) {\n      if (bricks[by][bx]) {\n        var x = bx * brickWidth + brickMargin/2;\n        var y = by * brickHeight + brickMargin/2;\n        var width = brickWidth - brickMargin;\n        var height = brickHeight - brickMargin;\n        context.fillRect(x, y, width, height);\n      }\n    }\n  }\n}\n\nfunction tick() {\n  if (restart) {\n    init();\n    return;\n  }\n  setValues();\n  clear();\n  drawPaddle();\n  \n  ballX += ballVx*ballDirx;\n  ballY += ballVy*ballDiry;\n  \n  hitHorizontal();\n  if (hitVertical()) {\n    circle(ballX, ballY);\n    drawBricks();\n  } else {\n    clear();\n  }\n}\n\ncanvas.onmousemove = mouseMove;\nwindow.setInterval(tick, 30);';
 			this.exampleEditor = this.exampleUI.addEditor({text: exampleText});
 			this.exampleUI.loadOutputs({ canvas: {enabled: true}, events: {enabled: true, mouseObjects: ['canvas']}, math: {enabled: true} });
 			this.exampleUI.selectTab('canvas');
@@ -1249,7 +1249,7 @@ module.exports = function(dares) {
 				if (segment.popRemove !== false) {
 					this.removeSegments.splice(segment.popRemove, 1);
 				}
-				
+
 				this.position++;
 				if (this.position >= segment.to) {
 					this.segment++;
@@ -1387,7 +1387,7 @@ module.exports = function(dares) {
 			if (this.linePoints !== null) {
 				points += this.addLineAnimation();
 			}
-			
+
 			if (enough && this.hasValidNumberOfLines()) {
 				this.updateHighScore(points);
 			}
@@ -1502,7 +1502,7 @@ module.exports = function(dares) {
 			this.clearTimeout();
 			while (this.position < this.calls.length) {
 				this.applyCall(this.calls[this.position++]);
-			
+
 				if (this.delay > 0) {
 					this.timeout = setTimeout(_(this.animateNext).bind(this), this.delay);
 					return;
@@ -1639,7 +1639,7 @@ module.exports = function(dares) {
 			this.animation.addSegment(1, 500, _(this.animationMatchingStartCallback).bind(this));
 			this.animation.addSegment(animationSteps, Math.max(1500/animationSteps, 30), _(this.animationMatchingCallback).bind(this));
 			this.animation.addRemoveSegment(500, _(this.animationMatchingFinishCallback).bind(this));
-			
+
 			this.addToAnimation(this.percentage, this.percentage >= this.dareOptions.ConsoleMatch.minPercentage);
 			this.animation.play();
 		},
@@ -1658,7 +1658,7 @@ module.exports = function(dares) {
 
 			$mirror.text('a\na');
 			this.lineHeight = $mirror.outerHeight() - textOffset.y;
-			
+
 			// this works assuming there is no padding on the right or bottom
 			textOffset.x -= this.charWidth;
 			textOffset.y -= this.lineHeight;
@@ -1958,7 +1958,7 @@ var applet = require('../jsmm-applet');
 module.exports = function(dares) {
 	dares.AnimatedCanvas = function() { return this.init.apply(this, arguments); };
 	dares.ImageMatchDare = function() { return this.init.apply(this, arguments); };
-	
+
 	dares.AnimatedCanvas.prototype = {
 		init: function() {
 			this.calls = [];
@@ -2001,7 +2001,7 @@ module.exports = function(dares) {
 				} else {
 					this.context[call.name].apply(this.context, call.args);
 				}
-			
+
 				if (this.delay > 0 && call.draws) {
 					this.timeout = setTimeout(_(this.animateNext).bind(this), this.delay);
 					return;
@@ -2009,7 +2009,7 @@ module.exports = function(dares) {
 			}
 		}
 	};
-	
+
 	dares.ImageMatchDare.prototype = dares.addCommonDareMethods({
 		init: function(delegate, ui, options) {
 			this.initOptions(delegate, ui, options);
@@ -2219,7 +2219,7 @@ module.exports = function(dares) {
 			this.$originalRobot = $('<div class="dare-robotgoal-original"></div>');
 			this.$originalRobotContainer.append(this.$originalRobot);
 			this.$originalRobotContainer.append('<div class="dare-original-refresh"><i class="icon-repeat icon-white"></i></div>');
-			
+
 			this.originalRobot = new applet.robot.Robot(this.$originalRobot, true, this.previewBlockSize, this.robot.getState());
 			this.originalRobot.insertDelay(30000);
 
@@ -2229,7 +2229,7 @@ module.exports = function(dares) {
 			simpleRobot.play(this.originalRobot);
 
 			this.appendDescription(this.$div);
-			
+
 			this.initPoints();
 			var total = this.robot.getTotalGoals();
 			this.minGoals = total-this.dareOptions.RobotGoal.optionalGoals;
@@ -2437,14 +2437,14 @@ clayer.Layer.prototype = {
 		this.opacity = 1;
 		this.hidden = false;
 		this.timeout = null;
-		
+
 		this.offsetX = 0;
 		this.offsetY = 0;
-		
+
 		this.accelerated = true;
 		this.moveAnimationDuration = clayer.properties.defaultMoveAnimationDuration;
 		this.fadeAnimationDuration = clayer.properties.defaultFadeAnimationDuration;
-	
+
 		if (clayer.properties.useTransitions) {
 			if (clayer.properties.useTransforms && this.accelerated) {
 				this.$element.css(Modernizr.prefixed('TransitionProperty'), 'transform, width, height, opacity');
@@ -2611,7 +2611,7 @@ clayer.Touchable.prototype = {
 				mousemove: this.mouseMove,
 				mouseup: this.mouseUp
 			});
-			
+
 			this.touch = new clayer.Touch(this.$element, event);
 			this.delegate.touchDown(this.touch);
 		}
@@ -2630,7 +2630,7 @@ clayer.Touchable.prototype = {
 		if (this.isTouchable && this.touch) {
 			this.touch.touchUp(event);
 			this.delegate.touchUp(this.touch);
-			
+
 			delete this.touch;
 		}
 		this.$document.off(this.documentEvents);
@@ -2647,7 +2647,7 @@ clayer.Touchable.prototype = {
 				touchend: this.touchEnd,
 				touchcancel: this.touchEnd
 			});
-		
+
 			this.touch = new clayer.Touch(this.$element, event.originalEvent.touches[0]);
 			this.touchDown(this.touch);
 		}
@@ -2666,7 +2666,7 @@ clayer.Touchable.prototype = {
 		if (this.isTouchable && this.touch) {
 			this.touch.touchUp(event.originalEvent.touches[0]);
 			this.delegate.touchUp(this.touch);
-			
+
 			delete this.touch;
 		}
 		this.$document.off(this.documentEvents);
@@ -3407,7 +3407,7 @@ module.exports = function(editor) {
 			}
 			return result;
 		},
-		
+
 		/// INTERNAL FUNCTIONS ///
 		makeLines: function() {
 			if (this.lines !== undefined) return;
@@ -3960,7 +3960,7 @@ module.exports = function(editor) {
 		editableReplaceCode: function(line, column, column2, newText) { // callback
 			if (this.editablesByLine[line] === undefined) return;
 
-			var offset1 = this.code.lineColumnToOffset(line, column), 
+			var offset1 = this.code.lineColumnToOffset(line, column),
 				offset2 = this.code.lineColumnToOffset(line, column2);
 
 			this.surface.setText(this.code.replaceOffsetRange(offset1, offset2, newText));
@@ -4058,7 +4058,7 @@ module.exports = function(editor) {
 			this.updateActiveTimeHighlights();
 			this.callOutputs('enableHighlighting');
 		},
-		
+
 		timeHighlightDeactivate: function(name) {
 			var position = -1;
 			for (var i=0; i<this.activeTimeHighlights.length; i++) {
@@ -4149,7 +4149,7 @@ module.exports = function(editor) {
 				if (offset2 !== offset1) {
 					pos2 = code.offsetToLoc(offset2);
 				}
-				
+
 				var newText = code.text.substring(0, code.lineColumnToOffset(pos1.line, 0));
 				var totalOffset1 = 0, totalOffset2 = 0;
 
@@ -4178,7 +4178,7 @@ module.exports = function(editor) {
 
 				this.surface.setText(newText);
 				this.surface.restoreCursorRange(totalOffset1, totalOffset2);
-				
+
 				event.preventDefault();
 				return true;
 			} else {
@@ -4293,7 +4293,7 @@ module.exports = function(editor) {
 	editor.Stepbar.prototype = {
 		init: function($div, ed) {
 			ed.bindEventHandler(this);
-			
+
 			this.$div = $div;
 			this.editor = ed;
 
@@ -4439,7 +4439,7 @@ module.exports = function(editor) {
 		stepFromXAndLeftOffset: function(x, leftOffset) {
 			var width = this.numberWidth + this.numberMargin;
 			var realX = x-leftOffset + this.numberMargin/2;
-			
+
 			var totalWidth = this.$numbers.outerWidth();
 			var step = Math.floor(realX*this.stepTotal/totalWidth);
 
@@ -4482,7 +4482,7 @@ module.exports = function(editor) {
 			var $lastStepNumber = this.$stepNumber(fromStep-1);
 			$lastStepNumber.nextAll().remove();
 			this.stepNumbersLength = fromStep;
-			
+
 			if (this.currentStep >= fromStep) {
 				this.currentStep = null;
 			}
@@ -4524,7 +4524,7 @@ module.exports = function(editor) {
 			this.$div = $div;
 			this.surface = surface;
 			this.editor = ed;
-			
+
 			this.editor.bindEventHandler(this);
 
 			this.$bubblesContainer = $('<div class="editor-step-bubbles-container"></div>');
@@ -4572,7 +4572,7 @@ module.exports = function(editor) {
 				this.lastCurrent = current;
 
 				this.$bubblesContainer.children('.editor-step-bubbles-bubble').remove();
-				
+
 				for (var i=start; i<end; i++) {
 					var $bubble = this.addBubble(steps[i], tree, i-start);
 
@@ -4600,7 +4600,7 @@ module.exports = function(editor) {
 			this.$bubblesLine.css('height', this.surface.lineToY(this.editor.tree.programNode.blockLoc.line2));
 		}
 	};
-	
+
 	editor.Box.prototype = {
 		init: function() {
 			this.$element = $('<div class="editor-box"></div>');
@@ -4926,7 +4926,7 @@ module.exports = function(editor) {
 			// setting up margin
 			this.$margin = $('<div class="editor-margin"></div>');
 			this.$div.append(this.$margin);
-			
+
 			// setting up messages
 			this.errorMessage = new editor.Message(this, true);
 			this.stepMessage = new editor.Message(this, false);
@@ -5259,7 +5259,7 @@ module.exports = function(editor) {
 
 			this.$mirror.text('a\na');
 			this.lineHeight = this.$mirror.outerHeight() - this.textOffset.y;
-			
+
 			// this works assuming there is no padding on the right or bottom
 			this.textOffset.x -= this.charWidth;
 			this.textOffset.y -= this.lineHeight;
@@ -5360,7 +5360,7 @@ module.exports = function(editor) {
 			if ([17, 18, 91, 93, 224, 27, 113, 114].indexOf(event.keyCode) < 0) {
 				event.stopPropagation();
 			}
-			
+
 			this.sanitizeTextArea();
 			if (this.$textarea.val() !== this.text) {
 				this.text = this.$textarea.val();
@@ -5710,12 +5710,12 @@ module.exports = function(editor) {
 	editor.Toolbar.prototype = {
 		init: function($div, ed) {
 			ed.bindEventHandler(this);
-			
+
 			this.$div = $div;
 			this.editor = ed;
 
 			this.$div.addClass('editor-toolbar');
-			
+
 			// var isMac = navigator.platform.indexOf("Mac") >= 0;
 
 			var $runBar = $('<div class="btn-group editor-toolbar-run-bar"></div>');
@@ -6124,7 +6124,7 @@ module.exports.UI.prototype = {
 	hideArrow: function() {
 		this.$arrow.removeClass('arrow-active');
 	},
-	
+
 	closeHandler: function(event) {
 		event.preventDefault();
 		this.closeModal();
@@ -6845,7 +6845,7 @@ module.exports = function(info) {
 			this.$div = $div;
 			this.$div.addClass('output info');
 			this.prepareTextElement = options.prepareTextElement;
-			
+
 			if (options.scope === undefined || options.scope) {
 				this.scope = new info.InfoScope(this.$div, this);
 			} else {
@@ -7737,19 +7737,19 @@ module.exports = function(jsmm) {
 	var makeEdge = function(from, to) {
 		return from + '->' + to + ';';
 	};
-	
+
 	var makeNode = function(id, label, shape) {
 		label = label.replace(/\"/g, '&quot;');
 		label = label.replace(/\\/g, '\\\\');
 		shape = shape || '';
 		return id + '[label="' + label + '"shape="' + shape + '"];';
 	};
-	
+
 	/* statementList */
 	jsmm.nodes.Program.prototype.getDot = function() {
 		return 'digraph{graph[ordering='in'];' + makeNode(this.id, 'PROGRAM') + this.statementList.getDot(this.id) + '}';
 	};
-	
+
 	/* statements */
 	jsmm.nodes.StatementList.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7761,12 +7761,12 @@ module.exports = function(jsmm) {
 		output += '}';
 		return output;
 	};
-	
+
 	/* statement */
 	jsmm.nodes.CommonSimpleStatement.prototype.getDot = function(fromId) {
 		return this.statement.getDot(fromId);
 	};
-	
+
 	/* items */
 	jsmm.nodes.VarStatement.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7778,7 +7778,7 @@ module.exports = function(jsmm) {
 		output += '}';
 		return output;
 	};
-	
+
 	/* name, assignment */
 	jsmm.nodes.VarItem.prototype.getDot = function(fromId) {
 		var output = '';
@@ -7791,7 +7791,7 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	jsmm.nodes.PostfixStatement.prototype.getDot =
 	jsmm.nodes.AssignmentStatement.prototype.getDot =
 	jsmm.nodes.ReturnStatement.prototype.getDot =
@@ -7816,7 +7816,7 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	/* expression, statementList, elseBlock */
 	jsmm.nodes.IfBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7827,7 +7827,7 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	/* ifBlock */
 	jsmm.nodes.ElseIfBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7835,7 +7835,7 @@ module.exports = function(jsmm) {
 		output += this.ifBlock.getDot(this.id);
 		return output;
 	};
-	
+
 	/* statementList */
 	jsmm.nodes.ElseBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7843,7 +7843,7 @@ module.exports = function(jsmm) {
 		output += this.statementList.getDot(this.id);
 		return output;
 	};
-	
+
 	/* expression, statementList */
 	jsmm.nodes.WhileBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7851,7 +7851,7 @@ module.exports = function(jsmm) {
 		output += this.statementList.getDot(this.id);
 		return output;
 	};
-	
+
 	/* statement1, expression, statement2, statementList */
 	jsmm.nodes.ForBlock.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7861,7 +7861,7 @@ module.exports = function(jsmm) {
 		output += this.statement2.getDot(this.id);
 		return output;
 	};
-	
+
 	/* name, nameArgs, statementList */
 	jsmm.nodes.FunctionDeclaration.prototype.getDot = function(fromId) {
 		var output = makeEdge(fromId, this.id);
@@ -7884,7 +7884,7 @@ module.exports = function(jsmm) {
 			var split = text.split('.');
 
 			var obj = scope.find(split[0]);
-			
+
 			if (obj === undefined || typeof obj.value !== 'object' || obj.value.properties === undefined) return null;
 			obj = obj.value;
 			for (var i=1; i<split.length-1; i++) {
@@ -7995,7 +7995,7 @@ module.exports = function(jsmm) {
 
 				// determine the number of significant digits by trimming leading zeros
 				var significant = (split.integer + (split.decimals || '')).replace(/^0*/, '').length;
-				
+
 				// when zero, the number of significant digits is the number of decimals plus one
 				if (this.numberData.value === 0 && split.decimals !== undefined) {
 					significant = split.decimals.length+1;
@@ -8009,7 +8009,7 @@ module.exports = function(jsmm) {
 				// as this will be used when generating the number, and this function may alter the format of the number (e.g. different
 				// number of digits and exponent, etc.)
 				this.numberData.decimals = (jsmm.editor.editables.splitNumber(this.numberData.value.toPrecision(significant)).decimals || '').length;
-				
+
 				return true;
 			}
 		},
@@ -8250,7 +8250,7 @@ module.exports = function(jsmm) {
 				throw new jsmm.msg.Error(node.id, '<var>' + symbol + '</var> not possible since <var>' + jsmm.stringify(value2) + '</var> is not a number, string, or boolean');
 			}
 		}
-		
+
 		switch(symbol) {
 			case '+': case '+=': return value1 + value2;
 			case '-': case '-=': return value1 - value2;
@@ -8267,7 +8267,7 @@ module.exports = function(jsmm) {
 			case '!=': return value1 != value2;
 		}
 	};
-	
+
 	jsmm.nodes.AssignmentStatement.prototype.runFunc = function(context, variable, symbol, expression) {
 		var value;
 		if (symbol === '=') {
@@ -8285,7 +8285,7 @@ module.exports = function(jsmm) {
 		context.addAssignment(this, this.identifier.getBaseName());
 		context.pushStep(new jsmm.msg.Inline(this.id, '<var>' + this.identifier.getCode() + '</var> = <var>' + jsmm.stringify(value) + '</var>'));
 	};
-	
+
 	jsmm.nodes.VarItem.prototype.runFunc = function(context, name) {
 		context.addCommand(this, 'jsmm.var');
 		context.scope.vars[name] = {type: 'local', value: undefined};
@@ -8295,7 +8295,7 @@ module.exports = function(jsmm) {
 			context.pushStep(new jsmm.msg.Inline(this.id, '<var>' + this.name + '</var> = <var>undefined</var>'));
 		}
 	};
-	
+
 	jsmm.nodes.BinaryExpression.prototype.runFunc = function(context, expression1, symbol, expression2) {
 		var value1 = getValue(context, this.expression1, expression1);
 		var value2 = getValue(context, this.expression2, expression2);
@@ -8303,7 +8303,7 @@ module.exports = function(jsmm) {
 		context.pushStep(new jsmm.msg.Inline(this.id, '<var>' + jsmm.stringify(value1) + '</var> ' + symbol + ' <var>' + jsmm.stringify(value2) + '</var> = <var>' + jsmm.stringify(result) + '</var>'));
 		return result;
 	};
-	
+
 	jsmm.nodes.UnaryExpression.prototype.runFunc = function(context, symbol, expression) {
 		var value = getValue(context, this.expression, expression);
 		var result;
@@ -8334,12 +8334,12 @@ module.exports = function(jsmm) {
 		context.addCommand(this, 'jsmm.number');
 		return val;
 	};
-	
+
 	jsmm.nodes.StringLiteral.prototype.runFunc = function(context, val) {
 		context.addCommand(this, 'jsmm.string');
 		return val;
 	};
-	
+
 	jsmm.nodes.BooleanLiteral.prototype.runFunc = function(context, val) {
 		context.addCommand(this, 'jsmm.boolean');
 		return val;
@@ -8353,7 +8353,7 @@ module.exports = function(jsmm) {
 			return val;
 		}
 	};
-	
+
 	jsmm.nodes.ObjectIdentifier.prototype.runFunc = function(context, identifier, property) {
 		var identifierValue = getValue(context, this.identifier, identifier);
 		identifierValue = dereferenceArray(context, identifierValue);
@@ -8366,7 +8366,7 @@ module.exports = function(jsmm) {
 			return identifierValue.properties[property];
 		}
 	};
-	
+
 	jsmm.nodes.ArrayIdentifier.prototype.runFunc = function(context, identifier, expression) {
 		var identifierValue = getValue(context, this.identifier, identifier);
 		identifierValue = dereferenceArray(context, identifierValue);
@@ -8381,7 +8381,7 @@ module.exports = function(jsmm) {
 			return identifierValue.getArrayValue(expressionValue);
 		}
 	};
-	
+
 	jsmm.nodes.FunctionCall.prototype.runFunc = function(context, funcObject, args) {
 		var funcValue = getValue(context, this.identifier, funcObject), funcArgs = [], msgFuncArgs = [], appFunc;
 
@@ -8426,7 +8426,7 @@ module.exports = function(jsmm) {
 		var array = new jsmm.Array(values);
 		return {type: 'arrayPointer', string: '[array]', id: context.scope.registerArray(array), properties: array.properties}; // properties only for examples!
 	};
-	
+
 	jsmm.nodes.IfBlock.prototype.runFunc =
 	jsmm.nodes.WhileBlock.prototype.runFunc =
 	jsmm.nodes.ForBlock.prototype.runFunc = function(context, expression) {
@@ -8444,7 +8444,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ElseBlock.prototype.runFunc = function(context) {
 		context.addCommand(this, 'jsmm.else');
 	};
-	
+
 	jsmm.nodes.FunctionDeclaration.prototype.runFuncDecl = function(context, name, func) {
 		context.addCommand(this, 'jsmm.function');
 
@@ -8461,7 +8461,7 @@ module.exports = function(jsmm) {
 			context.pushStep(new jsmm.msg.Inline(this.id, 'declaring <var>' + this.name + this.getArgList() + '</var>', 'blockLoc'));
 		}
 	};
-	
+
 	jsmm.nodes.FunctionDeclaration.prototype.runFuncEnter = function(context, args) {
 		if (args.length < this.nameArgs.length) {
 			var but = 'only <var>' + args.length + '</var> are given';
@@ -8489,7 +8489,7 @@ module.exports = function(jsmm) {
 		context.pushStep(new jsmm.msg.Inline(this.id, 'entering <var>' + fullName + '</var>'));
 		context.enterFunction(this, scopeVars, fullName);
 	};
-	
+
 	jsmm.nodes.ReturnStatement.prototype.runFunc = function(context, expression) {
 		context.addCommand(this, 'jsmm.return');
 		if (!context.inFunction()) {
@@ -8519,7 +8519,7 @@ module.exports = function(jsmm) {
 
 module.exports = function(jsmm) {
 	jsmm.msg = {};
-	
+
 	jsmm.msg.addCommonMessageMethods = function(msg) {
 		msg.getMessage = function() {
 			return this.msg.replace(/<var>/g, '').replace(/<\/var>/g, '');
@@ -8539,10 +8539,10 @@ module.exports = function(jsmm) {
 				return {line: 1, column: 0};
 			}
 		};
-		
+
 		return msg;
 	};
-	
+
 	jsmm.msg.Inline = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Inline.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(nodeId, msg, locType) {
@@ -8552,7 +8552,7 @@ module.exports = function(jsmm) {
 			this.locType = locType || 'lineLoc';
 		}
 	});
-	
+
 	jsmm.msg.Error = function() { return this.init.apply(this, arguments); };
 	jsmm.msg.Error.prototype = jsmm.msg.addCommonMessageMethods({
 		init: function(nodeId, msg, orig, locType) {
@@ -8641,7 +8641,7 @@ module.exports = function(jsmm) {
 	};
 
 	jsmm.nodes = {};
-	
+
 	jsmm.nodes.Program = function() { return this.build.apply(this, arguments); };
 	jsmm.nodes.Program.prototype = addCommonNodeMethods('Program', {statementList: true}, false, {
 		init: function() {
@@ -8956,18 +8956,18 @@ module.exports = function(jsmm) {
 			line: jsmm.parser.lexer.yylloc.first_line || 1,
 			column: jsmm.parser.lexer.yylloc.first_column
 		};
-		
+
 		// if there are no newlines, give a range instead of a single position
 		if (hash.text.match(/\n/) === null) {
 			loc.column2 = loc.column + hash.text.length;
 		}
-		
+
 		// entries are in the form "'FOR'", remove the extra quotes
 		token = token.replace(/[']/g, "");
 		for (var i=0; i<expected.length; i++) {
 			expected[i] = expected[i].replace(/[']/g, "");
 		}
-		
+
 		var makeNear = function(text, near) {
 			text = text.substring(0, text.indexOf('\n'));
 			if (text.replace(/\s*/, '').length > 0) {
@@ -8976,7 +8976,7 @@ module.exports = function(jsmm) {
 				return '';
 			}
 		};
-		
+
 		var suggestionError = function(suggestion, an) {
 			throw new jsmm.msg.CriticalError(loc, 'Invalid syntax encountered' + makeNear(hash.text) + ', perhaps there is ' + (an ? 'an' : 'a') +' <var>' + suggestion + '</var> missing', errStr);
 		};
@@ -9058,7 +9058,7 @@ module.exports = function(jsmm) {
 		output += this.statementList.getRunCode() + '}; }';
 		return output;
 	};
-	
+
 	jsmm.nodes.Program.prototype.getRunFunction = function() {
 		/*jshint evil:true*/
 		return eval(this.getRunCode());
@@ -9084,7 +9084,7 @@ module.exports = function(jsmm) {
 	jsmm.nodes.Program.prototype.getCompareFunctionCode = function() {
 		return this.statementList.getCompareFunctionCode();
 	};
-	
+
 	/* statements */
 	jsmm.nodes.StatementList.prototype.getRunCode = function() {
 		var output = 'jsmmContext.increaseExecutionCounter(' + getNode(this.parent) + ', ' + (this.statements.length+1) + ');\n';
@@ -9125,22 +9125,22 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	/* statement */
 	jsmm.nodes.CommonSimpleStatement.prototype.getRunCode = function() {
 		return this.statement.getRunCode() + ";";
 	};
-	
+
 	/* identifier, symbol */
 	jsmm.nodes.PostfixStatement.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.symbol + '")';
 	};
-	
+
 	/* identifier, symbol, expression */
 	jsmm.nodes.AssignmentStatement.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.symbol + '", ' + this.expression.getRunCode() + ')';
 	};
-	
+
 	/* items */
 	jsmm.nodes.VarStatement.prototype.getRunCode = function() {
 		var output = this.items[0].getRunCode();
@@ -9149,7 +9149,7 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	/* name, assignment */
 	jsmm.nodes.VarItem.prototype.getRunCode = function() {
 		var output = getNode(this) + '.runFunc(jsmmContext, "' + this.name + '")';
@@ -9160,7 +9160,7 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	/* expression */
 	jsmm.nodes.ReturnStatement.prototype.getRunCode = function() {
 		var output = '';
@@ -9168,12 +9168,12 @@ module.exports = function(jsmm) {
 		output += 'return ' + getNode(this) + '.runFunc(jsmmContext, ' + expressonCode + ');';
 		return output;
 	};
-	
+
 	/* expression1, symbol, expression2 */
 	jsmm.nodes.BinaryExpression.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + this.expression1.getRunCode() + ', "' + this.symbol + '", ' + this.expression2.getRunCode() + ')';
 	};
-	
+
 	/* symbol, expression */
 	jsmm.nodes.UnaryExpression.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, "' + this.symbol + '", ' + this.expression.getRunCode() + ')';
@@ -9183,37 +9183,37 @@ module.exports = function(jsmm) {
 	jsmm.nodes.ParenExpression.prototype.getRunCode = function() {
 		return '(' + this.expression.getRunCode() + ')';
 	};
-	
+
 	/* number */
 	jsmm.nodes.NumberLiteral.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + this.number + ')';
 	};
-	
+
 	/* str */
 	jsmm.nodes.StringLiteral.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + JSON.stringify(this.str) + ')';
 	};
-	
+
 	/* bool */
 	jsmm.nodes.BooleanLiteral.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + (this.bool ? 'true' : 'false') + ')';
 	};
-	
+
 	/* name */
 	jsmm.nodes.NameIdentifier.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, "' + this.name + '")';
 	};
-	
+
 	/* identifier, prop */
 	jsmm.nodes.ObjectIdentifier.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', "' + this.prop + '")';
 	};
-	
+
 	/* identifier, expression */
 	jsmm.nodes.ArrayIdentifier.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', ' + this.expression.getRunCode() + ')';
 	};
-	
+
 	/* identifier, expressionArgs */
 	jsmm.nodes.FunctionCall.prototype.getRunCode = function() {
 		var output = getNode(this) + '.runFunc(jsmmContext, ' + this.identifier.getRunCode() + ', [';
@@ -9233,7 +9233,7 @@ module.exports = function(jsmm) {
 		}
 		return output + '])';
 	};
-	
+
 	/* expression, statementList, elseBlock */
 	jsmm.nodes.IfBlock.prototype.getRunCode = function() {
 		var output = 'if (' + getNode(this) + '.runFunc(jsmmContext, ' + this.expression.getRunCode() + ')) {\n';
@@ -9245,24 +9245,24 @@ module.exports = function(jsmm) {
 		}
 		return output;
 	};
-	
+
 	/* ifBlock */
 	jsmm.nodes.ElseIfBlock.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext);\n' + this.ifBlock.getRunCode();
 	};
-	
+
 	/* statementList */
 	jsmm.nodes.ElseBlock.prototype.getRunCode = function() {
 		return getNode(this) + '.runFunc(jsmmContext);\n' + this.statementList.getRunCode();
 	};
-	
+
 	/* expression, statementList */
 	jsmm.nodes.WhileBlock.prototype.getRunCode = function() {
 		var output = 'while (' + getNode(this) + '.runFunc(jsmmContext, '  + this.expression.getRunCode() + '))';
 		output += '{\n' + this.statementList.getRunCode() + '}';
 		return output;
 	};
-	
+
 	/* statement1, expression, statement2, statementList */
 	jsmm.nodes.ForBlock.prototype.getRunCode = function() {
 		var output = 'for (' + this.statement1.getRunCode() + '; ';
@@ -9270,7 +9270,7 @@ module.exports = function(jsmm) {
 		output += this.statement2.getRunCode() + ') {\n' + this.statementList.getRunCode() + '}';
 		return output;
 	};
-	
+
 	/* name, nameArgs, statementList */
 	jsmm.nodes.FunctionDeclaration.prototype.getRunCode = function() {
 		var output = getNode(this) + '.runFuncDecl(jsmmContext, "' + this.name + '", ';
@@ -9301,7 +9301,7 @@ module.exports = function(jsmm) {
 
 module.exports = function(jsmm) {
 	require('./jsmm.msg')(jsmm);
-	
+
 	jsmm.OldSimpleRunner = function() { return this.init.apply(this, arguments); };
 	jsmm.OldSimpleRunner.prototype = {
 		init: function(text, scope) {
@@ -9309,7 +9309,7 @@ module.exports = function(jsmm) {
 			this.scope = scope || {};
 			this.reset();
 		},
-		
+
 		reset: function() {
 			this.tree = null;
 			this.rawFunc = null;
@@ -9318,25 +9318,25 @@ module.exports = function(jsmm) {
 			this.stepPos = null;
 			this.resetError();
 		},
-		
+
 		resetError: function() {
 			this.error = null;
 		},
-		
+
 		setText: function(text) {
 			this.reset();
 			this.code = text;
 		},
-		
+
 		setScope: function(scope) {
 			this.reset();
 			this.scope = scope;
 		},
-		
+
 		getCode: function() {
 			return this.code;
 		},
-		
+
 		handleError: function(error) {
 			//console.log(error);
 			if (error.type === 'Error') {
@@ -9347,11 +9347,11 @@ module.exports = function(jsmm) {
 			}
 			//console.log(this.error);
 		},
-		
+
 		parse: function() {
 			this.resetError();
 			if (this.tree !== null) return true;
-			
+
 			try {
 				this.tree = new jsmm.Tree(this.code);
 				if (this.tree.hasError()) {
@@ -9388,11 +9388,11 @@ module.exports = function(jsmm) {
 			this.safeFunc = null;
 			this.tree.addHookAfterNode(node, func);
 		},
-		
+
 		getDot: function() {
 			this.resetError();
 			if (!this.parse()) return undefined;
-			
+
 			try {
 				return this.tree.programNode.getDot();
 			} catch (error) {
@@ -9400,11 +9400,11 @@ module.exports = function(jsmm) {
 				return undefined;
 			}
 		},
-		
+
 		getRawCode: function() {
 			this.resetError();
 			if (!this.parse()) return undefined;
-			
+
 			try {
 				return this.tree.programNode.getCode();
 			} catch (error) {
@@ -9412,12 +9412,12 @@ module.exports = function(jsmm) {
 				return undefined;
 			}
 		},
-		
+
 		makeRawFunc: function() {
 			this.resetError();
 			if (this.rawFunc !== null) return true;
 			if (!this.parse()) return false;
-			
+
 			try {
 				this.rawFunc = this.tree.programNode.getFunction(this.scope);
 				return true;
@@ -9426,11 +9426,11 @@ module.exports = function(jsmm) {
 				return false;
 			}
 		},
-		
+
 		runRaw: function() {
 			this.resetError();
 			if (!this.makeRawFunc()) return false;
-			
+
 			try {
 				this.rawFunc();
 				return true;
@@ -9439,11 +9439,11 @@ module.exports = function(jsmm) {
 				return false;
 			}
 		},
-		
+
 		getSafeCode: function() {
 			this.resetError();
 			if (!this.parse()) return undefined;
-			
+
 			try {
 				return this.tree.programNode.getRunCode();
 			} catch (error) {
@@ -9451,12 +9451,12 @@ module.exports = function(jsmm) {
 				return undefined;
 			}
 		},
-		
+
 		makeSafeFunc: function() {
 			this.resetError();
 			if (this.safeFunc !== null) return true;
 			if (!this.parse()) return false;
-			
+
 			try {
 				this.safeFunc = this.tree.programNode.getRunFunction();
 				return true;
@@ -9465,12 +9465,12 @@ module.exports = function(jsmm) {
 				return false;
 			}
 		},
-		
+
 		runSafe: function() {
 			this.resetError();
 			//if (!this.makeSafeFunc()) return false;
 			if (!this.parse()) return false;
-			
+
 			try {
 				//this.safeFunc(new jsmm.RunContext(this.tree, this.scope));
 				var context = new jsmm.Context(this.tree, new jsmm.Scope(this.scope), {
@@ -9489,7 +9489,7 @@ module.exports = function(jsmm) {
 				return false;
 			}
 		},
-		
+
 		stepInit: function() {
 			this.resetError();
 			if (!this.parse()) return false;
@@ -9502,17 +9502,17 @@ module.exports = function(jsmm) {
 				return false;
 			}
 		},
-		
+
 		stepNext: function() {
 			this.resetError();
-			
+
 			var ret = [];
 			try {
 				if (this.stack === null || !this.stack.hasNext()) return undefined;
-				
+
 				var msgs = this.stack.stepNext();
 				if (msgs.length <= 0) return undefined;
-				
+
 				for (var i=0; i<msgs.length; i++) {
 					if (msgs[i].type === 'Error') {
 						this.error = msgs[i];
@@ -9543,28 +9543,28 @@ module.exports = function(jsmm) {
 			}
 			return result;
 		},
-		
+
 		isStepping: function() {
 			return (this.stack !== null && this.stack.hasNext());
 		},
-		
+
 		runStep: function() {
 			this.resetError();
-			
+
 			if (this.stepInit()) {
 				var step;
 				do {
 					step = this.stepNext();
 				} while(step !== undefined);
 			}
-			
+
 			return !this.hasError();
 		},
-		
+
 		hasError: function() {
 			return this.error !== null;
 		},
-		
+
 		getError: function() {
 			return this.error;
 		},
@@ -10003,11 +10003,11 @@ module.exports = function(jsmm) {
 
 module.exports = function(jsmm) {
 	jsmm.test = {};
-	
+
 	jsmm.test.Console = function() {
 		this.result = '';
 	};
-	
+
 	jsmm.test.Console.prototype = {
 		log: function(str) {
 			this.result += str + '\n';
@@ -10030,7 +10030,7 @@ module.exports = function(jsmm) {
 			};
 		}
 	};
-	
+
 	jsmm.test.runAll = function() {
 		jsmm.test.output = '';
 		var failed = 0;
@@ -10060,14 +10060,14 @@ module.exports = function(jsmm) {
 		jsmm.test.output += name1 + ':\n' + JSON.stringify(error1) + '\n';
 		jsmm.test.output += 'code:\n' + code + '\n';
 	};
-	
+
 	jsmm.test.printError2 = function(name, name1, name2, error1, error2, code) {
 		jsmm.test.output += 'In test "' + name + '" ' + name1 + ' and ' + name2 + ' were incorrect.\n';
 		jsmm.test.output += name1 + ':\n' + JSON.stringify(error1) + '\n';
 		jsmm.test.output += name2 + ':\n' + JSON.stringify(error2) + '\n';
 		jsmm.test.output += 'code:\n' + code + '\n';
 	};
-	
+
 	jsmm.test.runTest = function(name, code, threeway, succeed) {
 		var consoleRaw = new jsmm.test.Console();
 		var consoleSafe = new jsmm.test.Console();
@@ -10076,40 +10076,40 @@ module.exports = function(jsmm) {
 		var errorSafe = null;
 		//var errorStep = null;
 		var runner = new jsmm.OldSimpleRunner(code);
-		
+
 		if (threeway) {
 			runner.setScope({console: consoleRaw});
 			if (!runner.runRaw()) {
 				errorRaw = runner.getError();
 			}
 		}
-		
+
 		runner.setScope({console: consoleSafe.getAugmentedObject()});
 		if (!runner.runSafe()) {
 			errorSafe = runner.getError();
 		}
-		
+
 		// runner.setScope({console: consoleStep});
 		// if (!runner.runStep()) {
 			// errorStep = runner.getError();
 		// }
-		
+
 		// when it should threeway we can compare against the raw result
 		if (threeway && !jsmm.test.compareErrors(errorRaw, errorSafe, succeed)) {
 			jsmm.test.printError2(name, 'errorRaw', 'errorSafe', errorRaw, errorSafe, code);
 			return false;
 		}
-		
+
 		// if (!jsmm.test.compareErrors(errorSafe, errorStep, succeed)) {
 			// jsmm.test.printError2(name, 'errorSafe', 'errorStep', errorSafe, errorStep, code);
 			// return false;
 		// }
-		
+
 		if (threeway && consoleRaw.result !== consoleSafe.result) {
 			jsmm.test.printError2(name, 'consoleRaw', 'consoleSafe', consoleRaw.result, consoleSafe.result, code);
 			return false;
 		}
-		
+
 		// if (consoleSafe.result !== consoleStep.result) {
 			// jsmm.test.printError2(name, 'consoleSafe', 'consoleStep', consoleSafe.result, consoleStep.result, code);
 			// return false;
@@ -10126,11 +10126,11 @@ module.exports = function(jsmm) {
 		}
 
 		// no need to check errorStep for null, since otherwise it would have been caught when comparing errors
-		
+
 		jsmm.test.output += 'Test "' + name + '" completed successfully!\n';
 		return true;
 	};
-	
+
 	jsmm.test.compareErrors = function(error1, error2) {
 		if (error1 === null && error2 === null) {
 			return true;
@@ -10142,9 +10142,9 @@ module.exports = function(jsmm) {
 			return error1.getHTML() === error2.getHTML();
 		}
 	};
-	
+
 	jsmm.test.tests = { succeed: {}, fail_threeway: {}, fail_twoway: {}};
-	
+
 	jsmm.test.tests.succeed.comments =
 	'// one line comment' + '\n' +
 	'var a;' + '\n' +
@@ -10156,7 +10156,7 @@ module.exports = function(jsmm) {
 	'and also // and ///*** and more! */' + '\n' +
 	'var a;' + '\n' +
 	'console.log("Hello world!");';
-	
+
 	jsmm.test.tests.succeed.assignments =
 	'// variable assignments' + '\n' +
 	'var a;' + '\n' +
@@ -10206,7 +10206,7 @@ module.exports = function(jsmm) {
 	'console.log(str);' + '\n' +
 	'//var len = str.length;' + '\n' +
 	'//console.log(len);';
-	
+
 	jsmm.test.tests.succeed.control =
 	'// control structures' + '\n' +
 	'var f=true, e=!f;' + '\n' +
@@ -10238,7 +10238,7 @@ module.exports = function(jsmm) {
 	'for (var j=0; j<10; j++) {' + '\n' +
 	'  console.log(j);' + '\n' +
 	'}';
-	
+
 	jsmm.test.tests.succeed.functions_simple =
 	'// functions simple' + '\n' +
 	'function f1(n) {' + '\n' +
@@ -10249,7 +10249,7 @@ module.exports = function(jsmm) {
 	'}' + '\n' +
 	'f1(10);' + '\n' +
 	'console.log(f2(20));';
-	
+
 	jsmm.test.tests.succeed.functions_complex =
 	'// functions complex' + '\n' +
 	'var a, b=100, c="test", d=1000;' + '\n' +
@@ -10273,7 +10273,7 @@ module.exports = function(jsmm) {
 	'}' + '\n' +
 	'var x=5, y=10, z=15;' + '\n' +
 	'f1(x,y,z, 8, 9, 10, "test", "blah", "more blah");';
-	
+
 	jsmm.test.tests.fail_threeway.missing_semicolon_1 = 'var a';
 	jsmm.test.tests.fail_threeway.missing_semicolon_2 = 'var a=5*5';
 	jsmm.test.tests.fail_threeway.missing_semicolon_3 = 'var a;\n a=5*5';
@@ -10309,7 +10309,7 @@ module.exports = function(jsmm) {
 	jsmm.test.tests.fail_threeway.reserved_word_7 = 'var NaN;';
 	jsmm.test.tests.fail_threeway.reserved_word_8 = 'var this;';
 	jsmm.test.tests.fail_threeway.reserved_word_9 = 'var arguments;';
-	
+
 	jsmm.test.tests.fail_twoway.unary_1 = 'console.log(+true);';
 	jsmm.test.tests.fail_twoway.unary_2 = 'console.log(-false);';
 	jsmm.test.tests.fail_twoway.unary_3 = 'console.log(+"string");';
@@ -10514,109 +10514,109 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 1: this.$ = new yy.nodes.Program(this._$, undefined, $$[$0-1]); return this.$; 
+case 1: this.$ = new yy.nodes.Program(this._$, undefined, $$[$0-1]); return this.$;
 break;
-case 2: this.$ = new yy.nodes.Program(this._$, undefined, $$[$0-1]); return this.$; 
+case 2: this.$ = new yy.nodes.Program(this._$, undefined, $$[$0-1]); return this.$;
 break;
-case 3: this.$ = new yy.nodes.StatementList(this._$, undefined); 
+case 3: this.$ = new yy.nodes.StatementList(this._$, undefined);
 break;
-case 4: this.$ = $$[$0-2]; this.$.addStatement($$[$0-1]); 
+case 4: this.$ = $$[$0-2]; this.$.addStatement($$[$0-1]);
 break;
-case 5: this.$ = $$[$0-2]; this.$.addStatement($$[$0-1]); 
+case 5: this.$ = $$[$0-2]; this.$.addStatement($$[$0-1]);
 break;
-case 6: this.$ = new yy.nodes.StatementList(this._$, undefined); 
+case 6: this.$ = new yy.nodes.StatementList(this._$, undefined);
 break;
-case 7: this.$ = $$[$0-2]; this.$.addStatement($$[$0-1]); 
+case 7: this.$ = $$[$0-2]; this.$.addStatement($$[$0-1]);
 break;
-case 8: this.$ = new yy.nodes.CommonSimpleStatement(this._$, undefined, $$[$0-1]); 
+case 8: this.$ = new yy.nodes.CommonSimpleStatement(this._$, undefined, $$[$0-1]);
 break;
-case 14: this.$ = new yy.nodes.PostfixStatement(this._$, undefined, $$[$0-2], $$[$0-1]+$$[$0-1]); 
+case 14: this.$ = new yy.nodes.PostfixStatement(this._$, undefined, $$[$0-2], $$[$0-1]+$$[$0-1]);
 break;
-case 15: this.$ = new yy.nodes.AssignmentStatement(this._$, undefined, $$[$0-2], "=", $$[$0]); 
+case 15: this.$ = new yy.nodes.AssignmentStatement(this._$, undefined, $$[$0-2], "=", $$[$0]);
 break;
-case 16: this.$ = new yy.nodes.AssignmentStatement(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 16: this.$ = new yy.nodes.AssignmentStatement(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]);
 break;
-case 17: this.$ = $$[$0]; 
+case 17: this.$ = $$[$0];
 break;
-case 18: this.$ = new yy.nodes.VarStatement(this._$, undefined); this.$.addVarItem($$[$0]); 
+case 18: this.$ = new yy.nodes.VarStatement(this._$, undefined); this.$.addVarItem($$[$0]);
 break;
-case 19: this.$ = $$[$0-2]; this.$.addVarItem($$[$0]); 
+case 19: this.$ = $$[$0-2]; this.$.addVarItem($$[$0]);
 break;
-case 20: this.$ = new yy.nodes.VarItem(this._$, undefined, $$[$0], null); 
+case 20: this.$ = new yy.nodes.VarItem(this._$, undefined, $$[$0], null);
 break;
 case 21:
 			this.$ = new yy.nodes.VarItem(this._$, undefined, $$[$0-2], new yy.nodes.AssignmentStatement(this._$, undefined, new yy.nodes.NameIdentifier(_$[$0-2], undefined, $$[$0-2]), "=", $$[$0]));
-		
+
 break;
-case 22: this.$ = new yy.nodes.ReturnStatement(this._$, undefined, null); 
+case 22: this.$ = new yy.nodes.ReturnStatement(this._$, undefined, null);
 break;
-case 23: this.$ = new yy.nodes.ReturnStatement(this._$, undefined, $$[$0-1]); 
+case 23: this.$ = new yy.nodes.ReturnStatement(this._$, undefined, $$[$0-1]);
 break;
-case 25: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 25: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]);
 break;
-case 27: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 27: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]);
 break;
-case 29: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 29: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]);
 break;
-case 31: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 31: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]);
 break;
-case 33: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]); 
+case 33: this.$ = new yy.nodes.BinaryExpression(this._$, undefined, $$[$0-2], $$[$0-1], $$[$0]);
 break;
-case 35: this.$ = new yy.nodes.UnaryExpression(this._$, undefined, $$[$0-1], $$[$0]); 
+case 35: this.$ = new yy.nodes.UnaryExpression(this._$, undefined, $$[$0-1], $$[$0]);
 break;
-case 36: this.$ = new yy.nodes.UnaryExpression(this._$, undefined, $$[$0-1], $$[$0]); 
+case 36: this.$ = new yy.nodes.UnaryExpression(this._$, undefined, $$[$0-1], $$[$0]);
 break;
-case 41: this.$ = new yy.nodes.ParenExpression(this._$, undefined, $$[$0-1]); 
+case 41: this.$ = new yy.nodes.ParenExpression(this._$, undefined, $$[$0-1]);
 break;
-case 42: this.$ = new yy.nodes.NumberLiteral(this._$, undefined, $$[$0]); 
+case 42: this.$ = new yy.nodes.NumberLiteral(this._$, undefined, $$[$0]);
 break;
-case 43: this.$ = new yy.nodes.StringLiteral(this._$, undefined, $$[$0]); 
+case 43: this.$ = new yy.nodes.StringLiteral(this._$, undefined, $$[$0]);
 break;
-case 44: this.$ = new yy.nodes.BooleanLiteral(this._$, undefined, true); 
+case 44: this.$ = new yy.nodes.BooleanLiteral(this._$, undefined, true);
 break;
-case 45: this.$ = new yy.nodes.BooleanLiteral(this._$, undefined, false); 
+case 45: this.$ = new yy.nodes.BooleanLiteral(this._$, undefined, false);
 break;
-case 46: this.$ = new yy.nodes.NameIdentifier(this._$, undefined, $$[$0]); 
+case 46: this.$ = new yy.nodes.NameIdentifier(this._$, undefined, $$[$0]);
 break;
-case 47: this.$ = new yy.nodes.ObjectIdentifier(this._$, undefined, $$[$0-2], $$[$0]); 
+case 47: this.$ = new yy.nodes.ObjectIdentifier(this._$, undefined, $$[$0-2], $$[$0]);
 break;
-case 48: this.$ = new yy.nodes.ArrayIdentifier(this._$, undefined, $$[$0-3], $$[$0-1]); 
+case 48: this.$ = new yy.nodes.ArrayIdentifier(this._$, undefined, $$[$0-3], $$[$0-1]);
 break;
-case 49: this.$ = new yy.nodes.FunctionCall(this._$, undefined, $$[$0-2], []); 
+case 49: this.$ = new yy.nodes.FunctionCall(this._$, undefined, $$[$0-2], []);
 break;
-case 50: this.$ = new yy.nodes.FunctionCall(this._$, undefined, $$[$0-3], $$[$0-1]); 
+case 50: this.$ = new yy.nodes.FunctionCall(this._$, undefined, $$[$0-3], $$[$0-1]);
 break;
-case 51: this.$ = [$$[$0]]; 
+case 51: this.$ = [$$[$0]];
 break;
-case 52: this.$ = $$[$0-2]; this.$.push($$[$0]); 
+case 52: this.$ = $$[$0-2]; this.$.push($$[$0]);
 break;
-case 53: this.$ = new yy.nodes.ArrayDefinition(this._$, undefined, []); 
+case 53: this.$ = new yy.nodes.ArrayDefinition(this._$, undefined, []);
 break;
-case 54: this.$ = new yy.nodes.ArrayDefinition(this._$, undefined, $$[$0-1]); 
+case 54: this.$ = new yy.nodes.ArrayDefinition(this._$, undefined, $$[$0-1]);
 break;
-case 55: this.$ = [$$[$0]]; 
+case 55: this.$ = [$$[$0]];
 break;
-case 56: this.$ = $$[$0-2]; this.$.push($$[$0]); 
+case 56: this.$ = $$[$0-2]; this.$.push($$[$0]);
 break;
-case 60: this.$ = new yy.nodes.IfBlock(this._$, _$[$0-5].last_column, $$[$0-6], $$[$0-2], $$[$0]); 
+case 60: this.$ = new yy.nodes.IfBlock(this._$, _$[$0-5].last_column, $$[$0-6], $$[$0-2], $$[$0]);
 break;
-case 61: this.$ = null; 
+case 61: this.$ = null;
 break;
-case 62: this.$ = new yy.nodes.ElseIfBlock(this._$, _$[$0-1].last_column, $$[$0]); 
+case 62: this.$ = new yy.nodes.ElseIfBlock(this._$, _$[$0-1].last_column, $$[$0]);
 break;
-case 63: this.$ = new yy.nodes.ElseBlock(this._$, _$[$0-4].last_column, $$[$0-1]); 
+case 63: this.$ = new yy.nodes.ElseBlock(this._$, _$[$0-4].last_column, $$[$0-1]);
 break;
-case 64: this.$ = new yy.nodes.WhileBlock(this._$, _$[$0-4].last_column, $$[$0-5], $$[$0-1]); 
+case 64: this.$ = new yy.nodes.WhileBlock(this._$, _$[$0-4].last_column, $$[$0-5], $$[$0-1]);
 break;
-case 65: this.$ = new yy.nodes.ForBlock(this._$, _$[$0-4].last_column, $$[$0-9], $$[$0-7], $$[$0-5], $$[$0-1]); 
+case 65: this.$ = new yy.nodes.ForBlock(this._$, _$[$0-4].last_column, $$[$0-9], $$[$0-7], $$[$0-5], $$[$0-1]);
 break;
-case 66: this.$ = new yy.nodes.FunctionDeclaration(this._$, _$[$0-4].last_column, $$[$0-6], [], $$[$0-1]); 
+case 66: this.$ = new yy.nodes.FunctionDeclaration(this._$, _$[$0-4].last_column, $$[$0-6], [], $$[$0-1]);
 break;
-case 67: this.$ = new yy.nodes.FunctionDeclaration(this._$, _$[$0-4].last_column, $$[$0-7], $$[$0-5], $$[$0-1]); 
+case 67: this.$ = new yy.nodes.FunctionDeclaration(this._$, _$[$0-4].last_column, $$[$0-7], $$[$0-5], $$[$0-1]);
 break;
-case 68: this.$ = [$$[$0]]; 
+case 68: this.$ = [$$[$0]];
 break;
-case 69: this.$ = $$[$0-2]; this.$.push($$[$0]); 
+case 69: this.$ = $$[$0-2]; this.$.push($$[$0]);
 break;
 }
 },
@@ -12287,14 +12287,14 @@ module.exports = function(output) {
 			$element.addClass('console-line-visible');
 			this.$lines.append($element);
 			this.mirror += $element[0].outerHTML;
-			
+
 			this.currentEvent.calls.push({
 				$element: $element,
 				stepNum: context.getStepNum(),
 				nodeId: context.getCallNodeId(),
 				callId: context.getCallId()
 			});
-			
+
 			if (this.currentEvent.$firstElement === null) {
 				this.currentEvent.$firstElement = $element;
 			}
@@ -12313,7 +12313,7 @@ module.exports = function(output) {
 				clear: true,
 				stepNum: context.getStepNum()
 			});
-			
+
 			if (this.debugToBrowser && console && console.clear) console.clear();
 		},
 
@@ -12827,7 +12827,7 @@ module.exports = function(output) {
 				throw 'You an only set events in the first run, not from another event';
 			}
 		},
-		
+
 		outputEndEvent: function() {
 			this.first = false;
 		},
@@ -14024,7 +14024,7 @@ module.exports = function(output) {
 			this.insertingAnimation = new output.RobotAnimation(this.$robot, this.$maze, this.blockSize);
 			return this.insertingAnimation;
 		},
-		
+
 		play: function(start, end) {
 			var newAnim = this.useNewAnimation();
 			if (newAnim || this.start !== start || this.end !== end) {
